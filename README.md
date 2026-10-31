@@ -24,21 +24,24 @@ This platform bridges that gap by providing an accessible, cost-effective, and i
   - 🪴 **Minimalist** (clean lines, uncluttered negative space)
   - 👑 **Luxury** (rich dark tones, brass accents, refined materials)
   - 🏛️ **Traditional** (warm wood grains, classic symmetry)
-- **Fluid 3D Controls & View Presets**:
+- **Fluid 3D Controls, View Presets & Interactive Walkthrough**:
   - Orbit, pan, and zoom with boundary constraints.
-  - One-click camera presets: **3D Orbit**, **2D Floor Plan**, **Front Elevation**, and **Eye-Level Walk-In**.
+  - One-click camera presets: **3D Orbit**, **2D Floor Plan**, **Front Elevation**, and **Interactive First-Person Walkthrough**.
+  - **First-Person Walkthrough Mode**: Walk inside your room at eye level using **WASD** or **Arrow Keys** with real-time room boundary detection.
   - **Cutaway Front Wall** mode so furniture is always visible without being blocked by front walls.
   - **Day / Night Lighting Toggle** to test lighting conditions across different times of day.
   - **Measurement Floor Grid** toggle for spatial accuracy.
-- **Interactive Object Inspector**:
+- **Interactive Object Inspector & Color Customizer**:
   - Click any 3D furniture item in the scene to select it.
+  - **Real-Time Color Customizer**: Live color picker to tint fabrics, woods, and surfaces of any selected furniture piece.
   - Real-time sliders to adjust position (X and Z coordinates).
-  - One-click 45° rotation and item deletion.
-  - Interactive catalog to add additional pieces (Sofas, Armchairs, Beds, Desks, Plants, Lamps, Rugs, Art).
-- **Project Persistence & Export**:
+  - **Keyboard Shortcuts**: Nudge furniture with Arrow Keys / WASD, press **R** to rotate 45°, and press **Delete/Backspace** to remove.
+  - Expanded interactive catalog with 19+ furniture pieces (Sofas, Armchairs, Beds, Desks, Plants, Lamps, Rugs, Art, **Double Wardrobes**, **Ceiling Pendant Lights**, **Floor Mirrors**, **Credenzas**, **Dual Monitor Gaming Desks**).
+- **Project Persistence & Professional PDF Export**:
   - Save and load unlimited project configurations in browser storage (`localStorage`).
   - Export and import designs as standalone JSON files.
   - High-resolution 3D canvas snapshot capture (`.png`).
+  - **Design Specification Report & Cost Estimator**: Generate and print formatted design proposals with 3D snapshots, room dimension schedules, material swatches, and itemized furniture budgets (`window.print` / Save to PDF).
 
 ---
 

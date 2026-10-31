@@ -716,4 +716,363 @@ export class FurnitureFactory {
 
     return group;
   }
+
+  // 15. WARDROBE / CLOSET
+  static createWardrobe(style = 'modern', color = 0x2b2d42) {
+    const group = new THREE.Group();
+    group.name = 'Wardrobe';
+    group.userData = { type: 'wardrobe', name: 'Double Wardrobe', cost: 850, color: color };
+
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: color,
+      roughness: style === 'luxury' ? 0.4 : 0.75,
+      metalness: style === 'luxury' ? 0.15 : 0.05
+    });
+
+    const handleMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0x1f2937,
+      metalness: style === 'luxury' ? 0.85 : 0.4,
+      roughness: 0.3
+    });
+
+    const plinthMat = new THREE.MeshStandardMaterial({
+      color: 0x1a1a24,
+      roughness: 0.8
+    });
+
+    const width = 1.4;
+    const height = 2.1;
+    const depth = 0.6;
+    const plinthH = 0.08;
+
+    // Plinth base
+    const plinth = this.createMesh(
+      new THREE.BoxGeometry(width - 0.04, plinthH, depth - 0.04),
+      plinthMat
+    );
+    plinth.position.y = plinthH / 2;
+    group.add(plinth);
+
+    // Main cabinet body
+    const bodyH = height - plinthH;
+    const body = this.createMesh(
+      new THREE.BoxGeometry(width, bodyH, depth),
+      bodyMat
+    );
+    body.position.y = plinthH + bodyH / 2;
+    group.add(body);
+
+    // Double front doors with bevel accent
+    const doorW = (width - 0.04) / 2;
+    const doorH = bodyH - 0.06;
+    [-1, 1].forEach(side => {
+      const doorGeom = new THREE.BoxGeometry(doorW - 0.01, doorH, 0.02);
+      const door = this.createMesh(doorGeom, bodyMat);
+      door.position.set(side * (doorW / 2 + 0.005), plinthH + bodyH / 2, depth / 2 + 0.01);
+      group.add(door);
+
+      // Vertical door handles
+      const handleGeom = new THREE.CylinderGeometry(0.01, 0.01, 0.4, 16);
+      const handle = this.createMesh(handleGeom, handleMat);
+      handle.position.set(side * 0.06, plinthH + bodyH / 2, depth / 2 + 0.03);
+      group.add(handle);
+    });
+
+    // Top crown trim
+    const trimGeom = new THREE.BoxGeometry(width + 0.04, 0.04, depth + 0.04);
+    const trim = this.createMesh(trimGeom, bodyMat);
+    trim.position.y = height + 0.02;
+    group.add(trim);
+
+    return group;
+  }
+
+  // 16. PENDANT CEILING LIGHT
+  static createPendantLight(style = 'modern') {
+    const group = new THREE.Group();
+    group.name = 'Pendant Light';
+    group.userData = { type: 'pendant_light', name: 'Pendant Ceiling Lamp', cost: 180 };
+
+    const metalMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0x1f2937,
+      metalness: style === 'luxury' ? 0.9 : 0.6,
+      roughness: 0.25
+    });
+
+    const shadeMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0x1a1a24 : 0xf8fafc,
+      roughness: 0.6,
+      metalness: 0.1
+    });
+
+    const glowMat = new THREE.MeshBasicMaterial({ color: 0xfff4db });
+
+    // Ceiling canopy plate (at ceiling height ~2.7m)
+    const canopy = this.createMesh(new THREE.CylinderGeometry(0.1, 0.1, 0.02, 24), metalMat);
+    canopy.position.y = 2.7;
+    group.add(canopy);
+
+    // Slim suspension cord
+    const cord = this.createMesh(new THREE.CylinderGeometry(0.004, 0.004, 0.9, 8), metalMat);
+    cord.position.y = 2.25;
+    group.add(cord);
+
+    // Lamp shade
+    const shade = this.createMesh(new THREE.CylinderGeometry(0.12, 0.32, 0.28, 32, 1, true), shadeMat);
+    shade.position.y = 1.72;
+    group.add(shade);
+
+    // Glowing bulb core
+    const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 16), glowMat);
+    bulb.position.y = 1.68;
+    group.add(bulb);
+
+    // Actual PointLight illuminating the room below
+    const light = new THREE.PointLight(0xfff1dc, 0.85, 4.5, 1.6);
+    light.position.y = 1.64;
+    light.castShadow = true;
+    light.shadow.bias = -0.001;
+    group.add(light);
+
+    return group;
+  }
+
+  // 17. STANDING FLOOR MIRROR
+  static createFloorMirror(style = 'modern') {
+    const group = new THREE.Group();
+    group.name = 'Floor Mirror';
+    group.userData = { type: 'floor_mirror', name: 'Full-Length Floor Mirror', cost: 240 };
+
+    const frameMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0x27272a,
+      metalness: style === 'luxury' ? 0.85 : 0.3,
+      roughness: 0.35
+    });
+
+    const mirrorMat = new THREE.MeshStandardMaterial({
+      color: 0xf1f5f9,
+      roughness: 0.04,
+      metalness: 0.95
+    });
+
+    const tiltAngle = 0.12; // ~7 degree lean
+    const mirrorW = 0.72;
+    const mirrorH = 1.85;
+
+    const frameGroup = new THREE.Group();
+
+    // Outer frame border
+    const frame = this.createMesh(
+      new THREE.BoxGeometry(mirrorW, mirrorH, 0.04),
+      frameMat
+    );
+    frameGroup.add(frame);
+
+    // Reflective mirror face
+    const pane = new THREE.Mesh(
+      new THREE.PlaneGeometry(mirrorW - 0.08, mirrorH - 0.08),
+      mirrorMat
+    );
+    pane.position.z = 0.021;
+    frameGroup.add(pane);
+
+    // Rear easel kickstand strut
+    const kickstand = this.createMesh(
+      new THREE.CylinderGeometry(0.012, 0.012, 1.4, 12),
+      frameMat
+    );
+    kickstand.position.set(0, -0.2, -0.3);
+    kickstand.rotation.x = -0.38;
+    frameGroup.add(kickstand);
+
+    // Apply lean tilt and lift to ground
+    frameGroup.rotation.x = -tiltAngle;
+    frameGroup.position.set(0, (mirrorH / 2) * Math.cos(tiltAngle), 0.1);
+    group.add(frameGroup);
+
+    return group;
+  }
+
+  // 18. CREDENZA / SIDEBOARD
+  static createCredenza(style = 'modern', woodColor = 0x5c4033) {
+    const group = new THREE.Group();
+    group.name = 'Credenza';
+    group.userData = { type: 'credenza', name: 'Credenza Sideboard', cost: 650, color: woodColor };
+
+    const woodMat = new THREE.MeshStandardMaterial({
+      color: woodColor,
+      roughness: 0.65,
+      metalness: 0.1
+    });
+
+    const brassMat = new THREE.MeshStandardMaterial({
+      color: 0xd4af37,
+      metalness: 0.85,
+      roughness: 0.3
+    });
+
+    const width = 1.8;
+    const height = 0.65;
+    const depth = 0.44;
+    const legH = 0.2;
+
+    // Main cabinet body
+    const cabinet = this.createMesh(
+      new THREE.BoxGeometry(width, height, depth),
+      woodMat
+    );
+    cabinet.position.y = legH + height / 2;
+    group.add(cabinet);
+
+    // 3 Front panel doors
+    const doorW = (width - 0.04) / 3;
+    const doorH = height - 0.04;
+    [-1, 0, 1].forEach(i => {
+      const panel = this.createMesh(
+        new THREE.BoxGeometry(doorW - 0.01, doorH, 0.015),
+        woodMat
+      );
+      panel.position.set(i * doorW, legH + height / 2, depth / 2 + 0.01);
+      group.add(panel);
+
+      // Minimalist brass pull
+      const pull = this.createMesh(
+        new THREE.CylinderGeometry(0.008, 0.008, 0.06, 12),
+        brassMat
+      );
+      pull.rotation.x = Math.PI / 2;
+      pull.position.set(i * doorW + (i === 1 ? 0 : (i === -1 ? 0.15 : -0.15)), legH + height / 2, depth / 2 + 0.025);
+      group.add(pull);
+    });
+
+    // 4 Mid-century tapered legs
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([xDir, zDir]) => {
+      const leg = this.createMesh(
+        new THREE.CylinderGeometry(0.015, 0.025, legH, 16),
+        brassMat
+      );
+      leg.position.set(xDir * (width / 2 - 0.12), legH / 2, zDir * (depth / 2 - 0.08));
+      leg.rotation.z = xDir * -0.08;
+      group.add(leg);
+    });
+
+    // Decorative ceramic vase on top
+    const vaseMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.3 });
+    const vase = this.createMesh(new THREE.CylinderGeometry(0.04, 0.08, 0.24, 16), vaseMat);
+    vase.position.set(-width / 3, legH + height + 0.12, 0);
+    group.add(vase);
+
+    return group;
+  }
+
+  // 19. DUAL MONITOR GAMING DESK
+  static createGamingDesk(style = 'modern') {
+    const group = new THREE.Group();
+    group.name = 'Gaming Desk';
+    group.userData = { type: 'gaming_desk', name: 'Dual Monitor Gaming Desk', cost: 980 };
+
+    const topMat = new THREE.MeshStandardMaterial({
+      color: 0x18181b,
+      roughness: 0.5,
+      metalness: 0.2
+    });
+
+    const frameMat = new THREE.MeshStandardMaterial({
+      color: 0x27272a,
+      metalness: 0.7,
+      roughness: 0.4
+    });
+
+    const screenMat = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      emissive: 0x1e293b,
+      roughness: 0.3,
+      metalness: 0.1
+    });
+
+    const rgbMat = new THREE.MeshBasicMaterial({ color: 0x6366f1 });
+
+    const deskW = 1.5;
+    const deskD = 0.75;
+    const deskH = 0.74;
+
+    // Desktop surface
+    const top = this.createMesh(new THREE.BoxGeometry(deskW, 0.035, deskD), topMat);
+    top.position.y = deskH;
+    group.add(top);
+
+    // Sturdy steel K-legs
+    [-1, 1].forEach(side => {
+      const legGeom = new THREE.BoxGeometry(0.05, deskH, deskD - 0.1);
+      const leg = this.createMesh(legGeom, frameMat);
+      leg.position.set(side * (deskW / 2 - 0.06), deskH / 2, 0);
+      group.add(leg);
+
+      const foot = this.createMesh(new THREE.BoxGeometry(0.06, 0.02, deskD), frameMat);
+      foot.position.set(side * (deskW / 2 - 0.06), 0.01, 0);
+      group.add(foot);
+    });
+
+    // Cross brace
+    const brace = this.createMesh(new THREE.BoxGeometry(deskW - 0.15, 0.04, 0.04), frameMat);
+    brace.position.set(0, deskH * 0.4, -deskD / 2 + 0.1);
+    group.add(brace);
+
+    // Dual Monitor Mount Pole & Crossbar
+    const pole = this.createMesh(new THREE.CylinderGeometry(0.02, 0.02, 0.45, 16), frameMat);
+    pole.position.set(0, deskH + 0.22, -deskD / 2 + 0.12);
+    group.add(pole);
+
+    const crossArm = this.createMesh(new THREE.BoxGeometry(0.8, 0.03, 0.03), frameMat);
+    crossArm.position.set(0, deskH + 0.32, -deskD / 2 + 0.14);
+    group.add(crossArm);
+
+    // Dual 27-inch monitors angled slightly inward
+    [-1, 1].forEach(side => {
+      const monGroup = new THREE.Group();
+      // Monitor bezel
+      const bezel = this.createMesh(new THREE.BoxGeometry(0.55, 0.33, 0.02), frameMat);
+      monGroup.add(bezel);
+      // Screen
+      const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.53, 0.31), screenMat);
+      screen.position.z = 0.012;
+      monGroup.add(screen);
+
+      monGroup.position.set(side * 0.3, deskH + 0.32, -deskD / 2 + 0.17);
+      monGroup.rotation.y = -side * 0.14; // Inward curved angle
+      group.add(monGroup);
+    });
+
+    // Desk Mat
+    const matGeom = new THREE.BoxGeometry(0.8, 0.005, 0.35);
+    const deskMat = this.createMesh(matGeom, new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.9 }));
+    deskMat.position.set(0, deskH + 0.02, 0.08);
+    group.add(deskMat);
+
+    // Mechanical Keyboard
+    const kbGeom = new THREE.BoxGeometry(0.35, 0.015, 0.13);
+    const kb = this.createMesh(kbGeom, new THREE.MeshStandardMaterial({ color: 0x374151, roughness: 0.5 }));
+    kb.position.set(-0.06, deskH + 0.03, 0.08);
+    group.add(kb);
+
+    // Mouse
+    const mouseGeom = new THREE.BoxGeometry(0.06, 0.025, 0.1);
+    const mouse = this.createMesh(mouseGeom, new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.4 }));
+    mouse.position.set(0.22, deskH + 0.03, 0.08);
+    group.add(mouse);
+
+    // PC Tower on side floor stand
+    const pcGroup = new THREE.Group();
+    const pcCase = this.createMesh(new THREE.BoxGeometry(0.22, 0.45, 0.46), frameMat);
+    pcCase.position.set(deskW / 2 + 0.16, 0.23, 0);
+    pcGroup.add(pcCase);
+
+    // RGB Light accent strip on PC
+    const rgbStrip = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.4, 0.01), rgbMat);
+    rgbStrip.position.set(deskW / 2 + 0.27, 0.23, 0.2);
+    pcGroup.add(rgbStrip);
+    group.add(pcGroup);
+
+    return group;
+  }
 }

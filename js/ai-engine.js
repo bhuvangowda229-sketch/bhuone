@@ -137,15 +137,27 @@ export class AIEngine {
       // Bookshelf along side wall if room is wide enough
       if (W >= 4.0) {
         items.push({
-          id: 'bookshelf_1',
-          type: 'bookshelf',
-          name: 'Display Bookshelf',
+          id: 'credenza_1',
+          type: 'credenza',
+          name: 'Storage Credenza',
           position: [W / 2 - 0.35, 0, 0.3],
           rotation: [0, -Math.PI / 2, 0],
           style: style,
-          cost: 480
+          color: palette.woodColor,
+          cost: 650
         });
       }
+
+      // Overhead Pendant Light
+      items.push({
+        id: 'pendant_1',
+        type: 'pendant_light',
+        name: 'Overhead Pendant Light',
+        position: [0, 0, sofaZ + 1.1],
+        rotation: [0, 0, 0],
+        style: style,
+        cost: 180
+      });
     } else if (roomType === 'bedroom') {
       concept = `${style.toUpperCase()} SERENITY RETREAT`;
       spatialRationale = `The bed serves as the foundational anchor along the solid back wall, maximizing peace and alignment with Feng Shui principles. Symmetrical nightstands flank each side, while generous clearance ensures easy wardrobe access.`;
@@ -208,15 +220,38 @@ export class AIEngine {
         cost: 280
       });
 
-      // Wardrobe / Bookshelf storage on right wall
+      // Built-in Double Wardrobe along right wall
       items.push({
-        id: 'bookshelf_1',
-        type: 'bookshelf',
-        name: 'Wardrobe / Shelving',
-        position: [W / 2 - 0.35, 0, 0.4],
+        id: 'wardrobe_1',
+        type: 'wardrobe',
+        name: 'Double Wardrobe',
+        position: [W / 2 - 0.4, 0, 0.3],
         rotation: [0, -Math.PI / 2, 0],
         style: style,
-        cost: 520
+        color: palette.sofaColor,
+        cost: 850
+      });
+
+      // Standing Floor Mirror in corner
+      items.push({
+        id: 'mirror_1',
+        type: 'floor_mirror',
+        name: 'Full-Length Floor Mirror',
+        position: [-W / 2 + 0.8, 0, L / 2 - 0.8],
+        rotation: [0, Math.PI / 4, 0],
+        style: style,
+        cost: 240
+      });
+
+      // Ceiling Pendant Light
+      items.push({
+        id: 'pendant_1',
+        type: 'pendant_light',
+        name: 'Designer Pendant Light',
+        position: [0, 0, bedZ + 0.4],
+        rotation: [0, 0, 0],
+        style: style,
+        cost: 180
       });
 
       // Indoor Plant in corner
@@ -224,7 +259,7 @@ export class AIEngine {
         id: 'plant_1',
         type: 'plant',
         name: 'Fiddle Leaf Fig',
-        position: [-W / 2 + 0.6, 0, L / 2 - 0.8],
+        position: [-W / 2 + 0.6, 0, -L / 2 + 0.7],
         rotation: [0, 0, 0],
         style: style,
         cost: 85
@@ -234,15 +269,20 @@ export class AIEngine {
       spatialRationale = `The workstation is positioned perpendicular to the window to invite abundant daylight while avoiding monitor reflection. An ergonomic chair and open shelving provide ergonomic comfort and organized storage.`;
       lightingPlan = `Focused task lighting on work surface combined with daylight simulation for alertness and eye comfort.`;
 
-      // Desk
+      // Desk (detect gaming or default executive)
+      const isGaming = (customNotes || '').toLowerCase().includes('game') || (customNotes || '').toLowerCase().includes('gaming');
+      const deskType = isGaming ? 'gaming_desk' : 'desk';
+      const deskName = isGaming ? 'Dual Monitor Battlestation' : 'Executive Workstation';
+      const deskCost = isGaming ? 980 : 620;
+
       items.push({
         id: 'desk_1',
-        type: 'desk',
-        name: 'Executive Workstation',
+        type: deskType,
+        name: deskName,
         position: [0, 0, 0],
         rotation: [0, 0, 0],
         style: style,
-        cost: 620
+        cost: deskCost
       });
 
       // Ergonomic Chair behind desk
@@ -341,13 +381,28 @@ export class AIEngine {
         cost: 290
       });
 
-      // Bookshelf / Credenza on right wall
+      // Ceiling Pendant Light above dining table
       items.push({
-        id: 'bookshelf_1',
-        type: 'bookshelf',
-        name: 'Dining Sideboard / Storage',
+        id: 'pendant_1',
+        type: 'pendant_light',
+        name: 'Dining Chandelier / Pendant',
+        position: [0, 0, 0],
+        rotation: [0, 0, 0],
+        style: style,
+        cost: 180
+      });
+
+      // Credenza Buffet / Sideboard on right wall
+      items.push({
+        id: 'credenza_1',
+        type: 'credenza',
+        name: 'Buffet Credenza / Sideboard',
         position: [W / 2 - 0.35, 0, 0],
         rotation: [0, -Math.PI / 2, 0],
+        style: style,
+        color: palette.woodColor,
+        cost: 650
+      });
         style: style,
         cost: 490
       });

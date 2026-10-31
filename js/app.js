@@ -13,11 +13,15 @@ class App {
     this.isDaylight = true;
     this.currentStyle = 'modern';
     this.geminiApiKey = localStorage.getItem('ai_interior_gemini_key') || '';
+    this.isWalkthrough = false;
+    this.keysDown = {};
+    this.currentRoomDimensions = { width: 5.0, length: 4.5, height: 2.8 };
 
     this.initScene();
     this.initLights();
     this.initRoom();
     this.initRaycasting();
+    this.initKeyboardControls();
     this.initUI();
     this.initProjects();
 
@@ -130,6 +134,73 @@ class App {
     });
   }
 
+  // 4b. KEYBOARD CONTROLS FOR OBJECT NUDGE & ROTATION
+  initKeyboardControls() {
+    window.addEventListener('keydown', (e) => {
+      this.keysDown[e.code] = true;
+
+      // Ignore hotkeys when typing in input/textarea/select
+      const activeEl = document.activeElement;
+      const tag = activeEl ? activeEl.tagName.toLowerCase() : '';
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
+      if (this.selectedObject && !this.isWalkthrough) {
+        let step = e.shiftKey ? 0.25 : 0.1;
+
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
+          e.preventDefault();
+          this.selectedObject.position.x -= step;
+          this.syncInspectorPosition();
+        } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
+          e.preventDefault();
+          this.selectedObject.position.x += step;
+          this.syncInspectorPosition();
+        } else if (e.code === 'ArrowUp' || e.code === 'KeyW') {
+          e.preventDefault();
+          this.selectedObject.position.z -= step;
+          this.syncInspectorPosition();
+        } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+          e.preventDefault();
+          this.selectedObject.position.z += step;
+          this.syncInspectorPosition();
+        } else if (e.code === 'KeyR') {
+          e.preventDefault();
+          this.selectedObject.rotation.y += Math.PI / 4;
+        } else if (e.code === 'Delete' || e.code === 'Backspace') {
+          e.preventDefault();
+          this.deleteSelectedObject();
+        } else if (e.code === 'Escape') {
+          e.preventDefault();
+          this.deselectObject();
+        }
+      } else if (e.code === 'Escape' && this.isWalkthrough) {
+        this.setCameraPreset('3d');
+        document.querySelectorAll('[data-view]').forEach(b => b.classList.remove('active'));
+        document.querySelector('[data-view="3d"]')?.classList.add('active');
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      this.keysDown[e.code] = false;
+    });
+  }
+
+  syncInspectorPosition() {
+    if (!this.selectedObject) return;
+    const posX = document.getElementById('inspect-pos-x');
+    const posZ = document.getElementById('inspect-pos-z');
+    if (posX) posX.value = this.selectedObject.position.x;
+    if (posZ) posZ.value = this.selectedObject.position.z;
+  }
+
+  deleteSelectedObject() {
+    if (this.selectedObject) {
+      this.furnitureGroup.remove(this.selectedObject);
+      this.deselectObject();
+      this.showToast('Object removed from room');
+    }
+  }
+
   selectObject(obj) {
     this.deselectObject();
     this.selectedObject = obj;
@@ -139,11 +210,32 @@ class App {
     const title = document.getElementById('inspector-title');
     const posX = document.getElementById('inspect-pos-x');
     const posZ = document.getElementById('inspect-pos-z');
+    const colorInput = document.getElementById('inspect-item-color');
+    const colorHex = document.getElementById('inspect-item-color-hex');
 
     popup.style.display = 'flex';
     title.textContent = obj.name || 'Selected Object';
     posX.value = obj.position.x;
     posZ.value = obj.position.z;
+
+    // Extract current color
+    let hexStr = '#6366f1';
+    if (obj.userData?.color) {
+      if (typeof obj.userData.color === 'string') {
+        hexStr = obj.userData.color.startsWith('#') ? obj.userData.color : `#${obj.userData.color}`;
+      } else if (typeof obj.userData.color === 'number') {
+        hexStr = `#${obj.userData.color.toString(16).padStart(6, '0')}`;
+      }
+    } else {
+      obj.traverse(child => {
+        if (child.isMesh && child.material && child.material.color && child.material.metalness < 0.6 && !child.material.map) {
+          hexStr = `#${child.material.color.getHexString()}`;
+        }
+      });
+    }
+
+    if (colorInput) colorInput.value = hexStr;
+    if (colorHex) colorHex.textContent = hexStr.toUpperCase();
 
     this.showToast(`Selected: ${obj.name}`);
   }
@@ -248,6 +340,28 @@ class App {
       if (this.selectedObject) this.selectedObject.position.z = parseFloat(e.target.value);
     });
 
+    // Inspector Color Customizer
+    const inspectColor = document.getElementById('inspect-item-color');
+    if (inspectColor) {
+      inspectColor.addEventListener('input', (e) => {
+        if (!this.selectedObject) return;
+        const hex = e.target.value;
+        const hexLabel = document.getElementById('inspect-item-color-hex');
+        if (hexLabel) hexLabel.textContent = hex.toUpperCase();
+        this.selectedObject.userData.color = hex;
+
+        const newColor = new THREE.Color(hex);
+        this.selectedObject.traverse(child => {
+          if (child.isMesh && child.material) {
+            const mat = child.material;
+            // Recolor body/upholstery/wood materials; leave metal/glass/bulbs intact
+            if (mat.metalness > 0.75 || mat.isMeshBasicMaterial || mat.map) return;
+            mat.color.copy(newColor);
+          }
+        });
+      });
+    }
+
     document.getElementById('btn-rotate-object').addEventListener('click', () => {
       if (this.selectedObject) {
         this.selectedObject.rotation.y += Math.PI / 4;
@@ -303,6 +417,30 @@ class App {
       this.captureSnapshot();
     });
 
+    // Exit Walkthrough HUD Button
+    const exitWalkBtn = document.getElementById('btn-exit-walk');
+    if (exitWalkBtn) {
+      exitWalkBtn.addEventListener('click', () => {
+        this.setCameraPreset('3d');
+        document.querySelectorAll('[data-view]').forEach(b => b.classList.remove('active'));
+        document.querySelector('[data-view="3d"]')?.classList.add('active');
+      });
+    }
+
+    // Design Specification Report Modal Handlers
+    const reportModal = document.getElementById('report-modal');
+    document.getElementById('btn-export-report')?.addEventListener('click', () => {
+      this.openDesignReport();
+    });
+
+    document.getElementById('btn-print-report')?.addEventListener('click', () => {
+      window.print();
+    });
+
+    document.getElementById('btn-close-report')?.addEventListener('click', () => {
+      reportModal?.classList.remove('open');
+    });
+
     // Gemini API Modal
     const apiModal = document.getElementById('api-modal');
     document.getElementById('btn-api-key').addEventListener('click', () => {
@@ -320,30 +458,41 @@ class App {
     });
   }
 
-  // 6. CAMERA PRESETS
+  // 6. CAMERA PRESETS & WALKTHROUGH
   setCameraPreset(mode) {
-    switch (mode) {
-      case 'top':
-        // Top-down Floor Plan
-        this.camera.position.set(0, 9.0, 0.001);
-        this.controls.target.set(0, 0, 0);
-        break;
-      case 'front':
-        // Front elevation
-        this.camera.position.set(0, 1.8, 6.5);
-        this.controls.target.set(0, 1.4, 0);
-        break;
-      case 'walk':
-        // Eye-level walk-in view
-        this.camera.position.set(0, 1.4, 2.0);
-        this.controls.target.set(0, 1.3, -1.5);
-        break;
-      case '3d':
-      default:
-        // Free 3D Orbit
-        this.camera.position.set(0, 4.5, 6.8);
-        this.controls.target.set(0, 1.0, 0);
-        break;
+    const hud = document.getElementById('walkthrough-hud');
+    if (mode === 'walk') {
+      this.isWalkthrough = true;
+      if (hud) hud.style.display = 'block';
+      this.camera.position.set(0, 1.6, 1.6);
+      this.controls.target.set(0, 1.55, -0.6);
+      this.controls.maxPolarAngle = Math.PI - 0.05;
+      this.controls.minDistance = 0.05;
+      this.showToast('Walkthrough active! Use WASD or Arrow Keys to walk');
+    } else {
+      this.isWalkthrough = false;
+      if (hud) hud.style.display = 'none';
+      this.controls.maxPolarAngle = Math.PI / 2 - 0.02;
+      this.controls.minDistance = 2.0;
+
+      switch (mode) {
+        case 'top':
+          // Top-down Floor Plan
+          this.camera.position.set(0, 9.0, 0.001);
+          this.controls.target.set(0, 0, 0);
+          break;
+        case 'front':
+          // Front elevation
+          this.camera.position.set(0, 1.8, 6.5);
+          this.controls.target.set(0, 1.4, 0);
+          break;
+        case '3d':
+        default:
+          // Free 3D Orbit
+          this.camera.position.set(0, 4.5, 6.8);
+          this.controls.target.set(0, 1.0, 0);
+          break;
+      }
     }
     this.controls.update();
   }
@@ -367,6 +516,7 @@ class App {
     };
 
     // 1. Rebuild room architecture with new dimensions and style
+    this.currentRoomDimensions = pref.dimensions;
     this.roomBuilder.buildRoom(pref.dimensions, 0xfaf5ee, pref.flooring);
 
     // 2. Clear old furniture
@@ -377,6 +527,7 @@ class App {
 
     // 3. Generate AI recommendations
     const designPlan = await AIEngine.generateDesign(pref, this.geminiApiKey);
+    this.lastDesignPlan = designPlan;
 
     // Apply wall color from plan
     if (designPlan.wallColorHex) {
@@ -481,6 +632,21 @@ class App {
         const [w, l] = itemData.dimensions || [2.4, 1.8];
         meshGroup = FurnitureFactory.createRug(w, l, style);
         break;
+      case 'wardrobe':
+        meshGroup = FurnitureFactory.createWardrobe(style, itemData.color);
+        break;
+      case 'pendant_light':
+        meshGroup = FurnitureFactory.createPendantLight(style);
+        break;
+      case 'floor_mirror':
+        meshGroup = FurnitureFactory.createFloorMirror(style);
+        break;
+      case 'credenza':
+        meshGroup = FurnitureFactory.createCredenza(style, itemData.color);
+        break;
+      case 'gaming_desk':
+        meshGroup = FurnitureFactory.createGamingDesk(style);
+        break;
       default:
         meshGroup = FurnitureFactory.createCoffeeTable(style);
         break;
@@ -494,7 +660,7 @@ class App {
     }
   }
 
-  // 9. SNAPSHOT EXPORT
+  // 9. SNAPSHOT & DESIGN REPORT EXPORT
   captureSnapshot() {
     this.renderer.render(this.scene, this.camera);
     const dataURL = this.canvas.toDataURL('image/png');
@@ -503,6 +669,119 @@ class App {
     link.href = dataURL;
     link.click();
     this.showToast('High-resolution 3D snapshot saved!');
+  }
+
+  openDesignReport() {
+    const reportModal = document.getElementById('report-modal');
+    const reportBody = document.getElementById('report-body-content');
+    if (!reportModal || !reportBody) return;
+
+    // Capture current 3D canvas snapshot
+    this.renderer.render(this.scene, this.camera);
+    const snapshotUrl = this.canvas.toDataURL('image/png');
+
+    const projectName = document.getElementById('project-name-input')?.value || 'Interior Design Project';
+    const roomType = document.getElementById('room-type')?.value || 'living_room';
+    const roomTypeLabel = roomType.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const w = parseFloat(document.getElementById('room-w')?.value) || 5.0;
+    const l = parseFloat(document.getElementById('room-l')?.value) || 4.5;
+    const h = parseFloat(document.getElementById('room-h')?.value) || 2.8;
+    const areaSqM = (w * l).toFixed(1);
+    const areaSqFt = ((w * l) * 10.7639).toFixed(0);
+    const flooring = document.getElementById('flooring-select')?.value || 'wood_oak';
+    const flooringLabel = flooring.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const lighting = document.getElementById('lighting-select')?.value || 'warm_ambient';
+    const lightingLabel = lighting.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const wallColor = document.getElementById('wall-color-picker')?.value || '#faf5ee';
+
+    // Compute total cost and schedule of all placed furniture
+    let totalCost = 0;
+    const itemsList = this.furnitureGroup.children.map((child, idx) => {
+      const cost = child.userData?.cost || 150;
+      totalCost += cost;
+      return {
+        id: idx + 1,
+        name: child.name || child.userData?.name || 'Furniture Item',
+        type: (child.userData?.type || 'furniture').replace('_', ' '),
+        posX: child.position.x.toFixed(2),
+        posZ: child.position.z.toFixed(2),
+        cost: cost
+      };
+    });
+
+    const dateStr = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+
+    reportBody.innerHTML = `
+      <div class="report-grid-top">
+        <div class="report-preview-box">
+          <img src="${snapshotUrl}" alt="3D Space Snapshot" class="report-preview-img">
+        </div>
+        <div>
+          <table class="report-specs-table">
+            <tr><td>Project Name</td><td>${projectName}</td></tr>
+            <tr><td>Date Created</td><td>${dateStr}</td></tr>
+            <tr><td>Room Classification</td><td>${roomTypeLabel} (${this.currentStyle.toUpperCase()})</td></tr>
+            <tr><td>Dimensions (W × L × H)</td><td>${w}m × ${l}m × ${h}m</td></tr>
+            <tr><td>Floor Area</td><td>${areaSqM} m² (${areaSqFt} sq ft)</td></tr>
+            <tr><td>Flooring Surface</td><td>${flooringLabel}</td></tr>
+            <tr><td>Lighting Strategy</td><td>${lightingLabel}</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <h4 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 6px;">Palette & Material Accent Swatches</h4>
+        <div class="report-swatch-list">
+          <div class="report-swatch-card">
+            <div class="report-swatch-color" style="background: ${wallColor};"></div>
+            <div><div style="font-size: 11px; font-weight: 600;">Wall Paint</div><div style="font-size: 10px; color: var(--text-dim);">${wallColor}</div></div>
+          </div>
+          <div class="report-swatch-card">
+            <div class="report-swatch-color" style="background: #3d4451;"></div>
+            <div><div style="font-size: 11px; font-weight: 600;">Primary Fabric</div><div style="font-size: 10px; color: var(--text-dim);">#3D4451</div></div>
+          </div>
+          <div class="report-swatch-card">
+            <div class="report-swatch-color" style="background: #8b5a2b;"></div>
+            <div><div style="font-size: 11px; font-weight: 600;">Wood Grain</div><div style="font-size: 10px; color: var(--text-dim);">#8B5A2B</div></div>
+          </div>
+          <div class="report-swatch-card">
+            <div class="report-swatch-color" style="background: #d4af37;"></div>
+            <div><div style="font-size: 11px; font-weight: 600;">Metallic Accents</div><div style="font-size: 10px; color: var(--text-dim);">#D4AF37</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 10px;">
+          <h4 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Itemized Fixture Schedule (${itemsList.length} Items)</h4>
+          <div style="font-size: 16px; font-weight: 700; color: #10b981;">Total: $${totalCost.toLocaleString()}</div>
+        </div>
+        <table class="report-items-table">
+          <thead>
+            <tr>
+              <th style="width: 40px;">#</th>
+              <th>Item Name</th>
+              <th>Category</th>
+              <th>Room Coordinates (X, Z)</th>
+              <th style="text-align: right;">Est. Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsList.map(item => `
+              <tr>
+                <td>${item.id}</td>
+                <td><strong>${item.name}</strong></td>
+                <td style="text-transform: capitalize;">${item.type}</td>
+                <td>X: ${item.posX}m, Z: ${item.posZ}m</td>
+                <td style="text-align: right; font-weight: 600;">$${item.cost}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    reportModal.classList.add('open');
   }
 
   // 10. PROJECT STORAGE & PERSISTENCE
@@ -671,9 +950,50 @@ class App {
     }, 2800);
   }
 
-  // 12. ANIMATION LOOP
+  // 12. ANIMATION LOOP WITH INTERACTIVE WALKTHROUGH
   animate() {
     requestAnimationFrame(this.animate);
+
+    if (this.isWalkthrough) {
+      const moveSpeed = 0.05;
+      const forward = new THREE.Vector3();
+      this.camera.getWorldDirection(forward);
+      forward.y = 0;
+      forward.normalize();
+
+      const right = new THREE.Vector3();
+      right.crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
+
+      let moved = false;
+      if (this.keysDown['KeyW'] || this.keysDown['ArrowUp']) {
+        this.camera.position.addScaledVector(forward, moveSpeed);
+        moved = true;
+      }
+      if (this.keysDown['KeyS'] || this.keysDown['ArrowDown']) {
+        this.camera.position.addScaledVector(forward, -moveSpeed);
+        moved = true;
+      }
+      if (this.keysDown['KeyA'] || this.keysDown['ArrowLeft']) {
+        this.camera.position.addScaledVector(right, -moveSpeed);
+        moved = true;
+      }
+      if (this.keysDown['KeyD'] || this.keysDown['ArrowRight']) {
+        this.camera.position.addScaledVector(right, moveSpeed);
+        moved = true;
+      }
+
+      // Constrain within room boundary
+      const halfW = ((this.currentRoomDimensions && this.currentRoomDimensions.width) || 5.0) / 2 - 0.4;
+      const halfL = ((this.currentRoomDimensions && this.currentRoomDimensions.length) || 4.5) / 2 - 0.4;
+      this.camera.position.x = Math.max(-halfW, Math.min(halfW, this.camera.position.x));
+      this.camera.position.z = Math.max(-halfL, Math.min(halfL, this.camera.position.z));
+      this.camera.position.y = 1.6; // Constant eye level
+
+      if (moved) {
+        this.controls.target.copy(this.camera.position).add(forward.clone().multiplyScalar(2.0));
+      }
+    }
+
     this.controls.update();
     this.renderer.render(this.scene, this.camera);
   }
