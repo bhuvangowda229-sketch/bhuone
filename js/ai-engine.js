@@ -403,9 +403,6 @@ export class AIEngine {
         color: palette.woodColor,
         cost: 650
       });
-        style: style,
-        cost: 490
-      });
 
       // Plant
       items.push({
