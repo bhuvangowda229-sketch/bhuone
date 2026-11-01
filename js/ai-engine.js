@@ -232,17 +232,6 @@ export class AIEngine {
         cost: 850
       });
 
-      // Standing Floor Mirror in corner
-      items.push({
-        id: 'mirror_1',
-        type: 'floor_mirror',
-        name: 'Full-Length Floor Mirror',
-        position: [-W / 2 + 0.8, 0, L / 2 - 0.8],
-        rotation: [0, Math.PI / 4, 0],
-        style: style,
-        cost: 240
-      });
-
       // Ceiling Pendant Light
       items.push({
         id: 'pendant_1',
