@@ -499,7 +499,7 @@ export class FurnitureFactory {
 
     const legMat = new THREE.MeshStandardMaterial({
       color: style === 'luxury' ? 0xd4af37 : 0x1f2937,
-      metalness: 0.6,
+      metalness: 0.85,
       roughness: 0.3
     });
 
@@ -538,7 +538,7 @@ export class FurnitureFactory {
 
     const legMat = new THREE.MeshStandardMaterial({
       color: style === 'luxury' ? 0xd4af37 : 0x1f2937,
-      metalness: 0.6,
+      metalness: 0.85,
       roughness: 0.3
     });
 

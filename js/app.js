@@ -13,7 +13,7 @@ class App {
     this.selectedPart = null;
     this.selectedTarget = null;
     this.selectedObject = null;
-    this.editMode = 'part'; // 'part' | 'whole'
+    this.editMode = 'whole'; // 'whole' | 'part'
     this.isDragging = false;
     this.dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
     this.dragOffset = new THREE.Vector3();
@@ -140,15 +140,17 @@ class App {
       if (intersects.length > 0) {
         const clickedMesh = intersects[0].object;
         let rootObj = clickedMesh;
-        let chairGroup = null;
+        let chairSubGroup = null;
         let curr = clickedMesh;
+
+        // Climb up the hierarchy to find the root furniture item or nested chair group
         while (curr.parent && curr.parent !== this.furnitureGroup) {
-          if (curr.name && curr.name.toLowerCase().includes('chair')) {
-            chairGroup = curr;
+          if (curr.type === 'Group' && (curr.userData?.type === 'dining_chair' || curr.userData?.type === 'office_chair' || (curr.name && curr.name.toLowerCase().includes('chair') && !curr.isMesh))) {
+            chairSubGroup = curr;
           }
           curr = curr.parent;
         }
-        rootObj = chairGroup || curr;
+        rootObj = chairSubGroup || curr;
 
         this.selectTarget(rootObj, clickedMesh);
 
@@ -185,11 +187,18 @@ class App {
         const targetWorld = planeIntersect.sub(this.dragOffset);
 
         if (this.editMode === 'whole' || this.selectedTarget === this.selectedRoot) {
+          let posX = targetWorld.x;
+          let posZ = targetWorld.z;
+          if (this.selectedTarget.parent && this.selectedTarget.parent !== this.furnitureGroup && this.selectedTarget.parent !== this.scene) {
+            const localPos = this.selectedTarget.parent.worldToLocal(targetWorld.clone());
+            posX = localPos.x;
+            posZ = localPos.z;
+          }
           // Constrain within room bounds
           const halfW = (this.currentRoomDimensions?.width || 5.0) / 2 - 0.25;
           const halfL = (this.currentRoomDimensions?.length || 4.5) / 2 - 0.25;
-          this.selectedTarget.position.x = Math.max(-halfW, Math.min(halfW, targetWorld.x));
-          this.selectedTarget.position.z = Math.max(-halfL, Math.min(halfL, targetWorld.z));
+          this.selectedTarget.position.x = Math.max(-halfW, Math.min(halfW, posX));
+          this.selectedTarget.position.z = Math.max(-halfL, Math.min(halfL, posZ));
         } else {
           // Convert world pos to parent local coordinates for single part
           if (this.selectedTarget.parent) {
@@ -217,6 +226,9 @@ class App {
 
   // 4b. SELECTION COORDINATOR
   selectTarget(rootObj, clickedMesh) {
+    if (this.selectedRoot !== rootObj) {
+      this.editMode = 'whole';
+    }
     this.selectedRoot = rootObj;
     this.selectedPart = clickedMesh;
     this.selectedObject = rootObj; // compatibility
@@ -230,9 +242,9 @@ class App {
   }
 
   updateTargetByMode() {
-    if (!this.selectedRoot || !this.selectedPart) return;
+    if (!this.selectedRoot) return;
 
-    this.selectedTarget = this.editMode === 'part' ? this.selectedPart : this.selectedRoot;
+    this.selectedTarget = (this.editMode === 'part' && this.selectedPart) ? this.selectedPart : this.selectedRoot;
     this.selectedObject = this.selectedTarget;
 
     const popup = document.getElementById('inspector-popup');
@@ -387,7 +399,11 @@ class App {
       this.showToast(`Removed part: ${pName}`);
     } else if (this.selectedRoot) {
       const rName = this.selectedRoot.name;
-      this.furnitureGroup.remove(this.selectedRoot);
+      if (this.selectedRoot.parent) {
+        this.selectedRoot.parent.remove(this.selectedRoot);
+      } else {
+        this.furnitureGroup.remove(this.selectedRoot);
+      }
       this.deselectObject();
       this.showToast(`Removed item: ${rName}`);
     }
@@ -964,6 +980,7 @@ class App {
     if (meshGroup) {
       if (itemData.position) meshGroup.position.set(...itemData.position);
       if (itemData.rotation) meshGroup.rotation.set(...itemData.rotation);
+      if (itemData.name) meshGroup.name = itemData.name;
       meshGroup.userData = { ...meshGroup.userData, ...itemData };
       this.furnitureGroup.add(meshGroup);
     }
