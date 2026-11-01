@@ -30,9 +30,6 @@
       <button class="btn btn-sm" id="btn-api-key" title="Configure Gemini AI Key">
         <span>🔑</span> AI Key
       </button>
-      <button class="btn btn-sm" id="btn-save-project">
-        <span>💾</span> Save
-      </button>
       <button class="btn btn-sm" id="btn-export-json">
         <span>📤</span> Export JSON
       </button>
@@ -65,9 +62,6 @@
         </button>
         <button class="tab-btn" data-tab="tab-catalog">
           <span>🛋️</span> Catalog
-        </button>
-        <button class="tab-btn" data-tab="tab-projects">
-          <span>📁</span> Projects
         </button>
       </nav>
 
@@ -207,8 +201,7 @@
 
           <div class="section-card">
             <div class="section-title">
-              <span>Suggested Furniture & Budget</span>
-              <span id="ai-total-budget" style="color: var(--accent-emerald); font-weight: 700;">$0</span>
+              <span>Suggested Furniture & Fixtures</span>
             </div>
             <div class="items-checklist" id="ai-items-checklist">
               <!-- Item rows populated here -->
@@ -272,33 +265,6 @@
             <div class="section-title">Room Operations</div>
             <button class="btn btn-danger btn-sm" id="btn-clear-furniture">
               <span>🗑️</span> Clear All Furniture
-            </button>
-          </div>
-        </div>
-
-        <!-- TAB 4: SAVED PROJECTS -->
-        <div class="tab-pane" id="tab-projects">
-          <div class="section-card">
-            <div class="section-title">Project Management</div>
-            <div class="form-group">
-              <label for="project-name-input">Project Name</label>
-              <input type="text" id="project-name-input" class="form-control" value="My Dream Living Room">
-            </div>
-            <button class="btn btn-primary btn-sm" id="btn-save-as-new">Save Current Design</button>
-          </div>
-
-          <div class="section-card">
-            <div class="section-title">Saved Designs</div>
-            <div id="saved-projects-list" style="display: flex; flex-direction: column; gap: 8px;">
-              <!-- Saved items populated by JS -->
-            </div>
-          </div>
-
-          <div class="section-card">
-            <div class="section-title">Import Design File</div>
-            <input type="file" id="file-import-json" accept=".json" style="display: none;">
-            <button class="btn btn-sm" id="btn-trigger-import">
-              <span>📥</span> Load from JSON File
             </button>
           </div>
         </div>

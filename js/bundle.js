@@ -3515,7 +3515,8 @@ class App {
     document.getElementById('ai-concept-desc').textContent = designPlan.description;
     document.getElementById('ai-spatial-text').textContent = designPlan.spatialRationale;
     document.getElementById('ai-lighting-text').textContent = designPlan.lightingPlan;
-    document.getElementById('ai-total-budget').textContent = `$${designPlan.totalEstimatedCost.toLocaleString()}`;
+    const budgetEl = document.getElementById('ai-total-budget');
+    if (budgetEl) budgetEl.textContent = '';
 
     // Color Swatches
     const chipsContainer = document.getElementById('palette-chips-container');
@@ -3534,7 +3535,7 @@ class App {
       chipsContainer.appendChild(chip);
     });
 
-    // Items Checklist
+    // Items Checklist (Display item name and placement category without costs)
     const checklist = document.getElementById('ai-items-checklist');
     checklist.innerHTML = '';
     designPlan.items.forEach(item => {
@@ -3545,7 +3546,7 @@ class App {
           <strong>${item.name}</strong>
           <span style="color: var(--text-dim); margin-left: 6px;">${item.style}</span>
         </div>
-        <span class="badge">$${item.cost}</span>
+        <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc; text-transform: capitalize;">${(item.type || 'fixture').replace('_', ' ')}</span>
       `;
       checklist.appendChild(row);
     });
@@ -3698,7 +3699,7 @@ class App {
     this.renderer.render(this.scene, this.camera);
     const snapshotUrl = this.canvas.toDataURL('image/png');
 
-    const projectName = document.getElementById('project-name-input')?.value || 'Interior Design Project';
+    const conceptTitle = `${this.currentStyle.toUpperCase()} Interior Layout`;
     const roomType = document.getElementById('room-type')?.value || 'living_room';
     const roomTypeLabel = roomType.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
     const w = parseFloat(document.getElementById('room-w')?.value) || 5.0;
@@ -3712,18 +3713,14 @@ class App {
     const lightingLabel = lighting.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
     const wallColor = document.getElementById('wall-color-picker')?.value || '#faf5ee';
 
-    // Compute total cost and schedule of all placed furniture
-    let totalCost = 0;
+    // Schedule of all placed furniture
     const itemsList = this.furnitureGroup.children.map((child, idx) => {
-      const cost = child.userData?.cost || 150;
-      totalCost += cost;
       return {
         id: idx + 1,
         name: child.name || child.userData?.name || 'Furniture Item',
         type: (child.userData?.type || 'furniture').replace('_', ' '),
         posX: child.position.x.toFixed(2),
-        posZ: child.position.z.toFixed(2),
-        cost: cost
+        posZ: child.position.z.toFixed(2)
       };
     });
 
@@ -3736,7 +3733,7 @@ class App {
         </div>
         <div>
           <table class="report-specs-table">
-            <tr><td>Project Name</td><td>${projectName}</td></tr>
+            <tr><td>Design Concept</td><td>${conceptTitle}</td></tr>
             <tr><td>Date Created</td><td>${dateStr}</td></tr>
             <tr><td>Room Classification</td><td>${roomTypeLabel} (${this.currentStyle.toUpperCase()})</td></tr>
             <tr><td>Dimensions (W × L × H)</td><td>${w}m × ${l}m × ${h}m</td></tr>
@@ -3772,7 +3769,6 @@ class App {
       <div>
         <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 10px;">
           <h4 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Itemized Fixture Schedule (${itemsList.length} Items)</h4>
-          <div style="font-size: 16px; font-weight: 700; color: #10b981;">Total: $${totalCost.toLocaleString()}</div>
         </div>
         <table class="report-items-table">
           <thead>
@@ -3781,7 +3777,6 @@ class App {
               <th>Item Name</th>
               <th>Category</th>
               <th>Room Coordinates (X, Z)</th>
-              <th style="text-align: right;">Est. Cost</th>
             </tr>
           </thead>
           <tbody>
@@ -3791,7 +3786,6 @@ class App {
                 <td><strong>${item.name}</strong></td>
                 <td style="text-transform: capitalize;">${item.type}</td>
                 <td>X: ${item.posX}m, Z: ${item.posZ}m</td>
-                <td style="text-align: right; font-weight: 600;">$${item.cost}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -3806,36 +3800,36 @@ class App {
   initProjects() {
     this.renderSavedProjectsList();
 
-    // Save as new project
-    document.getElementById('btn-save-as-new').addEventListener('click', () => {
-      const name = document.getElementById('project-name-input').value.trim() || 'My Interior Project';
+    // Save as new design
+    document.getElementById('btn-save-as-new')?.addEventListener('click', () => {
+      const name = document.getElementById('project-name-input')?.value?.trim() || 'My Interior Design';
       this.saveProject(name);
     });
 
-    document.getElementById('btn-save-project').addEventListener('click', () => {
-      const name = document.getElementById('project-name-input').value.trim() || 'My Interior Project';
+    document.getElementById('btn-save-project')?.addEventListener('click', () => {
+      const name = document.getElementById('project-name-input')?.value?.trim() || 'My Interior Design';
       this.saveProject(name);
     });
 
     // Export JSON
-    document.getElementById('btn-export-json').addEventListener('click', () => {
+    document.getElementById('btn-export-json')?.addEventListener('click', () => {
       const projectData = this.getCurrentProjectData();
       const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.download = `interior-project-${Date.now()}.json`;
+      link.download = `interior-design-${Date.now()}.json`;
       link.href = url;
       link.click();
       URL.revokeObjectURL(url);
-      this.showToast('Exported project JSON');
+      this.showToast('Exported design JSON');
     });
 
     // Import JSON
     const fileInput = document.getElementById('file-import-json');
-    document.getElementById('btn-trigger-import').addEventListener('click', () => {
-      fileInput.click();
+    document.getElementById('btn-trigger-import')?.addEventListener('click', () => {
+      fileInput?.click();
     });
-    fileInput.addEventListener('change', (e) => {
+    fileInput?.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
@@ -3843,7 +3837,7 @@ class App {
         try {
           const data = JSON.parse(event.target.result);
           this.loadProjectData(data);
-          this.showToast('Imported project successfully!');
+          this.showToast('Imported design successfully!');
         } catch (err) {
           this.showToast('Failed to parse JSON file');
         }
@@ -3854,24 +3848,23 @@ class App {
 
   getCurrentProjectData() {
     return {
-      name: document.getElementById('project-name-input').value,
-      roomType: document.getElementById('room-type').value,
+      name: document.getElementById('project-name-input')?.value || 'My Interior Design',
+      roomType: document.getElementById('room-type')?.value || 'living_room',
       dimensions: {
-        width: parseFloat(document.getElementById('room-w').value),
-        length: parseFloat(document.getElementById('room-l').value),
-        height: parseFloat(document.getElementById('room-h').value)
+        width: parseFloat(document.getElementById('room-w')?.value) || 5.0,
+        length: parseFloat(document.getElementById('room-l')?.value) || 4.5,
+        height: parseFloat(document.getElementById('room-h')?.value) || 2.8
       },
       style: this.currentStyle,
-      colorScheme: document.getElementById('color-scheme').value,
-      flooring: document.getElementById('flooring-select').value,
-      lighting: document.getElementById('lighting-select').value,
-      wallColor: document.getElementById('wall-color-picker').value,
+      colorScheme: document.getElementById('color-scheme')?.value || 'warm_neutral',
+      flooring: document.getElementById('flooring-select')?.value || 'wood_oak',
+      lighting: document.getElementById('lighting-select')?.value || 'warm_ambient',
+      wallColor: document.getElementById('wall-color-picker')?.value || '#faf5ee',
       furniture: this.furnitureGroup.children.map(child => ({
         type: child.userData?.type || 'furniture',
         name: child.name,
         position: [child.position.x, child.position.y, child.position.z],
-        rotation: [child.rotation.x, child.rotation.y, child.rotation.z],
-        cost: child.userData?.cost || 0
+        rotation: [child.rotation.x, child.rotation.y, child.rotation.z]
       }))
     };
   }
@@ -3881,11 +3874,12 @@ class App {
     projects[name] = this.getCurrentProjectData();
     localStorage.setItem('ai_interior_projects', JSON.stringify(projects));
     this.renderSavedProjectsList();
-    this.showToast(`Saved project: "${name}"`);
+    this.showToast(`Saved design: "${name}"`);
   }
 
   renderSavedProjectsList() {
     const container = document.getElementById('saved-projects-list');
+    if (!container) return;
     container.innerHTML = '';
     const projects = JSON.parse(localStorage.getItem('ai_interior_projects') || '{}');
     const names = Object.keys(projects);
