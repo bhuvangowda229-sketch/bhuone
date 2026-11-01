@@ -9,7 +9,14 @@ class App {
     this.furnitureGroup = new THREE.Group();
     this.furnitureGroup.name = 'FurnitureGroup';
     this.furnitureList = [];
+    this.selectedRoot = null;
+    this.selectedPart = null;
+    this.selectedTarget = null;
     this.selectedObject = null;
+    this.editMode = 'part'; // 'part' | 'whole'
+    this.isDragging = false;
+    this.dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    this.dragOffset = new THREE.Vector3();
     this.isDaylight = true;
     this.currentStyle = 'modern';
     this.geminiApiKey = localStorage.getItem('ai_interior_gemini_key') || '';
@@ -66,6 +73,15 @@ class App {
 
     this.scene.add(this.furnitureGroup);
 
+    // Bounding Box Selection Highlight Helper
+    this.selectionHelper = new THREE.BoxHelper(new THREE.Mesh(), 0x38bdf8);
+    this.selectionHelper.name = 'SelectionBox';
+    this.selectionHelper.material.depthTest = false;
+    this.selectionHelper.material.transparent = true;
+    this.selectionHelper.material.opacity = 0.9;
+    this.selectionHelper.visible = false;
+    this.scene.add(this.selectionHelper);
+
     window.addEventListener('resize', () => {
       const w = this.canvas.clientWidth;
       const h = this.canvas.clientHeight;
@@ -107,12 +123,13 @@ class App {
     this.roomBuilder = new RoomBuilder(this.scene);
   }
 
-  // 4. RAYCASTING & OBJECT SELECTION
+  // 4. RAYCASTING, 3D MOUSE DRAGGING & SELECTION
   initRaycasting() {
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
 
     this.canvas.addEventListener('pointerdown', (e) => {
+      if (this.isWalkthrough) return;
       const rect = this.canvas.getBoundingClientRect();
       this.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       this.mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -121,20 +138,266 @@ class App {
       const intersects = this.raycaster.intersectObjects(this.furnitureGroup.children, true);
 
       if (intersects.length > 0) {
-        // Find top-level furniture group
-        let obj = intersects[0].object;
-        while (obj.parent && obj.parent !== this.furnitureGroup) {
-          obj = obj.parent;
+        const clickedMesh = intersects[0].object;
+        let rootObj = clickedMesh;
+        while (rootObj.parent && rootObj.parent !== this.furnitureGroup) {
+          rootObj = rootObj.parent;
         }
-        this.selectObject(obj);
+
+        this.selectTarget(rootObj, clickedMesh);
+
+        // Initiate 3D Plane Dragging
+        this.isDragging = true;
+        this.controls.enabled = false;
+
+        const targetWorldPos = new THREE.Vector3();
+        this.selectedTarget.getWorldPosition(targetWorldPos);
+        this.dragPlane.set(new THREE.Vector3(0, 1, 0), -targetWorldPos.y);
+
+        const planeIntersect = new THREE.Vector3();
+        if (this.raycaster.ray.intersectPlane(this.dragPlane, planeIntersect)) {
+          this.dragOffset.copy(planeIntersect).sub(targetWorldPos);
+        }
       } else {
-        // Clicked empty space
-        this.deselectObject();
+        if (!this.isDragging) {
+          this.deselectObject();
+        }
       }
+    });
+
+    this.canvas.addEventListener('pointermove', (e) => {
+      if (!this.isDragging || !this.selectedTarget || this.isWalkthrough) return;
+
+      const rect = this.canvas.getBoundingClientRect();
+      this.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      this.mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      this.raycaster.setFromCamera(this.mouse, this.camera);
+      const planeIntersect = new THREE.Vector3();
+
+      if (this.raycaster.ray.intersectPlane(this.dragPlane, planeIntersect)) {
+        const targetWorld = planeIntersect.sub(this.dragOffset);
+
+        if (this.editMode === 'whole' || this.selectedTarget === this.selectedRoot) {
+          // Constrain within room bounds
+          const halfW = (this.currentRoomDimensions?.width || 5.0) / 2 - 0.25;
+          const halfL = (this.currentRoomDimensions?.length || 4.5) / 2 - 0.25;
+          this.selectedTarget.position.x = Math.max(-halfW, Math.min(halfW, targetWorld.x));
+          this.selectedTarget.position.z = Math.max(-halfL, Math.min(halfL, targetWorld.z));
+        } else {
+          // Convert world pos to parent local coordinates for single part
+          if (this.selectedTarget.parent) {
+            const localPos = this.selectedTarget.parent.worldToLocal(targetWorld.clone());
+            this.selectedTarget.position.x = localPos.x;
+            this.selectedTarget.position.z = localPos.z;
+          }
+        }
+
+        this.syncInspectorPosition();
+        if (this.selectionHelper) this.selectionHelper.update();
+      }
+    });
+
+    const stopDrag = () => {
+      if (this.isDragging) {
+        this.isDragging = false;
+        if (!this.isWalkthrough) this.controls.enabled = true;
+      }
+    };
+
+    this.canvas.addEventListener('pointerup', stopDrag);
+    this.canvas.addEventListener('pointercancel', stopDrag);
+  }
+
+  // 4b. SELECTION COORDINATOR
+  selectTarget(rootObj, clickedMesh) {
+    this.selectedRoot = rootObj;
+    this.selectedPart = clickedMesh;
+    this.selectedObject = rootObj; // compatibility
+
+    // Cache original local position on part for reset capability
+    if (!clickedMesh.userData.origPos) {
+      clickedMesh.userData.origPos = clickedMesh.position.clone();
+    }
+
+    this.updateTargetByMode();
+  }
+
+  updateTargetByMode() {
+    if (!this.selectedRoot || !this.selectedPart) return;
+
+    this.selectedTarget = this.editMode === 'part' ? this.selectedPart : this.selectedRoot;
+    this.selectedObject = this.selectedTarget;
+
+    const popup = document.getElementById('inspector-popup');
+    const title = document.getElementById('inspector-title');
+    const subtitle = document.getElementById('inspector-subtitle');
+    const btnPart = document.getElementById('btn-mode-part');
+    const btnWhole = document.getElementById('btn-mode-whole');
+
+    popup.style.display = 'flex';
+    title.textContent = this.selectedRoot.name || 'Furniture Item';
+    if (subtitle) {
+      const partName = this.getPartName(this.selectedPart);
+      subtitle.textContent = this.editMode === 'part'
+        ? `Editing Part: ${partName}`
+        : `Editing Entire: ${this.selectedRoot.name}`;
+      subtitle.style.color = this.editMode === 'part' ? '#10b981' : '#6366f1';
+    }
+
+    if (btnPart) btnPart.classList.toggle('active', this.editMode === 'part');
+    if (btnWhole) btnWhole.classList.toggle('active', this.editMode === 'whole');
+
+    // Update 3D Selection Box
+    if (this.selectionHelper) {
+      this.selectionHelper.setFromObject(this.selectedTarget);
+      this.selectionHelper.visible = true;
+      this.selectionHelper.update();
+    }
+
+    this.syncInspectorPosition();
+    this.syncInspectorColor();
+  }
+
+  getPartName(mesh) {
+    if (!mesh) return 'Part';
+    if (mesh.name && mesh.name !== 'Part' && mesh.name !== '') return mesh.name;
+    if (mesh.geometry) {
+      if (mesh.geometry.type === 'CylinderGeometry') return 'Leg / Pillar';
+      if (mesh.geometry.type === 'SphereGeometry') return 'Bulb / Sphere';
+      if (mesh.geometry.type === 'PlaneGeometry') return 'Surface / Cushion';
+      if (mesh.geometry.type === 'BoxGeometry') {
+        const p = mesh.geometry.parameters;
+        if (p && p.height < 0.1 && p.width > 0.5) return 'Top / Base Panel';
+        if (p && p.height > 0.4 && p.depth < 0.25) return 'Backrest / Door';
+        return 'Cushion / Block';
+      }
+    }
+    return 'Component';
+  }
+
+  syncInspectorPosition() {
+    if (!this.selectedTarget) return;
+    const posX = document.getElementById('inspect-pos-x');
+    const posY = document.getElementById('inspect-pos-y');
+    const posZ = document.getElementById('inspect-pos-z');
+    const valX = document.getElementById('val-pos-x');
+    const valY = document.getElementById('val-pos-y');
+    const valZ = document.getElementById('val-pos-z');
+
+    const x = this.selectedTarget.position.x;
+    const y = this.selectedTarget.position.y;
+    const z = this.selectedTarget.position.z;
+
+    if (posX) posX.value = x;
+    if (posY) posY.value = y;
+    if (posZ) posZ.value = z;
+
+    if (valX) valX.textContent = `${x >= 0 ? '+' : ''}${x.toFixed(2)}m`;
+    if (valY) valY.textContent = `${y >= 0 ? '+' : ''}${y.toFixed(2)}m`;
+    if (valZ) valZ.textContent = `${z >= 0 ? '+' : ''}${z.toFixed(2)}m`;
+  }
+
+  syncInspectorColor() {
+    if (!this.selectedTarget) return;
+    const colorInput = document.getElementById('inspect-item-color');
+    const colorHex = document.getElementById('inspect-item-color-hex');
+
+    let hexStr = '#6366F1';
+    let targetMesh = this.editMode === 'part' ? this.selectedPart : null;
+
+    if (!targetMesh) {
+      this.selectedRoot.traverse(child => {
+        if (!targetMesh && child.isMesh && child.material && child.material.color && child.material.metalness < 0.7 && !child.material.map) {
+          targetMesh = child;
+        }
+      });
+    }
+
+    if (targetMesh && targetMesh.material) {
+      const mat = Array.isArray(targetMesh.material) ? targetMesh.material[0] : targetMesh.material;
+      if (mat && mat.color) {
+        hexStr = '#' + mat.color.getHexString().toUpperCase();
+      }
+    }
+
+    if (colorInput) colorInput.value = hexStr.toLowerCase();
+    if (colorHex) colorHex.textContent = hexStr.toUpperCase();
+
+    // Update active state on quick swatches
+    document.querySelectorAll('.quick-swatch').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.color.toUpperCase() === hexStr.toUpperCase());
     });
   }
 
-  // 4b. KEYBOARD CONTROLS FOR OBJECT NUDGE & ROTATION
+  applyColorToTarget(hex) {
+    if (!this.selectedTarget) return;
+    const threeColor = new THREE.Color(hex);
+    const colorInput = document.getElementById('inspect-item-color');
+    const colorHex = document.getElementById('inspect-item-color-hex');
+
+    if (colorInput) colorInput.value = hex.toLowerCase();
+    if (colorHex) colorHex.textContent = hex.toUpperCase();
+
+    document.querySelectorAll('.quick-swatch').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.color.toUpperCase() === hex.toUpperCase());
+    });
+
+    if (this.editMode === 'part' && this.selectedPart) {
+      // Clone material so only THIS single part gets recolored
+      if (this.selectedPart.material) {
+        if (Array.isArray(this.selectedPart.material)) {
+          this.selectedPart.material = this.selectedPart.material.map(m => m.clone());
+          this.selectedPart.material.forEach(m => m.color.copy(threeColor));
+        } else {
+          this.selectedPart.material = this.selectedPart.material.clone();
+          this.selectedPart.material.color.copy(threeColor);
+        }
+        this.selectedPart.userData.customColor = hex;
+      }
+      this.showToast(`Color changed: ${this.getPartName(this.selectedPart)} (${hex.toUpperCase()})`);
+    } else if (this.selectedRoot) {
+      // Recolor entire piece
+      this.selectedRoot.userData.color = hex;
+      this.selectedRoot.traverse(child => {
+        if (child.isMesh && child.material) {
+          const mat = child.material;
+          if (mat.metalness > 0.75 || mat.isMeshBasicMaterial || mat.map) return;
+          child.material = child.material.clone();
+          child.material.color.copy(threeColor);
+          child.userData.customColor = hex;
+        }
+      });
+      this.showToast(`Color changed: ${this.selectedRoot.name} (${hex.toUpperCase()})`);
+    }
+  }
+
+  deleteSelectedTarget() {
+    if (!this.selectedTarget) return;
+    if (this.editMode === 'part' && this.selectedPart && this.selectedPart.parent) {
+      const pName = this.getPartName(this.selectedPart);
+      this.selectedPart.parent.remove(this.selectedPart);
+      this.deselectObject();
+      this.showToast(`Removed part: ${pName}`);
+    } else if (this.selectedRoot) {
+      const rName = this.selectedRoot.name;
+      this.furnitureGroup.remove(this.selectedRoot);
+      this.deselectObject();
+      this.showToast(`Removed item: ${rName}`);
+    }
+  }
+
+  deselectObject() {
+    this.selectedRoot = null;
+    this.selectedPart = null;
+    this.selectedTarget = null;
+    this.selectedObject = null;
+    if (this.selectionHelper) this.selectionHelper.visible = false;
+    const popup = document.getElementById('inspector-popup');
+    if (popup) popup.style.display = 'none';
+  }
+
+  // 4c. KEYBOARD CONTROLS FOR OBJECT & PART NUDGE & ROTATION
   initKeyboardControls() {
     window.addEventListener('keydown', (e) => {
       this.keysDown[e.code] = true;
@@ -144,31 +407,48 @@ class App {
       const tag = activeEl ? activeEl.tagName.toLowerCase() : '';
       if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
 
-      if (this.selectedObject && !this.isWalkthrough) {
-        let step = e.shiftKey ? 0.25 : 0.1;
+      if (this.selectedTarget && !this.isWalkthrough) {
+        let step = e.shiftKey ? 0.2 : 0.05;
 
         if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
           e.preventDefault();
-          this.selectedObject.position.x -= step;
+          this.selectedTarget.position.x -= step;
           this.syncInspectorPosition();
+          if (this.selectionHelper) this.selectionHelper.update();
         } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
           e.preventDefault();
-          this.selectedObject.position.x += step;
+          this.selectedTarget.position.x += step;
           this.syncInspectorPosition();
+          if (this.selectionHelper) this.selectionHelper.update();
         } else if (e.code === 'ArrowUp' || e.code === 'KeyW') {
           e.preventDefault();
-          this.selectedObject.position.z -= step;
+          this.selectedTarget.position.z -= step;
           this.syncInspectorPosition();
+          if (this.selectionHelper) this.selectionHelper.update();
         } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
           e.preventDefault();
-          this.selectedObject.position.z += step;
+          this.selectedTarget.position.z += step;
           this.syncInspectorPosition();
+          if (this.selectionHelper) this.selectionHelper.update();
+        } else if (e.code === 'KeyQ') {
+          // Height Down
+          e.preventDefault();
+          this.selectedTarget.position.y -= step;
+          this.syncInspectorPosition();
+          if (this.selectionHelper) this.selectionHelper.update();
+        } else if (e.code === 'KeyE') {
+          // Height Up
+          e.preventDefault();
+          this.selectedTarget.position.y += step;
+          this.syncInspectorPosition();
+          if (this.selectionHelper) this.selectionHelper.update();
         } else if (e.code === 'KeyR') {
           e.preventDefault();
-          this.selectedObject.rotation.y += Math.PI / 4;
+          this.selectedTarget.rotation.y += Math.PI / 4;
+          if (this.selectionHelper) this.selectionHelper.update();
         } else if (e.code === 'Delete' || e.code === 'Backspace') {
           e.preventDefault();
-          this.deleteSelectedObject();
+          this.deleteSelectedTarget();
         } else if (e.code === 'Escape') {
           e.preventDefault();
           this.deselectObject();
@@ -183,66 +463,6 @@ class App {
     window.addEventListener('keyup', (e) => {
       this.keysDown[e.code] = false;
     });
-  }
-
-  syncInspectorPosition() {
-    if (!this.selectedObject) return;
-    const posX = document.getElementById('inspect-pos-x');
-    const posZ = document.getElementById('inspect-pos-z');
-    if (posX) posX.value = this.selectedObject.position.x;
-    if (posZ) posZ.value = this.selectedObject.position.z;
-  }
-
-  deleteSelectedObject() {
-    if (this.selectedObject) {
-      this.furnitureGroup.remove(this.selectedObject);
-      this.deselectObject();
-      this.showToast('Object removed from room');
-    }
-  }
-
-  selectObject(obj) {
-    this.deselectObject();
-    this.selectedObject = obj;
-
-    // Show popup
-    const popup = document.getElementById('inspector-popup');
-    const title = document.getElementById('inspector-title');
-    const posX = document.getElementById('inspect-pos-x');
-    const posZ = document.getElementById('inspect-pos-z');
-    const colorInput = document.getElementById('inspect-item-color');
-    const colorHex = document.getElementById('inspect-item-color-hex');
-
-    popup.style.display = 'flex';
-    title.textContent = obj.name || 'Selected Object';
-    posX.value = obj.position.x;
-    posZ.value = obj.position.z;
-
-    // Extract current color
-    let hexStr = '#6366f1';
-    if (obj.userData?.color) {
-      if (typeof obj.userData.color === 'string') {
-        hexStr = obj.userData.color.startsWith('#') ? obj.userData.color : `#${obj.userData.color}`;
-      } else if (typeof obj.userData.color === 'number') {
-        hexStr = `#${obj.userData.color.toString(16).padStart(6, '0')}`;
-      }
-    } else {
-      obj.traverse(child => {
-        if (child.isMesh && child.material && child.material.color && child.material.metalness < 0.6 && !child.material.map) {
-          hexStr = `#${child.material.color.getHexString()}`;
-        }
-      });
-    }
-
-    if (colorInput) colorInput.value = hexStr;
-    if (colorHex) colorHex.textContent = hexStr.toUpperCase();
-
-    this.showToast(`Selected: ${obj.name}`);
-  }
-
-  deselectObject() {
-    this.selectedObject = null;
-    document.getElementById('inspector-popup').style.display = 'none';
   }
 
   // 5. USER INTERFACE & EVENT HANDLERS
@@ -328,52 +548,103 @@ class App {
     });
 
     // Inspector Popup Controls
-    document.getElementById('btn-close-inspector').addEventListener('click', () => {
+    document.getElementById('btn-close-inspector')?.addEventListener('click', () => {
       this.deselectObject();
     });
 
-    document.getElementById('inspect-pos-x').addEventListener('input', (e) => {
-      if (this.selectedObject) this.selectedObject.position.x = parseFloat(e.target.value);
+    // Mode Toggle: Single Part vs Entire Piece
+    document.getElementById('btn-mode-part')?.addEventListener('click', () => {
+      this.editMode = 'part';
+      this.updateTargetByMode();
+      this.showToast(`Mode: Single Part (${this.getPartName(this.selectedPart)})`);
     });
 
-    document.getElementById('inspect-pos-z').addEventListener('input', (e) => {
-      if (this.selectedObject) this.selectedObject.position.z = parseFloat(e.target.value);
+    document.getElementById('btn-mode-whole')?.addEventListener('click', () => {
+      this.editMode = 'whole';
+      this.updateTargetByMode();
+      this.showToast(`Mode: Entire Piece (${this.selectedRoot?.name})`);
     });
 
-    // Inspector Color Customizer
+    // Position X, Y, Z sliders
+    document.getElementById('inspect-pos-x')?.addEventListener('input', (e) => {
+      if (this.selectedTarget) {
+        this.selectedTarget.position.x = parseFloat(e.target.value);
+        this.syncInspectorPosition();
+        if (this.selectionHelper) this.selectionHelper.update();
+      }
+    });
+
+    document.getElementById('inspect-pos-y')?.addEventListener('input', (e) => {
+      if (this.selectedTarget) {
+        this.selectedTarget.position.y = parseFloat(e.target.value);
+        this.syncInspectorPosition();
+        if (this.selectionHelper) this.selectionHelper.update();
+      }
+    });
+
+    document.getElementById('inspect-pos-z')?.addEventListener('input', (e) => {
+      if (this.selectedTarget) {
+        this.selectedTarget.position.z = parseFloat(e.target.value);
+        this.syncInspectorPosition();
+        if (this.selectionHelper) this.selectionHelper.update();
+      }
+    });
+
+    // 1-Click Quick Color Swatches
+    document.querySelectorAll('.quick-swatch').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const hex = btn.dataset.color;
+        this.applyColorToTarget(hex);
+      });
+    });
+
+    // Custom Color Picker input
     const inspectColor = document.getElementById('inspect-item-color');
     if (inspectColor) {
       inspectColor.addEventListener('input', (e) => {
-        if (!this.selectedObject) return;
-        const hex = e.target.value;
-        const hexLabel = document.getElementById('inspect-item-color-hex');
-        if (hexLabel) hexLabel.textContent = hex.toUpperCase();
-        this.selectedObject.userData.color = hex;
-
-        const newColor = new THREE.Color(hex);
-        this.selectedObject.traverse(child => {
-          if (child.isMesh && child.material) {
-            const mat = child.material;
-            // Recolor body/upholstery/wood materials; leave metal/glass/bulbs intact
-            if (mat.metalness > 0.75 || mat.isMeshBasicMaterial || mat.map) return;
-            mat.color.copy(newColor);
-          }
-        });
+        this.applyColorToTarget(e.target.value);
       });
     }
 
-    document.getElementById('btn-rotate-object').addEventListener('click', () => {
-      if (this.selectedObject) {
-        this.selectedObject.rotation.y += Math.PI / 4;
+    // Random Color Generator
+    document.getElementById('btn-random-color')?.addEventListener('click', () => {
+      const palette = [
+        '#FFFFFF', '#F5F5F0', '#D1D5DB', '#4B5563', '#111827',
+        '#8B5A2B', '#3E2723', '#D4AF37', '#1B4332', '#52796F',
+        '#1E3A8A', '#3B82F6', '#C2410C', '#D97706', '#DB2777'
+      ];
+      const randomColor = palette[Math.floor(Math.random() * palette.length)];
+      this.applyColorToTarget(randomColor);
+    });
+
+    // Rotate button
+    document.getElementById('btn-rotate-object')?.addEventListener('click', () => {
+      if (this.selectedTarget) {
+        this.selectedTarget.rotation.y += Math.PI / 4;
+        if (this.selectionHelper) this.selectionHelper.update();
       }
     });
 
-    document.getElementById('btn-delete-object').addEventListener('click', () => {
-      if (this.selectedObject) {
-        this.furnitureGroup.remove(this.selectedObject);
-        this.deselectObject();
-        this.showToast('Object removed from room');
+    // Reset part position button
+    document.getElementById('btn-reset-part')?.addEventListener('click', () => {
+      if (this.editMode === 'part' && this.selectedPart && this.selectedPart.userData.origPos) {
+        this.selectedPart.position.copy(this.selectedPart.userData.origPos);
+        this.selectedPart.rotation.set(0, 0, 0);
+        this.syncInspectorPosition();
+        if (this.selectionHelper) this.selectionHelper.update();
+        this.showToast('Reset part to original position');
+      } else if (this.selectedRoot) {
+        this.selectedRoot.position.set(0, 0, 0);
+        this.selectedRoot.rotation.set(0, 0, 0);
+        this.syncInspectorPosition();
+        if (this.selectionHelper) this.selectionHelper.update();
+        this.showToast('Reset item to room center');
       }
+    });
+
+    // Delete button
+    document.getElementById('btn-delete-object')?.addEventListener('click', () => {
+      this.deleteSelectedTarget();
     });
 
     // Add items from catalog
@@ -992,6 +1263,10 @@ class App {
       if (moved) {
         this.controls.target.copy(this.camera.position).add(forward.clone().multiplyScalar(2.0));
       }
+    }
+
+    if (this.selectionHelper && this.selectionHelper.visible) {
+      this.selectionHelper.update();
     }
 
     this.controls.update();

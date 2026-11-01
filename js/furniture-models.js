@@ -5,8 +5,9 @@ import { TextureGenerator } from './textures.js';
 
 export class FurnitureFactory {
   // Helper: Create a standard PBR mesh
-  static createMesh(geom, mat) {
+  static createMesh(geom, mat, name = 'Part') {
     const mesh = new THREE.Mesh(geom, mat);
+    mesh.name = name;
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     return mesh;
@@ -36,7 +37,7 @@ export class FurnitureFactory {
 
     // Base frame
     const baseGeom = new THREE.BoxGeometry(width, 0.15, depth);
-    const base = this.createMesh(baseGeom, fabricMat);
+    const base = this.createMesh(baseGeom, fabricMat, 'Base Frame');
     base.position.y = 0.18;
     group.add(base);
 
@@ -45,7 +46,7 @@ export class FurnitureFactory {
     const cushionW = (width - 0.04) / cushionCount;
     for (let i = 0; i < cushionCount; i++) {
       const cGeom = new THREE.BoxGeometry(cushionW - 0.02, 0.16, depth - 0.15);
-      const cushion = this.createMesh(cGeom, fabricMat);
+      const cushion = this.createMesh(cGeom, fabricMat, `Seat Cushion ${i + 1}`);
       cushion.position.set(-width / 2 + cushionW / 2 + i * cushionW, 0.32, 0.05);
       group.add(cushion);
     }
@@ -53,7 +54,7 @@ export class FurnitureFactory {
     // Backrest
     const backH = style === 'luxury' ? 0.65 : 0.55;
     const backGeom = new THREE.BoxGeometry(width, backH, 0.22);
-    const back = this.createMesh(backGeom, fabricMat);
+    const back = this.createMesh(backGeom, fabricMat, 'Backrest');
     back.position.set(0, 0.25 + backH / 2, -depth / 2 + 0.11);
     group.add(back);
 
@@ -62,7 +63,7 @@ export class FurnitureFactory {
     const armH = 0.45;
     [-1, 1].forEach(side => {
       const armGeom = new THREE.BoxGeometry(armW, armH, depth);
-      const arm = this.createMesh(armGeom, fabricMat);
+      const arm = this.createMesh(armGeom, fabricMat, side === -1 ? 'Left Armrest' : 'Right Armrest');
       arm.position.set(side * (width / 2 - armW / 2), 0.2 + armH / 2, 0);
       group.add(arm);
     });
@@ -72,7 +73,7 @@ export class FurnitureFactory {
     const legH = 0.12;
     [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([xDir, zDir]) => {
       const legGeom = new THREE.CylinderGeometry(legRadius * 0.8, legRadius, legH, 16);
-      const leg = this.createMesh(legGeom, woodLegMat);
+      const leg = this.createMesh(legGeom, woodLegMat, 'Sofa Leg');
       leg.position.set(xDir * (width / 2 - 0.15), legH / 2, zDir * (depth / 2 - 0.15));
       group.add(leg);
     });
@@ -85,7 +86,7 @@ export class FurnitureFactory {
       });
       [-1, 1].forEach(side => {
         const pGeom = new THREE.BoxGeometry(0.35, 0.35, 0.12);
-        const pillow = this.createMesh(pGeom, pillowMat);
+        const pillow = this.createMesh(pGeom, pillowMat, side === -1 ? 'Left Throw Pillow' : 'Right Throw Pillow');
         pillow.position.set(side * (width / 2 - 0.35), 0.52, -depth / 4);
         pillow.rotation.y = side * 0.3;
         pillow.rotation.z = -side * 0.2;
@@ -131,7 +132,7 @@ export class FurnitureFactory {
       // Round table
       const radius = 0.5;
       const topGeom = new THREE.CylinderGeometry(radius, radius, 0.04, 32);
-      const top = this.createMesh(topGeom, topMat);
+      const top = this.createMesh(topGeom, topMat, 'Round Table Top');
       top.position.y = 0.42;
       group.add(top);
 
@@ -139,7 +140,7 @@ export class FurnitureFactory {
       const legGeom = new THREE.CylinderGeometry(0.02, 0.02, 0.4, 16);
       for (let i = 0; i < 3; i++) {
         const angle = (i * Math.PI * 2) / 3;
-        const leg = this.createMesh(legGeom, legMat);
+        const leg = this.createMesh(legGeom, legMat, `Table Leg ${i + 1}`);
         leg.position.set(Math.cos(angle) * (radius - 0.08), 0.2, Math.sin(angle) * (radius - 0.08));
         group.add(leg);
       }
@@ -148,14 +149,14 @@ export class FurnitureFactory {
       const width = 1.1;
       const depth = 0.6;
       const topGeom = new THREE.BoxGeometry(width, 0.04, depth);
-      const top = this.createMesh(topGeom, topMat);
+      const top = this.createMesh(topGeom, topMat, 'Table Top');
       top.position.y = 0.42;
       group.add(top);
 
       // Legs
-      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([xDir, zDir]) => {
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([xDir, zDir], idx) => {
         const legGeom = new THREE.CylinderGeometry(0.025, 0.02, 0.4, 16);
-        const leg = this.createMesh(legGeom, legMat);
+        const leg = this.createMesh(legGeom, legMat, `Table Leg ${idx + 1}`);
         leg.position.set(xDir * (width / 2 - 0.06), 0.2, zDir * (depth / 2 - 0.06));
         group.add(leg);
       });
@@ -164,7 +165,7 @@ export class FurnitureFactory {
     // Decor on top (decorative bowl / book)
     const bookGeom = new THREE.BoxGeometry(0.22, 0.03, 0.16);
     const bookMat = new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.5 });
-    const book = this.createMesh(bookGeom, bookMat);
+    const book = this.createMesh(bookGeom, bookMat, 'Tabletop Book');
     book.position.set(0.05, 0.455, -0.05);
     book.rotation.y = 0.2;
     group.add(book);
@@ -193,14 +194,14 @@ export class FurnitureFactory {
     const width = 2.0;
     const depth = 0.45;
     const height = 0.45;
-    const credenza = this.createMesh(new THREE.BoxGeometry(width, height, depth), cabinetMat);
+    const credenza = this.createMesh(new THREE.BoxGeometry(width, height, depth), cabinetMat, 'Media Console Cabinet');
     credenza.position.set(0, height / 2, 0);
     group.add(credenza);
 
     // Accent slats / shelves
     const shelfMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.7, roughness: 0.3 });
     const lineGeom = new THREE.BoxGeometry(width * 0.96, 0.02, depth + 0.01);
-    const line = this.createMesh(lineGeom, shelfMat);
+    const line = this.createMesh(lineGeom, shelfMat, 'Gold Accent Trim');
     line.position.set(0, height * 0.7, 0);
     group.add(line);
 
@@ -208,13 +209,13 @@ export class FurnitureFactory {
     const tvW = 1.4;
     const tvH = 0.8;
     const tvGeom = new THREE.BoxGeometry(tvW, tvH, 0.04);
-    const tv = this.createMesh(tvGeom, screenMat);
+    const tv = this.createMesh(tvGeom, screenMat, 'Flat Screen TV');
     tv.position.set(0, height + 0.55, 0);
     group.add(tv);
 
     // TV Bezel frame
     const bezelMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, metalness: 0.9, roughness: 0.2 });
-    const tvStand = this.createMesh(new THREE.CylinderGeometry(0.04, 0.04, 0.15, 16), bezelMat);
+    const tvStand = this.createMesh(new THREE.CylinderGeometry(0.04, 0.04, 0.15, 16), bezelMat, 'TV Pedestal Stand');
     tvStand.position.set(0, height + 0.075, 0);
     group.add(tvStand);
 
@@ -239,25 +240,25 @@ export class FurnitureFactory {
     });
 
     // Seat cushion
-    const seat = this.createMesh(new THREE.BoxGeometry(0.75, 0.16, 0.75), fabricMat);
+    const seat = this.createMesh(new THREE.BoxGeometry(0.75, 0.16, 0.75), fabricMat, 'Lounge Seat Cushion');
     seat.position.y = 0.38;
     group.add(seat);
 
     // Backrest
-    const back = this.createMesh(new THREE.BoxGeometry(0.75, 0.55, 0.15), fabricMat);
+    const back = this.createMesh(new THREE.BoxGeometry(0.75, 0.55, 0.15), fabricMat, 'Lounge Backrest');
     back.position.set(0, 0.65, -0.3);
     group.add(back);
 
     // Side arms
     [-1, 1].forEach(side => {
-      const arm = this.createMesh(new THREE.BoxGeometry(0.12, 0.35, 0.75), fabricMat);
+      const arm = this.createMesh(new THREE.BoxGeometry(0.12, 0.35, 0.75), fabricMat, side === -1 ? 'Left Armrest' : 'Right Armrest');
       arm.position.set(side * 0.38, 0.5, 0);
       group.add(arm);
     });
 
     // Angled splayed legs
-    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([xDir, zDir]) => {
-      const leg = this.createMesh(new THREE.CylinderGeometry(0.02, 0.015, 0.32, 16), legMat);
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([xDir, zDir], idx) => {
+      const leg = this.createMesh(new THREE.CylinderGeometry(0.02, 0.015, 0.32, 16), legMat, `Armchair Leg ${idx + 1}`);
       leg.position.set(xDir * 0.28, 0.16, zDir * 0.28);
       leg.rotation.z = -xDir * 0.12;
       leg.rotation.x = zDir * 0.12;
@@ -287,17 +288,17 @@ export class FurnitureFactory {
     });
 
     // Base
-    const base = this.createMesh(new THREE.CylinderGeometry(0.2, 0.22, 0.03, 32), poleMat);
+    const base = this.createMesh(new THREE.CylinderGeometry(0.2, 0.22, 0.03, 32), poleMat, 'Lamp Base');
     base.position.y = 0.015;
     group.add(base);
 
     // Tall pole
-    const pole = this.createMesh(new THREE.CylinderGeometry(0.015, 0.015, 1.5, 16), poleMat);
+    const pole = this.createMesh(new THREE.CylinderGeometry(0.015, 0.015, 1.5, 16), poleMat, 'Lamp Pole Stem');
     pole.position.y = 0.78;
     group.add(pole);
 
     // Lampshade (cone or cylinder)
-    const shade = this.createMesh(new THREE.CylinderGeometry(0.18, 0.25, 0.3, 32, 1, true), shadeMat);
+    const shade = this.createMesh(new THREE.CylinderGeometry(0.18, 0.25, 0.3, 32, 1, true), shadeMat, 'Lamp Shade');
     shade.position.y = 1.55;
     group.add(shade);
 
@@ -337,30 +338,30 @@ export class FurnitureFactory {
     });
 
     // Bed frame base
-    const base = this.createMesh(new THREE.BoxGeometry(width, height, length), frameMat);
+    const base = this.createMesh(new THREE.BoxGeometry(width, height, length), frameMat, 'Bed Frame Base');
     base.position.y = height / 2;
     group.add(base);
 
     // Mattress
-    const mattress = this.createMesh(new THREE.BoxGeometry(width - 0.1, 0.25, length - 0.1), mattressMat);
+    const mattress = this.createMesh(new THREE.BoxGeometry(width - 0.1, 0.25, length - 0.1), mattressMat, 'Comfort Mattress');
     mattress.position.set(0, height + 0.125, 0);
     group.add(mattress);
 
     // Duvet / Bedspread (covers 70% of bed)
-    const duvet = this.createMesh(new THREE.BoxGeometry(width - 0.08, 0.27, length * 0.72), duvetMat);
+    const duvet = this.createMesh(new THREE.BoxGeometry(width - 0.08, 0.27, length * 0.72), duvetMat, 'Duvet Comforter');
     duvet.position.set(0, height + 0.135, length * 0.12);
     group.add(duvet);
 
     // Headboard
     const headboardH = style === 'luxury' ? 1.2 : 0.85;
-    const headboard = this.createMesh(new THREE.BoxGeometry(width + 0.1, headboardH, 0.12), frameMat);
+    const headboard = this.createMesh(new THREE.BoxGeometry(width + 0.1, headboardH, 0.12), frameMat, 'Upholstered Headboard');
     headboard.position.set(0, headboardH / 2, -length / 2 - 0.06);
     group.add(headboard);
 
     // Pillows (2 large, 2 accent)
     const pillowMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 });
-    [-0.5, 0.5].forEach(x => {
-      const p1 = this.createMesh(new THREE.BoxGeometry(0.65, 0.15, 0.4), pillowMat);
+    [-0.5, 0.5].forEach((x, idx) => {
+      const p1 = this.createMesh(new THREE.BoxGeometry(0.65, 0.15, 0.4), pillowMat, idx === 0 ? 'Left Bed Pillow' : 'Right Bed Pillow');
       p1.position.set(x, height + 0.3, -length / 2 + 0.35);
       p1.rotation.x = -0.25;
       group.add(p1);

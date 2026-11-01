@@ -500,8 +500,9 @@ class RoomBuilder {
 // Supports multiple design styles: Modern, Minimalist, Luxury, Traditional
 class FurnitureFactory {
   // Helper: Create a standard PBR mesh
-  static createMesh(geom, mat) {
+  static createMesh(geom, mat, name = 'Part') {
     const mesh = new THREE.Mesh(geom, mat);
+    mesh.name = name;
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     return mesh;
@@ -531,7 +532,7 @@ class FurnitureFactory {
 
     // Base frame
     const baseGeom = new THREE.BoxGeometry(width, 0.15, depth);
-    const base = this.createMesh(baseGeom, fabricMat);
+    const base = this.createMesh(baseGeom, fabricMat, 'Base Frame');
     base.position.y = 0.18;
     group.add(base);
 
@@ -540,7 +541,7 @@ class FurnitureFactory {
     const cushionW = (width - 0.04) / cushionCount;
     for (let i = 0; i < cushionCount; i++) {
       const cGeom = new THREE.BoxGeometry(cushionW - 0.02, 0.16, depth - 0.15);
-      const cushion = this.createMesh(cGeom, fabricMat);
+      const cushion = this.createMesh(cGeom, fabricMat, `Seat Cushion ${i + 1}`);
       cushion.position.set(-width / 2 + cushionW / 2 + i * cushionW, 0.32, 0.05);
       group.add(cushion);
     }
@@ -548,7 +549,7 @@ class FurnitureFactory {
     // Backrest
     const backH = style === 'luxury' ? 0.65 : 0.55;
     const backGeom = new THREE.BoxGeometry(width, backH, 0.22);
-    const back = this.createMesh(backGeom, fabricMat);
+    const back = this.createMesh(backGeom, fabricMat, 'Backrest');
     back.position.set(0, 0.25 + backH / 2, -depth / 2 + 0.11);
     group.add(back);
 
@@ -557,7 +558,7 @@ class FurnitureFactory {
     const armH = 0.45;
     [-1, 1].forEach(side => {
       const armGeom = new THREE.BoxGeometry(armW, armH, depth);
-      const arm = this.createMesh(armGeom, fabricMat);
+      const arm = this.createMesh(armGeom, fabricMat, side === -1 ? 'Left Armrest' : 'Right Armrest');
       arm.position.set(side * (width / 2 - armW / 2), 0.2 + armH / 2, 0);
       group.add(arm);
     });
@@ -567,7 +568,7 @@ class FurnitureFactory {
     const legH = 0.12;
     [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([xDir, zDir]) => {
       const legGeom = new THREE.CylinderGeometry(legRadius * 0.8, legRadius, legH, 16);
-      const leg = this.createMesh(legGeom, woodLegMat);
+      const leg = this.createMesh(legGeom, woodLegMat, 'Sofa Leg');
       leg.position.set(xDir * (width / 2 - 0.15), legH / 2, zDir * (depth / 2 - 0.15));
       group.add(leg);
     });
@@ -580,7 +581,7 @@ class FurnitureFactory {
       });
       [-1, 1].forEach(side => {
         const pGeom = new THREE.BoxGeometry(0.35, 0.35, 0.12);
-        const pillow = this.createMesh(pGeom, pillowMat);
+        const pillow = this.createMesh(pGeom, pillowMat, side === -1 ? 'Left Throw Pillow' : 'Right Throw Pillow');
         pillow.position.set(side * (width / 2 - 0.35), 0.52, -depth / 4);
         pillow.rotation.y = side * 0.3;
         pillow.rotation.z = -side * 0.2;
@@ -626,7 +627,7 @@ class FurnitureFactory {
       // Round table
       const radius = 0.5;
       const topGeom = new THREE.CylinderGeometry(radius, radius, 0.04, 32);
-      const top = this.createMesh(topGeom, topMat);
+      const top = this.createMesh(topGeom, topMat, 'Round Table Top');
       top.position.y = 0.42;
       group.add(top);
 
@@ -634,7 +635,7 @@ class FurnitureFactory {
       const legGeom = new THREE.CylinderGeometry(0.02, 0.02, 0.4, 16);
       for (let i = 0; i < 3; i++) {
         const angle = (i * Math.PI * 2) / 3;
-        const leg = this.createMesh(legGeom, legMat);
+        const leg = this.createMesh(legGeom, legMat, `Table Leg ${i + 1}`);
         leg.position.set(Math.cos(angle) * (radius - 0.08), 0.2, Math.sin(angle) * (radius - 0.08));
         group.add(leg);
       }
@@ -643,14 +644,14 @@ class FurnitureFactory {
       const width = 1.1;
       const depth = 0.6;
       const topGeom = new THREE.BoxGeometry(width, 0.04, depth);
-      const top = this.createMesh(topGeom, topMat);
+      const top = this.createMesh(topGeom, topMat, 'Table Top');
       top.position.y = 0.42;
       group.add(top);
 
       // Legs
-      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([xDir, zDir]) => {
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([xDir, zDir], idx) => {
         const legGeom = new THREE.CylinderGeometry(0.025, 0.02, 0.4, 16);
-        const leg = this.createMesh(legGeom, legMat);
+        const leg = this.createMesh(legGeom, legMat, `Table Leg ${idx + 1}`);
         leg.position.set(xDir * (width / 2 - 0.06), 0.2, zDir * (depth / 2 - 0.06));
         group.add(leg);
       });
@@ -659,7 +660,7 @@ class FurnitureFactory {
     // Decor on top (decorative bowl / book)
     const bookGeom = new THREE.BoxGeometry(0.22, 0.03, 0.16);
     const bookMat = new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.5 });
-    const book = this.createMesh(bookGeom, bookMat);
+    const book = this.createMesh(bookGeom, bookMat, 'Tabletop Book');
     book.position.set(0.05, 0.455, -0.05);
     book.rotation.y = 0.2;
     group.add(book);
@@ -688,14 +689,14 @@ class FurnitureFactory {
     const width = 2.0;
     const depth = 0.45;
     const height = 0.45;
-    const credenza = this.createMesh(new THREE.BoxGeometry(width, height, depth), cabinetMat);
+    const credenza = this.createMesh(new THREE.BoxGeometry(width, height, depth), cabinetMat, 'Media Console Cabinet');
     credenza.position.set(0, height / 2, 0);
     group.add(credenza);
 
     // Accent slats / shelves
     const shelfMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.7, roughness: 0.3 });
     const lineGeom = new THREE.BoxGeometry(width * 0.96, 0.02, depth + 0.01);
-    const line = this.createMesh(lineGeom, shelfMat);
+    const line = this.createMesh(lineGeom, shelfMat, 'Gold Accent Trim');
     line.position.set(0, height * 0.7, 0);
     group.add(line);
 
@@ -703,13 +704,13 @@ class FurnitureFactory {
     const tvW = 1.4;
     const tvH = 0.8;
     const tvGeom = new THREE.BoxGeometry(tvW, tvH, 0.04);
-    const tv = this.createMesh(tvGeom, screenMat);
+    const tv = this.createMesh(tvGeom, screenMat, 'Flat Screen TV');
     tv.position.set(0, height + 0.55, 0);
     group.add(tv);
 
     // TV Bezel frame
     const bezelMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, metalness: 0.9, roughness: 0.2 });
-    const tvStand = this.createMesh(new THREE.CylinderGeometry(0.04, 0.04, 0.15, 16), bezelMat);
+    const tvStand = this.createMesh(new THREE.CylinderGeometry(0.04, 0.04, 0.15, 16), bezelMat, 'TV Pedestal Stand');
     tvStand.position.set(0, height + 0.075, 0);
     group.add(tvStand);
 
@@ -734,25 +735,25 @@ class FurnitureFactory {
     });
 
     // Seat cushion
-    const seat = this.createMesh(new THREE.BoxGeometry(0.75, 0.16, 0.75), fabricMat);
+    const seat = this.createMesh(new THREE.BoxGeometry(0.75, 0.16, 0.75), fabricMat, 'Lounge Seat Cushion');
     seat.position.y = 0.38;
     group.add(seat);
 
     // Backrest
-    const back = this.createMesh(new THREE.BoxGeometry(0.75, 0.55, 0.15), fabricMat);
+    const back = this.createMesh(new THREE.BoxGeometry(0.75, 0.55, 0.15), fabricMat, 'Lounge Backrest');
     back.position.set(0, 0.65, -0.3);
     group.add(back);
 
     // Side arms
     [-1, 1].forEach(side => {
-      const arm = this.createMesh(new THREE.BoxGeometry(0.12, 0.35, 0.75), fabricMat);
+      const arm = this.createMesh(new THREE.BoxGeometry(0.12, 0.35, 0.75), fabricMat, side === -1 ? 'Left Armrest' : 'Right Armrest');
       arm.position.set(side * 0.38, 0.5, 0);
       group.add(arm);
     });
 
     // Angled splayed legs
-    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([xDir, zDir]) => {
-      const leg = this.createMesh(new THREE.CylinderGeometry(0.02, 0.015, 0.32, 16), legMat);
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([xDir, zDir], idx) => {
+      const leg = this.createMesh(new THREE.CylinderGeometry(0.02, 0.015, 0.32, 16), legMat, `Armchair Leg ${idx + 1}`);
       leg.position.set(xDir * 0.28, 0.16, zDir * 0.28);
       leg.rotation.z = -xDir * 0.12;
       leg.rotation.x = zDir * 0.12;
@@ -782,17 +783,17 @@ class FurnitureFactory {
     });
 
     // Base
-    const base = this.createMesh(new THREE.CylinderGeometry(0.2, 0.22, 0.03, 32), poleMat);
+    const base = this.createMesh(new THREE.CylinderGeometry(0.2, 0.22, 0.03, 32), poleMat, 'Lamp Base');
     base.position.y = 0.015;
     group.add(base);
 
     // Tall pole
-    const pole = this.createMesh(new THREE.CylinderGeometry(0.015, 0.015, 1.5, 16), poleMat);
+    const pole = this.createMesh(new THREE.CylinderGeometry(0.015, 0.015, 1.5, 16), poleMat, 'Lamp Pole Stem');
     pole.position.y = 0.78;
     group.add(pole);
 
     // Lampshade (cone or cylinder)
-    const shade = this.createMesh(new THREE.CylinderGeometry(0.18, 0.25, 0.3, 32, 1, true), shadeMat);
+    const shade = this.createMesh(new THREE.CylinderGeometry(0.18, 0.25, 0.3, 32, 1, true), shadeMat, 'Lamp Shade');
     shade.position.y = 1.55;
     group.add(shade);
 
@@ -832,30 +833,30 @@ class FurnitureFactory {
     });
 
     // Bed frame base
-    const base = this.createMesh(new THREE.BoxGeometry(width, height, length), frameMat);
+    const base = this.createMesh(new THREE.BoxGeometry(width, height, length), frameMat, 'Bed Frame Base');
     base.position.y = height / 2;
     group.add(base);
 
     // Mattress
-    const mattress = this.createMesh(new THREE.BoxGeometry(width - 0.1, 0.25, length - 0.1), mattressMat);
+    const mattress = this.createMesh(new THREE.BoxGeometry(width - 0.1, 0.25, length - 0.1), mattressMat, 'Comfort Mattress');
     mattress.position.set(0, height + 0.125, 0);
     group.add(mattress);
 
     // Duvet / Bedspread (covers 70% of bed)
-    const duvet = this.createMesh(new THREE.BoxGeometry(width - 0.08, 0.27, length * 0.72), duvetMat);
+    const duvet = this.createMesh(new THREE.BoxGeometry(width - 0.08, 0.27, length * 0.72), duvetMat, 'Duvet Comforter');
     duvet.position.set(0, height + 0.135, length * 0.12);
     group.add(duvet);
 
     // Headboard
     const headboardH = style === 'luxury' ? 1.2 : 0.85;
-    const headboard = this.createMesh(new THREE.BoxGeometry(width + 0.1, headboardH, 0.12), frameMat);
+    const headboard = this.createMesh(new THREE.BoxGeometry(width + 0.1, headboardH, 0.12), frameMat, 'Upholstered Headboard');
     headboard.position.set(0, headboardH / 2, -length / 2 - 0.06);
     group.add(headboard);
 
     // Pillows (2 large, 2 accent)
     const pillowMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 });
-    [-0.5, 0.5].forEach(x => {
-      const p1 = this.createMesh(new THREE.BoxGeometry(0.65, 0.15, 0.4), pillowMat);
+    [-0.5, 0.5].forEach((x, idx) => {
+      const p1 = this.createMesh(new THREE.BoxGeometry(0.65, 0.15, 0.4), pillowMat, idx === 0 ? 'Left Bed Pillow' : 'Right Bed Pillow');
       p1.position.set(x, height + 0.3, -length / 2 + 0.35);
       p1.rotation.x = -0.25;
       group.add(p1);
@@ -2135,7 +2136,14 @@ class App {
     this.furnitureGroup = new THREE.Group();
     this.furnitureGroup.name = 'FurnitureGroup';
     this.furnitureList = [];
+    this.selectedRoot = null;
+    this.selectedPart = null;
+    this.selectedTarget = null;
     this.selectedObject = null;
+    this.editMode = 'part'; // 'part' | 'whole'
+    this.isDragging = false;
+    this.dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    this.dragOffset = new THREE.Vector3();
     this.isDaylight = true;
     this.currentStyle = 'modern';
     this.geminiApiKey = localStorage.getItem('ai_interior_gemini_key') || '';
@@ -2192,6 +2200,15 @@ class App {
 
     this.scene.add(this.furnitureGroup);
 
+    // Bounding Box Selection Highlight Helper
+    this.selectionHelper = new THREE.BoxHelper(new THREE.Mesh(), 0x38bdf8);
+    this.selectionHelper.name = 'SelectionBox';
+    this.selectionHelper.material.depthTest = false;
+    this.selectionHelper.material.transparent = true;
+    this.selectionHelper.material.opacity = 0.9;
+    this.selectionHelper.visible = false;
+    this.scene.add(this.selectionHelper);
+
     window.addEventListener('resize', () => {
       const w = this.canvas.clientWidth;
       const h = this.canvas.clientHeight;
@@ -2233,12 +2250,13 @@ class App {
     this.roomBuilder = new RoomBuilder(this.scene);
   }
 
-  // 4. RAYCASTING & OBJECT SELECTION
+  // 4. RAYCASTING, 3D MOUSE DRAGGING & SELECTION
   initRaycasting() {
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
 
     this.canvas.addEventListener('pointerdown', (e) => {
+      if (this.isWalkthrough) return;
       const rect = this.canvas.getBoundingClientRect();
       this.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       this.mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -2247,20 +2265,266 @@ class App {
       const intersects = this.raycaster.intersectObjects(this.furnitureGroup.children, true);
 
       if (intersects.length > 0) {
-        // Find top-level furniture group
-        let obj = intersects[0].object;
-        while (obj.parent && obj.parent !== this.furnitureGroup) {
-          obj = obj.parent;
+        const clickedMesh = intersects[0].object;
+        let rootObj = clickedMesh;
+        while (rootObj.parent && rootObj.parent !== this.furnitureGroup) {
+          rootObj = rootObj.parent;
         }
-        this.selectObject(obj);
+
+        this.selectTarget(rootObj, clickedMesh);
+
+        // Initiate 3D Plane Dragging
+        this.isDragging = true;
+        this.controls.enabled = false;
+
+        const targetWorldPos = new THREE.Vector3();
+        this.selectedTarget.getWorldPosition(targetWorldPos);
+        this.dragPlane.set(new THREE.Vector3(0, 1, 0), -targetWorldPos.y);
+
+        const planeIntersect = new THREE.Vector3();
+        if (this.raycaster.ray.intersectPlane(this.dragPlane, planeIntersect)) {
+          this.dragOffset.copy(planeIntersect).sub(targetWorldPos);
+        }
       } else {
-        // Clicked empty space
-        this.deselectObject();
+        if (!this.isDragging) {
+          this.deselectObject();
+        }
       }
+    });
+
+    this.canvas.addEventListener('pointermove', (e) => {
+      if (!this.isDragging || !this.selectedTarget || this.isWalkthrough) return;
+
+      const rect = this.canvas.getBoundingClientRect();
+      this.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      this.mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      this.raycaster.setFromCamera(this.mouse, this.camera);
+      const planeIntersect = new THREE.Vector3();
+
+      if (this.raycaster.ray.intersectPlane(this.dragPlane, planeIntersect)) {
+        const targetWorld = planeIntersect.sub(this.dragOffset);
+
+        if (this.editMode === 'whole' || this.selectedTarget === this.selectedRoot) {
+          // Constrain within room bounds
+          const halfW = (this.currentRoomDimensions?.width || 5.0) / 2 - 0.25;
+          const halfL = (this.currentRoomDimensions?.length || 4.5) / 2 - 0.25;
+          this.selectedTarget.position.x = Math.max(-halfW, Math.min(halfW, targetWorld.x));
+          this.selectedTarget.position.z = Math.max(-halfL, Math.min(halfL, targetWorld.z));
+        } else {
+          // Convert world pos to parent local coordinates for single part
+          if (this.selectedTarget.parent) {
+            const localPos = this.selectedTarget.parent.worldToLocal(targetWorld.clone());
+            this.selectedTarget.position.x = localPos.x;
+            this.selectedTarget.position.z = localPos.z;
+          }
+        }
+
+        this.syncInspectorPosition();
+        if (this.selectionHelper) this.selectionHelper.update();
+      }
+    });
+
+    const stopDrag = () => {
+      if (this.isDragging) {
+        this.isDragging = false;
+        if (!this.isWalkthrough) this.controls.enabled = true;
+      }
+    };
+
+    this.canvas.addEventListener('pointerup', stopDrag);
+    this.canvas.addEventListener('pointercancel', stopDrag);
+  }
+
+  // 4b. SELECTION COORDINATOR
+  selectTarget(rootObj, clickedMesh) {
+    this.selectedRoot = rootObj;
+    this.selectedPart = clickedMesh;
+    this.selectedObject = rootObj; // compatibility
+
+    // Cache original local position on part for reset capability
+    if (!clickedMesh.userData.origPos) {
+      clickedMesh.userData.origPos = clickedMesh.position.clone();
+    }
+
+    this.updateTargetByMode();
+  }
+
+  updateTargetByMode() {
+    if (!this.selectedRoot || !this.selectedPart) return;
+
+    this.selectedTarget = this.editMode === 'part' ? this.selectedPart : this.selectedRoot;
+    this.selectedObject = this.selectedTarget;
+
+    const popup = document.getElementById('inspector-popup');
+    const title = document.getElementById('inspector-title');
+    const subtitle = document.getElementById('inspector-subtitle');
+    const btnPart = document.getElementById('btn-mode-part');
+    const btnWhole = document.getElementById('btn-mode-whole');
+
+    popup.style.display = 'flex';
+    title.textContent = this.selectedRoot.name || 'Furniture Item';
+    if (subtitle) {
+      const partName = this.getPartName(this.selectedPart);
+      subtitle.textContent = this.editMode === 'part'
+        ? `Editing Part: ${partName}`
+        : `Editing Entire: ${this.selectedRoot.name}`;
+      subtitle.style.color = this.editMode === 'part' ? '#10b981' : '#6366f1';
+    }
+
+    if (btnPart) btnPart.classList.toggle('active', this.editMode === 'part');
+    if (btnWhole) btnWhole.classList.toggle('active', this.editMode === 'whole');
+
+    // Update 3D Selection Box
+    if (this.selectionHelper) {
+      this.selectionHelper.setFromObject(this.selectedTarget);
+      this.selectionHelper.visible = true;
+      this.selectionHelper.update();
+    }
+
+    this.syncInspectorPosition();
+    this.syncInspectorColor();
+  }
+
+  getPartName(mesh) {
+    if (!mesh) return 'Part';
+    if (mesh.name && mesh.name !== 'Part' && mesh.name !== '') return mesh.name;
+    if (mesh.geometry) {
+      if (mesh.geometry.type === 'CylinderGeometry') return 'Leg / Pillar';
+      if (mesh.geometry.type === 'SphereGeometry') return 'Bulb / Sphere';
+      if (mesh.geometry.type === 'PlaneGeometry') return 'Surface / Cushion';
+      if (mesh.geometry.type === 'BoxGeometry') {
+        const p = mesh.geometry.parameters;
+        if (p && p.height < 0.1 && p.width > 0.5) return 'Top / Base Panel';
+        if (p && p.height > 0.4 && p.depth < 0.25) return 'Backrest / Door';
+        return 'Cushion / Block';
+      }
+    }
+    return 'Component';
+  }
+
+  syncInspectorPosition() {
+    if (!this.selectedTarget) return;
+    const posX = document.getElementById('inspect-pos-x');
+    const posY = document.getElementById('inspect-pos-y');
+    const posZ = document.getElementById('inspect-pos-z');
+    const valX = document.getElementById('val-pos-x');
+    const valY = document.getElementById('val-pos-y');
+    const valZ = document.getElementById('val-pos-z');
+
+    const x = this.selectedTarget.position.x;
+    const y = this.selectedTarget.position.y;
+    const z = this.selectedTarget.position.z;
+
+    if (posX) posX.value = x;
+    if (posY) posY.value = y;
+    if (posZ) posZ.value = z;
+
+    if (valX) valX.textContent = `${x >= 0 ? '+' : ''}${x.toFixed(2)}m`;
+    if (valY) valY.textContent = `${y >= 0 ? '+' : ''}${y.toFixed(2)}m`;
+    if (valZ) valZ.textContent = `${z >= 0 ? '+' : ''}${z.toFixed(2)}m`;
+  }
+
+  syncInspectorColor() {
+    if (!this.selectedTarget) return;
+    const colorInput = document.getElementById('inspect-item-color');
+    const colorHex = document.getElementById('inspect-item-color-hex');
+
+    let hexStr = '#6366F1';
+    let targetMesh = this.editMode === 'part' ? this.selectedPart : null;
+
+    if (!targetMesh) {
+      this.selectedRoot.traverse(child => {
+        if (!targetMesh && child.isMesh && child.material && child.material.color && child.material.metalness < 0.7 && !child.material.map) {
+          targetMesh = child;
+        }
+      });
+    }
+
+    if (targetMesh && targetMesh.material) {
+      const mat = Array.isArray(targetMesh.material) ? targetMesh.material[0] : targetMesh.material;
+      if (mat && mat.color) {
+        hexStr = '#' + mat.color.getHexString().toUpperCase();
+      }
+    }
+
+    if (colorInput) colorInput.value = hexStr.toLowerCase();
+    if (colorHex) colorHex.textContent = hexStr.toUpperCase();
+
+    // Update active state on quick swatches
+    document.querySelectorAll('.quick-swatch').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.color.toUpperCase() === hexStr.toUpperCase());
     });
   }
 
-  // 4b. KEYBOARD CONTROLS FOR OBJECT NUDGE & ROTATION
+  applyColorToTarget(hex) {
+    if (!this.selectedTarget) return;
+    const threeColor = new THREE.Color(hex);
+    const colorInput = document.getElementById('inspect-item-color');
+    const colorHex = document.getElementById('inspect-item-color-hex');
+
+    if (colorInput) colorInput.value = hex.toLowerCase();
+    if (colorHex) colorHex.textContent = hex.toUpperCase();
+
+    document.querySelectorAll('.quick-swatch').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.color.toUpperCase() === hex.toUpperCase());
+    });
+
+    if (this.editMode === 'part' && this.selectedPart) {
+      // Clone material so only THIS single part gets recolored
+      if (this.selectedPart.material) {
+        if (Array.isArray(this.selectedPart.material)) {
+          this.selectedPart.material = this.selectedPart.material.map(m => m.clone());
+          this.selectedPart.material.forEach(m => m.color.copy(threeColor));
+        } else {
+          this.selectedPart.material = this.selectedPart.material.clone();
+          this.selectedPart.material.color.copy(threeColor);
+        }
+        this.selectedPart.userData.customColor = hex;
+      }
+      this.showToast(`Color changed: ${this.getPartName(this.selectedPart)} (${hex.toUpperCase()})`);
+    } else if (this.selectedRoot) {
+      // Recolor entire piece
+      this.selectedRoot.userData.color = hex;
+      this.selectedRoot.traverse(child => {
+        if (child.isMesh && child.material) {
+          const mat = child.material;
+          if (mat.metalness > 0.75 || mat.isMeshBasicMaterial || mat.map) return;
+          child.material = child.material.clone();
+          child.material.color.copy(threeColor);
+          child.userData.customColor = hex;
+        }
+      });
+      this.showToast(`Color changed: ${this.selectedRoot.name} (${hex.toUpperCase()})`);
+    }
+  }
+
+  deleteSelectedTarget() {
+    if (!this.selectedTarget) return;
+    if (this.editMode === 'part' && this.selectedPart && this.selectedPart.parent) {
+      const pName = this.getPartName(this.selectedPart);
+      this.selectedPart.parent.remove(this.selectedPart);
+      this.deselectObject();
+      this.showToast(`Removed part: ${pName}`);
+    } else if (this.selectedRoot) {
+      const rName = this.selectedRoot.name;
+      this.furnitureGroup.remove(this.selectedRoot);
+      this.deselectObject();
+      this.showToast(`Removed item: ${rName}`);
+    }
+  }
+
+  deselectObject() {
+    this.selectedRoot = null;
+    this.selectedPart = null;
+    this.selectedTarget = null;
+    this.selectedObject = null;
+    if (this.selectionHelper) this.selectionHelper.visible = false;
+    const popup = document.getElementById('inspector-popup');
+    if (popup) popup.style.display = 'none';
+  }
+
+  // 4c. KEYBOARD CONTROLS FOR OBJECT & PART NUDGE & ROTATION
   initKeyboardControls() {
     window.addEventListener('keydown', (e) => {
       this.keysDown[e.code] = true;
@@ -2270,31 +2534,48 @@ class App {
       const tag = activeEl ? activeEl.tagName.toLowerCase() : '';
       if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
 
-      if (this.selectedObject && !this.isWalkthrough) {
-        let step = e.shiftKey ? 0.25 : 0.1;
+      if (this.selectedTarget && !this.isWalkthrough) {
+        let step = e.shiftKey ? 0.2 : 0.05;
 
         if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
           e.preventDefault();
-          this.selectedObject.position.x -= step;
+          this.selectedTarget.position.x -= step;
           this.syncInspectorPosition();
+          if (this.selectionHelper) this.selectionHelper.update();
         } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
           e.preventDefault();
-          this.selectedObject.position.x += step;
+          this.selectedTarget.position.x += step;
           this.syncInspectorPosition();
+          if (this.selectionHelper) this.selectionHelper.update();
         } else if (e.code === 'ArrowUp' || e.code === 'KeyW') {
           e.preventDefault();
-          this.selectedObject.position.z -= step;
+          this.selectedTarget.position.z -= step;
           this.syncInspectorPosition();
+          if (this.selectionHelper) this.selectionHelper.update();
         } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
           e.preventDefault();
-          this.selectedObject.position.z += step;
+          this.selectedTarget.position.z += step;
           this.syncInspectorPosition();
+          if (this.selectionHelper) this.selectionHelper.update();
+        } else if (e.code === 'KeyQ') {
+          // Height Down
+          e.preventDefault();
+          this.selectedTarget.position.y -= step;
+          this.syncInspectorPosition();
+          if (this.selectionHelper) this.selectionHelper.update();
+        } else if (e.code === 'KeyE') {
+          // Height Up
+          e.preventDefault();
+          this.selectedTarget.position.y += step;
+          this.syncInspectorPosition();
+          if (this.selectionHelper) this.selectionHelper.update();
         } else if (e.code === 'KeyR') {
           e.preventDefault();
-          this.selectedObject.rotation.y += Math.PI / 4;
+          this.selectedTarget.rotation.y += Math.PI / 4;
+          if (this.selectionHelper) this.selectionHelper.update();
         } else if (e.code === 'Delete' || e.code === 'Backspace') {
           e.preventDefault();
-          this.deleteSelectedObject();
+          this.deleteSelectedTarget();
         } else if (e.code === 'Escape') {
           e.preventDefault();
           this.deselectObject();
@@ -2309,66 +2590,6 @@ class App {
     window.addEventListener('keyup', (e) => {
       this.keysDown[e.code] = false;
     });
-  }
-
-  syncInspectorPosition() {
-    if (!this.selectedObject) return;
-    const posX = document.getElementById('inspect-pos-x');
-    const posZ = document.getElementById('inspect-pos-z');
-    if (posX) posX.value = this.selectedObject.position.x;
-    if (posZ) posZ.value = this.selectedObject.position.z;
-  }
-
-  deleteSelectedObject() {
-    if (this.selectedObject) {
-      this.furnitureGroup.remove(this.selectedObject);
-      this.deselectObject();
-      this.showToast('Object removed from room');
-    }
-  }
-
-  selectObject(obj) {
-    this.deselectObject();
-    this.selectedObject = obj;
-
-    // Show popup
-    const popup = document.getElementById('inspector-popup');
-    const title = document.getElementById('inspector-title');
-    const posX = document.getElementById('inspect-pos-x');
-    const posZ = document.getElementById('inspect-pos-z');
-    const colorInput = document.getElementById('inspect-item-color');
-    const colorHex = document.getElementById('inspect-item-color-hex');
-
-    popup.style.display = 'flex';
-    title.textContent = obj.name || 'Selected Object';
-    posX.value = obj.position.x;
-    posZ.value = obj.position.z;
-
-    // Extract current color
-    let hexStr = '#6366f1';
-    if (obj.userData?.color) {
-      if (typeof obj.userData.color === 'string') {
-        hexStr = obj.userData.color.startsWith('#') ? obj.userData.color : `#${obj.userData.color}`;
-      } else if (typeof obj.userData.color === 'number') {
-        hexStr = `#${obj.userData.color.toString(16).padStart(6, '0')}`;
-      }
-    } else {
-      obj.traverse(child => {
-        if (child.isMesh && child.material && child.material.color && child.material.metalness < 0.6 && !child.material.map) {
-          hexStr = `#${child.material.color.getHexString()}`;
-        }
-      });
-    }
-
-    if (colorInput) colorInput.value = hexStr;
-    if (colorHex) colorHex.textContent = hexStr.toUpperCase();
-
-    this.showToast(`Selected: ${obj.name}`);
-  }
-
-  deselectObject() {
-    this.selectedObject = null;
-    document.getElementById('inspector-popup').style.display = 'none';
   }
 
   // 5. USER INTERFACE & EVENT HANDLERS
@@ -2454,52 +2675,103 @@ class App {
     });
 
     // Inspector Popup Controls
-    document.getElementById('btn-close-inspector').addEventListener('click', () => {
+    document.getElementById('btn-close-inspector')?.addEventListener('click', () => {
       this.deselectObject();
     });
 
-    document.getElementById('inspect-pos-x').addEventListener('input', (e) => {
-      if (this.selectedObject) this.selectedObject.position.x = parseFloat(e.target.value);
+    // Mode Toggle: Single Part vs Entire Piece
+    document.getElementById('btn-mode-part')?.addEventListener('click', () => {
+      this.editMode = 'part';
+      this.updateTargetByMode();
+      this.showToast(`Mode: Single Part (${this.getPartName(this.selectedPart)})`);
     });
 
-    document.getElementById('inspect-pos-z').addEventListener('input', (e) => {
-      if (this.selectedObject) this.selectedObject.position.z = parseFloat(e.target.value);
+    document.getElementById('btn-mode-whole')?.addEventListener('click', () => {
+      this.editMode = 'whole';
+      this.updateTargetByMode();
+      this.showToast(`Mode: Entire Piece (${this.selectedRoot?.name})`);
     });
 
-    // Inspector Color Customizer
+    // Position X, Y, Z sliders
+    document.getElementById('inspect-pos-x')?.addEventListener('input', (e) => {
+      if (this.selectedTarget) {
+        this.selectedTarget.position.x = parseFloat(e.target.value);
+        this.syncInspectorPosition();
+        if (this.selectionHelper) this.selectionHelper.update();
+      }
+    });
+
+    document.getElementById('inspect-pos-y')?.addEventListener('input', (e) => {
+      if (this.selectedTarget) {
+        this.selectedTarget.position.y = parseFloat(e.target.value);
+        this.syncInspectorPosition();
+        if (this.selectionHelper) this.selectionHelper.update();
+      }
+    });
+
+    document.getElementById('inspect-pos-z')?.addEventListener('input', (e) => {
+      if (this.selectedTarget) {
+        this.selectedTarget.position.z = parseFloat(e.target.value);
+        this.syncInspectorPosition();
+        if (this.selectionHelper) this.selectionHelper.update();
+      }
+    });
+
+    // 1-Click Quick Color Swatches
+    document.querySelectorAll('.quick-swatch').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const hex = btn.dataset.color;
+        this.applyColorToTarget(hex);
+      });
+    });
+
+    // Custom Color Picker input
     const inspectColor = document.getElementById('inspect-item-color');
     if (inspectColor) {
       inspectColor.addEventListener('input', (e) => {
-        if (!this.selectedObject) return;
-        const hex = e.target.value;
-        const hexLabel = document.getElementById('inspect-item-color-hex');
-        if (hexLabel) hexLabel.textContent = hex.toUpperCase();
-        this.selectedObject.userData.color = hex;
-
-        const newColor = new THREE.Color(hex);
-        this.selectedObject.traverse(child => {
-          if (child.isMesh && child.material) {
-            const mat = child.material;
-            // Recolor body/upholstery/wood materials; leave metal/glass/bulbs intact
-            if (mat.metalness > 0.75 || mat.isMeshBasicMaterial || mat.map) return;
-            mat.color.copy(newColor);
-          }
-        });
+        this.applyColorToTarget(e.target.value);
       });
     }
 
-    document.getElementById('btn-rotate-object').addEventListener('click', () => {
-      if (this.selectedObject) {
-        this.selectedObject.rotation.y += Math.PI / 4;
+    // Random Color Generator
+    document.getElementById('btn-random-color')?.addEventListener('click', () => {
+      const palette = [
+        '#FFFFFF', '#F5F5F0', '#D1D5DB', '#4B5563', '#111827',
+        '#8B5A2B', '#3E2723', '#D4AF37', '#1B4332', '#52796F',
+        '#1E3A8A', '#3B82F6', '#C2410C', '#D97706', '#DB2777'
+      ];
+      const randomColor = palette[Math.floor(Math.random() * palette.length)];
+      this.applyColorToTarget(randomColor);
+    });
+
+    // Rotate button
+    document.getElementById('btn-rotate-object')?.addEventListener('click', () => {
+      if (this.selectedTarget) {
+        this.selectedTarget.rotation.y += Math.PI / 4;
+        if (this.selectionHelper) this.selectionHelper.update();
       }
     });
 
-    document.getElementById('btn-delete-object').addEventListener('click', () => {
-      if (this.selectedObject) {
-        this.furnitureGroup.remove(this.selectedObject);
-        this.deselectObject();
-        this.showToast('Object removed from room');
+    // Reset part position button
+    document.getElementById('btn-reset-part')?.addEventListener('click', () => {
+      if (this.editMode === 'part' && this.selectedPart && this.selectedPart.userData.origPos) {
+        this.selectedPart.position.copy(this.selectedPart.userData.origPos);
+        this.selectedPart.rotation.set(0, 0, 0);
+        this.syncInspectorPosition();
+        if (this.selectionHelper) this.selectionHelper.update();
+        this.showToast('Reset part to original position');
+      } else if (this.selectedRoot) {
+        this.selectedRoot.position.set(0, 0, 0);
+        this.selectedRoot.rotation.set(0, 0, 0);
+        this.syncInspectorPosition();
+        if (this.selectionHelper) this.selectionHelper.update();
+        this.showToast('Reset item to room center');
       }
+    });
+
+    // Delete button
+    document.getElementById('btn-delete-object')?.addEventListener('click', () => {
+      this.deleteSelectedTarget();
     });
 
     // Add items from catalog
@@ -3118,6 +3390,10 @@ class App {
       if (moved) {
         this.controls.target.copy(this.camera.position).add(forward.clone().multiplyScalar(2.0));
       }
+    }
+
+    if (this.selectionHelper && this.selectionHelper.visible) {
+      this.selectionHelper.update();
     }
 
     this.controls.update();
