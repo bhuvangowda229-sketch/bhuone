@@ -322,7 +322,7 @@
           window.location.href = getRedirectUrl();
         }, 600);
       } else {
-        showAlert('Invalid email or password. Use demo@ai-interior.com / password123 or try Instant Demo.');
+        showAlert('Invalid email or password. Use demo@ai-interior.com / password123 or create an account.');
       }
     });
 
@@ -368,25 +368,6 @@
       setTimeout(() => {
         window.location.href = getRedirectUrl();
       }, 700);
-    });
-
-    // Instant Guest Demo Login Buttons
-    document.querySelectorAll('.btn-guest-demo').forEach(btn => {
-      btn.addEventListener('click', () => {
-        clearAlert();
-        const demoUser = {
-          name: 'Alex Rivera',
-          email: 'demo@ai-interior.com',
-          style: 'modern',
-          avatarInitial: 'A',
-          isGuestDemo: true
-        };
-        setCurrentUser(demoUser);
-        showAlert('Signing in as Demo Guest Designer...', false);
-        setTimeout(() => {
-          window.location.href = getRedirectUrl();
-        }, 500);
-      });
     });
 
     // Social Login Simulation
