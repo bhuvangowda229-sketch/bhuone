@@ -200,6 +200,7 @@ body {
   line-height: 1.2;
   margin-bottom: 16px;
   background: var(--gradient-text);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -262,6 +263,7 @@ body {
 
 .hero-title span {
   background: var(--gradient-brand);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
