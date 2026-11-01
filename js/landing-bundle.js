@@ -1603,6 +1603,378 @@ class FurnitureFactory {
 
     return group;
   }
+
+  // 19. KITCHEN CABINETS & COUNTER WITH INTEGRATED SINK & FAUCET
+  static createKitchenCabinets(style = 'modern', color = 0x2c3e50) {
+    const group = new THREE.Group();
+    group.name = 'Kitchen Counter & Sink';
+    group.userData = { type: 'kitchen_cabinets', name: 'Kitchen Counter & Sink', cost: 1850, color: color };
+
+    const cabinetMat = new THREE.MeshStandardMaterial({
+      color: color,
+      roughness: 0.6,
+      metalness: 0.05
+    });
+
+    const counterMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xf8fafc : 0xf1f5f9,
+      roughness: 0.15,
+      metalness: 0.05
+    });
+
+    const metalMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0x94a3b8,
+      metalness: 0.85,
+      roughness: 0.2
+    });
+
+    const sinkMat = new THREE.MeshStandardMaterial({
+      color: 0x94a3b8,
+      metalness: 0.9,
+      roughness: 0.2
+    });
+
+    const tileMat = new THREE.MeshStandardMaterial({
+      color: 0xe2e8f0,
+      roughness: 0.3,
+      metalness: 0.0
+    });
+
+    const totalW = 2.8, counterD = 0.65, counterH = 0.9, baseH = 0.86;
+
+    // Base Cabinet Box
+    const baseBox = this.createMesh(new THREE.BoxGeometry(totalW, baseH, counterD - 0.04), cabinetMat, 'Base Cabinets');
+    baseBox.position.set(0, baseH / 2, 0);
+    group.add(baseBox);
+
+    // Toe Kick Recess
+    const toeKick = this.createMesh(new THREE.BoxGeometry(totalW, 0.1, 0.06), new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 }), 'Toe Kick');
+    toeKick.position.set(0, 0.05, counterD / 2 - 0.04);
+    group.add(toeKick);
+
+    // Countertop Slab
+    const top = this.createMesh(new THREE.BoxGeometry(totalW + 0.04, 0.05, counterD + 0.02), counterMat, 'Quartz Countertop');
+    top.position.set(0, counterH - 0.025, 0.01);
+    group.add(top);
+
+    // Double-basin Sink (recessed into countertop)
+    const sinkLeft = this.createMesh(new THREE.BoxGeometry(0.38, 0.01, 0.4), sinkMat, 'Sink Basin Left');
+    sinkLeft.position.set(-0.25, counterH + 0.001, 0);
+    group.add(sinkLeft);
+
+    const sinkRight = this.createMesh(new THREE.BoxGeometry(0.38, 0.01, 0.4), sinkMat, 'Sink Basin Right');
+    sinkRight.position.set(0.2, counterH + 0.001, 0);
+    group.add(sinkRight);
+
+    // Sink Rim Trim
+    const sinkRim = this.createMesh(new THREE.BoxGeometry(0.9, 0.02, 0.46), sinkMat, 'Sink Rim');
+    sinkRim.position.set(-0.02, counterH + 0.01, 0);
+    group.add(sinkRim);
+
+    // Designer Gooseneck Faucet
+    const faucetBase = this.createMesh(new THREE.CylinderGeometry(0.02, 0.025, 0.06, 16), metalMat, 'Faucet Base');
+    faucetBase.position.set(-0.02, counterH + 0.03, -0.18);
+    group.add(faucetBase);
+
+    const faucetSpout = this.createMesh(new THREE.CylinderGeometry(0.012, 0.012, 0.32, 16), metalMat, 'Faucet Neck');
+    faucetSpout.position.set(-0.02, counterH + 0.18, -0.16);
+    faucetSpout.rotation.x = -0.15;
+    group.add(faucetSpout);
+
+    const faucetArch = this.createMesh(new THREE.TorusGeometry(0.07, 0.012, 12, 24, Math.PI), metalMat, 'Faucet Arch');
+    faucetArch.position.set(-0.02, counterH + 0.32, -0.11);
+    faucetArch.rotation.z = Math.PI;
+    group.add(faucetArch);
+
+    // Cabinet Handles
+    const handleGeom = new THREE.BoxGeometry(0.14, 0.02, 0.02);
+    [-1.0, -0.5, 0.5, 1.0].forEach((x, idx) => {
+      const handle = this.createMesh(handleGeom, metalMat, `Cabinet Handle ${idx + 1}`);
+      handle.position.set(x, counterH - 0.18, counterD / 2);
+      group.add(handle);
+    });
+
+    // Tiled Backsplash Wall Panel
+    const splashH = 0.65;
+    const backsplash = this.createMesh(new THREE.BoxGeometry(totalW, splashH, 0.03), tileMat, 'Backsplash Tiles');
+    backsplash.position.set(0, counterH + splashH / 2, -counterD / 2 + 0.01);
+    group.add(backsplash);
+
+    // Upper Wall Hanging Cabinets
+    const upperH = 0.75, upperD = 0.35;
+    const upper = this.createMesh(new THREE.BoxGeometry(totalW, upperH, upperD), cabinetMat, 'Upper Wall Cabinets');
+    upper.position.set(0, counterH + splashH + upperH / 2, -counterD / 2 + upperD / 2);
+    group.add(upper);
+
+    // Under-Cabinet LED Glow Strip
+    const ledMat = new THREE.MeshBasicMaterial({ color: 0xffedd5 });
+    const ledStrip = new THREE.Mesh(new THREE.BoxGeometry(totalW - 0.1, 0.015, 0.04), ledMat);
+    ledStrip.position.set(0, counterH + splashH, -counterD / 2 + upperD / 2);
+    group.add(ledStrip);
+
+    return group;
+  }
+
+  // 20. KITCHEN ISLAND WITH INDUCTION COOKTOP & SEATING OVERHANG
+  static createKitchenIsland(style = 'modern', color = 0x334155) {
+    const group = new THREE.Group();
+    group.name = 'Kitchen Island';
+    group.userData = { type: 'kitchen_island', name: 'Kitchen Island', cost: 1450, color: color };
+
+    const islandW = 2.0, islandD = 1.0, islandH = 0.9;
+    const baseW = 1.8, baseD = 0.7, baseH = 0.85;
+
+    const baseMat = new THREE.MeshStandardMaterial({
+      color: color,
+      roughness: 0.6,
+      metalness: 0.05
+    });
+
+    const topMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xf8fafc : 0xf1f5f9,
+      roughness: 0.12,
+      metalness: 0.05
+    });
+
+    const cooktopMat = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      roughness: 0.1,
+      metalness: 0.6
+    });
+
+    const metalMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0x94a3b8,
+      metalness: 0.85,
+      roughness: 0.2
+    });
+
+    // Base Cabinet Box (Offset to allow seating overhang on one side)
+    const base = this.createMesh(new THREE.BoxGeometry(baseW, baseH, baseD), baseMat, 'Island Base');
+    base.position.set(0, baseH / 2, -0.1);
+    group.add(base);
+
+    // Waterfall / Beveled Quartz Countertop
+    const top = this.createMesh(new THREE.BoxGeometry(islandW, 0.06, islandD), topMat, 'Island Countertop');
+    top.position.set(0, islandH - 0.03, 0);
+    group.add(top);
+
+    // Flush Glass-Ceramic Induction Cooktop
+    const cooktop = this.createMesh(new THREE.BoxGeometry(0.75, 0.008, 0.48), cooktopMat, 'Induction Cooktop');
+    cooktop.position.set(-0.35, islandH + 0.005, -0.05);
+    group.add(cooktop);
+
+    // Cooktop Burner Ring Accents
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x64748b });
+    [[-0.18, -0.1], [0.18, -0.1], [-0.18, 0.1], [0.18, 0.1]].forEach(([rx, rz]) => {
+      const ring = new THREE.Mesh(new THREE.RingGeometry(0.06, 0.075, 24), ringMat);
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.set(-0.35 + rx, islandH + 0.01, -0.05 + rz);
+      group.add(ring);
+    });
+
+    // Modern Pull Handles on island drawers
+    [-0.5, 0, 0.5].forEach((hx, idx) => {
+      const handle = this.createMesh(new THREE.BoxGeometry(0.18, 0.02, 0.02), metalMat, `Drawer Handle ${idx + 1}`);
+      handle.position.set(hx, islandH - 0.2, -baseD / 2 - 0.1 - 0.01);
+      group.add(handle);
+    });
+
+    return group;
+  }
+
+  // 21. FRENCH-DOOR SMART REFRIGERATOR
+  static createRefrigerator(style = 'modern') {
+    const group = new THREE.Group();
+    group.name = 'Smart Refrigerator';
+    group.userData = { type: 'refrigerator', name: 'Smart Refrigerator', cost: 1600 };
+
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0x0f172a : 0x94a3b8,
+      metalness: style === 'luxury' ? 0.4 : 0.8,
+      roughness: 0.25
+    });
+
+    const handleMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0x334155,
+      metalness: 0.9,
+      roughness: 0.2
+    });
+
+    const dispMat = new THREE.MeshStandardMaterial({
+      color: 0x020617,
+      roughness: 0.1,
+      metalness: 0.8
+    });
+
+    const w = 0.92, h = 1.88, d = 0.78;
+
+    // Main Fridge Cabinet Body
+    const body = this.createMesh(new THREE.BoxGeometry(w, h, d), bodyMat, 'Fridge Body');
+    body.position.set(0, h / 2, 0);
+    group.add(body);
+
+    // Left Upper Door
+    const leftDoor = this.createMesh(new THREE.BoxGeometry(w / 2 - 0.015, h * 0.58, 0.04), bodyMat, 'Left Upper Door');
+    leftDoor.position.set(-w / 4 + 0.005, h * 0.68, d / 2 + 0.02);
+    group.add(leftDoor);
+
+    // Right Upper Door
+    const rightDoor = this.createMesh(new THREE.BoxGeometry(w / 2 - 0.015, h * 0.58, 0.04), bodyMat, 'Right Upper Door');
+    rightDoor.position.set(w / 4 - 0.005, h * 0.68, d / 2 + 0.02);
+    group.add(rightDoor);
+
+    // Lower Freezer Drawer
+    const freezer = this.createMesh(new THREE.BoxGeometry(w - 0.02, h * 0.35, 0.04), bodyMat, 'Lower Freezer Drawer');
+    freezer.position.set(0, h * 0.2, d / 2 + 0.02);
+    group.add(freezer);
+
+    // Vertical Door Handles
+    const leftHandle = this.createMesh(new THREE.CylinderGeometry(0.012, 0.012, 0.6, 16), handleMat, 'Left Door Handle');
+    leftHandle.position.set(-0.05, h * 0.66, d / 2 + 0.06);
+    group.add(leftHandle);
+
+    const rightHandle = this.createMesh(new THREE.CylinderGeometry(0.012, 0.012, 0.6, 16), handleMat, 'Right Door Handle');
+    rightHandle.position.set(0.05, h * 0.66, d / 2 + 0.06);
+    group.add(rightHandle);
+
+    // Freezer Horizontal Handle
+    const freezerHandle = this.createMesh(new THREE.BoxGeometry(0.55, 0.02, 0.03), handleMat, 'Freezer Handle');
+    freezerHandle.position.set(0, h * 0.34, d / 2 + 0.06);
+    group.add(freezerHandle);
+
+    // Ice & Water Dispenser on Left Door
+    const dispenser = this.createMesh(new THREE.BoxGeometry(0.2, 0.28, 0.01), dispMat, 'Ice & Water Dispenser');
+    dispenser.position.set(-w / 4 + 0.005, h * 0.68, d / 2 + 0.045);
+    group.add(dispenser);
+
+    // Blue Indicator Light on Dispenser
+    const indMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+    const indicator = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.01, 0.005), indMat);
+    indicator.position.set(-w / 4 + 0.005, h * 0.79, d / 2 + 0.052);
+    group.add(indicator);
+
+    return group;
+  }
+
+  // 22. OVEN RANGE WITH CHIMNEY RANGE HOOD
+  static createKitchenRange(style = 'modern') {
+    const group = new THREE.Group();
+    group.name = 'Oven Range & Hood';
+    group.userData = { type: 'kitchen_range', name: 'Oven Range & Hood', cost: 1200 };
+
+    const rangeMat = new THREE.MeshStandardMaterial({
+      color: 0x94a3b8,
+      metalness: 0.8,
+      roughness: 0.25
+    });
+
+    const glassMat = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      roughness: 0.1,
+      metalness: 0.8
+    });
+
+    const grateMat = new THREE.MeshStandardMaterial({
+      color: 0x1e293b,
+      roughness: 0.8,
+      metalness: 0.5
+    });
+
+    const metalMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0xe2e8f0,
+      metalness: 0.9,
+      roughness: 0.2
+    });
+
+    const w = 0.78, h = 0.9, d = 0.65;
+
+    // Oven Body
+    const body = this.createMesh(new THREE.BoxGeometry(w, h, d), rangeMat, 'Range Body');
+    body.position.set(0, h / 2, 0);
+    group.add(body);
+
+    // Front Oven Glass Door
+    const ovenDoor = this.createMesh(new THREE.BoxGeometry(w - 0.06, 0.45, 0.02), glassMat, 'Oven Glass Window');
+    ovenDoor.position.set(0, 0.35, d / 2 + 0.01);
+    group.add(ovenDoor);
+
+    // Oven Handle Bar
+    const handle = this.createMesh(new THREE.BoxGeometry(w - 0.18, 0.025, 0.04), metalMat, 'Oven Door Handle');
+    handle.position.set(0, 0.6, d / 2 + 0.04);
+    group.add(handle);
+
+    // Control Panel Knobs
+    [-0.24, -0.12, 0, 0.12, 0.24].forEach((kx, idx) => {
+      const knob = this.createMesh(new THREE.CylinderGeometry(0.02, 0.02, 0.025, 16), metalMat, `Burner Knob ${idx + 1}`);
+      knob.rotation.x = Math.PI / 2;
+      knob.position.set(kx, h - 0.07, d / 2 + 0.015);
+      group.add(knob);
+    });
+
+    // Cast Iron Cooktop Grates
+    [-0.18, 0.18].forEach(gx => {
+      const grate = this.createMesh(new THREE.BoxGeometry(0.32, 0.02, d - 0.1), grateMat, 'Cast Iron Grate');
+      grate.position.set(gx, h + 0.01, 0);
+      group.add(grate);
+    });
+
+    // Wall-Mounted Chimney Range Hood
+    const hoodCanopy = this.createMesh(new THREE.BoxGeometry(w + 0.04, 0.1, d + 0.02), rangeMat, 'Range Hood Canopy');
+    hoodCanopy.position.set(0, 1.7, 0.01);
+    group.add(hoodCanopy);
+
+    const chimney = this.createMesh(new THREE.BoxGeometry(0.28, 0.95, 0.26), rangeMat, 'Hood Chimney Duct');
+    chimney.position.set(0, 2.2, -d / 2 + 0.15);
+    group.add(chimney);
+
+    return group;
+  }
+
+  // 23. COUNTER-HEIGHT BAR STOOL
+  static createBarStool(style = 'modern', color = 0xd97706, stoolIndex = 1) {
+    const group = new THREE.Group();
+    group.name = stoolIndex ? `Bar Stool ${stoolIndex}` : 'Bar Stool';
+    group.userData = { type: 'bar_stool', name: group.name, cost: 180, color: color };
+
+    const seatMat = new THREE.MeshStandardMaterial({
+      color: color,
+      roughness: 0.8
+    });
+
+    const metalMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0x1e293b,
+      metalness: 0.85,
+      roughness: 0.25
+    });
+
+    const seatH = 0.65; // Counter height
+
+    // Circular Cushioned Swivel Seat
+    const seat = this.createMesh(new THREE.CylinderGeometry(0.19, 0.19, 0.07, 24), seatMat, 'Bar Stool Cushion');
+    seat.position.y = seatH;
+    group.add(seat);
+
+    // Ergonomic Low Backrest Lip
+    const backLip = this.createMesh(new THREE.CylinderGeometry(0.2, 0.2, 0.12, 24, 1, true, -Math.PI / 2, Math.PI), seatMat, 'Bar Stool Backrest');
+    backLip.position.set(0, seatH + 0.08, 0);
+    group.add(backLip);
+
+    // 4 Slender Tapered Legs
+    const legSpread = 0.15;
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([lx, lz], idx) => {
+      const leg = this.createMesh(new THREE.CylinderGeometry(0.012, 0.018, seatH, 12), metalMat, `Stool Leg ${idx + 1}`);
+      leg.position.set(lx * legSpread, seatH / 2, lz * legSpread);
+      group.add(leg);
+    });
+
+    // Circular Footrest Ring
+    const footrest = this.createMesh(new THREE.TorusGeometry(0.18, 0.012, 8, 24), metalMat, 'Footrest Ring');
+    footrest.rotation.x = Math.PI / 2;
+    footrest.position.set(0, 0.24, 0);
+    group.add(footrest);
+
+    return group;
+  }
 }
 
   window.FurnitureFactory = FurnitureFactory;
@@ -1949,7 +2321,7 @@ class AIEngine {
         dimensions: [2.2, 1.8],
         cost: 200
       });
-    } else {
+    } else if (roomType === 'dining_room') {
       // Dining Room
       concept = `${style.toUpperCase()} ELEVATED DINING SUITE`;
       spatialRationale = `The 6-seater dining table takes center stage with a minimum 1.0m pull-out clearance for all chairs. A low credenza / storage unit lines the perimeter for dinnerware.`;
@@ -2044,6 +2416,111 @@ class AIEngine {
         rotation: [0, 0, 0],
         style: style,
         cost: 95
+      });
+    } else {
+      // Modular Chef's Kitchen (roomType === 'kitchen')
+      concept = `${style.toUpperCase()} CHEF'S CULINARY STUDIO`;
+      spatialRationale = `Ergonomic golden work triangle connecting the smart refrigerator, prep sink, and high-performance cooking range with optimal 1.1m clearance surrounding the central island breakfast bar.`;
+      lightingPlan = `Bright 4000K daylight-balanced task illumination over prep surfaces with warm 2700K ambient statement pendants above the breakfast bar.`;
+
+      // 1. Main Kitchen Cabinets & Counter with Double Sink & Gooseneck Faucet (back wall)
+      items.push({
+        id: 'cabinets_1',
+        type: 'kitchen_cabinets',
+        name: 'Kitchen Counter & Sink',
+        position: [-0.3, 0, -L / 2 + 0.35],
+        rotation: [0, 0, 0],
+        style: style,
+        color: palette.sofaColor,
+        cost: 1850
+      });
+
+      // 2. Oven Range & Chimney Range Hood (back wall to the right)
+      items.push({
+        id: 'range_1',
+        type: 'kitchen_range',
+        name: 'Oven Range & Hood',
+        position: [W / 2 - 0.75, 0, -L / 2 + 0.35],
+        rotation: [0, 0, 0],
+        style: style,
+        cost: 1200
+      });
+
+      // 3. Smart Refrigerator (side wall corner forming the work triangle)
+      items.push({
+        id: 'fridge_1',
+        type: 'refrigerator',
+        name: 'Smart Refrigerator',
+        position: [-W / 2 + 0.55, 0, -L / 2 + 0.45],
+        rotation: [0, 0, 0],
+        style: style,
+        cost: 1600
+      });
+
+      // 4. Kitchen Island with Countertop & Induction Cooktop (center)
+      items.push({
+        id: 'island_1',
+        type: 'kitchen_island',
+        name: 'Kitchen Island',
+        position: [0, 0, 0.4],
+        rotation: [0, 0, 0],
+        style: style,
+        color: palette.woodColor,
+        cost: 1450
+      });
+
+      // 5. Counter-Height Bar Stools (3 individual moveable stools along island)
+      const stoolConfigs = [
+        { id: 'stool_1', name: 'Bar Stool 1', pos: [-0.6, 0, 0.98] },
+        { id: 'stool_2', name: 'Bar Stool 2', pos: [0, 0, 0.98] },
+        { id: 'stool_3', name: 'Bar Stool 3', pos: [0.6, 0, 0.98] }
+      ];
+      stoolConfigs.forEach((s, idx) => {
+        items.push({
+          id: s.id,
+          type: 'bar_stool',
+          name: s.name,
+          stoolIndex: idx + 1,
+          position: s.pos,
+          rotation: [0, Math.PI, 0],
+          style: style,
+          color: palette.accentColor,
+          cost: 180
+        });
+      });
+
+      // 6. Statement Pendant Light over Island
+      items.push({
+        id: 'pendant_1',
+        type: 'pendant_light',
+        name: 'Island Pendant Fixture',
+        position: [0, 0, 0.4],
+        rotation: [0, 0, 0],
+        style: style,
+        cost: 190
+      });
+
+      // 7. Indoor Herb Planter
+      items.push({
+        id: 'plant_1',
+        type: 'plant',
+        name: 'Fresh Herb Planter',
+        position: [W / 2 - 0.6, 0, L / 2 - 0.6],
+        rotation: [0, 0, 0],
+        style: style,
+        cost: 65
+      });
+
+      // 8. Anti-fatigue Kitchen Runner Rug between counter and island
+      items.push({
+        id: 'rug_1',
+        type: 'rug',
+        name: 'Kitchen Runner Rug',
+        position: [0, 0, -0.4],
+        rotation: [0, 0, 0],
+        style: style,
+        dimensions: [2.6, 0.75],
+        cost: 140
       });
     }
 

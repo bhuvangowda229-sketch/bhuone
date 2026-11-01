@@ -340,7 +340,7 @@ export class AIEngine {
         dimensions: [2.2, 1.8],
         cost: 200
       });
-    } else {
+    } else if (roomType === 'dining_room') {
       // Dining Room
       concept = `${style.toUpperCase()} ELEVATED DINING SUITE`;
       spatialRationale = `The 6-seater dining table takes center stage with a minimum 1.0m pull-out clearance for all chairs. A low credenza / storage unit lines the perimeter for dinnerware.`;
@@ -435,6 +435,111 @@ export class AIEngine {
         rotation: [0, 0, 0],
         style: style,
         cost: 95
+      });
+    } else {
+      // Modular Chef's Kitchen (roomType === 'kitchen')
+      concept = `${style.toUpperCase()} CHEF'S CULINARY STUDIO`;
+      spatialRationale = `Ergonomic golden work triangle connecting the smart refrigerator, prep sink, and high-performance cooking range with optimal 1.1m clearance surrounding the central island breakfast bar.`;
+      lightingPlan = `Bright 4000K daylight-balanced task illumination over prep surfaces with warm 2700K ambient statement pendants above the breakfast bar.`;
+
+      // 1. Main Kitchen Cabinets & Counter with Double Sink & Gooseneck Faucet (back wall)
+      items.push({
+        id: 'cabinets_1',
+        type: 'kitchen_cabinets',
+        name: 'Kitchen Counter & Sink',
+        position: [-0.3, 0, -L / 2 + 0.35],
+        rotation: [0, 0, 0],
+        style: style,
+        color: palette.sofaColor,
+        cost: 1850
+      });
+
+      // 2. Oven Range & Chimney Range Hood (back wall to the right)
+      items.push({
+        id: 'range_1',
+        type: 'kitchen_range',
+        name: 'Oven Range & Hood',
+        position: [W / 2 - 0.75, 0, -L / 2 + 0.35],
+        rotation: [0, 0, 0],
+        style: style,
+        cost: 1200
+      });
+
+      // 3. Smart Refrigerator (side wall corner forming the work triangle)
+      items.push({
+        id: 'fridge_1',
+        type: 'refrigerator',
+        name: 'Smart Refrigerator',
+        position: [-W / 2 + 0.55, 0, -L / 2 + 0.45],
+        rotation: [0, 0, 0],
+        style: style,
+        cost: 1600
+      });
+
+      // 4. Kitchen Island with Countertop & Induction Cooktop (center)
+      items.push({
+        id: 'island_1',
+        type: 'kitchen_island',
+        name: 'Kitchen Island',
+        position: [0, 0, 0.4],
+        rotation: [0, 0, 0],
+        style: style,
+        color: palette.woodColor,
+        cost: 1450
+      });
+
+      // 5. Counter-Height Bar Stools (3 individual moveable stools along island)
+      const stoolConfigs = [
+        { id: 'stool_1', name: 'Bar Stool 1', pos: [-0.6, 0, 0.98] },
+        { id: 'stool_2', name: 'Bar Stool 2', pos: [0, 0, 0.98] },
+        { id: 'stool_3', name: 'Bar Stool 3', pos: [0.6, 0, 0.98] }
+      ];
+      stoolConfigs.forEach((s, idx) => {
+        items.push({
+          id: s.id,
+          type: 'bar_stool',
+          name: s.name,
+          stoolIndex: idx + 1,
+          position: s.pos,
+          rotation: [0, Math.PI, 0],
+          style: style,
+          color: palette.accentColor,
+          cost: 180
+        });
+      });
+
+      // 6. Statement Pendant Light over Island
+      items.push({
+        id: 'pendant_1',
+        type: 'pendant_light',
+        name: 'Island Pendant Fixture',
+        position: [0, 0, 0.4],
+        rotation: [0, 0, 0],
+        style: style,
+        cost: 190
+      });
+
+      // 7. Indoor Herb Planter
+      items.push({
+        id: 'plant_1',
+        type: 'plant',
+        name: 'Fresh Herb Planter',
+        position: [W / 2 - 0.6, 0, L / 2 - 0.6],
+        rotation: [0, 0, 0],
+        style: style,
+        cost: 65
+      });
+
+      // 8. Anti-fatigue Kitchen Runner Rug between counter and island
+      items.push({
+        id: 'rug_1',
+        type: 'rug',
+        name: 'Kitchen Runner Rug',
+        position: [0, 0, -0.4],
+        rotation: [0, 0, 0],
+        style: style,
+        dimensions: [2.6, 0.75],
+        cost: 140
       });
     }
 

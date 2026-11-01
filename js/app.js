@@ -143,9 +143,9 @@ class App {
         let chairSubGroup = null;
         let curr = clickedMesh;
 
-        // Climb up the hierarchy to find the root furniture item or nested chair group
+        // Climb up the hierarchy to find the root furniture item or nested chair/stool group
         while (curr.parent && curr.parent !== this.furnitureGroup) {
-          if (curr.type === 'Group' && (curr.userData?.type === 'dining_chair' || curr.userData?.type === 'office_chair' || (curr.name && curr.name.toLowerCase().includes('chair') && !curr.isMesh))) {
+          if (curr.type === 'Group' && (curr.userData?.type === 'dining_chair' || curr.userData?.type === 'office_chair' || curr.userData?.type === 'bar_stool' || (curr.name && (curr.name.toLowerCase().includes('chair') || curr.name.toLowerCase().includes('stool')) && !curr.isMesh))) {
             chairSubGroup = curr;
           }
           curr = curr.parent;
@@ -986,6 +986,21 @@ class App {
         break;
       case 'gaming_desk':
         meshGroup = FurnitureFactory.createGamingDesk(style);
+        break;
+      case 'kitchen_cabinets':
+        meshGroup = FurnitureFactory.createKitchenCabinets(style, itemData.color);
+        break;
+      case 'kitchen_island':
+        meshGroup = FurnitureFactory.createKitchenIsland(style, itemData.color);
+        break;
+      case 'refrigerator':
+        meshGroup = FurnitureFactory.createRefrigerator(style);
+        break;
+      case 'kitchen_range':
+        meshGroup = FurnitureFactory.createKitchenRange(style);
+        break;
+      case 'bar_stool':
+        meshGroup = FurnitureFactory.createBarStool(style, itemData.color, itemData.stoolIndex || 1);
         break;
       default:
         meshGroup = FurnitureFactory.createCoffeeTable(style);
