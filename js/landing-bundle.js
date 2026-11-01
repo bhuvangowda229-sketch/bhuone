@@ -2851,23 +2851,6 @@ class HeroDemo {
       });
     }
 
-    // Check user authentication status on Webpage
-    try {
-      const stored = localStorage.getItem('ai_interior_user');
-      if (stored) {
-        const user = JSON.parse(stored);
-        const nameEl = document.getElementById('nav-user-name');
-        if (nameEl && user && user.name) {
-          nameEl.textContent = user.name;
-        }
-      }
-    } catch (e) {}
-
-    // Sign out handler on Webpage
-    document.getElementById('nav-signout-btn')?.addEventListener('click', () => {
-      localStorage.removeItem('ai_interior_user');
-      window.location.href = 'index.html';
-    });
   }
 
   animate() {

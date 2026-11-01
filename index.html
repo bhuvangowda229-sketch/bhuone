@@ -3,203 +3,410 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In | AI Interior Studio</title>
-  <link rel="stylesheet" href="css/auth.css">
-  <!-- Three.js for interactive ambient 3D geometric background -->
+  <title>AI Interior Design Suggester & 3D Visualizer | Smart Spatial Planning</title>
+  <link rel="stylesheet" href="css/landing.css">
+  <!-- Three.js and OrbitControls for the interactive hero canvas -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 
-  <!-- Ambient 3D Canvas Background -->
-  <canvas id="auth-bg-canvas"></canvas>
-  <div class="auth-glow-1"></div>
-  <div class="auth-glow-2"></div>
-
-  <!-- AUTH HEADER -->
-  <header class="auth-header">
-    <a href="index.html" class="brand-link">
+  <!-- NAVIGATION BAR -->
+  <nav class="site-nav">
+    <a href="#" class="brand-link">
       <div class="brand-badge">✨</div>
       <div>
         <div class="brand-name">AI Interior Studio</div>
-        <div class="brand-sub">Smart Spatial Suggester</div>
+        <div class="brand-sub">3D Spatial Suggester</div>
       </div>
     </a>
 
-    <a href="https://github.com/bhuvangowda229-sketch/bhuvangowda" target="_blank" class="header-back-link">
-      <span>🐙</span> GitHub
-    </a>
-  </header>
+    <ul class="nav-menu">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#demo-section">Interactive 3D Demo</a></li>
+      <li><a href="#styles">Design Styles</a></li>
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#synopsis">About Studio</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
 
-  <!-- AUTH MAIN CONTENT -->
-  <main class="auth-main">
-    <div class="auth-card">
-
-      <!-- Active Session Notice (Appears if already logged in) -->
-      <div class="active-session-box" id="active-session-box">
-        <div class="user-avatar-badge" id="current-user-avatar">A</div>
-        <div>
-          <h2 class="user-name-display" id="current-user-name">Alex Rivera</h2>
-          <p class="user-email-display" id="current-user-email">demo@ai-interior.com</p>
-        </div>
-        <p style="font-size: 13px; color: var(--text-body);">You are currently logged into AI Interior Studio.</p>
-        <button class="btn-submit" id="btn-continue-session">
-          <span>🚀</span> Continue to Webpage
-        </button>
-        <button class="btn-social" id="btn-switch-account" style="width: 100%;">
-          <span>🔄</span> Sign Out & Switch Account
-        </button>
-      </div>
-
-      <!-- Main Auth Forms Container -->
-      <div id="auth-forms-container">
-
-        <h1 class="auth-title">Welcome to Studio</h1>
-        <p class="auth-subtitle" id="auth-subtitle">
-          Sign in to access your saved rooms, generate AI layouts, and customize 3D furniture.
-        </p>
-
-        <!-- Notification Alert -->
-        <div class="auth-alert" id="auth-alert"></div>
-
-        <!-- Mode Switcher Tabs -->
-        <div class="auth-tabs">
-          <button type="button" class="auth-tab-btn active" id="tab-btn-signin">Sign In</button>
-          <button type="button" class="auth-tab-btn" id="tab-btn-signup">Create Account</button>
-        </div>
-
-        <!-- SIGN IN FORM -->
-        <form class="auth-form active" id="form-signin">
-          <div class="form-group">
-            <label for="signin-email">Email Address</label>
-            <div class="input-wrapper">
-              <span class="input-icon">✉️</span>
-              <input type="email" id="signin-email" class="auth-input" placeholder="name@example.com" value="demo@ai-interior.com" required>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="signin-password">Password</label>
-            <div class="input-wrapper">
-              <span class="input-icon">🔒</span>
-              <input type="password" id="signin-password" class="auth-input" placeholder="••••••••" value="password123" required>
-              <button type="button" class="toggle-pwd" data-target="signin-password" title="Show/Hide Password">👁️</button>
-            </div>
-          </div>
-
-          <div class="form-options-row">
-            <label class="remember-label">
-              <input type="checkbox" id="remember-me" checked>
-              <span>Remember me</span>
-            </label>
-            <a href="#" class="forgot-link" id="link-forgot-pwd">Forgot password?</a>
-          </div>
-
-          <button type="submit" class="btn-submit">
-            <span>🚀</span> Sign In & Continue to Webpage
-          </button>
-
-          <div class="auth-divider">Or continue with</div>
-
-          <div class="social-login-grid">
-            <button type="button" class="btn-social" data-provider="Google">
-              <span>🌐</span> Google
-            </button>
-            <button type="button" class="btn-social" data-provider="GitHub">
-              <span>🐙</span> GitHub
-            </button>
-            <button type="button" class="btn-social" data-provider="Apple">
-              <span>🍎</span> Apple
-            </button>
-          </div>
-        </form>
-
-        <!-- SIGN UP FORM -->
-        <form class="auth-form" id="form-signup">
-          <div class="form-group">
-            <label for="signup-name">Full Name</label>
-            <div class="input-wrapper">
-              <span class="input-icon">👤</span>
-              <input type="text" id="signup-name" class="auth-input" placeholder="e.g. Bhuvan Gowda" required>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="signup-email">Email Address</label>
-            <div class="input-wrapper">
-              <span class="input-icon">✉️</span>
-              <input type="email" id="signup-email" class="auth-input" placeholder="name@example.com" required>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="signup-password">Password (min. 6 characters)</label>
-            <div class="input-wrapper">
-              <span class="input-icon">🔒</span>
-              <input type="password" id="signup-password" class="auth-input" placeholder="Create a strong password" required minlength="6">
-              <button type="button" class="toggle-pwd" data-target="signup-password" title="Show/Hide Password">👁️</button>
-            </div>
-            <div class="pwd-strength-bar">
-              <div class="pwd-strength-fill" id="pwd-strength-fill"></div>
-            </div>
-            <div class="pwd-strength-text" id="pwd-strength-text"></div>
-          </div>
-
-          <div class="form-group">
-            <label for="signup-style">Preferred Interior Aesthetic</label>
-            <div class="input-wrapper">
-              <span class="input-icon">🎨</span>
-              <select id="signup-style" class="auth-input">
-                <option value="modern" selected>Modern Warmth</option>
-                <option value="minimalist">Minimalist Scandi</option>
-                <option value="scandinavian">Nordic Scandinavian</option>
-                <option value="luxury">Contemporary Luxury</option>
-                <option value="industrial">Urban Industrial</option>
-                <option value="bohemian">Eclectic Bohemian</option>
-              </select>
-            </div>
-          </div>
-
-          <button type="submit" class="btn-submit">
-            <span>✨</span> Create Account & Enter Webpage
-          </button>
-        </form>
-
-      </div>
-
+    <div class="nav-cta-group">
+      <a href="https://github.com/bhuvangowda229-sketch/bhuvangowda" target="_blank" class="btn btn-secondary">
+        <span>🐙</span> GitHub
+      </a>
+      <a href="studio.html" class="btn btn-primary">
+        <span>🚀</span> Launch 3D Studio
+      </a>
     </div>
-  </main>
+  </nav>
 
-  <!-- FORGOT PASSWORD MODAL -->
-  <div class="modal-overlay" id="forgot-modal">
-    <div class="modal-content">
-      <button type="button" class="modal-close" id="btn-close-forgot">&times;</button>
-      <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Reset Your Password</h3>
-      <p style="font-size: 13px; color: var(--text-body); margin-bottom: 20px;">
-        Enter your account email and we'll send you instructions to reset your password.
+  <!-- HERO SECTION -->
+  <header class="hero">
+    <div class="container">
+      <div class="hero-pill">
+        <span class="dot"></span>
+        <span>AI-Driven Spatial Layouts & Real-Time Three.js 3D Visualization</span>
+      </div>
+
+      <h1 class="hero-title">
+        Design Your Ideal Interior with <span>AI Precision</span> & Real-Time 3D
+      </h1>
+
+      <p class="hero-desc">
+        Simplify interior planning with intelligent recommendations tailored to your room type, dimensions, style, and lighting. Explore ergonomic furniture arrangements in high-fidelity 3D without expensive design fees or complex CAD software.
       </p>
 
-      <form id="form-forgot">
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label for="forgot-email">Email Address</label>
-          <div class="input-wrapper">
-            <span class="input-icon">✉️</span>
-            <input type="email" id="forgot-email" class="auth-input" placeholder="name@example.com" required>
+      <div class="hero-cta-box">
+        <a href="studio.html" class="btn btn-primary btn-lg">
+          <span>✨</span> Launch Full 3D Design Studio
+        </a>
+        <a href="#demo-section" class="btn btn-secondary btn-lg">
+          <span>🎮</span> Explore Interactive 3D Demo
+        </a>
+      </div>
+
+      <!-- KEY METRICS BAR -->
+      <div class="stats-bar">
+        <div class="stat-item">
+          <div class="stat-num glow">Real-Time</div>
+          <div class="stat-label">Three.js 3D Rendering</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">4 Styles</div>
+          <div class="stat-label">Modern, Minimal, Luxury, Classic</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num glow">AI Spatial</div>
+          <div class="stat-label">Ergonomic Clearance Planning</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">0 Installs</div>
+          <div class="stat-label">Runs 100% in Modern Browsers</div>
+        </div>
+      </div>
+
+      <!-- LIVE INTERACTIVE 3D DEMO VIEWER -->
+      <div class="live-demo-card" id="demo-section">
+        <div class="demo-header">
+          <div class="demo-title">
+            <span>🛋️</span>
+            <span>Live 3D Room Visualizer (Try Rotating & Switching Styles)</span>
+          </div>
+
+          <div class="demo-controls-bar">
+            <button class="demo-btn active" data-demo-style="modern">Modern</button>
+            <button class="demo-btn" data-demo-style="minimalist">Minimalist</button>
+            <button class="demo-btn" data-demo-style="luxury">Luxury</button>
+            <button class="demo-btn" data-demo-style="traditional">Traditional</button>
+            <button class="demo-btn" id="demo-day-toggle">☀️ Day</button>
+            <button class="demo-btn" id="demo-top-toggle">🗺️ Floor Plan</button>
+            <a href="studio.html" class="demo-btn" style="background: var(--gradient-brand); color: #fff; text-decoration: none; font-weight: 600;">
+              Full Studio ↗
+            </a>
           </div>
         </div>
 
-        <button type="submit" class="btn-submit">
-          <span>📬</span> Send Reset Link
-        </button>
-      </form>
+        <div class="canvas-wrapper">
+          <canvas id="heroCanvas"></canvas>
+          <div class="canvas-overlay-hint">
+            👆 Click & drag to rotate | Scroll to zoom | Right-click to pan
+          </div>
+        </div>
+      </div>
+
     </div>
-  </div>
+  </header>
+
+  <!-- FEATURES SECTION -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="text-center">
+        <span class="section-tag">Core Capabilities</span>
+        <h2 class="section-title">Everything You Need for Seamless Room Planning</h2>
+        <p class="section-subtitle">
+          From architectural dimensions to tactile materials, discover how AI streamlines every step of your spatial redesign.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-box">🧠</div>
+          <h3 class="feature-title">AI Spatial Intelligence</h3>
+          <p class="feature-text">
+            Automatically calculates ergonomic walkway clearance corridors, sightline balances, and conversational seating arrangements based on exact room dimensions.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">📐</div>
+          <h3 class="feature-title">Interactive 3D Three.js Engine</h3>
+          <p class="feature-text">
+            Experience fluid, 60fps 3D graphics in your browser with dynamic OrbitControls, daylight simulation, soft shadows, and cutaway wall viewports.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">🎨</div>
+          <h3 class="feature-title">Harmonious Color & Finishes</h3>
+          <p class="feature-text">
+            Generate balanced color schemes complete with wall paint swatches, baseboard trims, and tactile materials including oak, dark walnut, and marble.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">💡</div>
+          <h3 class="feature-title">Dynamic Lighting Simulation</h3>
+          <p class="feature-text">
+            Preview spaces under warm ambient (2700K), crisp natural daylight (4000K), or atmospheric evening modes with window sunlight casting.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">🖐️</div>
+          <h3 class="feature-title">Interactive 3D Customizer</h3>
+          <p class="feature-text">
+            Click any piece of furniture to reposition, rotate by 45°, change colors, or add pieces directly from an expandable furniture catalog.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">💾</div>
+          <h3 class="feature-title">Save, Export & Snapshots</h3>
+          <p class="feature-text">
+            Preserve designs in your browser, export portable JSON files, and capture high-resolution 3D renders with a single click.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DESIGN STYLES SECTION -->
+  <section class="section" id="styles" style="background: rgba(0, 0, 0, 0.25);">
+    <div class="container">
+      <div class="text-center">
+        <span class="section-tag">Aesthetic Presets</span>
+        <h2 class="section-title">Support for Diverse Design Languages</h2>
+        <p class="section-subtitle">
+          Select any aesthetic style below to see how our AI translates design principles into custom furniture and textures.
+        </p>
+      </div>
+
+      <div class="styles-grid">
+        <div class="style-preview-card active" data-style="modern">
+          <div class="style-emoji">🏙️</div>
+          <h3 class="style-name">Modern</h3>
+          <p class="style-desc">
+            Clean horizontal geometry, low-profile modular seating, balanced neutral backgrounds with vivid accent pops.
+          </p>
+          <div class="style-tags">
+            <span class="style-tag">Balanced</span>
+            <span class="style-tag">Oak Wood</span>
+            <span class="style-tag">Matte Black</span>
+          </div>
+        </div>
+
+        <div class="style-preview-card" data-style="minimalist">
+          <div class="style-emoji">🪴</div>
+          <h3 class="style-name">Minimalist</h3>
+          <p class="style-desc">
+            Intentional negative space, warm organic textures, functional hidden storage, and gentle Scandinavian simplicity.
+          </p>
+          <div class="style-tags">
+            <span class="style-tag">Zero Clutter</span>
+            <span class="style-tag">Glass & Light</span>
+            <span class="style-tag">Tactile</span>
+          </div>
+        </div>
+
+        <div class="style-preview-card" data-style="luxury">
+          <div class="style-emoji">👑</div>
+          <h3 class="style-name">Luxury</h3>
+          <p class="style-desc">
+            Polished Italian marble tiles, brushed brass metallic accents, deep rich velvet fabrics, and sculpted chandeliers.
+          </p>
+          <div class="style-tags">
+            <span class="style-tag">Italian Marble</span>
+            <span class="style-tag">Brass Metal</span>
+            <span class="style-tag">Rich Velvet</span>
+          </div>
+        </div>
+
+        <div class="style-preview-card" data-style="traditional">
+          <div class="style-emoji">🏛️</div>
+          <h3 class="style-name">Traditional</h3>
+          <p class="style-desc">
+            Rich dark walnut timbers, ornate architectural crown molding, comforting symmetry, and classic warm lighting.
+          </p>
+          <div class="style-tags">
+            <span class="style-tag">Dark Walnut</span>
+            <span class="style-tag">Timeless</span>
+            <span class="style-tag">Heritage</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS SECTION -->
+  <section class="section" id="how-it-works">
+    <div class="container">
+      <div class="text-center">
+        <span class="section-tag">Workflow</span>
+        <h2 class="section-title">How It Works in 4 Simple Steps</h2>
+        <p class="section-subtitle">
+          Go from empty dimensions to an immersive, fully furnished 3D environment in seconds.
+        </p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <div style="font-size: 28px;">📐</div>
+          <h3 class="step-title">Specify Room Dimensions</h3>
+          <p class="step-desc">
+            Input your room type (Living Room, Bedroom, Office, Dining, Kitchen) and dimensions (width, length, ceiling height).
+          </p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <div style="font-size: 28px;">🎨</div>
+          <h3 class="step-title">Select Style & Mood</h3>
+          <p class="step-desc">
+            Choose your preferred aesthetic style, color harmony palette, flooring material, and lighting temperature.
+          </p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <div style="font-size: 28px;">✨</div>
+          <h3 class="step-title">AI Generates Layout</h3>
+          <p class="step-desc">
+            The spatial engine positions furniture with ideal clearances, focal points, and cohesive color schemes.
+          </p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">04</div>
+          <div style="font-size: 28px;">🛋️</div>
+          <h3 class="step-title">Interact & Export</h3>
+          <p class="step-desc">
+            Tour the space in 3D orbit, reposition items, toggle day/night views, and export design specifications or snapshots.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SYSTEM OVERVIEW CALLOUT -->
+  <section class="section" id="synopsis">
+    <div class="container">
+      <div class="synopsis-card">
+        <span class="section-tag" style="background: rgba(165, 180, 252, 0.2); color: #fff;">System Overview</span>
+        <h3>AI-Based Interior Design Suggester with 3D Visualization</h3>
+        <p>
+          This platform is an intelligent web application that simplifies interior design planning by providing personalized design suggestions and interactive 3D visualizations. Users input room details such as type, dimensions, preferred style, colors, flooring, and lighting preferences. The system uses AI to generate tailored recommendations for furniture, color schemes, lighting setups, and spatial arrangements.
+        </p>
+
+        <div class="synopsis-points">
+          <div class="syn-point">
+            <span>✓</span>
+            <div><strong>AI-Driven Suggestions:</strong> Tailored furniture selection, color harmony palettes, and spatial layouts.</div>
+          </div>
+          <div class="syn-point">
+            <span>✓</span>
+            <div><strong>Real-Time 3D Visualization:</strong> Seamless Three.js rendering with dynamic lighting and camera controls.</div>
+          </div>
+          <div class="syn-point">
+            <span>✓</span>
+            <div><strong>Multiple Styles Supported:</strong> Presets for Modern, Minimalist, Luxury, and Traditional interiors.</div>
+          </div>
+          <div class="syn-point">
+            <span>✓</span>
+            <div><strong>Accessible & Cost-Effective:</strong> Eliminates steep learning curves of CAD tools and expensive initial consultations.</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 32px; display: flex; gap: 14px;">
+          <a href="studio.html" class="btn btn-primary">
+            <span>🚀</span> Open Full 3D Studio App
+          </a>
+          <a href="https://github.com/bhuvangowda229-sketch/bhuvangowda" target="_blank" class="btn btn-secondary">
+            <span>📂</span> View Code on GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ SECTION -->
+  <section class="section" id="faq">
+    <div class="container">
+      <div class="text-center">
+        <span class="section-tag">Questions</span>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-subtitle">
+          Everything you need to know about the AI Interior Design Suggester.
+        </p>
+      </div>
+
+      <div class="faq-grid">
+        <div class="faq-item">
+          <div class="faq-q">Do I need a graphics card or heavy software to run this?</div>
+          <div class="faq-a">
+            No! The application runs completely in any modern web browser (Chrome, Edge, Safari, Firefox) utilizing lightweight procedural WebGL/Three.js geometry.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">Does the AI engine require an external API key?</div>
+          <div class="faq-a">
+            No! It comes with a built-in algorithmic AI spatial planning engine that computes ideal clearances, focal points, and layouts instantly offline. You can also optionally connect a Google Gemini API key for live generative descriptions.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">Can I modify furniture placements manually?</div>
+          <div class="faq-a">
+            Yes! In the 3D Studio, simply click any piece of furniture to bring up the inspector, where you can reposition, rotate by 45°, change color finishes, or delete items.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">How do I save or share my designs?</div>
+          <div class="faq-a">
+            You can save designs directly in your browser's local storage, export them as lightweight JSON files to share with friends or contractors, and capture high-resolution 3D snapshot images (.png).
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- FOOTER -->
-  <footer class="auth-footer">
-    <p>© 2026 AI Interior Studio. Built with Three.js & Gemini AI. <a href="home.html">Webpage</a></p>
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="brand-link">
+          <div class="brand-badge">✨</div>
+          <div>
+            <div class="brand-name">AI Interior Studio</div>
+            <div class="brand-sub">Smart 3D Spatial Suggester</div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 16px;">
+          <a href="studio.html" class="btn btn-sm btn-primary">Launch Studio</a>
+          <a href="https://github.com/bhuvangowda229-sketch/bhuvangowda" target="_blank" class="btn btn-sm btn-secondary">GitHub Repository</a>
+        </div>
+      </div>
+
+      <div class="footer-copy">
+        &copy; 2026 AI Interior Studio. Built with Three.js, Modern WebGL, and Spatial AI Planning.
+      </div>
+    </div>
   </footer>
 
-  <!-- Auth Script -->
-  <script src="js/auth.js"></script>
+  <!-- SCRIPT FOR LIVE HERO DEMO (Zero-CORS, Works directly on file:// and http://) -->
+  <script src="js/landing-bundle.js"></script>
 </body>
 </html>
