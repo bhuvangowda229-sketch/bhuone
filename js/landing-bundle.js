@@ -2851,20 +2851,23 @@ class HeroDemo {
       });
     }
 
-    // Check if user is logged in and display profile pill in navbar
+    // Check user authentication status on Webpage
     try {
       const stored = localStorage.getItem('ai_interior_user');
       if (stored) {
         const user = JSON.parse(stored);
-        const authBtn = document.getElementById('nav-auth-btn');
-        if (authBtn && user && user.name) {
-          authBtn.innerHTML = `<span>👤</span> ${user.name.split(' ')[0]}`;
-          authBtn.title = `Signed in as ${user.name}. Click to view account.`;
-          authBtn.style.borderColor = 'rgba(99, 102, 241, 0.4)';
-          authBtn.style.background = 'rgba(99, 102, 241, 0.15)';
+        const nameEl = document.getElementById('nav-user-name');
+        if (nameEl && user && user.name) {
+          nameEl.textContent = user.name;
         }
       }
     } catch (e) {}
+
+    // Sign out handler on Webpage
+    document.getElementById('nav-signout-btn')?.addEventListener('click', () => {
+      localStorage.removeItem('ai_interior_user');
+      window.location.href = 'index.html';
+    });
   }
 
   animate() {

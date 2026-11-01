@@ -48,7 +48,7 @@
 
   function getRedirectUrl() {
     const params = new URLSearchParams(window.location.search);
-    return params.get('redirect') || 'studio.html';
+    return params.get('redirect') || 'home.html';
   }
 
   // 2. ALERT & FEEDBACK HELPERS

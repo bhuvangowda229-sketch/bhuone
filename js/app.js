@@ -758,12 +758,16 @@ class App {
         const authBtn = document.getElementById('studio-auth-btn');
         if (authBtn && user && user.name) {
           authBtn.innerHTML = `<span style="background: var(--primary); border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; margin-right: 4px;">${user.avatarInitial || user.name.charAt(0).toUpperCase()}</span> ${user.name.split(' ')[0]}`;
-          authBtn.title = `Signed in as ${user.name} (${user.email}). Click to manage account or sign out.`;
-          authBtn.style.borderColor = 'rgba(99, 102, 241, 0.5)';
-          authBtn.style.background = 'rgba(99, 102, 241, 0.15)';
+          authBtn.title = `Signed in as ${user.name} (${user.email}).`;
         }
       }
     } catch (e) {}
+
+    // Sign out handler in Studio
+    document.getElementById('btn-studio-signout')?.addEventListener('click', () => {
+      localStorage.removeItem('ai_interior_user');
+      window.location.href = 'index.html';
+    });
   }
 
   // 6. CAMERA PRESETS & WALKTHROUGH
