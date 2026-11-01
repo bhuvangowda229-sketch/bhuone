@@ -140,9 +140,15 @@ class App {
       if (intersects.length > 0) {
         const clickedMesh = intersects[0].object;
         let rootObj = clickedMesh;
-        while (rootObj.parent && rootObj.parent !== this.furnitureGroup) {
-          rootObj = rootObj.parent;
+        let chairGroup = null;
+        let curr = clickedMesh;
+        while (curr.parent && curr.parent !== this.furnitureGroup) {
+          if (curr.name && curr.name.toLowerCase().includes('chair')) {
+            chairGroup = curr;
+          }
+          curr = curr.parent;
         }
+        rootObj = chairGroup || curr;
 
         this.selectTarget(rootObj, clickedMesh);
 
@@ -887,9 +893,41 @@ class App {
       case 'office_chair':
         meshGroup = FurnitureFactory.createOfficeChair();
         break;
-      case 'dining_set':
-        meshGroup = FurnitureFactory.createDiningSet(style, itemData.color);
+      case 'dining_table':
+        meshGroup = FurnitureFactory.createDiningTable(style, itemData.color);
         break;
+      case 'dining_chair':
+        meshGroup = FurnitureFactory.createDiningChair(style, itemData.color, itemData.chairIndex || 1);
+        break;
+      case 'dining_set':
+        // Decompose dining set into separate individual dining table and individual dining chairs
+        const tablePos = itemData.position || [0, 0, 0];
+        const table = FurnitureFactory.createDiningTable(style, itemData.color);
+        table.position.set(...tablePos);
+        if (itemData.rotation) table.rotation.set(...itemData.rotation);
+        table.userData = { type: 'dining_table', name: 'Dining Table', cost: 650 };
+        this.furnitureGroup.add(table);
+
+        const chairConfigs = [
+          { x: -0.55, z: 0.68, rotY: Math.PI, name: 'Dining Chair 1' },
+          { x: 0.55, z: 0.68, rotY: Math.PI, name: 'Dining Chair 2' },
+          { x: -0.55, z: -0.68, rotY: 0, name: 'Dining Chair 3' },
+          { x: 0.55, z: -0.68, rotY: 0, name: 'Dining Chair 4' },
+          { x: -1.15, z: 0, rotY: -Math.PI / 2, name: 'Dining Chair 5' },
+          { x: 1.15, z: 0, rotY: Math.PI / 2, name: 'Dining Chair 6' }
+        ];
+
+        chairConfigs.forEach((cfg, idx) => {
+          const chair = FurnitureFactory.createDiningChair(style, itemData.chairColor || 0xd97706, idx + 1);
+          chair.name = cfg.name;
+          chair.userData = { type: 'dining_chair', name: cfg.name, cost: 150 };
+          chair.position.set(tablePos[0] + cfg.x, tablePos[1], tablePos[2] + cfg.z);
+          chair.rotation.y = cfg.rotY;
+          this.furnitureGroup.add(chair);
+        });
+
+        this.showToast('Added Dining Table and 6 separate moveable Dining Chairs!');
+        return;
       case 'bookshelf':
         meshGroup = FurnitureFactory.createBookshelf(style);
         break;

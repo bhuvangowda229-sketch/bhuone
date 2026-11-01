@@ -485,21 +485,16 @@ export class FurnitureFactory {
     return group;
   }
 
-  // 10. DINING TABLE & CHAIRS
-  static createDiningSet(style = 'modern', woodColor = 0x4a3525) {
+  // 10a. INDEPENDENT DINING TABLE
+  static createDiningTable(style = 'modern', woodColor = 0x4a3525) {
     const group = new THREE.Group();
-    group.name = 'Dining Table Set';
-    group.userData = { type: 'dining_set', name: '6-Seater Dining Set', cost: 1250 };
+    group.name = 'Dining Table';
+    group.userData = { type: 'dining_table', name: 'Dining Table', cost: 650, color: woodColor };
 
     const tableMat = new THREE.MeshStandardMaterial({
       color: style === 'luxury' ? 0xf5f5f4 : woodColor,
       roughness: style === 'luxury' ? 0.2 : 0.6,
       metalness: style === 'luxury' ? 0.1 : 0.0
-    });
-
-    const chairMat = new THREE.MeshStandardMaterial({
-      color: style === 'luxury' ? 0x1e293b : 0xd97706,
-      roughness: 0.8
     });
 
     const legMat = new THREE.MeshStandardMaterial({
@@ -510,37 +505,74 @@ export class FurnitureFactory {
 
     // Table Top
     const w = 1.8, d = 0.9, h = 0.76;
-    const top = this.createMesh(new THREE.BoxGeometry(w, 0.05, d), tableMat);
+    const top = this.createMesh(new THREE.BoxGeometry(w, 0.05, d), tableMat, 'Dining Table Top');
     top.position.y = h;
     group.add(top);
 
     // Table Legs
-    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([xDir, zDir]) => {
-      const leg = this.createMesh(new THREE.CylinderGeometry(0.03, 0.02, h, 16), legMat);
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([xDir, zDir], idx) => {
+      const leg = this.createMesh(new THREE.CylinderGeometry(0.03, 0.02, h, 16), legMat, `Table Leg ${idx + 1}`);
       leg.position.set(xDir * (w / 2 - 0.1), h / 2, zDir * (d / 2 - 0.1));
       group.add(leg);
     });
 
-    // 4 Chairs arranged along the long sides
-    const chairX = [-0.5, 0.5];
+    // Centerpiece Bowl
+    const bowlMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.7, roughness: 0.3 });
+    const bowl = this.createMesh(new THREE.CylinderGeometry(0.14, 0.08, 0.06, 24), bowlMat, 'Centerpiece Bowl');
+    bowl.position.set(0, h + 0.03, 0);
+    group.add(bowl);
+
+    return group;
+  }
+
+  // 10b. INDEPENDENT DINING CHAIR
+  static createDiningChair(style = 'modern', color = 0xd97706, chairIndex = 1) {
+    const group = new THREE.Group();
+    group.name = chairIndex ? `Dining Chair ${chairIndex}` : 'Dining Chair';
+    group.userData = { type: 'dining_chair', name: group.name, cost: 150, color: color };
+
+    const chairMat = new THREE.MeshStandardMaterial({
+      color: color,
+      roughness: 0.8
+    });
+
+    const legMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0x1f2937,
+      metalness: 0.6,
+      roughness: 0.3
+    });
+
+    // Seat cushion
+    const cSeat = this.createMesh(new THREE.BoxGeometry(0.44, 0.06, 0.44), chairMat, 'Chair Seat Cushion');
+    cSeat.position.y = 0.45;
+    group.add(cSeat);
+
+    // Ergonomic backrest
+    const cBack = this.createMesh(new THREE.BoxGeometry(0.44, 0.42, 0.04), chairMat, 'Chair Backrest');
+    cBack.position.set(0, 0.66, -0.2);
+    group.add(cBack);
+
+    // 4 Legs
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([lx, lz], idx) => {
+      const cLeg = this.createMesh(new THREE.CylinderGeometry(0.015, 0.015, 0.45, 12), legMat, `Chair Leg ${idx + 1}`);
+      cLeg.position.set(lx * 0.17, 0.225, lz * 0.17);
+      group.add(cLeg);
+    });
+
+    return group;
+  }
+
+  // 10c. DINING SET (Composite helper)
+  static createDiningSet(style = 'modern', woodColor = 0x4a3525) {
+    const group = this.createDiningTable(style, woodColor);
+    group.name = 'Dining Table';
+
+    // Add 4 individual chair groups inside for standalone compatibility
+    const chairX = [-0.55, 0.55];
+    let idx = 1;
     chairX.forEach(x => {
-      [0.65, -0.65].forEach(z => {
-        const chair = new THREE.Group();
-        const cSeat = this.createMesh(new THREE.BoxGeometry(0.42, 0.05, 0.42), chairMat);
-        cSeat.position.y = 0.45;
-        chair.add(cSeat);
-
-        const cBack = this.createMesh(new THREE.BoxGeometry(0.42, 0.4, 0.04), chairMat);
-        cBack.position.set(0, 0.65, z > 0 ? 0.19 : -0.19);
-        chair.add(cBack);
-
-        // Legs
-        [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([lx, lz]) => {
-          const cLeg = this.createMesh(new THREE.CylinderGeometry(0.015, 0.015, 0.45, 12), legMat);
-          cLeg.position.set(lx * 0.16, 0.225, lz * 0.16);
-          chair.add(cLeg);
-        });
-
+      [0.68, -0.68].forEach(z => {
+        const chair = this.createDiningChair(style, style === 'luxury' ? 0x1e293b : 0xd97706, idx++);
         chair.position.set(x, 0, z);
         chair.rotation.y = z > 0 ? Math.PI : 0;
         group.add(chair);

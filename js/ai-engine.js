@@ -346,16 +346,38 @@ export class AIEngine {
       spatialRationale = `The 6-seater dining table takes center stage with a minimum 1.0m pull-out clearance for all chairs. A low credenza / storage unit lines the perimeter for dinnerware.`;
       lightingPlan = `Warm, intimate overhead pendant lighting (2700K) cast directly onto the dining surface to create a cozy gathering ambiance.`;
 
-      // Dining Set in center
+      // Dining Table in center
       items.push({
-        id: 'dining_set_1',
-        type: 'dining_set',
-        name: '6-Seater Dining Set',
+        id: 'dining_table_1',
+        type: 'dining_table',
+        name: 'Dining Table',
         position: [0, 0, 0],
         rotation: [0, 0, 0],
         style: style,
         color: palette.woodColor,
-        cost: 1350
+        cost: 650
+      });
+
+      // Individual Dining Chairs (each independently moveable & recolorable)
+      const chairConfigs = [
+        { id: 'chair_1', name: 'Dining Chair 1', pos: [-0.55, 0, 0.68], rot: Math.PI },
+        { id: 'chair_2', name: 'Dining Chair 2', pos: [0.55, 0, 0.68], rot: Math.PI },
+        { id: 'chair_3', name: 'Dining Chair 3', pos: [-0.55, 0, -0.68], rot: 0 },
+        { id: 'chair_4', name: 'Dining Chair 4', pos: [0.55, 0, -0.68], rot: 0 },
+        { id: 'chair_5', name: 'Dining Chair 5', pos: [-1.15, 0, 0], rot: -Math.PI / 2 },
+        { id: 'chair_6', name: 'Dining Chair 6', pos: [1.15, 0, 0], rot: Math.PI / 2 }
+      ];
+      chairConfigs.forEach(c => {
+        items.push({
+          id: c.id,
+          type: 'dining_chair',
+          name: c.name,
+          position: c.pos,
+          rotation: [0, c.rot, 0],
+          style: style,
+          color: palette.accentColor,
+          cost: 150
+        });
       });
 
       // Wall Art
