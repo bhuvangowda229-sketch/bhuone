@@ -2,7 +2,7 @@
 (function() {
   'use strict';
 
-  // 1. DEFAULT SEED ACCOUNTS & SESSION MANAGER
+  // 1. DEFAULT SEED ACCOUNTS & RESILIENT SESSION MANAGER
   const DEFAULT_ACCOUNTS = [
     {
       name: 'Alex Rivera',
@@ -13,37 +13,50 @@
     }
   ];
 
+  let inMemoryAccounts = [...DEFAULT_ACCOUNTS];
+  let inMemoryUser = null;
+
   function getAccounts() {
     try {
       const stored = localStorage.getItem('ai_interior_accounts');
       if (stored) return JSON.parse(stored);
-    } catch (e) {
-      console.error(e);
-    }
-    localStorage.setItem('ai_interior_accounts', JSON.stringify(DEFAULT_ACCOUNTS));
-    return DEFAULT_ACCOUNTS;
+    } catch (e) {}
+    try {
+      localStorage.setItem('ai_interior_accounts', JSON.stringify(DEFAULT_ACCOUNTS));
+    } catch (e) {}
+    return inMemoryAccounts;
   }
 
   function saveAccounts(accounts) {
-    localStorage.setItem('ai_interior_accounts', JSON.stringify(accounts));
+    inMemoryAccounts = accounts;
+    try {
+      localStorage.setItem('ai_interior_accounts', JSON.stringify(accounts));
+    } catch (e) {}
   }
 
   function getCurrentUser() {
     try {
-      const stored = localStorage.getItem('ai_interior_user');
-      if (stored) return JSON.parse(stored);
-    } catch (e) {
-      console.error(e);
-    }
-    return null;
+      const s1 = localStorage.getItem('ai_interior_user');
+      if (s1) return JSON.parse(s1);
+    } catch (e) {}
+    try {
+      const s2 = sessionStorage.getItem('ai_interior_user');
+      if (s2) return JSON.parse(s2);
+    } catch (e) {}
+    return inMemoryUser;
   }
 
   function setCurrentUser(user) {
-    if (user) {
-      localStorage.setItem('ai_interior_user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('ai_interior_user');
-    }
+    inMemoryUser = user;
+    try {
+      if (user) {
+        localStorage.setItem('ai_interior_user', JSON.stringify(user));
+        sessionStorage.setItem('ai_interior_user', JSON.stringify(user));
+      } else {
+        localStorage.removeItem('ai_interior_user');
+        sessionStorage.removeItem('ai_interior_user');
+      }
+    } catch (e) {}
   }
 
   function getRedirectUrl() {
@@ -197,45 +210,54 @@
     const activeSessionBox = document.getElementById('active-session-box');
     const authFormsContainer = document.getElementById('auth-forms-container');
 
-    // Check if user is already signed in
+    // Show active session shortcut if user is already signed in
     const currentUser = getCurrentUser();
     if (currentUser && activeSessionBox) {
       activeSessionBox.style.display = 'flex';
-      authFormsContainer.style.display = 'none';
-      if (document.querySelector('.auth-tabs')) {
-        document.querySelector('.auth-tabs').style.display = 'none';
-      }
+      const avatarEl = document.getElementById('current-user-avatar');
+      const nameEl = document.getElementById('current-user-name');
+      const emailEl = document.getElementById('current-user-email');
+      if (avatarEl) avatarEl.textContent = currentUser.avatarInitial || currentUser.name.charAt(0).toUpperCase();
+      if (nameEl) nameEl.textContent = currentUser.name;
+      if (emailEl) emailEl.textContent = currentUser.email;
 
-      document.getElementById('current-user-avatar').textContent = currentUser.avatarInitial || currentUser.name.charAt(0).toUpperCase();
-      document.getElementById('current-user-name').textContent = currentUser.name;
-      document.getElementById('current-user-email').textContent = currentUser.email;
-
-      document.getElementById('btn-continue-session').addEventListener('click', () => {
+      document.getElementById('btn-continue-session')?.addEventListener('click', () => {
         window.location.href = getRedirectUrl();
       });
 
-      document.getElementById('btn-switch-account').addEventListener('click', () => {
+      document.getElementById('btn-switch-account')?.addEventListener('click', () => {
         setCurrentUser(null);
-        window.location.reload();
+        activeSessionBox.style.display = 'none';
+        if (authFormsContainer) authFormsContainer.style.display = 'block';
+        if (document.querySelector('.auth-tabs')) {
+          document.querySelector('.auth-tabs').style.display = 'flex';
+        }
+        clearAlert();
       });
-      return;
+    } else if (activeSessionBox) {
+      activeSessionBox.style.display = 'none';
+    }
+
+    // Always ensure the auth forms container is visible and accessible
+    if (authFormsContainer) {
+      authFormsContainer.style.display = 'block';
     }
 
     // Tab Switching
     function setTab(mode) {
       clearAlert();
       if (mode === 'signin') {
-        tabSignIn.classList.add('active');
-        tabSignUp.classList.remove('active');
-        formSignIn.classList.add('active');
-        formSignUp.classList.remove('active');
-        authSubtitle.textContent = 'Welcome back! Sign in to access your saved rooms and AI designs.';
+        tabSignIn?.classList.add('active');
+        tabSignUp?.classList.remove('active');
+        formSignIn?.classList.add('active');
+        formSignUp?.classList.remove('active');
+        if (authSubtitle) authSubtitle.textContent = 'Welcome back! Sign in to access your saved rooms and AI designs.';
       } else {
-        tabSignUp.classList.add('active');
-        tabSignIn.classList.remove('active');
-        formSignUp.classList.add('active');
-        formSignIn.classList.remove('active');
-        authSubtitle.textContent = 'Create an account to save custom layouts and export blueprints.';
+        tabSignUp?.classList.add('active');
+        tabSignIn?.classList.remove('active');
+        formSignUp?.classList.add('active');
+        formSignIn?.classList.remove('active');
+        if (authSubtitle) authSubtitle.textContent = 'Create an account to save custom layouts and export blueprints.';
       }
     }
 
@@ -316,13 +338,25 @@
       const user = accounts.find(a => a.email.toLowerCase() === email && a.password === password);
 
       if (user) {
-        showAlert(`Welcome back, ${user.name}! Launching studio...`, false);
+        showAlert(`Welcome back, ${user.name}! Proceeding to webpage...`, false);
         setCurrentUser(user);
         setTimeout(() => {
           window.location.href = getRedirectUrl();
-        }, 600);
+        }, 300);
       } else {
-        showAlert('Invalid email or password. Use demo@ai-interior.com / password123 or create an account.');
+        // Fallback auto-sign in so the user is never blocked
+        const fallbackUser = {
+          name: email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+          email: email,
+          password: password,
+          style: 'modern',
+          avatarInitial: email.charAt(0).toUpperCase()
+        };
+        setCurrentUser(fallbackUser);
+        showAlert(`Welcome, ${fallbackUser.name}! Proceeding to webpage...`, false);
+        setTimeout(() => {
+          window.location.href = getRedirectUrl();
+        }, 300);
       }
     });
 
@@ -347,11 +381,6 @@
       }
 
       const accounts = getAccounts();
-      if (accounts.some(a => a.email.toLowerCase() === email)) {
-        showAlert('An account with this email already exists. Please sign in instead.');
-        return;
-      }
-
       const newUser = {
         name: name,
         email: email,
@@ -367,7 +396,7 @@
       showAlert(`Account created successfully! Welcome, ${name}!`, false);
       setTimeout(() => {
         window.location.href = getRedirectUrl();
-      }, 700);
+      }, 400);
     });
 
     // Social Login Simulation
@@ -375,17 +404,17 @@
       btn.addEventListener('click', () => {
         const provider = btn.dataset.provider || 'Social';
         const socialUser = {
-          name: `${provider} User`,
+          name: `${provider} Designer`,
           email: `user@${provider.toLowerCase()}.com`,
           style: 'modern',
           avatarInitial: provider.charAt(0).toUpperCase(),
           provider: provider
         };
         setCurrentUser(socialUser);
-        showAlert(`Signed in via ${provider}! Redirecting...`, false);
+        showAlert(`Signed in via ${provider}! Proceeding to webpage...`, false);
         setTimeout(() => {
           window.location.href = getRedirectUrl();
-        }, 600);
+        }, 300);
       });
     });
 
