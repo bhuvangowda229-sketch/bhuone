@@ -2373,6 +2373,21 @@ class HeroDemo {
         this.controls.update();
       });
     }
+
+    // Check if user is logged in and display profile pill in navbar
+    try {
+      const stored = localStorage.getItem('ai_interior_user');
+      if (stored) {
+        const user = JSON.parse(stored);
+        const authBtn = document.getElementById('nav-auth-btn');
+        if (authBtn && user && user.name) {
+          authBtn.innerHTML = `<span>👤</span> ${user.name.split(' ')[0]}`;
+          authBtn.title = `Signed in as ${user.name}. Click to view account.`;
+          authBtn.style.borderColor = 'rgba(99, 102, 241, 0.4)';
+          authBtn.style.background = 'rgba(99, 102, 241, 0.15)';
+        }
+      }
+    } catch (e) {}
   }
 
   animate() {
