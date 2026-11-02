@@ -1472,6 +1472,102 @@ class FurnitureFactory {
     return group;
   }
 
+  // 15b. MIRRORED DOUBLE WARDROBE
+  static createMirroredWardrobe(style = 'modern', color = 0x2b2d42) {
+    const group = new THREE.Group();
+    group.name = 'Mirrored Wardrobe';
+    group.userData = { type: 'mirrored_wardrobe', name: 'Mirrored Double Wardrobe', cost: 950, color: color };
+
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: color,
+      roughness: style === 'luxury' ? 0.35 : 0.7,
+      metalness: style === 'luxury' ? 0.18 : 0.05
+    });
+
+    const mirrorMat = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc,
+      roughness: 0.03,
+      metalness: 0.96
+    });
+
+    const mirrorFrameMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0x334155,
+      metalness: style === 'luxury' ? 0.85 : 0.3,
+      roughness: 0.3
+    });
+
+    const handleMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0xd1d5db,
+      metalness: 0.85,
+      roughness: 0.2
+    });
+
+    const plinthMat = new THREE.MeshStandardMaterial({
+      color: 0x18181b,
+      roughness: 0.85
+    });
+
+    const width = 1.5;
+    const height = 2.15;
+    const depth = 0.62;
+    const plinthH = 0.08;
+
+    // Plinth base
+    const plinth = this.createMesh(
+      new THREE.BoxGeometry(width - 0.04, plinthH, depth - 0.04),
+      plinthMat
+    );
+    plinth.position.y = plinthH / 2;
+    group.add(plinth);
+
+    // Main carcass body
+    const bodyH = height - plinthH;
+    const body = this.createMesh(
+      new THREE.BoxGeometry(width, bodyH, depth),
+      bodyMat
+    );
+    body.position.y = plinthH + bodyH / 2;
+    group.add(body);
+
+    // Double mirrored front doors
+    const doorW = (width - 0.04) / 2;
+    const doorH = bodyH - 0.06;
+
+    [-1, 1].forEach(side => {
+      // Door substrate / backing
+      const doorGeom = new THREE.BoxGeometry(doorW - 0.01, doorH, 0.02);
+      const door = this.createMesh(doorGeom, bodyMat);
+      door.position.set(side * (doorW / 2 + 0.005), plinthH + bodyH / 2, depth / 2 + 0.01);
+      group.add(door);
+
+      // Mirror border frame on door
+      const frameGeom = new THREE.BoxGeometry(doorW - 0.04, doorH - 0.06, 0.006);
+      const mFrame = this.createMesh(frameGeom, mirrorFrameMat);
+      mFrame.position.set(side * (doorW / 2 + 0.005), plinthH + bodyH / 2, depth / 2 + 0.022);
+      group.add(mFrame);
+
+      // High-reflection mirror pane
+      const mirrorPaneGeom = new THREE.PlaneGeometry(doorW - 0.08, doorH - 0.1);
+      const mirrorPane = new THREE.Mesh(mirrorPaneGeom, mirrorMat);
+      mirrorPane.position.set(side * (doorW / 2 + 0.005), plinthH + bodyH / 2, depth / 2 + 0.026);
+      group.add(mirrorPane);
+
+      // Vertical door handle
+      const handleGeom = new THREE.CylinderGeometry(0.01, 0.01, 0.45, 16);
+      const handle = this.createMesh(handleGeom, handleMat);
+      handle.position.set(side * 0.07, plinthH + bodyH / 2, depth / 2 + 0.04);
+      group.add(handle);
+    });
+
+    // Top crown molding
+    const trimGeom = new THREE.BoxGeometry(width + 0.04, 0.04, depth + 0.04);
+    const trim = this.createMesh(trimGeom, bodyMat);
+    trim.position.y = height + 0.02;
+    group.add(trim);
+
+    return group;
+  }
+
   // 16. PENDANT CEILING LIGHT
   static createPendantLight(style = 'modern') {
     const group = new THREE.Group();
@@ -2358,16 +2454,16 @@ class AIEngine {
         cost: 280
       });
 
-      // Built-in Double Wardrobe along right wall
+      // Built-in Mirrored Wardrobe along right wall
       items.push({
         id: 'wardrobe_1',
-        type: 'wardrobe',
-        name: 'Double Wardrobe',
+        type: 'mirrored_wardrobe',
+        name: 'Mirrored Double Wardrobe',
         position: [W / 2 - 0.4, 0, 0.3],
         rotation: [0, -Math.PI / 2, 0],
         style: style,
         color: palette.sofaColor,
-        cost: 850
+        cost: 950
       });
 
       // Ceiling Pendant Light
@@ -3900,6 +3996,9 @@ class App {
         break;
       case 'wardrobe':
         meshGroup = FurnitureFactory.createWardrobe(style, itemData.color);
+        break;
+      case 'mirrored_wardrobe':
+        meshGroup = FurnitureFactory.createMirroredWardrobe(style, itemData.color);
         break;
       case 'pendant_light':
         meshGroup = FurnitureFactory.createPendantLight(style);

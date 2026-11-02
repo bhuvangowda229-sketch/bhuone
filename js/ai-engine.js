@@ -220,16 +220,16 @@ export class AIEngine {
         cost: 280
       });
 
-      // Built-in Double Wardrobe along right wall
+      // Built-in Mirrored Wardrobe along right wall
       items.push({
         id: 'wardrobe_1',
-        type: 'wardrobe',
-        name: 'Double Wardrobe',
+        type: 'mirrored_wardrobe',
+        name: 'Mirrored Double Wardrobe',
         position: [W / 2 - 0.4, 0, 0.3],
         rotation: [0, -Math.PI / 2, 0],
         style: style,
         color: palette.sofaColor,
-        cost: 850
+        cost: 950
       });
 
       // Ceiling Pendant Light

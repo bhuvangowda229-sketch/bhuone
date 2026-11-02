@@ -1097,6 +1097,9 @@ class App {
       case 'wardrobe':
         meshGroup = FurnitureFactory.createWardrobe(style, itemData.color);
         break;
+      case 'mirrored_wardrobe':
+        meshGroup = FurnitureFactory.createMirroredWardrobe(style, itemData.color);
+        break;
       case 'pendant_light':
         meshGroup = FurnitureFactory.createPendantLight(style);
         break;
