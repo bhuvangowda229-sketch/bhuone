@@ -32,9 +32,6 @@ class AuthManager {
     this.inputEmail = document.getElementById('input-email');
     this.inputPassword = document.getElementById('input-password');
     this.btnTogglePwd = document.getElementById('btn-toggle-pwd');
-    this.btnQuickDemo = document.getElementById('btn-quick-demo');
-    this.btnGoogle = document.getElementById('btn-google-login');
-    this.btnGithub = document.getElementById('btn-github-login');
     this.linkForgot = document.getElementById('link-forgot-pwd');
 
     this.formsContainer = document.getElementById('auth-forms-container');
@@ -77,38 +74,6 @@ class AuthManager {
     this.form?.addEventListener('submit', (e) => {
       e.preventDefault();
       this.handleFormSubmit();
-    });
-
-    // Quick Demo Login
-    this.btnQuickDemo?.addEventListener('click', () => {
-      this.performLogin({
-        name: 'Alex Rivera',
-        email: 'alex.rivera@designstudio.ai',
-        role: 'Senior Interior Architect'
-      });
-    });
-
-    // Social Logins
-    this.btnGoogle?.addEventListener('click', () => {
-      this.showToast('Connecting to Google...', 'success');
-      setTimeout(() => {
-        this.performLogin({
-          name: 'Alex Rivera',
-          email: 'alex.rivera@gmail.com',
-          provider: 'google'
-        });
-      }, 700);
-    });
-
-    this.btnGithub?.addEventListener('click', () => {
-      this.showToast('Connecting to GitHub...', 'success');
-      setTimeout(() => {
-        this.performLogin({
-          name: 'Alex Rivera',
-          email: 'alex@github.com',
-          provider: 'github'
-        });
-      }, 700);
     });
 
     // Switch Account
