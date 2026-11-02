@@ -749,6 +749,26 @@ class App {
       apiModal.classList.remove('open');
       this.showToast(this.geminiApiKey ? 'Gemini API key saved!' : 'Cleared API key');
     });
+
+    // Display user session in studio navbar if signed in
+    try {
+      const stored = localStorage.getItem('ai_interior_user');
+      if (stored) {
+        const user = JSON.parse(stored);
+        const label = document.getElementById('studio-auth-label');
+        if (label && user && user.name) {
+          label.textContent = user.name.split(' ')[0];
+          const icon = document.getElementById('studio-auth-icon');
+          if (icon && user.avatarInitial) {
+            icon.textContent = '✨';
+          }
+          const link = document.getElementById('studio-auth-link');
+          if (link) {
+            link.title = `Signed in as ${user.name} (${user.email || ''})`;
+          }
+        }
+      }
+    } catch (e) {}
   }
 
   // 6. CAMERA PRESETS & WALKTHROUGH

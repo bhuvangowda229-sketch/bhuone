@@ -193,6 +193,21 @@ class HeroDemo {
       });
     }
 
+    // Check user session
+    try {
+      const stored = localStorage.getItem('ai_interior_user');
+      if (stored) {
+        const user = JSON.parse(stored);
+        const label = document.getElementById('nav-login-label');
+        if (label && user && user.name) {
+          label.textContent = user.name.split(' ')[0];
+          const icon = document.getElementById('nav-login-icon');
+          if (icon && user.avatarInitial) {
+            icon.textContent = '✨';
+          }
+        }
+      }
+    } catch (e) {}
   }
 
   animate() {
