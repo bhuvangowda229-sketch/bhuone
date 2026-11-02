@@ -27,12 +27,6 @@
       <a href="index.html" class="btn btn-sm" style="text-decoration: none;">
         <span>🏠</span> Home
       </a>
-      <button class="btn btn-sm" id="btn-api-key" title="Configure Gemini AI Key">
-        <span>🔑</span> AI Key
-      </button>
-      <button class="btn btn-sm" id="btn-export-json">
-        <span>📤</span> Export JSON
-      </button>
       <button class="btn btn-sm" id="btn-export-report" title="Generate printable Interior Design Specification Report">
         <span>📄</span> Design Report
       </button>
@@ -156,11 +150,6 @@
                   <option value="moody_evening">Moody Evening Glow</option>
                 </select>
               </div>
-            </div>
-
-            <div class="form-group">
-              <label for="custom-notes">Custom Needs / Notes</label>
-              <textarea id="custom-notes" rows="2" placeholder="e.g. optimize for small pet, space for 2 people to work, maximize sunlight..."></textarea>
             </div>
           </div>
 
@@ -398,25 +387,6 @@
     </section>
 
   </main>
-
-  <!-- GEMINI API MODAL -->
-  <div class="modal-backdrop" id="api-modal">
-    <div class="modal-content">
-      <div class="section-title">Gemini API Key Configuration</div>
-      <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-        You can provide a Gemini API key to enable live generative interior architect recommendations.
-        If left blank, the app will use its built-in algorithmic AI spatial planning engine.
-      </p>
-      <div class="form-group">
-        <label for="gemini-key-input">Gemini API Key</label>
-        <input type="password" id="gemini-key-input" class="form-control" placeholder="AIzaSy...">
-      </div>
-      <div style="display: flex; justify-content: flex-end; gap: 8px;">
-        <button class="btn btn-sm" id="btn-close-modal">Cancel</button>
-        <button class="btn btn-sm btn-primary" id="btn-save-key">Save Key</button>
-      </div>
-    </div>
-  </div>
 
   <!-- DESIGN SPECIFICATION REPORT MODAL -->
   <div class="modal-backdrop" id="report-modal">

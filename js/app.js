@@ -734,22 +734,6 @@ class App {
       reportModal?.classList.remove('open');
     });
 
-    // Gemini API Modal
-    const apiModal = document.getElementById('api-modal');
-    document.getElementById('btn-api-key').addEventListener('click', () => {
-      document.getElementById('gemini-key-input').value = this.geminiApiKey;
-      apiModal.classList.add('open');
-    });
-    document.getElementById('btn-close-modal').addEventListener('click', () => {
-      apiModal.classList.remove('open');
-    });
-    document.getElementById('btn-save-key').addEventListener('click', () => {
-      this.geminiApiKey = document.getElementById('gemini-key-input').value.trim();
-      localStorage.setItem('ai_interior_gemini_key', this.geminiApiKey);
-      apiModal.classList.remove('open');
-      this.showToast(this.geminiApiKey ? 'Gemini API key saved!' : 'Cleared API key');
-    });
-
     // Display user session in studio navbar if signed in
     try {
       const stored = localStorage.getItem('ai_interior_user');
@@ -825,7 +809,7 @@ class App {
       colorScheme: document.getElementById('color-scheme').value,
       flooring: document.getElementById('flooring-select').value,
       lighting: document.getElementById('lighting-select').value,
-      customNotes: document.getElementById('custom-notes').value
+      customNotes: ''
     };
 
     // 1. Rebuild room architecture with new dimensions and style
@@ -1152,19 +1136,6 @@ class App {
     document.getElementById('btn-save-project')?.addEventListener('click', () => {
       const name = document.getElementById('project-name-input')?.value?.trim() || 'My Interior Design';
       this.saveProject(name);
-    });
-
-    // Export JSON
-    document.getElementById('btn-export-json')?.addEventListener('click', () => {
-      const projectData = this.getCurrentProjectData();
-      const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.download = `interior-design-${Date.now()}.json`;
-      link.href = url;
-      link.click();
-      URL.revokeObjectURL(url);
-      this.showToast('Exported design JSON');
     });
 
     // Import JSON
