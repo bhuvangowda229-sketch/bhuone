@@ -943,13 +943,71 @@ class App {
       });
     });
 
-    // Style Card Selection
+    // Style Card Selection & Instant Real-Time 3D Generation
+    const stylePresets = {
+      modern: {
+        colorScheme: 'warm_neutral',
+        flooring: 'wood_oak',
+        label: 'Modern'
+      },
+      minimalist: {
+        colorScheme: 'cool_scandi',
+        flooring: 'tile',
+        label: 'Minimalist'
+      },
+      luxury: {
+        colorScheme: 'dark_luxury',
+        flooring: 'marble',
+        label: 'Luxury'
+      },
+      traditional: {
+        colorScheme: 'earthy_terracotta',
+        flooring: 'dark_walnut',
+        label: 'Traditional'
+      }
+    };
+
     document.querySelectorAll('.style-card').forEach(card => {
       card.addEventListener('click', () => {
+        const style = card.dataset.style;
         document.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
-        this.currentStyle = card.dataset.style;
+        this.currentStyle = style;
+
+        // Auto-configure matching Color Palette & Flooring in the UI
+        const preset = stylePresets[style];
+        if (preset) {
+          const colorSelect = document.getElementById('color-scheme');
+          const floorSelect = document.getElementById('flooring-select');
+          if (colorSelect) colorSelect.value = preset.colorScheme;
+          if (floorSelect) floorSelect.value = preset.flooring;
+        }
+
+        // Immediately re-generate room with the selected style
+        this.triggerAIGeneration();
+        this.showToast(`✨ Applied ${preset ? preset.label : style} Design Style`);
       });
+    });
+
+    // Instant Room Type Switching
+    document.getElementById('room-type')?.addEventListener('change', () => {
+      this.triggerAIGeneration();
+      const rName = document.getElementById('room-type').options[document.getElementById('room-type').selectedIndex]?.text || 'Space';
+      this.showToast(`Switched space to ${rName}`);
+    });
+
+    // Instant Color Scheme Switching
+    document.getElementById('color-scheme')?.addEventListener('change', () => {
+      this.triggerAIGeneration();
+      const cName = document.getElementById('color-scheme').options[document.getElementById('color-scheme').selectedIndex]?.text || 'Palette';
+      this.showToast(`Applied ${cName}`);
+    });
+
+    // Instant Flooring Switching
+    document.getElementById('flooring-select')?.addEventListener('change', (e) => {
+      this.roomBuilder.setFlooring(e.target.value);
+      const fName = e.target.options[e.target.selectedIndex]?.text || 'Flooring';
+      this.showToast(`Flooring set to ${fName}`);
     });
 
     // Generate AI Design Button

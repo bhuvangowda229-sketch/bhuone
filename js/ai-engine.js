@@ -576,15 +576,15 @@ export class AIEngine {
         };
       case 'earthy_terracotta':
         return {
-          name: 'Earthy Terracotta & Olive',
-          wallColor: 0xfbf7ee,
-          wallColorHex: '#fbf7ee',
-          accentColor: 0xc2410c,
-          accentColorHex: '#c2410c',
-          sofaColor: 0x3f6212,
-          sofaColorHex: '#3f6212',
-          woodColor: 0x78350f,
-          woodColorHex: '#78350f'
+          name: 'Earthy Terracotta & Walnut',
+          wallColor: 0xf7f1e5,
+          wallColorHex: '#f7f1e5',
+          accentColor: 0xb85d43,
+          accentColorHex: '#b85d43',
+          sofaColor: 0x5a3825,
+          sofaColorHex: '#5a3825',
+          woodColor: 0x3e2723,
+          woodColorHex: '#3e2723'
         };
       case 'pastel':
         return {

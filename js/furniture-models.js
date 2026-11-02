@@ -14,21 +14,23 @@ export class FurnitureFactory {
   }
 
   // 1. SOFA
-  static createSofa(style = 'modern', color = 0x3d4451) {
+  static createSofa(style = 'modern', color = null) {
     const group = new THREE.Group();
     group.name = 'Sofa';
     group.userData = { type: 'sofa', name: 'Sofa', cost: 850 };
 
+    const sofaColor = color || (style === 'luxury' ? 0x1e293b : (style === 'traditional' ? 0x5a3825 : (style === 'minimalist' ? 0xd1d5db : 0x3d4451)));
+
     const fabricMat = new THREE.MeshStandardMaterial({
-      color: color,
-      roughness: 0.85,
-      metalness: 0.05
+      color: sofaColor,
+      roughness: style === 'luxury' ? 0.45 : (style === 'traditional' ? 0.8 : 0.85),
+      metalness: style === 'luxury' ? 0.15 : 0.05
     });
 
     const woodLegMat = new THREE.MeshStandardMaterial({
-      color: style === 'luxury' ? 0xd4af37 : 0x2c1810,
-      metalness: style === 'luxury' ? 0.8 : 0.1,
-      roughness: style === 'luxury' ? 0.3 : 0.7
+      color: style === 'luxury' ? 0xd4af37 : (style === 'traditional' ? 0x3e2723 : 0x2c1810),
+      metalness: style === 'luxury' ? 0.8 : (style === 'traditional' ? 0.05 : 0.1),
+      roughness: style === 'luxury' ? 0.3 : (style === 'traditional' ? 0.5 : 0.7)
     });
 
     const width = style === 'minimalist' ? 2.0 : 2.4;
@@ -104,14 +106,27 @@ export class FurnitureFactory {
     group.userData = { type: 'coffee_table', name: 'Coffee Table', cost: 280 };
 
     let topMat;
-    if (style === 'minimalist' || style === 'luxury') {
+    if (style === 'luxury') {
       topMat = new THREE.MeshPhysicalMaterial({
-        color: style === 'luxury' ? 0xfbfbfb : 0xe0e7ff,
-        transmission: style === 'luxury' ? 0.1 : 0.85,
-        opacity: 1,
-        transparent: style !== 'luxury',
+        color: 0xfbfbfb,
+        transmission: 0.1,
         roughness: 0.1,
-        metalness: 0.1
+        metalness: 0.15
+      });
+    } else if (style === 'minimalist') {
+      topMat = new THREE.MeshPhysicalMaterial({
+        color: 0xe0e7ff,
+        transmission: 0.85,
+        opacity: 1,
+        transparent: true,
+        roughness: 0.1,
+        metalness: 0.05
+      });
+    } else if (style === 'traditional') {
+      topMat = new THREE.MeshStandardMaterial({
+        color: 0x3e2723,
+        roughness: 0.45,
+        metalness: 0.05
       });
     } else {
       topMat = new THREE.MeshStandardMaterial({
@@ -122,8 +137,8 @@ export class FurnitureFactory {
     }
 
     const legMat = new THREE.MeshStandardMaterial({
-      color: style === 'luxury' ? 0xd4af37 : (style === 'minimalist' ? 0x111827 : 0x3d2817),
-      metalness: style === 'luxury' ? 0.85 : 0.3,
+      color: style === 'luxury' ? 0xd4af37 : (style === 'minimalist' ? 0x111827 : (style === 'traditional' ? 0x2e1c12 : 0x3d2817)),
+      metalness: style === 'luxury' ? 0.85 : (style === 'traditional' ? 0.05 : 0.3),
       roughness: 0.3
     });
 
@@ -313,7 +328,7 @@ export class FurnitureFactory {
   }
 
   // 6. BED (For Bedroom)
-  static createBed(style = 'modern', frameColor = 0x2b2d42) {
+  static createBed(style = 'modern', frameColor = null) {
     const group = new THREE.Group();
     group.name = 'Bed';
     group.userData = { type: 'bed', name: 'King/Queen Platform Bed', cost: 1400 };
@@ -322,9 +337,11 @@ export class FurnitureFactory {
     const length = 2.2;
     const height = 0.35;
 
+    const chosenFrameColor = frameColor || (style === 'luxury' ? 0x0f172a : (style === 'traditional' ? 0x3e2723 : (style === 'minimalist' ? 0xd1d5db : 0x2b2d42)));
+
     const frameMat = new THREE.MeshStandardMaterial({
-      color: frameColor,
-      roughness: 0.6
+      color: chosenFrameColor,
+      roughness: style === 'luxury' ? 0.35 : (style === 'traditional' ? 0.5 : 0.6)
     });
 
     const mattressMat = new THREE.MeshStandardMaterial({
@@ -333,7 +350,7 @@ export class FurnitureFactory {
     });
 
     const duvetMat = new THREE.MeshStandardMaterial({
-      color: style === 'luxury' ? 0x0f172a : (style === 'minimalist' ? 0xd1d5db : 0x0284c7),
+      color: style === 'luxury' ? 0x0f172a : (style === 'minimalist' ? 0xd1d5db : (style === 'traditional' ? 0x6b3e26 : 0x0284c7)),
       roughness: 0.85
     });
 
@@ -1092,14 +1109,17 @@ export class FurnitureFactory {
   }
 
   // 15b. MIRRORED DOUBLE WARDROBE
-  static createMirroredWardrobe(style = 'modern', color = 0x2b2d42) {
+  static createMirroredWardrobe(style = 'modern', color = null) {
     const group = new THREE.Group();
     group.name = 'Mirrored Wardrobe';
-    group.userData = { type: 'mirrored_wardrobe', name: 'Mirrored Double Wardrobe', cost: 950, color: color };
+
+    const wardrobeColor = color || (style === 'luxury' ? 0x1e293b : (style === 'traditional' ? 0x3e2723 : (style === 'minimalist' ? 0xf8fafc : 0x2b2d42)));
+
+    group.userData = { type: 'mirrored_wardrobe', name: 'Mirrored Double Wardrobe', cost: 950, color: wardrobeColor };
 
     const bodyMat = new THREE.MeshStandardMaterial({
-      color: color,
-      roughness: style === 'luxury' ? 0.35 : 0.7,
+      color: wardrobeColor,
+      roughness: style === 'luxury' ? 0.35 : (style === 'traditional' ? 0.5 : 0.7),
       metalness: style === 'luxury' ? 0.18 : 0.05
     });
 
@@ -1111,7 +1131,7 @@ export class FurnitureFactory {
     });
 
     const mirrorFrameMat = new THREE.MeshStandardMaterial({
-      color: style === 'luxury' ? 0xd4af37 : 0x334155,
+      color: style === 'luxury' ? 0xd4af37 : (style === 'traditional' ? 0x8b5a2b : 0x334155),
       metalness: style === 'luxury' ? 0.85 : 0.3,
       roughness: 0.3
     });
