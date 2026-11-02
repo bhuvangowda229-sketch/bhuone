@@ -1350,7 +1350,7 @@ class FurnitureFactory {
   static createWallArt(style = 'modern') {
     const group = new THREE.Group();
     group.name = 'Wall Art';
-    group.userData = { type: 'wall_art', name: 'Gallery Framed Art', cost: 150 };
+    group.userData = { type: 'wall_art', name: 'Gallery Framed Art', cost: 150, isWallMounted: true };
 
     const frameMat = new THREE.MeshStandardMaterial({
       color: style === 'luxury' ? 0xd4af37 : 0x111827,
@@ -1391,11 +1391,11 @@ class FurnitureFactory {
 
     const w = 1.2, h = 0.9;
     // Frame
-    const frame = this.createMesh(new THREE.BoxGeometry(w + 0.08, h + 0.08, 0.03), frameMat);
+    const frame = this.createMesh(new THREE.BoxGeometry(w + 0.08, h + 0.08, 0.03), frameMat, 'Picture Frame');
     group.add(frame);
 
     // Canvas face
-    const artPlane = new THREE.Mesh(new THREE.PlaneGeometry(w, h), artMat);
+    const artPlane = this.createMesh(new THREE.PlaneGeometry(w, h), artMat, 'Art Canvas');
     artPlane.position.z = 0.02;
     group.add(artPlane);
 
@@ -3116,7 +3116,19 @@ class App {
 
         const targetWorldPos = new THREE.Vector3();
         this.selectedTarget.getWorldPosition(targetWorldPos);
-        this.dragPlane.set(new THREE.Vector3(0, 1, 0), -targetWorldPos.y);
+
+        const isWallMounted = this.selectedRoot?.userData?.isWallMounted || this.selectedRoot?.userData?.type === 'wall_art';
+        if (isWallMounted) {
+          const rotY = this.selectedRoot.rotation.y;
+          const isSideWall = Math.abs(Math.sin(rotY)) > 0.5;
+          if (isSideWall) {
+            this.dragPlane.set(new THREE.Vector3(1, 0, 0), -targetWorldPos.x);
+          } else {
+            this.dragPlane.set(new THREE.Vector3(0, 0, 1), -targetWorldPos.z);
+          }
+        } else {
+          this.dragPlane.set(new THREE.Vector3(0, 1, 0), -targetWorldPos.y);
+        }
 
         const planeIntersect = new THREE.Vector3();
         if (this.raycaster.ray.intersectPlane(this.dragPlane, planeIntersect)) {
@@ -3142,7 +3154,31 @@ class App {
       if (this.raycaster.ray.intersectPlane(this.dragPlane, planeIntersect)) {
         const targetWorld = planeIntersect.sub(this.dragOffset);
 
-        if (this.editMode === 'whole' || this.selectedTarget === this.selectedRoot) {
+        const isWallMounted = this.selectedRoot?.userData?.isWallMounted || this.selectedRoot?.userData?.type === 'wall_art';
+        if (isWallMounted) {
+          const roomW = this.currentRoomDimensions?.width || 5.0;
+          const roomL = this.currentRoomDimensions?.length || 4.5;
+          const roomH = this.currentRoomDimensions?.height || 2.8;
+          const halfW = roomW / 2;
+          const halfL = roomL / 2;
+
+          const isSideWall = Math.abs(Math.sin(this.selectedRoot.rotation.y)) > 0.5;
+          const isRightWall = this.selectedRoot.position.x > 0;
+
+          // Height / Elevation clamp
+          const clampedY = Math.max(0.6, Math.min(roomH - 0.4, targetWorld.y));
+          this.selectedRoot.position.y = clampedY;
+
+          if (isSideWall) {
+            const clampedZ = Math.max(-halfL + 0.7, Math.min(halfL - 0.7, targetWorld.z));
+            this.selectedRoot.position.z = clampedZ;
+            this.selectedRoot.position.x = isRightWall ? (halfW - 0.04) : (-halfW + 0.04);
+          } else {
+            const clampedX = Math.max(-halfW + 0.7, Math.min(halfW - 0.7, targetWorld.x));
+            this.selectedRoot.position.x = clampedX;
+            this.selectedRoot.position.z = -halfL + 0.04;
+          }
+        } else if (this.editMode === 'whole' || this.selectedTarget === this.selectedRoot) {
           let posX = targetWorld.x;
           let posZ = targetWorld.z;
           if (this.selectedTarget.parent && this.selectedTarget.parent !== this.furnitureGroup && this.selectedTarget.parent !== this.scene) {
@@ -3365,6 +3401,47 @@ class App {
     }
   }
 
+  rotateSelected() {
+    if (!this.selectedTarget) return;
+
+    const isWallMounted = this.selectedRoot?.userData?.isWallMounted || this.selectedRoot?.userData?.type === 'wall_art';
+    if (isWallMounted) {
+      const roomW = this.currentRoomDimensions?.width || 5.0;
+      const roomL = this.currentRoomDimensions?.length || 4.5;
+      const halfW = roomW / 2;
+      const halfL = roomL / 2;
+
+      const rotY = this.selectedRoot.rotation.y;
+      const isSideWall = Math.abs(Math.sin(rotY)) > 0.5;
+      const isRightWall = this.selectedRoot.position.x > 0;
+
+      if (!isSideWall) {
+        // From Back wall -> move to Right wall
+        this.selectedRoot.rotation.y = -Math.PI / 2;
+        this.selectedRoot.position.x = halfW - 0.04;
+        this.selectedRoot.position.z = 0;
+        this.showToast('🖼️ Wall Art moved to Right Wall');
+      } else if (isRightWall) {
+        // From Right wall -> move to Left wall
+        this.selectedRoot.rotation.y = Math.PI / 2;
+        this.selectedRoot.position.x = -halfW + 0.04;
+        this.selectedRoot.position.z = 0;
+        this.showToast('🖼️ Wall Art moved to Left Wall');
+      } else {
+        // From Left wall -> move to Back wall
+        this.selectedRoot.rotation.y = 0;
+        this.selectedRoot.position.x = 0;
+        this.selectedRoot.position.z = -halfL + 0.04;
+        this.showToast('🖼️ Wall Art moved to Back Wall');
+      }
+    } else {
+      this.selectedTarget.rotation.y += Math.PI / 4;
+    }
+
+    this.syncInspectorPosition();
+    if (this.selectionHelper) this.selectionHelper.update();
+  }
+
   deselectObject() {
     this.selectedRoot = null;
     this.selectedPart = null;
@@ -3387,8 +3464,55 @@ class App {
 
       if (this.selectedTarget && !this.isWalkthrough) {
         let step = e.shiftKey ? 0.2 : 0.05;
+        const isWallMounted = this.selectedRoot?.userData?.isWallMounted || this.selectedRoot?.userData?.type === 'wall_art';
 
-        if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
+        if (isWallMounted) {
+          const roomW = this.currentRoomDimensions?.width || 5.0;
+          const roomL = this.currentRoomDimensions?.length || 4.5;
+          const roomH = this.currentRoomDimensions?.height || 2.8;
+          const halfW = roomW / 2;
+          const halfL = roomL / 2;
+          const isSideWall = Math.abs(Math.sin(this.selectedRoot.rotation.y)) > 0.5;
+
+          if (e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'KeyE') {
+            e.preventDefault();
+            this.selectedRoot.position.y = Math.min(roomH - 0.4, this.selectedRoot.position.y + step);
+            this.syncInspectorPosition();
+            if (this.selectionHelper) this.selectionHelper.update();
+          } else if (e.code === 'ArrowDown' || e.code === 'KeyS' || e.code === 'KeyQ') {
+            e.preventDefault();
+            this.selectedRoot.position.y = Math.max(0.6, this.selectedRoot.position.y - step);
+            this.syncInspectorPosition();
+            if (this.selectionHelper) this.selectionHelper.update();
+          } else if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
+            e.preventDefault();
+            if (isSideWall) {
+              this.selectedRoot.position.z = Math.max(-halfL + 0.7, this.selectedRoot.position.z - step);
+            } else {
+              this.selectedRoot.position.x = Math.max(-halfW + 0.7, this.selectedRoot.position.x - step);
+            }
+            this.syncInspectorPosition();
+            if (this.selectionHelper) this.selectionHelper.update();
+          } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
+            e.preventDefault();
+            if (isSideWall) {
+              this.selectedRoot.position.z = Math.min(halfL - 0.7, this.selectedRoot.position.z + step);
+            } else {
+              this.selectedRoot.position.x = Math.min(halfW - 0.7, this.selectedRoot.position.x + step);
+            }
+            this.syncInspectorPosition();
+            if (this.selectionHelper) this.selectionHelper.update();
+          } else if (e.code === 'KeyR') {
+            e.preventDefault();
+            this.rotateSelected();
+          } else if (e.code === 'Delete' || e.code === 'Backspace') {
+            e.preventDefault();
+            this.deleteSelectedTarget();
+          } else if (e.code === 'Escape') {
+            e.preventDefault();
+            this.deselectObject();
+          }
+        } else if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
           e.preventDefault();
           this.selectedTarget.position.x -= step;
           this.syncInspectorPosition();
@@ -3422,8 +3546,7 @@ class App {
           if (this.selectionHelper) this.selectionHelper.update();
         } else if (e.code === 'KeyR') {
           e.preventDefault();
-          this.selectedTarget.rotation.y += Math.PI / 4;
-          if (this.selectionHelper) this.selectionHelper.update();
+          this.rotateSelected();
         } else if (e.code === 'Delete' || e.code === 'Backspace') {
           e.preventDefault();
           this.deleteSelectedTarget();
@@ -3597,10 +3720,7 @@ class App {
 
     // Rotate button
     document.getElementById('btn-rotate-object')?.addEventListener('click', () => {
-      if (this.selectedTarget) {
-        this.selectedTarget.rotation.y += Math.PI / 4;
-        if (this.selectionHelper) this.selectionHelper.update();
-      }
+      this.rotateSelected();
     });
 
     // Reset part position button
@@ -3612,11 +3732,19 @@ class App {
         if (this.selectionHelper) this.selectionHelper.update();
         this.showToast('Reset part to original position');
       } else if (this.selectedRoot) {
-        this.selectedRoot.position.set(0, 0, 0);
-        this.selectedRoot.rotation.set(0, 0, 0);
+        const isWall = this.selectedRoot.userData?.type === 'wall_art' || this.selectedRoot.userData?.isWallMounted;
+        const halfL = (this.currentRoomDimensions?.length || 4.5) / 2;
+        if (isWall) {
+          this.selectedRoot.position.set(0, 1.8, -halfL + 0.04);
+          this.selectedRoot.rotation.set(0, 0, 0);
+          this.showToast('Reset Wall Art to Back Wall');
+        } else {
+          this.selectedRoot.position.set(0, 0, 0);
+          this.selectedRoot.rotation.set(0, 0, 0);
+          this.showToast('Reset item to room center');
+        }
         this.syncInspectorPosition();
         if (this.selectionHelper) this.selectionHelper.update();
-        this.showToast('Reset item to room center');
       }
     });
 
@@ -3629,13 +3757,15 @@ class App {
     document.querySelectorAll('.add-catalog-item').forEach(btn => {
       btn.addEventListener('click', () => {
         const type = btn.dataset.type;
+        const isWall = type === 'wall_art';
+        const halfL = (this.currentRoomDimensions?.length || 4.5) / 2;
         this.addFurnitureItem({
           type: type,
           style: this.currentStyle,
-          position: [0, 0, 0],
+          position: isWall ? [0, 1.8, -halfL + 0.04] : [0, 0, 0],
           rotation: [0, 0, 0]
         });
-        this.showToast(`Added ${type.replace('_', ' ')} to center`);
+        this.showToast(isWall ? '🖼️ Added Wall Art to Back Wall' : `Added ${type.replace('_', ' ')} to center`);
       });
     });
 

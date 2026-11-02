@@ -698,7 +698,7 @@ export class FurnitureFactory {
   static createWallArt(style = 'modern') {
     const group = new THREE.Group();
     group.name = 'Wall Art';
-    group.userData = { type: 'wall_art', name: 'Gallery Framed Art', cost: 150 };
+    group.userData = { type: 'wall_art', name: 'Gallery Framed Art', cost: 150, isWallMounted: true };
 
     const frameMat = new THREE.MeshStandardMaterial({
       color: style === 'luxury' ? 0xd4af37 : 0x111827,
@@ -739,11 +739,11 @@ export class FurnitureFactory {
 
     const w = 1.2, h = 0.9;
     // Frame
-    const frame = this.createMesh(new THREE.BoxGeometry(w + 0.08, h + 0.08, 0.03), frameMat);
+    const frame = this.createMesh(new THREE.BoxGeometry(w + 0.08, h + 0.08, 0.03), frameMat, 'Picture Frame');
     group.add(frame);
 
     // Canvas face
-    const artPlane = new THREE.Mesh(new THREE.PlaneGeometry(w, h), artMat);
+    const artPlane = this.createMesh(new THREE.PlaneGeometry(w, h), artMat, 'Art Canvas');
     artPlane.position.z = 0.02;
     group.add(artPlane);
 
