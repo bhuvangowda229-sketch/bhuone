@@ -16,7 +16,7 @@ class AuthManager {
 
   getRedirectTarget() {
     const params = new URLSearchParams(window.location.search);
-    return params.get('redirect') || 'studio.html';
+    return params.get('redirect') || 'index.html';
   }
 
   initElements() {
@@ -184,7 +184,7 @@ class AuthManager {
       console.warn('LocalStorage unavailable:', e);
     }
 
-    this.showToast(`Welcome, ${userSession.name}! Launching Studio...`, 'success');
+    this.showToast(`Welcome, ${userSession.name}! Launching Showcase...`, 'success');
 
     setTimeout(() => {
       window.location.href = this.redirectUrl;
