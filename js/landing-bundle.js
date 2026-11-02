@@ -1347,49 +1347,268 @@ class FurnitureFactory {
   }
 
   // 14. WALL ART
-  static createWallArt(style = 'modern') {
-    const group = new THREE.Group();
-    group.name = 'Wall Art';
-    group.userData = { type: 'wall_art', name: 'Gallery Framed Art', cost: 150, isWallMounted: true };
-
-    const frameMat = new THREE.MeshStandardMaterial({
-      color: style === 'luxury' ? 0xd4af37 : 0x111827,
-      metalness: style === 'luxury' ? 0.7 : 0.1,
-      roughness: 0.4
-    });
-
-    const canvas = document.createElement('canvas');
+  static renderArtworkCanvas(canvas, theme = 'geometric') {
     canvas.width = 512;
     canvas.height = 512;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#faf8f5';
-    ctx.fillRect(0, 0, 512, 512);
+    ctx.clearRect(0, 0, 512, 512);
 
-    // Abstract artwork
-    ctx.fillStyle = '#d97706';
-    ctx.beginPath();
-    ctx.arc(200, 260, 130, 0, Math.PI * 2);
-    ctx.fill();
+    switch (theme) {
+      case 'bauhaus': {
+        // Bauhaus Minimal Modern
+        ctx.fillStyle = '#f6f5f0';
+        ctx.fillRect(0, 0, 512, 512);
 
-    ctx.fillStyle = '#1e3a8a';
-    ctx.beginPath();
-    ctx.rect(220, 140, 180, 220);
-    ctx.fill();
+        // Crimson large circle
+        ctx.fillStyle = '#e63946';
+        ctx.beginPath();
+        ctx.arc(180, 240, 110, 0, Math.PI * 2);
+        ctx.fill();
 
-    ctx.fillStyle = '#10b981';
-    ctx.beginPath();
-    ctx.moveTo(100, 400);
-    ctx.lineTo(256, 120);
-    ctx.lineTo(412, 400);
-    ctx.closePath();
-    ctx.globalAlpha = 0.6;
-    ctx.fill();
-    ctx.globalAlpha = 1.0;
+        // Cobalt blue wedge / arch
+        ctx.fillStyle = '#1d3557';
+        ctx.beginPath();
+        ctx.arc(330, 290, 95, 0, Math.PI);
+        ctx.fill();
+
+        // Cadmium yellow triangle
+        ctx.fillStyle = '#f4a261';
+        ctx.beginPath();
+        ctx.moveTo(270, 90);
+        ctx.lineTo(390, 240);
+        ctx.lineTo(210, 240);
+        ctx.closePath();
+        ctx.fill();
+
+        // Sharp black Bauhaus grid line
+        ctx.strokeStyle = '#1d2a44';
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(80, 240);
+        ctx.lineTo(440, 240);
+        ctx.moveTo(270, 70);
+        ctx.lineTo(270, 420);
+        ctx.stroke();
+
+        // Accent dot
+        ctx.fillStyle = '#1d2a44';
+        ctx.beginPath();
+        ctx.arc(270, 240, 10, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      }
+
+      case 'sunset': {
+        // Sunset Horizon Glow
+        const grad = ctx.createLinearGradient(0, 0, 0, 512);
+        grad.addColorStop(0, '#fde2e4');
+        grad.addColorStop(0.4, '#fad2e1');
+        grad.addColorStop(0.7, '#c5dedd');
+        grad.addColorStop(1.0, '#99c1de');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 512, 512);
+
+        // Radiant sun disc
+        const sunGrad = ctx.createRadialGradient(256, 180, 10, 256, 180, 110);
+        sunGrad.addColorStop(0, '#ffbe0b');
+        sunGrad.addColorStop(0.7, '#fb5607');
+        sunGrad.addColorStop(1, 'rgba(251, 86, 7, 0)');
+        ctx.fillStyle = sunGrad;
+        ctx.beginPath();
+        ctx.arc(256, 180, 110, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Layered mountain silhouettes
+        ctx.fillStyle = '#6d597a';
+        ctx.beginPath();
+        ctx.moveTo(0, 360);
+        ctx.bezierCurveTo(120, 280, 200, 340, 300, 300);
+        ctx.bezierCurveTo(390, 260, 440, 310, 512, 280);
+        ctx.lineTo(512, 512);
+        ctx.lineTo(0, 512);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#355070';
+        ctx.beginPath();
+        ctx.moveTo(0, 410);
+        ctx.bezierCurveTo(100, 380, 220, 430, 320, 380);
+        ctx.bezierCurveTo(400, 340, 460, 390, 512, 360);
+        ctx.lineTo(512, 512);
+        ctx.lineTo(0, 512);
+        ctx.closePath();
+        ctx.fill();
+        break;
+      }
+
+      case 'emerald': {
+        // Emerald Botanic Organic
+        ctx.fillStyle = '#f4f7f5';
+        ctx.fillRect(0, 0, 512, 512);
+
+        // Deep emerald oval
+        ctx.fillStyle = '#1b4332';
+        ctx.beginPath();
+        ctx.ellipse(220, 280, 100, 150, Math.PI / 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Sage circle
+        ctx.fillStyle = '#52b788';
+        ctx.beginPath();
+        ctx.arc(320, 200, 85, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Gold arch
+        ctx.strokeStyle = '#d4af37';
+        ctx.lineWidth = 14;
+        ctx.beginPath();
+        ctx.arc(256, 320, 110, Math.PI, 0);
+        ctx.stroke();
+
+        // Botanical stem
+        ctx.strokeStyle = '#2d6a4f';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(256, 440);
+        ctx.quadraticCurveTo(240, 250, 320, 110);
+        ctx.stroke();
+        break;
+      }
+
+      case 'monochrome': {
+        // Monochrome Contemporary
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 512, 512);
+
+        // Expressive sweeps
+        ctx.fillStyle = '#111827';
+        ctx.beginPath();
+        ctx.arc(220, 220, 120, 0, Math.PI * 1.5);
+        ctx.fill();
+
+        ctx.fillStyle = '#374151';
+        ctx.beginPath();
+        ctx.rect(200, 220, 190, 170);
+        ctx.fill();
+
+        ctx.strokeStyle = '#111827';
+        ctx.lineWidth = 12;
+        ctx.beginPath();
+        ctx.moveTo(100, 420);
+        ctx.lineTo(412, 100);
+        ctx.stroke();
+
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#9ca3af';
+        ctx.beginPath();
+        ctx.moveTo(80, 256);
+        ctx.lineTo(432, 256);
+        ctx.stroke();
+        break;
+      }
+
+      case 'terracotta': {
+        // Warm Terracotta & Olive
+        ctx.fillStyle = '#f8f4ed';
+        ctx.fillRect(0, 0, 512, 512);
+
+        // Terracotta archway
+        ctx.fillStyle = '#c86443';
+        ctx.beginPath();
+        ctx.arc(230, 240, 120, Math.PI, 0);
+        ctx.lineTo(350, 440);
+        ctx.lineTo(110, 440);
+        ctx.closePath();
+        ctx.fill();
+
+        // Olive circle
+        ctx.fillStyle = '#606c38';
+        ctx.beginPath();
+        ctx.arc(330, 200, 75, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Dusty blush circle
+        ctx.fillStyle = '#dda15e';
+        ctx.beginPath();
+        ctx.arc(170, 360, 55, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      }
+
+      case 'geometric':
+      default: {
+        // Default modern geometric
+        ctx.fillStyle = '#faf8f5';
+        ctx.fillRect(0, 0, 512, 512);
+
+        // Amber circle
+        ctx.fillStyle = '#d97706';
+        ctx.beginPath();
+        ctx.arc(200, 260, 130, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Deep blue block
+        ctx.fillStyle = '#1e3a8a';
+        ctx.beginPath();
+        ctx.rect(220, 140, 180, 220);
+        ctx.fill();
+
+        // Emerald triangle
+        ctx.fillStyle = '#10b981';
+        ctx.beginPath();
+        ctx.moveTo(100, 400);
+        ctx.lineTo(256, 120);
+        ctx.lineTo(412, 400);
+        ctx.closePath();
+        ctx.globalAlpha = 0.65;
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+
+        ctx.strokeStyle = '#312e81';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(80, 320);
+        ctx.lineTo(432, 320);
+        ctx.stroke();
+        break;
+      }
+    }
+  }
+
+  static createWallArt(style = 'modern', artTheme = 'geometric', width = 1.2, height = 0.9, frameColor = null) {
+    const group = new THREE.Group();
+    group.name = 'Abstract Wall Art';
+
+    const chosenColor = frameColor || (style === 'luxury' ? 0xd4af37 : 0x18181b);
+    const w = width || 1.2;
+    const h = height || 0.9;
+    const theme = artTheme || 'geometric';
+
+    group.userData = {
+      type: 'wall_art',
+      name: 'Abstract Wall Art',
+      cost: 160,
+      isWallMounted: true,
+      artTheme: theme,
+      artWidth: w,
+      artHeight: h,
+      frameColor: chosenColor,
+      wall: 'back'
+    };
+
+    const frameMat = new THREE.MeshStandardMaterial({
+      color: chosenColor,
+      metalness: style === 'luxury' ? 0.7 : 0.15,
+      roughness: 0.35
+    });
+
+    const canvas = document.createElement('canvas');
+    this.renderArtworkCanvas(canvas, theme);
 
     const artTex = new THREE.CanvasTexture(canvas);
+    if (THREE.SRGBColorSpace) artTex.colorSpace = THREE.SRGBColorSpace;
     const artMat = new THREE.MeshBasicMaterial({ map: artTex });
 
-    const w = 1.2, h = 0.9;
     // Frame
     const frame = this.createMesh(new THREE.BoxGeometry(w + 0.08, h + 0.08, 0.03), frameMat, 'Picture Frame');
     group.add(frame);
@@ -1399,7 +1618,59 @@ class FurnitureFactory {
     artPlane.position.z = 0.02;
     group.add(artPlane);
 
+    group.userData.frameMesh = frame;
+    group.userData.canvasMesh = artPlane;
+    group.userData.canvasElement = canvas;
+    group.userData.artTexture = artTex;
+
     return group;
+  }
+
+  static updateWallArtTheme(group, theme = 'geometric') {
+    if (!group) return;
+    group.userData.artTheme = theme;
+    let canvas = group.userData.canvasElement;
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      group.userData.canvasElement = canvas;
+    }
+    this.renderArtworkCanvas(canvas, theme);
+    if (group.userData.artTexture) {
+      group.userData.artTexture.needsUpdate = true;
+    } else if (group.userData.canvasMesh && group.userData.canvasMesh.material) {
+      const tex = new THREE.CanvasTexture(canvas);
+      if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
+      group.userData.canvasMesh.material.map = tex;
+      group.userData.canvasMesh.material.needsUpdate = true;
+      group.userData.artTexture = tex;
+    }
+  }
+
+  static updateWallArtDimensions(group, width, height) {
+    if (!group) return;
+    const w = Math.max(0.4, width);
+    const h = Math.max(0.4, height);
+    group.userData.artWidth = w;
+    group.userData.artHeight = h;
+
+    if (group.userData.frameMesh) {
+      group.userData.frameMesh.geometry.dispose();
+      group.userData.frameMesh.geometry = new THREE.BoxGeometry(w + 0.08, h + 0.08, 0.03);
+    }
+    if (group.userData.canvasMesh) {
+      group.userData.canvasMesh.geometry.dispose();
+      group.userData.canvasMesh.geometry = new THREE.PlaneGeometry(w, h);
+      group.userData.canvasMesh.position.z = 0.02;
+    }
+  }
+
+  static updateWallArtFrameColor(group, color) {
+    if (!group) return;
+    group.userData.frameColor = color;
+    if (group.userData.frameMesh && group.userData.frameMesh.material) {
+      group.userData.frameMesh.material.color.set(color);
+      group.userData.frameMesh.material.needsUpdate = true;
+    }
   }
 
   // 15. WARDROBE / CLOSET

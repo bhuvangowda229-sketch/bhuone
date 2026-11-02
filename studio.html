@@ -212,6 +212,60 @@
             </div>
           </div>
 
+          <!-- SECTION: ADJUSTABLE ABSTRACT WALL ART -->
+          <div class="section-card" id="card-wall-art">
+            <div class="section-title">
+              <span>🖼️ Abstract Wall Art Setup</span>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <strong style="font-size: 13px; color: #fff;">🖼️ Gallery Framed Canvas</strong>
+                <span id="setup-art-status-pill" style="font-size: 11px; background: rgba(99, 102, 241, 0.15); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-weight: 600;">Back Wall</span>
+              </div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label for="setup-art-wall-select">Mounted Wall</label>
+                  <select id="setup-art-wall-select" class="form-select">
+                    <option value="back" selected>Back Wall</option>
+                    <option value="left">Left Wall</option>
+                    <option value="right">Right Wall</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="setup-art-pos-slider">Slide Along Wall: <span id="setup-art-pos-val" style="color: var(--accent-primary); font-weight: bold;">0.0m</span></label>
+                  <input type="range" id="setup-art-pos-slider" min="-2.0" max="2.0" step="0.05" value="0.0">
+                </div>
+              </div>
+              <div class="grid-2" style="margin-top: 6px;">
+                <div class="form-group">
+                  <label for="setup-art-height-slider">Hanging Height: <span id="setup-art-height-val" style="color: var(--accent-primary); font-weight: bold;">1.8m</span></label>
+                  <input type="range" id="setup-art-height-slider" min="0.8" max="2.4" step="0.05" value="1.8">
+                </div>
+                <div class="form-group">
+                  <label for="setup-art-theme-select">Artwork Theme</label>
+                  <select id="setup-art-theme-select" class="form-select">
+                    <option value="geometric" selected>Geometric Abstraction</option>
+                    <option value="bauhaus">Bauhaus Minimal Modern</option>
+                    <option value="sunset">Sunset Horizon Glow</option>
+                    <option value="emerald">Emerald Botanic Organic</option>
+                    <option value="monochrome">Monochrome Contemporary</option>
+                    <option value="terracotta">Warm Terracotta & Olive</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid-2" style="margin-top: 6px;">
+                <div class="form-group">
+                  <label for="setup-art-w-slider">Frame Width: <span id="setup-art-w-val" style="color: var(--accent-primary); font-weight: bold;">1.2m</span></label>
+                  <input type="range" id="setup-art-w-slider" min="0.6" max="2.6" step="0.1" value="1.2">
+                </div>
+                <div class="form-group">
+                  <label for="setup-art-h-slider">Frame Height: <span id="setup-art-h-val" style="color: var(--accent-primary); font-weight: bold;">0.9m</span></label>
+                  <input type="range" id="setup-art-h-slider" min="0.5" max="2.0" step="0.1" value="0.9">
+                </div>
+              </div>
+            </div>
+          </div>
+
           <button class="btn btn-primary" id="btn-generate-ai" style="padding: 12px; font-size: 13px;">
             <span>✨</span> Generate AI Design Suggestions
           </button>
@@ -361,6 +415,80 @@
           </button>
         </div>
 
+        <!-- DEDICATED WALL ART ADJUSTMENT PANEL -->
+        <div id="inspector-wallart-panel" style="display: none; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 8px; padding: 10px; margin-bottom: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong style="font-size: 12px; color: #a5b4fc;">🖼️ Wall Art Adjustments</strong>
+            <span id="wallart-wall-badge" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 7px; border-radius: 6px; font-weight: 600;">Back Wall</span>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 6px;">
+            <label style="font-size: 11px; margin-bottom: 2px;">Mounted Wall</label>
+            <select id="wallart-wall-select" class="form-select" style="padding: 4px 8px; font-size: 12px; height: 30px;">
+              <option value="back">Back Wall</option>
+              <option value="left">Left Wall</option>
+              <option value="right">Right Wall</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 6px;">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px;">
+              <span>Slide Along Wall</span>
+              <span id="wallart-slide-val" style="color: var(--accent-primary); font-family: monospace;">0.00m</span>
+            </div>
+            <input type="range" id="wallart-slide-slider" min="-2.0" max="2.0" step="0.05" value="0" class="form-control">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 6px;">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px;">
+              <span>Hanging Height</span>
+              <span id="wallart-height-val" style="color: var(--accent-primary); font-family: monospace;">1.80m</span>
+            </div>
+            <input type="range" id="wallart-height-slider" min="0.8" max="2.5" step="0.05" value="1.8" class="form-control">
+          </div>
+
+          <div class="grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px;">
+                <span>Width</span>
+                <span id="wallart-w-val" style="color: var(--accent-primary); font-family: monospace;">1.2m</span>
+              </div>
+              <input type="range" id="wallart-w-slider" min="0.6" max="2.6" step="0.1" value="1.2" class="form-control">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px;">
+                <span>Height</span>
+                <span id="wallart-h-val" style="color: var(--accent-primary); font-family: monospace;">0.9m</span>
+              </div>
+              <input type="range" id="wallart-h-slider" min="0.5" max="2.0" step="0.1" value="0.9" class="form-control">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 6px;">
+            <label style="font-size: 11px; margin-bottom: 2px;">Artwork Theme</label>
+            <select id="wallart-theme-select" class="form-select" style="padding: 4px 8px; font-size: 12px; height: 30px;">
+              <option value="geometric">Geometric Abstraction</option>
+              <option value="bauhaus">Bauhaus Minimal Modern</option>
+              <option value="sunset">Sunset Horizon Glow</option>
+              <option value="emerald">Emerald Botanic Organic</option>
+              <option value="monochrome">Monochrome Contemporary</option>
+              <option value="terracotta">Warm Terracotta & Olive</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 2px;">
+            <label style="font-size: 11px; margin-bottom: 3px;">Frame Finish</label>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;">
+              <button type="button" class="btn btn-sm btn-frame-swatch" data-frame-color="#18181b" title="Midnight Black" style="padding: 4px; font-size: 10px; background: #18181b; color: #fff; border: 1px solid #3f3f46;">Black</button>
+              <button type="button" class="btn btn-sm btn-frame-swatch" data-frame-color="#d4af37" title="Brushed Brass" style="padding: 4px; font-size: 10px; background: #b48c1e; color: #fff; border: 1px solid #eab308;">Gold</button>
+              <button type="button" class="btn btn-sm btn-frame-swatch" data-frame-color="#8b5a2b" title="Warm Oak" style="padding: 4px; font-size: 10px; background: #8b5a2b; color: #fff; border: 1px solid #a16207;">Oak</button>
+              <button type="button" class="btn btn-sm btn-frame-swatch" data-frame-color="#f8fafc" title="Clean White" style="padding: 4px; font-size: 10px; background: #e2e8f0; color: #0f172a; border: 1px solid #94a3b8;">White</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STANDARD FURNITURE CONTROLS -->
+        <div id="inspector-standard-controls">
         <!-- QUICK COLOR SWATCHES (1-CLICK COLOR CHANGE) -->
         <div class="form-group" style="margin-bottom: 2px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
@@ -416,6 +544,7 @@
             <span id="val-pos-z" style="color: var(--text-dim); font-family: monospace;">0.00m</span>
           </div>
           <input type="range" id="inspect-pos-z" min="-4.0" max="4.0" step="0.05" value="0" class="form-control">
+        </div>
         </div>
 
         <!-- ACTIONS -->

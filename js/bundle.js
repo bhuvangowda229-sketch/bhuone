@@ -1347,49 +1347,268 @@ class FurnitureFactory {
   }
 
   // 14. WALL ART
-  static createWallArt(style = 'modern') {
-    const group = new THREE.Group();
-    group.name = 'Wall Art';
-    group.userData = { type: 'wall_art', name: 'Gallery Framed Art', cost: 150, isWallMounted: true };
-
-    const frameMat = new THREE.MeshStandardMaterial({
-      color: style === 'luxury' ? 0xd4af37 : 0x111827,
-      metalness: style === 'luxury' ? 0.7 : 0.1,
-      roughness: 0.4
-    });
-
-    const canvas = document.createElement('canvas');
+  static renderArtworkCanvas(canvas, theme = 'geometric') {
     canvas.width = 512;
     canvas.height = 512;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#faf8f5';
-    ctx.fillRect(0, 0, 512, 512);
+    ctx.clearRect(0, 0, 512, 512);
 
-    // Abstract artwork
-    ctx.fillStyle = '#d97706';
-    ctx.beginPath();
-    ctx.arc(200, 260, 130, 0, Math.PI * 2);
-    ctx.fill();
+    switch (theme) {
+      case 'bauhaus': {
+        // Bauhaus Minimal Modern
+        ctx.fillStyle = '#f6f5f0';
+        ctx.fillRect(0, 0, 512, 512);
 
-    ctx.fillStyle = '#1e3a8a';
-    ctx.beginPath();
-    ctx.rect(220, 140, 180, 220);
-    ctx.fill();
+        // Crimson large circle
+        ctx.fillStyle = '#e63946';
+        ctx.beginPath();
+        ctx.arc(180, 240, 110, 0, Math.PI * 2);
+        ctx.fill();
 
-    ctx.fillStyle = '#10b981';
-    ctx.beginPath();
-    ctx.moveTo(100, 400);
-    ctx.lineTo(256, 120);
-    ctx.lineTo(412, 400);
-    ctx.closePath();
-    ctx.globalAlpha = 0.6;
-    ctx.fill();
-    ctx.globalAlpha = 1.0;
+        // Cobalt blue wedge / arch
+        ctx.fillStyle = '#1d3557';
+        ctx.beginPath();
+        ctx.arc(330, 290, 95, 0, Math.PI);
+        ctx.fill();
+
+        // Cadmium yellow triangle
+        ctx.fillStyle = '#f4a261';
+        ctx.beginPath();
+        ctx.moveTo(270, 90);
+        ctx.lineTo(390, 240);
+        ctx.lineTo(210, 240);
+        ctx.closePath();
+        ctx.fill();
+
+        // Sharp black Bauhaus grid line
+        ctx.strokeStyle = '#1d2a44';
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(80, 240);
+        ctx.lineTo(440, 240);
+        ctx.moveTo(270, 70);
+        ctx.lineTo(270, 420);
+        ctx.stroke();
+
+        // Accent dot
+        ctx.fillStyle = '#1d2a44';
+        ctx.beginPath();
+        ctx.arc(270, 240, 10, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      }
+
+      case 'sunset': {
+        // Sunset Horizon Glow
+        const grad = ctx.createLinearGradient(0, 0, 0, 512);
+        grad.addColorStop(0, '#fde2e4');
+        grad.addColorStop(0.4, '#fad2e1');
+        grad.addColorStop(0.7, '#c5dedd');
+        grad.addColorStop(1.0, '#99c1de');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 512, 512);
+
+        // Radiant sun disc
+        const sunGrad = ctx.createRadialGradient(256, 180, 10, 256, 180, 110);
+        sunGrad.addColorStop(0, '#ffbe0b');
+        sunGrad.addColorStop(0.7, '#fb5607');
+        sunGrad.addColorStop(1, 'rgba(251, 86, 7, 0)');
+        ctx.fillStyle = sunGrad;
+        ctx.beginPath();
+        ctx.arc(256, 180, 110, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Layered mountain silhouettes
+        ctx.fillStyle = '#6d597a';
+        ctx.beginPath();
+        ctx.moveTo(0, 360);
+        ctx.bezierCurveTo(120, 280, 200, 340, 300, 300);
+        ctx.bezierCurveTo(390, 260, 440, 310, 512, 280);
+        ctx.lineTo(512, 512);
+        ctx.lineTo(0, 512);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#355070';
+        ctx.beginPath();
+        ctx.moveTo(0, 410);
+        ctx.bezierCurveTo(100, 380, 220, 430, 320, 380);
+        ctx.bezierCurveTo(400, 340, 460, 390, 512, 360);
+        ctx.lineTo(512, 512);
+        ctx.lineTo(0, 512);
+        ctx.closePath();
+        ctx.fill();
+        break;
+      }
+
+      case 'emerald': {
+        // Emerald Botanic Organic
+        ctx.fillStyle = '#f4f7f5';
+        ctx.fillRect(0, 0, 512, 512);
+
+        // Deep emerald oval
+        ctx.fillStyle = '#1b4332';
+        ctx.beginPath();
+        ctx.ellipse(220, 280, 100, 150, Math.PI / 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Sage circle
+        ctx.fillStyle = '#52b788';
+        ctx.beginPath();
+        ctx.arc(320, 200, 85, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Gold arch
+        ctx.strokeStyle = '#d4af37';
+        ctx.lineWidth = 14;
+        ctx.beginPath();
+        ctx.arc(256, 320, 110, Math.PI, 0);
+        ctx.stroke();
+
+        // Botanical stem
+        ctx.strokeStyle = '#2d6a4f';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(256, 440);
+        ctx.quadraticCurveTo(240, 250, 320, 110);
+        ctx.stroke();
+        break;
+      }
+
+      case 'monochrome': {
+        // Monochrome Contemporary
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 512, 512);
+
+        // Expressive sweeps
+        ctx.fillStyle = '#111827';
+        ctx.beginPath();
+        ctx.arc(220, 220, 120, 0, Math.PI * 1.5);
+        ctx.fill();
+
+        ctx.fillStyle = '#374151';
+        ctx.beginPath();
+        ctx.rect(200, 220, 190, 170);
+        ctx.fill();
+
+        ctx.strokeStyle = '#111827';
+        ctx.lineWidth = 12;
+        ctx.beginPath();
+        ctx.moveTo(100, 420);
+        ctx.lineTo(412, 100);
+        ctx.stroke();
+
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#9ca3af';
+        ctx.beginPath();
+        ctx.moveTo(80, 256);
+        ctx.lineTo(432, 256);
+        ctx.stroke();
+        break;
+      }
+
+      case 'terracotta': {
+        // Warm Terracotta & Olive
+        ctx.fillStyle = '#f8f4ed';
+        ctx.fillRect(0, 0, 512, 512);
+
+        // Terracotta archway
+        ctx.fillStyle = '#c86443';
+        ctx.beginPath();
+        ctx.arc(230, 240, 120, Math.PI, 0);
+        ctx.lineTo(350, 440);
+        ctx.lineTo(110, 440);
+        ctx.closePath();
+        ctx.fill();
+
+        // Olive circle
+        ctx.fillStyle = '#606c38';
+        ctx.beginPath();
+        ctx.arc(330, 200, 75, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Dusty blush circle
+        ctx.fillStyle = '#dda15e';
+        ctx.beginPath();
+        ctx.arc(170, 360, 55, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      }
+
+      case 'geometric':
+      default: {
+        // Default modern geometric
+        ctx.fillStyle = '#faf8f5';
+        ctx.fillRect(0, 0, 512, 512);
+
+        // Amber circle
+        ctx.fillStyle = '#d97706';
+        ctx.beginPath();
+        ctx.arc(200, 260, 130, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Deep blue block
+        ctx.fillStyle = '#1e3a8a';
+        ctx.beginPath();
+        ctx.rect(220, 140, 180, 220);
+        ctx.fill();
+
+        // Emerald triangle
+        ctx.fillStyle = '#10b981';
+        ctx.beginPath();
+        ctx.moveTo(100, 400);
+        ctx.lineTo(256, 120);
+        ctx.lineTo(412, 400);
+        ctx.closePath();
+        ctx.globalAlpha = 0.65;
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+
+        ctx.strokeStyle = '#312e81';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(80, 320);
+        ctx.lineTo(432, 320);
+        ctx.stroke();
+        break;
+      }
+    }
+  }
+
+  static createWallArt(style = 'modern', artTheme = 'geometric', width = 1.2, height = 0.9, frameColor = null) {
+    const group = new THREE.Group();
+    group.name = 'Abstract Wall Art';
+
+    const chosenColor = frameColor || (style === 'luxury' ? 0xd4af37 : 0x18181b);
+    const w = width || 1.2;
+    const h = height || 0.9;
+    const theme = artTheme || 'geometric';
+
+    group.userData = {
+      type: 'wall_art',
+      name: 'Abstract Wall Art',
+      cost: 160,
+      isWallMounted: true,
+      artTheme: theme,
+      artWidth: w,
+      artHeight: h,
+      frameColor: chosenColor,
+      wall: 'back'
+    };
+
+    const frameMat = new THREE.MeshStandardMaterial({
+      color: chosenColor,
+      metalness: style === 'luxury' ? 0.7 : 0.15,
+      roughness: 0.35
+    });
+
+    const canvas = document.createElement('canvas');
+    this.renderArtworkCanvas(canvas, theme);
 
     const artTex = new THREE.CanvasTexture(canvas);
+    if (THREE.SRGBColorSpace) artTex.colorSpace = THREE.SRGBColorSpace;
     const artMat = new THREE.MeshBasicMaterial({ map: artTex });
 
-    const w = 1.2, h = 0.9;
     // Frame
     const frame = this.createMesh(new THREE.BoxGeometry(w + 0.08, h + 0.08, 0.03), frameMat, 'Picture Frame');
     group.add(frame);
@@ -1399,7 +1618,59 @@ class FurnitureFactory {
     artPlane.position.z = 0.02;
     group.add(artPlane);
 
+    group.userData.frameMesh = frame;
+    group.userData.canvasMesh = artPlane;
+    group.userData.canvasElement = canvas;
+    group.userData.artTexture = artTex;
+
     return group;
+  }
+
+  static updateWallArtTheme(group, theme = 'geometric') {
+    if (!group) return;
+    group.userData.artTheme = theme;
+    let canvas = group.userData.canvasElement;
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      group.userData.canvasElement = canvas;
+    }
+    this.renderArtworkCanvas(canvas, theme);
+    if (group.userData.artTexture) {
+      group.userData.artTexture.needsUpdate = true;
+    } else if (group.userData.canvasMesh && group.userData.canvasMesh.material) {
+      const tex = new THREE.CanvasTexture(canvas);
+      if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
+      group.userData.canvasMesh.material.map = tex;
+      group.userData.canvasMesh.material.needsUpdate = true;
+      group.userData.artTexture = tex;
+    }
+  }
+
+  static updateWallArtDimensions(group, width, height) {
+    if (!group) return;
+    const w = Math.max(0.4, width);
+    const h = Math.max(0.4, height);
+    group.userData.artWidth = w;
+    group.userData.artHeight = h;
+
+    if (group.userData.frameMesh) {
+      group.userData.frameMesh.geometry.dispose();
+      group.userData.frameMesh.geometry = new THREE.BoxGeometry(w + 0.08, h + 0.08, 0.03);
+    }
+    if (group.userData.canvasMesh) {
+      group.userData.canvasMesh.geometry.dispose();
+      group.userData.canvasMesh.geometry = new THREE.PlaneGeometry(w, h);
+      group.userData.canvasMesh.position.z = 0.02;
+    }
+  }
+
+  static updateWallArtFrameColor(group, color) {
+    if (!group) return;
+    group.userData.frameColor = color;
+    if (group.userData.frameMesh && group.userData.frameMesh.material) {
+      group.userData.frameMesh.material.color.set(color);
+      group.userData.frameMesh.material.needsUpdate = true;
+    }
   }
 
   // 15. WARDROBE / CLOSET
@@ -3258,6 +3529,20 @@ class App {
     if (btnPart) btnPart.classList.toggle('active', this.editMode === 'part');
     if (btnWhole) btnWhole.classList.toggle('active', this.editMode === 'whole');
 
+    const isWallArt = this.selectedRoot?.userData?.type === 'wall_art' || this.selectedRoot?.userData?.isWallMounted;
+    const wallartPanel = document.getElementById('inspector-wallart-panel');
+    const stdControls = document.getElementById('inspector-standard-controls');
+    if (wallartPanel && stdControls) {
+      if (isWallArt) {
+        wallartPanel.style.display = 'block';
+        stdControls.style.display = 'none';
+        this.syncWallArtInspector();
+      } else {
+        wallartPanel.style.display = 'none';
+        stdControls.style.display = 'block';
+      }
+    }
+
     // Update 3D Selection Box
     if (this.selectionHelper) {
       this.selectionHelper.setFromObject(this.selectedTarget);
@@ -3288,6 +3573,11 @@ class App {
 
   syncInspectorPosition() {
     if (!this.selectedTarget) return;
+
+    if (this.selectedRoot?.userData?.type === 'wall_art' || this.selectedRoot?.userData?.isWallMounted) {
+      this.syncWallArtInspector();
+    }
+
     const posX = document.getElementById('inspect-pos-x');
     const posY = document.getElementById('inspect-pos-y');
     const posZ = document.getElementById('inspect-pos-z');
@@ -3406,36 +3696,27 @@ class App {
 
     const isWallMounted = this.selectedRoot?.userData?.isWallMounted || this.selectedRoot?.userData?.type === 'wall_art';
     if (isWallMounted) {
-      const roomW = this.currentRoomDimensions?.width || 5.0;
-      const roomL = this.currentRoomDimensions?.length || 4.5;
-      const halfW = roomW / 2;
-      const halfL = roomL / 2;
-
       const rotY = this.selectedRoot.rotation.y;
       const isSideWall = Math.abs(Math.sin(rotY)) > 0.5;
       const isRightWall = this.selectedRoot.position.x > 0;
 
       if (!isSideWall) {
         // From Back wall -> move to Right wall
-        this.selectedRoot.rotation.y = -Math.PI / 2;
-        this.selectedRoot.position.x = halfW - 0.04;
-        this.selectedRoot.position.z = 0;
+        this.setWallArtPlacement(this.selectedRoot, 'right', 0, this.selectedRoot.position.y);
         this.showToast('🖼️ Wall Art moved to Right Wall');
       } else if (isRightWall) {
         // From Right wall -> move to Left wall
-        this.selectedRoot.rotation.y = Math.PI / 2;
-        this.selectedRoot.position.x = -halfW + 0.04;
-        this.selectedRoot.position.z = 0;
+        this.setWallArtPlacement(this.selectedRoot, 'left', 0, this.selectedRoot.position.y);
         this.showToast('🖼️ Wall Art moved to Left Wall');
       } else {
         // From Left wall -> move to Back wall
-        this.selectedRoot.rotation.y = 0;
-        this.selectedRoot.position.x = 0;
-        this.selectedRoot.position.z = -halfL + 0.04;
+        this.setWallArtPlacement(this.selectedRoot, 'back', 0, this.selectedRoot.position.y);
         this.showToast('🖼️ Wall Art moved to Back Wall');
       }
+      this.syncWallArtInspector();
     } else {
       this.selectedTarget.rotation.y += Math.PI / 4;
+      this.syncInspectorPosition();
     }
 
     this.syncInspectorPosition();
@@ -3450,6 +3731,162 @@ class App {
     if (this.selectionHelper) this.selectionHelper.visible = false;
     const popup = document.getElementById('inspector-popup');
     if (popup) popup.style.display = 'none';
+    const wallartPanel = document.getElementById('inspector-wallart-panel');
+    const stdControls = document.getElementById('inspector-standard-controls');
+    if (wallartPanel) wallartPanel.style.display = 'none';
+    if (stdControls) stdControls.style.display = 'block';
+  }
+
+  // 4b-ii. WALL ART SPATIAL & STYLING HELPERS
+  getWallArtInfo(artObj) {
+    if (!artObj) return null;
+    const roomW = this.currentRoomDimensions?.width || 5.0;
+    const roomL = this.currentRoomDimensions?.length || 4.5;
+    const rotY = artObj.rotation.y;
+    const isSideWall = Math.abs(Math.sin(rotY)) > 0.5;
+    const isRightWall = artObj.position.x > 0;
+
+    let wall = 'back';
+    let slide = artObj.position.x;
+    if (isSideWall) {
+      wall = isRightWall ? 'right' : 'left';
+      slide = artObj.position.z;
+    }
+
+    return {
+      wall,
+      slide,
+      height: artObj.position.y,
+      width: artObj.userData.artWidth || 1.2,
+      artHeight: artObj.userData.artHeight || 0.9,
+      theme: artObj.userData.artTheme || 'geometric',
+      frameColor: artObj.userData.frameColor || '#18181b'
+    };
+  }
+
+  setWallArtPlacement(artObj, wall, slide, height) {
+    if (!artObj) return;
+    const roomW = this.currentRoomDimensions?.width || 5.0;
+    const roomL = this.currentRoomDimensions?.length || 4.5;
+    const halfW = roomW / 2;
+    const halfL = roomL / 2;
+
+    if (height !== undefined && height !== null) {
+      artObj.position.y = parseFloat(height);
+    }
+
+    if (wall === 'back') {
+      artObj.rotation.set(0, 0, 0);
+      artObj.position.z = -halfL + 0.04;
+      if (slide !== undefined && slide !== null) {
+        artObj.position.x = Math.max(-halfW + 0.7, Math.min(halfW - 0.7, parseFloat(slide)));
+      }
+    } else if (wall === 'left') {
+      artObj.rotation.set(0, Math.PI / 2, 0);
+      artObj.position.x = -halfW + 0.04;
+      if (slide !== undefined && slide !== null) {
+        artObj.position.z = Math.max(-halfL + 0.7, Math.min(halfL - 0.7, parseFloat(slide)));
+      }
+    } else if (wall === 'right') {
+      artObj.rotation.set(0, -Math.PI / 2, 0);
+      artObj.position.x = halfW - 0.04;
+      if (slide !== undefined && slide !== null) {
+        artObj.position.z = Math.max(-halfL + 0.7, Math.min(halfL - 0.7, parseFloat(slide)));
+      }
+    }
+    artObj.userData.wall = wall;
+    if (this.selectionHelper && this.selectedTarget === artObj) {
+      this.selectionHelper.update();
+    }
+  }
+
+  getOrCreateWallArt() {
+    let artObj = null;
+    this.furnitureGroup.traverse(child => {
+      if (!artObj && (child.userData?.type === 'wall_art' || child.userData?.isWallMounted)) {
+        artObj = child;
+      }
+    });
+    if (!artObj) {
+      artObj = FurnitureFactory.createWallArt(this.currentStyle, 'geometric', 1.2, 0.9);
+      const halfL = (this.currentRoomDimensions?.length || 4.5) / 2;
+      artObj.position.set(0, 1.8, -halfL + 0.04);
+      this.furnitureGroup.add(artObj);
+      this.currentFurniture.push(artObj);
+    }
+    return artObj;
+  }
+
+  syncWallArtInspector() {
+    if (!this.selectedRoot || (this.selectedRoot.userData?.type !== 'wall_art' && !this.selectedRoot.userData?.isWallMounted)) return;
+    const info = this.getWallArtInfo(this.selectedRoot);
+    if (!info) return;
+
+    const wallSelect = document.getElementById('wallart-wall-select');
+    const wallBadge = document.getElementById('wallart-wall-badge');
+    const slideSlider = document.getElementById('wallart-slide-slider');
+    const slideVal = document.getElementById('wallart-slide-val');
+    const heightSlider = document.getElementById('wallart-height-slider');
+    const heightVal = document.getElementById('wallart-height-val');
+    const wSlider = document.getElementById('wallart-w-slider');
+    const wVal = document.getElementById('wallart-w-val');
+    const hSlider = document.getElementById('wallart-h-slider');
+    const hVal = document.getElementById('wallart-h-val');
+    const themeSelect = document.getElementById('wallart-theme-select');
+
+    if (wallSelect) wallSelect.value = info.wall;
+    if (wallBadge) {
+      wallBadge.textContent = info.wall === 'back' ? 'Back Wall' : (info.wall === 'left' ? 'Left Wall' : 'Right Wall');
+    }
+    if (slideSlider) slideSlider.value = info.slide;
+    if (slideVal) slideVal.textContent = `${info.slide >= 0 ? '+' : ''}${info.slide.toFixed(2)}m`;
+    if (heightSlider) heightSlider.value = info.height;
+    if (heightVal) heightVal.textContent = `${info.height.toFixed(2)}m`;
+    if (wSlider) wSlider.value = info.width;
+    if (wVal) wVal.textContent = `${info.width.toFixed(1)}m`;
+    if (hSlider) hSlider.value = info.artHeight;
+    if (hVal) hVal.textContent = `${info.artHeight.toFixed(1)}m`;
+    if (themeSelect) themeSelect.value = info.theme;
+
+    this.syncWallArtSetupTab(info);
+  }
+
+  syncWallArtSetupTab(info) {
+    if (!info) {
+      let artObj = null;
+      this.furnitureGroup.traverse(child => {
+        if (!artObj && (child.userData?.type === 'wall_art' || child.userData?.isWallMounted)) {
+          artObj = child;
+        }
+      });
+      if (artObj) info = this.getWallArtInfo(artObj);
+    }
+    if (!info) return;
+
+    const setupWall = document.getElementById('setup-art-wall-select');
+    const setupPill = document.getElementById('setup-art-status-pill');
+    const setupSlide = document.getElementById('setup-art-pos-slider');
+    const setupSlideVal = document.getElementById('setup-art-pos-val');
+    const setupHeight = document.getElementById('setup-art-height-slider');
+    const setupHeightVal = document.getElementById('setup-art-height-val');
+    const setupTheme = document.getElementById('setup-art-theme-select');
+    const setupW = document.getElementById('setup-art-w-slider');
+    const setupWVal = document.getElementById('setup-art-w-val');
+    const setupH = document.getElementById('setup-art-h-slider');
+    const setupHVal = document.getElementById('setup-art-h-val');
+
+    const wallName = info.wall === 'back' ? 'Back Wall' : (info.wall === 'left' ? 'Left Wall' : 'Right Wall');
+    if (setupWall) setupWall.value = info.wall;
+    if (setupPill) setupPill.textContent = wallName;
+    if (setupSlide) setupSlide.value = info.slide;
+    if (setupSlideVal) setupSlideVal.textContent = `${info.slide >= 0 ? '+' : ''}${info.slide.toFixed(1)}m`;
+    if (setupHeight) setupHeight.value = info.height;
+    if (setupHeightVal) setupHeightVal.textContent = `${info.height.toFixed(2)}m`;
+    if (setupTheme) setupTheme.value = info.theme;
+    if (setupW) setupW.value = info.width;
+    if (setupWVal) setupWVal.textContent = `${info.width.toFixed(1)}m`;
+    if (setupH) setupH.value = info.artHeight;
+    if (setupHVal) setupHVal.textContent = `${info.artHeight.toFixed(1)}m`;
   }
 
   // 4c. KEYBOARD CONTROLS FOR OBJECT & PART NUDGE & ROTATION
@@ -3842,6 +4279,159 @@ class App {
 
     // Initialize Door and Window architectural placement controls
     this.initArchitecturalControls();
+    this.initWallArtControls();
+  }
+
+  initWallArtControls() {
+    // --- INSPECTOR POPUP WALL ART CONTROLS ---
+    const wallSelect = document.getElementById('wallart-wall-select');
+    const wallBadge = document.getElementById('wallart-wall-badge');
+    const slideSlider = document.getElementById('wallart-slide-slider');
+    const slideVal = document.getElementById('wallart-slide-val');
+    const heightSlider = document.getElementById('wallart-height-slider');
+    const heightVal = document.getElementById('wallart-height-val');
+    const wSlider = document.getElementById('wallart-w-slider');
+    const wVal = document.getElementById('wallart-w-val');
+    const hSlider = document.getElementById('wallart-h-slider');
+    const hVal = document.getElementById('wallart-h-val');
+    const themeSelect = document.getElementById('wallart-theme-select');
+
+    wallSelect?.addEventListener('change', (e) => {
+      if (!this.selectedRoot || (!this.selectedRoot.userData?.isWallMounted && this.selectedRoot.userData?.type !== 'wall_art')) return;
+      const wall = e.target.value;
+      const info = this.getWallArtInfo(this.selectedRoot);
+      this.setWallArtPlacement(this.selectedRoot, wall, info ? info.slide : 0, info ? info.height : 1.8);
+      if (wallBadge) {
+        wallBadge.textContent = wall === 'back' ? 'Back Wall' : (wall === 'left' ? 'Left Wall' : 'Right Wall');
+      }
+      this.syncWallArtInspector();
+      this.showToast(`🖼️ Art moved to ${wall === 'back' ? 'Back' : (wall === 'left' ? 'Left' : 'Right')} Wall`);
+    });
+
+    slideSlider?.addEventListener('input', (e) => {
+      if (!this.selectedRoot || (!this.selectedRoot.userData?.isWallMounted && this.selectedRoot.userData?.type !== 'wall_art')) return;
+      const val = parseFloat(e.target.value);
+      if (slideVal) slideVal.textContent = `${val >= 0 ? '+' : ''}${val.toFixed(2)}m`;
+      const info = this.getWallArtInfo(this.selectedRoot);
+      this.setWallArtPlacement(this.selectedRoot, info ? info.wall : 'back', val, info ? info.height : 1.8);
+      this.syncWallArtSetupTab();
+    });
+
+    heightSlider?.addEventListener('input', (e) => {
+      if (!this.selectedRoot || (!this.selectedRoot.userData?.isWallMounted && this.selectedRoot.userData?.type !== 'wall_art')) return;
+      const val = parseFloat(e.target.value);
+      if (heightVal) heightVal.textContent = `${val.toFixed(2)}m`;
+      this.selectedRoot.position.y = val;
+      this.syncWallArtSetupTab();
+      if (this.selectionHelper) this.selectionHelper.update();
+    });
+
+    wSlider?.addEventListener('input', (e) => {
+      if (!this.selectedRoot || (!this.selectedRoot.userData?.isWallMounted && this.selectedRoot.userData?.type !== 'wall_art')) return;
+      const w = parseFloat(e.target.value);
+      const h = parseFloat(hSlider ? hSlider.value : 0.9);
+      if (wVal) wVal.textContent = `${w.toFixed(1)}m`;
+      FurnitureFactory.updateWallArtDimensions(this.selectedRoot, w, h);
+      this.syncWallArtSetupTab();
+      if (this.selectionHelper) this.selectionHelper.update();
+    });
+
+    hSlider?.addEventListener('input', (e) => {
+      if (!this.selectedRoot || (!this.selectedRoot.userData?.isWallMounted && this.selectedRoot.userData?.type !== 'wall_art')) return;
+      const h = parseFloat(e.target.value);
+      const w = parseFloat(wSlider ? wSlider.value : 1.2);
+      if (hVal) hVal.textContent = `${h.toFixed(1)}m`;
+      FurnitureFactory.updateWallArtDimensions(this.selectedRoot, w, h);
+      this.syncWallArtSetupTab();
+      if (this.selectionHelper) this.selectionHelper.update();
+    });
+
+    themeSelect?.addEventListener('change', (e) => {
+      if (!this.selectedRoot || (!this.selectedRoot.userData?.isWallMounted && this.selectedRoot.userData?.type !== 'wall_art')) return;
+      const theme = e.target.value;
+      FurnitureFactory.updateWallArtTheme(this.selectedRoot, theme);
+      this.syncWallArtSetupTab();
+      this.showToast(`Artwork theme updated: ${e.target.options[e.target.selectedIndex].text}`);
+    });
+
+    document.querySelectorAll('.btn-frame-swatch').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!this.selectedRoot || (!this.selectedRoot.userData?.isWallMounted && this.selectedRoot.userData?.type !== 'wall_art')) return;
+        const color = btn.dataset.frameColor;
+        FurnitureFactory.updateWallArtFrameColor(this.selectedRoot, color);
+        this.showToast(`Frame finish updated: ${btn.title}`);
+      });
+    });
+
+    // --- SETUP TAB WALL ART CONTROLS ---
+    const setupWall = document.getElementById('setup-art-wall-select');
+    const setupPill = document.getElementById('setup-art-status-pill');
+    const setupSlide = document.getElementById('setup-art-pos-slider');
+    const setupSlideVal = document.getElementById('setup-art-pos-val');
+    const setupHeight = document.getElementById('setup-art-height-slider');
+    const setupHeightVal = document.getElementById('setup-art-height-val');
+    const setupTheme = document.getElementById('setup-art-theme-select');
+    const setupW = document.getElementById('setup-art-w-slider');
+    const setupWVal = document.getElementById('setup-art-w-val');
+    const setupH = document.getElementById('setup-art-h-slider');
+    const setupHVal = document.getElementById('setup-art-h-val');
+
+    setupWall?.addEventListener('change', (e) => {
+      const art = this.getOrCreateWallArt();
+      const wall = e.target.value;
+      const info = this.getWallArtInfo(art);
+      this.setWallArtPlacement(art, wall, info ? info.slide : 0, info ? info.height : 1.8);
+      const wallName = e.target.options[e.target.selectedIndex].text;
+      if (setupPill) setupPill.textContent = wallName;
+      if (this.selectedRoot === art) this.syncWallArtInspector();
+      this.showToast(`🖼️ Art placed on ${wallName}`);
+    });
+
+    setupSlide?.addEventListener('input', (e) => {
+      const art = this.getOrCreateWallArt();
+      const val = parseFloat(e.target.value);
+      if (setupSlideVal) setupSlideVal.textContent = `${val >= 0 ? '+' : ''}${val.toFixed(1)}m`;
+      const info = this.getWallArtInfo(art);
+      this.setWallArtPlacement(art, info ? info.wall : 'back', val, info ? info.height : 1.8);
+      if (this.selectedRoot === art) this.syncWallArtInspector();
+    });
+
+    setupHeight?.addEventListener('input', (e) => {
+      const art = this.getOrCreateWallArt();
+      const val = parseFloat(e.target.value);
+      if (setupHeightVal) setupHeightVal.textContent = `${val.toFixed(2)}m`;
+      art.position.y = val;
+      if (this.selectedRoot === art) this.syncWallArtInspector();
+      if (this.selectionHelper && this.selectedTarget === art) this.selectionHelper.update();
+    });
+
+    setupTheme?.addEventListener('change', (e) => {
+      const art = this.getOrCreateWallArt();
+      const theme = e.target.value;
+      FurnitureFactory.updateWallArtTheme(art, theme);
+      if (this.selectedRoot === art) this.syncWallArtInspector();
+      this.showToast(`Artwork theme: ${e.target.options[e.target.selectedIndex].text}`);
+    });
+
+    setupW?.addEventListener('input', (e) => {
+      const art = this.getOrCreateWallArt();
+      const w = parseFloat(e.target.value);
+      const h = parseFloat(setupH ? setupH.value : 0.9);
+      if (setupWVal) setupWVal.textContent = `${w.toFixed(1)}m`;
+      FurnitureFactory.updateWallArtDimensions(art, w, h);
+      if (this.selectedRoot === art) this.syncWallArtInspector();
+      if (this.selectionHelper && this.selectedTarget === art) this.selectionHelper.update();
+    });
+
+    setupH?.addEventListener('input', (e) => {
+      const art = this.getOrCreateWallArt();
+      const h = parseFloat(e.target.value);
+      const w = parseFloat(setupW ? setupW.value : 1.2);
+      if (setupHVal) setupHVal.textContent = `${h.toFixed(1)}m`;
+      FurnitureFactory.updateWallArtDimensions(art, w, h);
+      if (this.selectedRoot === art) this.syncWallArtInspector();
+      if (this.selectionHelper && this.selectedTarget === art) this.selectionHelper.update();
+    });
   }
 
   initArchitecturalControls() {
@@ -4041,6 +4631,7 @@ class App {
       checklist.appendChild(row);
     });
 
+    this.syncWallArtSetupTab();
     this.showToast('Design generated & 3D space rendered!');
   }
 
@@ -4119,7 +4710,13 @@ class App {
         meshGroup = FurnitureFactory.createPlant();
         break;
       case 'wall_art':
-        meshGroup = FurnitureFactory.createWallArt(style);
+        meshGroup = FurnitureFactory.createWallArt(
+          style,
+          itemData.artTheme || 'geometric',
+          itemData.artWidth || 1.2,
+          itemData.artHeight || 0.9,
+          itemData.frameColor
+        );
         break;
       case 'rug':
         const [w, l] = itemData.dimensions || [2.4, 1.8];
@@ -4169,6 +4766,9 @@ class App {
       if (itemData.name) meshGroup.name = itemData.name;
       meshGroup.userData = { ...meshGroup.userData, ...itemData };
       this.furnitureGroup.add(meshGroup);
+      if (itemData.type === 'wall_art') {
+        this.syncWallArtSetupTab();
+      }
     }
   }
 
