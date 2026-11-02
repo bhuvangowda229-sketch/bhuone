@@ -834,8 +834,9 @@ export class FurnitureFactory {
 
     const mirrorMat = new THREE.MeshStandardMaterial({
       color: 0xf8fafc,
-      roughness: 0.03,
-      metalness: 0.96
+      roughness: 0.02,
+      metalness: 0.98,
+      side: THREE.DoubleSide
     });
 
     const mirrorFrameMat = new THREE.MeshStandardMaterial({
@@ -896,7 +897,7 @@ export class FurnitureFactory {
 
       // High-reflection mirror pane
       const mirrorPaneGeom = new THREE.PlaneGeometry(doorW - 0.08, doorH - 0.1);
-      const mirrorPane = new THREE.Mesh(mirrorPaneGeom, mirrorMat);
+      const mirrorPane = this.createMesh(mirrorPaneGeom, mirrorMat, 'Mirror Door Glass');
       mirrorPane.position.set(side * (doorW / 2 + 0.005), plinthH + bodyH / 2, depth / 2 + 0.026);
       group.add(mirrorPane);
 

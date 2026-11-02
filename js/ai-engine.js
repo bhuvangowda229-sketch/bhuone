@@ -225,7 +225,7 @@ export class AIEngine {
         id: 'wardrobe_1',
         type: 'mirrored_wardrobe',
         name: 'Mirrored Double Wardrobe',
-        position: [W / 2 - 0.4, 0, 0.3],
+        position: [W / 2 - 0.36, 0, 0.0],
         rotation: [0, -Math.PI / 2, 0],
         style: style,
         color: palette.sofaColor,
