@@ -359,7 +359,8 @@ class RoomBuilder {
 
   buildWalls(W, L, H, wallColorHex) {
     const wallThickness = 0.12;
-    const wallMat = new THREE.MeshStandardMaterial({
+
+    const createWallMat = (key) => new THREE.MeshStandardMaterial({
       color: wallColorHex,
       roughness: 0.85,
       side: THREE.DoubleSide
@@ -367,7 +368,9 @@ class RoomBuilder {
 
     // Back Wall (-Z)
     const backGeom = new THREE.BoxGeometry(W, H, wallThickness);
-    this.walls.back = new THREE.Mesh(backGeom, wallMat);
+    this.walls.back = new THREE.Mesh(backGeom, createWallMat('back'));
+    this.walls.back.name = 'Back Wall';
+    this.walls.back.userData = { type: 'wall', wallKey: 'back', name: 'Back Wall' };
     this.walls.back.position.set(0, H / 2, -L / 2 - wallThickness / 2);
     this.walls.back.receiveShadow = true;
     this.walls.back.castShadow = true;
@@ -375,7 +378,9 @@ class RoomBuilder {
 
     // Left Wall (-X)
     const leftGeom = new THREE.BoxGeometry(wallThickness, H, L);
-    this.walls.left = new THREE.Mesh(leftGeom, wallMat);
+    this.walls.left = new THREE.Mesh(leftGeom, createWallMat('left'));
+    this.walls.left.name = 'Left Wall';
+    this.walls.left.userData = { type: 'wall', wallKey: 'left', name: 'Left Wall' };
     this.walls.left.position.set(-W / 2 - wallThickness / 2, H / 2, 0);
     this.walls.left.receiveShadow = true;
     this.walls.left.castShadow = true;
@@ -383,7 +388,9 @@ class RoomBuilder {
 
     // Right Wall (+X)
     const rightGeom = new THREE.BoxGeometry(wallThickness, H, L);
-    this.walls.right = new THREE.Mesh(rightGeom, wallMat);
+    this.walls.right = new THREE.Mesh(rightGeom, createWallMat('right'));
+    this.walls.right.name = 'Right Wall';
+    this.walls.right.userData = { type: 'wall', wallKey: 'right', name: 'Right Wall' };
     this.walls.right.position.set(W / 2 + wallThickness / 2, H / 2, 0);
     this.walls.right.receiveShadow = true;
     this.walls.right.castShadow = true;
@@ -398,6 +405,8 @@ class RoomBuilder {
     });
     const frontGeom = new THREE.BoxGeometry(W, H, wallThickness);
     this.walls.front = new THREE.Mesh(frontGeom, frontMat);
+    this.walls.front.name = 'Front Wall';
+    this.walls.front.userData = { type: 'wall', wallKey: 'front', name: 'Front Wall' };
     this.walls.front.position.set(0, H / 2, L / 2 + wallThickness / 2);
     this.walls.front.receiveShadow = true;
     this.walls.front.visible = !this.cutawayEnabled;
@@ -639,10 +648,27 @@ class RoomBuilder {
   setWallColor(hex) {
     this.currentWallColor = hex;
     ['back', 'left', 'right', 'front'].forEach(w => {
-      if (this.walls[w]) {
+      if (this.walls[w] && this.walls[w].material) {
         this.walls[w].material.color.set(hex);
       }
     });
+  }
+
+  setSingleWallColor(wallKey, hex) {
+    if (!wallKey || wallKey === 'all') {
+      this.setWallColor(hex);
+      return;
+    }
+    if (this.walls[wallKey] && this.walls[wallKey].material) {
+      this.walls[wallKey].material.color.set(hex);
+    }
+  }
+
+  getWallColor(wallKey = 'back') {
+    if (this.walls[wallKey] && this.walls[wallKey].material && this.walls[wallKey].material.color) {
+      return '#' + this.walls[wallKey].material.color.getHexString().toUpperCase();
+    }
+    return '#F3F4F6';
   }
 
   setFlooring(type) {
@@ -3406,6 +3432,20 @@ class App {
           this.dragOffset.copy(planeIntersect).sub(targetWorldPos);
         }
       } else {
+        // No furniture hit! Check if user clicked a wall to customize its color
+        const wallTargets = [
+          this.roomBuilder?.walls?.back,
+          this.roomBuilder?.walls?.left,
+          this.roomBuilder?.walls?.right
+        ].filter(Boolean);
+
+        const wallHits = this.raycaster.intersectObjects(wallTargets, false);
+        if (wallHits.length > 0) {
+          const clickedWall = wallHits[0].object;
+          this.selectWall(clickedWall);
+          return;
+        }
+
         if (!this.isDragging) {
           this.deselectObject();
         }
@@ -3507,6 +3547,7 @@ class App {
   updateTargetByMode() {
     if (!this.selectedRoot) return;
 
+    this.selectedWall = null;
     this.selectedTarget = (this.editMode === 'part' && this.selectedPart) ? this.selectedPart : this.selectedRoot;
     this.selectedObject = this.selectedTarget;
 
@@ -3528,6 +3569,15 @@ class App {
 
     if (btnPart) btnPart.classList.toggle('active', this.editMode === 'part');
     if (btnWhole) btnWhole.classList.toggle('active', this.editMode === 'whole');
+
+    const modeToggle = document.getElementById('inspector-mode-toggle');
+    const wallPanel = document.getElementById('inspector-wall-panel');
+    const actions = document.getElementById('inspector-actions');
+    const shortcutsTip = document.getElementById('inspector-shortcuts-tip');
+    if (modeToggle) modeToggle.style.display = 'flex';
+    if (wallPanel) wallPanel.style.display = 'none';
+    if (actions) actions.style.display = 'grid';
+    if (shortcutsTip) shortcutsTip.style.display = 'block';
 
     const isWallArt = this.selectedRoot?.userData?.type === 'wall_art' || this.selectedRoot?.userData?.isWallMounted;
     const wallartPanel = document.getElementById('inspector-wallart-panel');
@@ -3728,13 +3778,88 @@ class App {
     this.selectedPart = null;
     this.selectedTarget = null;
     this.selectedObject = null;
+    this.selectedWall = null;
     if (this.selectionHelper) this.selectionHelper.visible = false;
     const popup = document.getElementById('inspector-popup');
     if (popup) popup.style.display = 'none';
+    const modeToggle = document.getElementById('inspector-mode-toggle');
     const wallartPanel = document.getElementById('inspector-wallart-panel');
+    const wallPanel = document.getElementById('inspector-wall-panel');
     const stdControls = document.getElementById('inspector-standard-controls');
+    const actions = document.getElementById('inspector-actions');
+    const shortcutsTip = document.getElementById('inspector-shortcuts-tip');
+
+    if (modeToggle) modeToggle.style.display = 'flex';
     if (wallartPanel) wallartPanel.style.display = 'none';
+    if (wallPanel) wallPanel.style.display = 'none';
     if (stdControls) stdControls.style.display = 'block';
+    if (actions) actions.style.display = 'grid';
+    if (shortcutsTip) shortcutsTip.style.display = 'block';
+  }
+
+  // 4b-i. DIRECT 3D SINGLE WALL SELECTION
+  selectWall(wallMesh) {
+    if (!wallMesh) return;
+    this.selectedWall = wallMesh;
+    this.selectedRoot = null;
+    this.selectedPart = null;
+    this.selectedTarget = null;
+    this.selectedObject = null;
+    this.isDragging = false;
+    this.controls.enabled = true;
+
+    const popup = document.getElementById('inspector-popup');
+    const title = document.getElementById('inspector-title');
+    const subtitle = document.getElementById('inspector-subtitle');
+    const modeToggle = document.getElementById('inspector-mode-toggle');
+    const wallartPanel = document.getElementById('inspector-wallart-panel');
+    const wallPanel = document.getElementById('inspector-wall-panel');
+    const stdControls = document.getElementById('inspector-standard-controls');
+    const actions = document.getElementById('inspector-actions');
+    const shortcutsTip = document.getElementById('inspector-shortcuts-tip');
+
+    if (popup) popup.style.display = 'flex';
+    if (title) title.textContent = `🧱 ${wallMesh.name}`;
+    if (subtitle) {
+      subtitle.textContent = `Single Wall Color & Accent Finish`;
+      subtitle.style.color = '#38bdf8';
+    }
+    if (modeToggle) modeToggle.style.display = 'none';
+    if (wallartPanel) wallartPanel.style.display = 'none';
+    if (stdControls) stdControls.style.display = 'none';
+    if (wallPanel) wallPanel.style.display = 'block';
+    if (actions) actions.style.display = 'none';
+    if (shortcutsTip) shortcutsTip.style.display = 'none';
+
+    if (this.selectionHelper) {
+      this.selectionHelper.setFromObject(wallMesh);
+      this.selectionHelper.visible = true;
+      this.selectionHelper.update();
+    }
+
+    this.syncWallInspector(wallMesh);
+    this.showToast(`Selected ${wallMesh.name} - Choose a paint finish`);
+  }
+
+  syncWallInspector(wallMesh) {
+    const wall = wallMesh || this.selectedWall;
+    if (!wall || !wall.material) return;
+    const hex = '#' + wall.material.color.getHexString().toUpperCase();
+    const heading = document.getElementById('inspector-wall-heading');
+    const badge = document.getElementById('inspector-wall-color-badge');
+    const hexSpan = document.getElementById('inspector-wall-color-hex');
+    const colorPicker = document.getElementById('inspector-wall-color-picker');
+    const targetSelect = document.getElementById('inspector-wall-target-select');
+
+    if (heading) heading.textContent = `🧱 ${wall.name || 'Room Wall'}`;
+    if (badge) badge.textContent = hex;
+    if (hexSpan) hexSpan.textContent = hex;
+    if (colorPicker) colorPicker.value = hex.toLowerCase();
+    if (targetSelect) targetSelect.value = 'current';
+
+    document.querySelectorAll('.wall-swatch-inspect').forEach(b => {
+      b.classList.toggle('active', b.dataset.color.toUpperCase() === hex.toUpperCase());
+    });
   }
 
   // 4b-ii. WALL ART SPATIAL & STYLING HELPERS
@@ -4206,15 +4331,9 @@ class App {
       });
     });
 
-    // Wall Color Picker & Flooring in Catalog tab
-    const wallPicker = document.getElementById('wall-color-picker');
-    wallPicker.addEventListener('input', (e) => {
-      const hex = parseInt(e.target.value.replace('#', '0x'), 16);
-      this.roomBuilder.setWallColor(hex);
-    });
-
+    // Flooring in Catalog tab
     const catFlooring = document.getElementById('catalog-flooring');
-    catFlooring.addEventListener('change', (e) => {
+    catFlooring?.addEventListener('change', (e) => {
       this.roomBuilder.setFlooring(e.target.value);
       this.showToast(`Flooring set to ${e.target.value}`);
     });
@@ -4277,9 +4396,10 @@ class App {
       }
     } catch (e) {}
 
-    // Initialize Door and Window architectural placement controls
+    // Initialize Door, Window, Wall Art, and Single Wall Color controls
     this.initArchitecturalControls();
     this.initWallArtControls();
+    this.initWallColorControls();
   }
 
   initWallArtControls() {
@@ -4434,6 +4554,124 @@ class App {
     });
   }
 
+  // 4b-iii. SINGLE WALL & ALL WALLS PAINT & ACCENT CUSTOMIZER
+  initWallColorControls() {
+    const designerAccents = [
+      '#FFFFFF', '#F5F5F0', '#E8DFD8', '#A3B19B',
+      '#B85D43', '#D8A49B', '#1E293B', '#1F242D',
+      '#354F42', '#A5B4C4', '#C5BCB3', '#C8963E',
+      '#2B3A42', '#3D405B', '#81B29A', '#E07A5F'
+    ];
+
+    // --- SETUP TAB WALL CONTROLS ---
+    const setupTarget = document.getElementById('setup-wall-target-select');
+    const setupPill = document.getElementById('setup-wall-status-pill');
+    const setupColor = document.getElementById('setup-single-wall-color');
+    const btnRandomSetup = document.getElementById('btn-random-wall-accent');
+
+    const updateSetupColorValue = () => {
+      const target = setupTarget ? setupTarget.value : 'all';
+      const key = (target === 'all') ? 'back' : target;
+      const hex = this.roomBuilder.getWallColor(key);
+      if (setupColor) setupColor.value = hex.toLowerCase();
+      document.querySelectorAll('.wall-swatch').forEach(b => {
+        b.classList.toggle('active', b.dataset.color.toUpperCase() === hex.toUpperCase());
+      });
+    };
+
+    setupTarget?.addEventListener('change', (e) => {
+      const target = e.target.value;
+      const targetName = e.target.options[e.target.selectedIndex].text;
+      if (setupPill) setupPill.textContent = target === 'all' ? 'All Walls' : targetName.split(' ')[0] + ' Wall';
+      updateSetupColorValue();
+    });
+
+    setupColor?.addEventListener('input', (e) => {
+      const target = setupTarget ? setupTarget.value : 'all';
+      const hex = parseInt(e.target.value.replace('#', '0x'), 16);
+      this.roomBuilder.setSingleWallColor(target, hex);
+      if (this.selectedWall) this.syncWallInspector(this.selectedWall);
+    });
+
+    btnRandomSetup?.addEventListener('click', () => {
+      const randomColor = designerAccents[Math.floor(Math.random() * designerAccents.length)];
+      const target = setupTarget ? setupTarget.value : 'all';
+      const hex = parseInt(randomColor.replace('#', '0x'), 16);
+      this.roomBuilder.setSingleWallColor(target, hex);
+      if (setupColor) setupColor.value = randomColor.toLowerCase();
+      if (this.selectedWall) this.syncWallInspector(this.selectedWall);
+      const targetName = setupTarget?.options[setupTarget.selectedIndex]?.text || 'wall';
+      this.showToast(`Applied accent ${randomColor} to ${targetName}`);
+    });
+
+    document.querySelectorAll('.wall-swatch').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const color = btn.dataset.color;
+        const target = setupTarget ? setupTarget.value : 'all';
+        const hex = parseInt(color.replace('#', '0x'), 16);
+        this.roomBuilder.setSingleWallColor(target, hex);
+        if (setupColor) setupColor.value = color.toLowerCase();
+        document.querySelectorAll('.wall-swatch').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (this.selectedWall) this.syncWallInspector(this.selectedWall);
+        const targetName = setupTarget?.options[setupTarget.selectedIndex]?.text || 'wall';
+        this.showToast(`Applied ${btn.title || color} to ${targetName}`);
+      });
+    });
+
+    // --- CATALOG TAB SURFACE CONTROLS ---
+    const catalogTarget = document.getElementById('catalog-wall-target-select');
+    const catalogColor = document.getElementById('wall-color-picker');
+
+    catalogTarget?.addEventListener('change', (e) => {
+      const target = e.target.value;
+      const key = (target === 'all') ? 'back' : target;
+      const hex = this.roomBuilder.getWallColor(key);
+      if (catalogColor) catalogColor.value = hex.toLowerCase();
+    });
+
+    catalogColor?.addEventListener('input', (e) => {
+      const target = catalogTarget ? catalogTarget.value : 'all';
+      const hex = parseInt(e.target.value.replace('#', '0x'), 16);
+      this.roomBuilder.setSingleWallColor(target, hex);
+      if (this.selectedWall) this.syncWallInspector(this.selectedWall);
+      updateSetupColorValue();
+    });
+
+    // --- INSPECTOR POPUP WALL CONTROLS ---
+    const inspectTarget = document.getElementById('inspector-wall-target-select');
+    const inspectColor = document.getElementById('inspector-wall-color-picker');
+    const btnRandomInspect = document.getElementById('btn-random-single-wall');
+
+    const applyInspectorWallColor = (hexStr) => {
+      const hex = parseInt(hexStr.replace('#', '0x'), 16);
+      let target = inspectTarget ? inspectTarget.value : 'current';
+      if (target === 'current' && this.selectedWall) {
+        target = this.selectedWall.userData.wallKey || 'back';
+      }
+      this.roomBuilder.setSingleWallColor(target, hex);
+      this.syncWallInspector(this.selectedWall);
+      updateSetupColorValue();
+    };
+
+    inspectColor?.addEventListener('input', (e) => {
+      applyInspectorWallColor(e.target.value);
+    });
+
+    btnRandomInspect?.addEventListener('click', () => {
+      const randomColor = designerAccents[Math.floor(Math.random() * designerAccents.length)];
+      applyInspectorWallColor(randomColor);
+      this.showToast(`Applied accent ${randomColor}`);
+    });
+
+    document.querySelectorAll('.wall-swatch-inspect').forEach(btn => {
+      btn.addEventListener('click', () => {
+        applyInspectorWallColor(btn.dataset.color);
+        this.showToast(`Applied ${btn.title || btn.dataset.color}`);
+      });
+    });
+  }
+
   initArchitecturalControls() {
     // Window Controls
     const winWall = document.getElementById('window-wall-select');
@@ -4582,7 +4820,11 @@ class App {
     // Apply wall color from plan
     if (designPlan.wallColorHex) {
       this.roomBuilder.setWallColor(designPlan.wallColorHex);
-      document.getElementById('wall-color-picker').value = designPlan.palette.wallColorHex;
+      const colHex = designPlan.palette?.wallColorHex || ('#' + Number(designPlan.wallColorHex).toString(16).padStart(6, '0'));
+      const wallPicker = document.getElementById('wall-color-picker');
+      if (wallPicker) wallPicker.value = colHex;
+      const setupColor = document.getElementById('setup-single-wall-color');
+      if (setupColor) setupColor.value = colHex;
     }
 
     // 4. Populate 3D furniture
@@ -4939,7 +5181,12 @@ class App {
       colorScheme: document.getElementById('color-scheme')?.value || 'warm_neutral',
       flooring: document.getElementById('flooring-select')?.value || 'wood_oak',
       lighting: 'warm_ambient',
-      wallColor: document.getElementById('wall-color-picker')?.value || '#faf5ee',
+      wallColor: this.roomBuilder?.getWallColor('back') || '#faf5ee',
+      singleWallColors: {
+        back: this.roomBuilder?.getWallColor('back'),
+        left: this.roomBuilder?.getWallColor('left'),
+        right: this.roomBuilder?.getWallColor('right')
+      },
       furniture: this.furnitureGroup.children.map(child => ({
         type: child.userData?.type || 'furniture',
         name: child.name,
@@ -5013,7 +5260,11 @@ class App {
     }
 
     this.roomBuilder.buildRoom(data.dimensions, 0xfaf5ee, data.flooring || 'wood_oak');
-    if (data.wallColor) {
+    if (data.singleWallColors) {
+      if (data.singleWallColors.back) this.roomBuilder.setSingleWallColor('back', parseInt(data.singleWallColors.back.replace('#', '0x'), 16));
+      if (data.singleWallColors.left) this.roomBuilder.setSingleWallColor('left', parseInt(data.singleWallColors.left.replace('#', '0x'), 16));
+      if (data.singleWallColors.right) this.roomBuilder.setSingleWallColor('right', parseInt(data.singleWallColors.right.replace('#', '0x'), 16));
+    } else if (data.wallColor) {
       this.roomBuilder.setWallColor(parseInt(data.wallColor.replace('#', '0x'), 16));
     }
 

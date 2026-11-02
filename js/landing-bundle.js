@@ -359,7 +359,8 @@ class RoomBuilder {
 
   buildWalls(W, L, H, wallColorHex) {
     const wallThickness = 0.12;
-    const wallMat = new THREE.MeshStandardMaterial({
+
+    const createWallMat = (key) => new THREE.MeshStandardMaterial({
       color: wallColorHex,
       roughness: 0.85,
       side: THREE.DoubleSide
@@ -367,7 +368,9 @@ class RoomBuilder {
 
     // Back Wall (-Z)
     const backGeom = new THREE.BoxGeometry(W, H, wallThickness);
-    this.walls.back = new THREE.Mesh(backGeom, wallMat);
+    this.walls.back = new THREE.Mesh(backGeom, createWallMat('back'));
+    this.walls.back.name = 'Back Wall';
+    this.walls.back.userData = { type: 'wall', wallKey: 'back', name: 'Back Wall' };
     this.walls.back.position.set(0, H / 2, -L / 2 - wallThickness / 2);
     this.walls.back.receiveShadow = true;
     this.walls.back.castShadow = true;
@@ -375,7 +378,9 @@ class RoomBuilder {
 
     // Left Wall (-X)
     const leftGeom = new THREE.BoxGeometry(wallThickness, H, L);
-    this.walls.left = new THREE.Mesh(leftGeom, wallMat);
+    this.walls.left = new THREE.Mesh(leftGeom, createWallMat('left'));
+    this.walls.left.name = 'Left Wall';
+    this.walls.left.userData = { type: 'wall', wallKey: 'left', name: 'Left Wall' };
     this.walls.left.position.set(-W / 2 - wallThickness / 2, H / 2, 0);
     this.walls.left.receiveShadow = true;
     this.walls.left.castShadow = true;
@@ -383,7 +388,9 @@ class RoomBuilder {
 
     // Right Wall (+X)
     const rightGeom = new THREE.BoxGeometry(wallThickness, H, L);
-    this.walls.right = new THREE.Mesh(rightGeom, wallMat);
+    this.walls.right = new THREE.Mesh(rightGeom, createWallMat('right'));
+    this.walls.right.name = 'Right Wall';
+    this.walls.right.userData = { type: 'wall', wallKey: 'right', name: 'Right Wall' };
     this.walls.right.position.set(W / 2 + wallThickness / 2, H / 2, 0);
     this.walls.right.receiveShadow = true;
     this.walls.right.castShadow = true;
@@ -398,6 +405,8 @@ class RoomBuilder {
     });
     const frontGeom = new THREE.BoxGeometry(W, H, wallThickness);
     this.walls.front = new THREE.Mesh(frontGeom, frontMat);
+    this.walls.front.name = 'Front Wall';
+    this.walls.front.userData = { type: 'wall', wallKey: 'front', name: 'Front Wall' };
     this.walls.front.position.set(0, H / 2, L / 2 + wallThickness / 2);
     this.walls.front.receiveShadow = true;
     this.walls.front.visible = !this.cutawayEnabled;
@@ -639,10 +648,27 @@ class RoomBuilder {
   setWallColor(hex) {
     this.currentWallColor = hex;
     ['back', 'left', 'right', 'front'].forEach(w => {
-      if (this.walls[w]) {
+      if (this.walls[w] && this.walls[w].material) {
         this.walls[w].material.color.set(hex);
       }
     });
+  }
+
+  setSingleWallColor(wallKey, hex) {
+    if (!wallKey || wallKey === 'all') {
+      this.setWallColor(hex);
+      return;
+    }
+    if (this.walls[wallKey] && this.walls[wallKey].material) {
+      this.walls[wallKey].material.color.set(hex);
+    }
+  }
+
+  getWallColor(wallKey = 'back') {
+    if (this.walls[wallKey] && this.walls[wallKey].material && this.walls[wallKey].material.color) {
+      return '#' + this.walls[wallKey].material.color.getHexString().toUpperCase();
+    }
+    return '#F3F4F6';
   }
 
   setFlooring(type) {
