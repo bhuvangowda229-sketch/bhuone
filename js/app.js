@@ -129,16 +129,71 @@ class App {
     this.mouse = new THREE.Vector2();
 
     this.canvas.addEventListener('pointerdown', (e) => {
-      if (this.isWalkthrough) return;
       const rect = this.canvas.getBoundingClientRect();
       this.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       this.mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-
       this.raycaster.setFromCamera(this.mouse, this.camera);
-      const intersects = this.raycaster.intersectObjects(this.furnitureGroup.children, true);
+
+      // In walkthrough mode, clicking door opens/shuts it
+      if (this.isWalkthrough) {
+        if (this.roomBuilder.doorGroup) {
+          const doorHits = this.raycaster.intersectObjects([this.roomBuilder.doorGroup], true);
+          if (doorHits.length > 0) {
+            const currentSwing = this.roomBuilder.doorConfig.openAngle || 0;
+            const nextSwing = currentSwing > 15 ? 0 : 80;
+            this.roomBuilder.setDoorSwing(nextSwing);
+            const swingSlider = document.getElementById('door-swing-slider');
+            if (swingSlider) swingSlider.value = nextSwing;
+            const swingVal = document.getElementById('door-swing-val');
+            if (swingVal) swingVal.textContent = `${nextSwing}°`;
+            this.showToast(nextSwing > 0 ? '🚪 Room Door opened' : '🚪 Room Door closed');
+          }
+        }
+        return;
+      }
+
+      const interactiveTargets = [
+        ...this.furnitureGroup.children,
+        ...(this.roomBuilder.windowGroup ? [this.roomBuilder.windowGroup] : []),
+        ...(this.roomBuilder.doorGroup ? [this.roomBuilder.doorGroup] : [])
+      ];
+      const intersects = this.raycaster.intersectObjects(interactiveTargets, true);
 
       if (intersects.length > 0) {
         const clickedMesh = intersects[0].object;
+
+        // Check if clicked an architectural element (Window or Door)
+        let isArch = null;
+        let pCheck = clickedMesh;
+        while (pCheck) {
+          if (pCheck === this.roomBuilder.windowGroup) { isArch = 'window'; break; }
+          if (pCheck === this.roomBuilder.doorGroup) { isArch = 'door'; break; }
+          pCheck = pCheck.parent;
+        }
+
+        if (isArch === 'window') {
+          this.deselectObject();
+          this.showToast('🪟 Picture Window selected - Adjust placement in Setup');
+          document.querySelector('[data-tab="tab-setup"]')?.click();
+          document.getElementById('card-door-window')?.scrollIntoView({ behavior: 'smooth' });
+          return;
+        }
+
+        if (isArch === 'door') {
+          this.deselectObject();
+          const currentSwing = this.roomBuilder.doorConfig.openAngle || 0;
+          const nextSwing = currentSwing > 15 ? 0 : 80;
+          this.roomBuilder.setDoorSwing(nextSwing);
+          const swingSlider = document.getElementById('door-swing-slider');
+          if (swingSlider) swingSlider.value = nextSwing;
+          const swingVal = document.getElementById('door-swing-val');
+          if (swingVal) swingVal.textContent = `${nextSwing}°`;
+          this.showToast(nextSwing > 0 ? '🚪 Room Door opened (80°)' : '🚪 Room Door closed (0°)');
+          document.querySelector('[data-tab="tab-setup"]')?.click();
+          document.getElementById('card-door-window')?.scrollIntoView({ behavior: 'smooth' });
+          return;
+        }
+
         let rootObj = clickedMesh;
         let chairSubGroup = null;
         let curr = clickedMesh;
@@ -753,6 +808,83 @@ class App {
         }
       }
     } catch (e) {}
+
+    // Initialize Door and Window architectural placement controls
+    this.initArchitecturalControls();
+  }
+
+  initArchitecturalControls() {
+    // Window Controls
+    const winWall = document.getElementById('window-wall-select');
+    const winPos = document.getElementById('window-pos-slider');
+    const winPosVal = document.getElementById('window-pos-val');
+    const winW = document.getElementById('window-w-slider');
+    const winWVal = document.getElementById('window-w-val');
+    const winH = document.getElementById('window-h-slider');
+    const winHVal = document.getElementById('window-h-val');
+    const winPill = document.getElementById('window-status-pill');
+
+    winWall?.addEventListener('change', (e) => {
+      this.roomBuilder.updateWindow({ wall: e.target.value });
+      if (winPill) {
+        winPill.textContent = e.target.options[e.target.selectedIndex].text;
+      }
+      this.showToast(`Window moved to ${e.target.options[e.target.selectedIndex].text}`);
+    });
+
+    winPos?.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      if (winPosVal) winPosVal.textContent = `${val >= 0 ? '+' : ''}${val.toFixed(1)}m`;
+      this.roomBuilder.updateWindow({ offset: val });
+    });
+
+    winW?.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      if (winWVal) winWVal.textContent = `${val.toFixed(1)}m`;
+      this.roomBuilder.updateWindow({ width: val });
+    });
+
+    winH?.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      if (winHVal) winHVal.textContent = `${val.toFixed(1)}m`;
+      this.roomBuilder.updateWindow({ height: val });
+    });
+
+    // Door Controls
+    const doorWall = document.getElementById('door-wall-select');
+    const doorPos = document.getElementById('door-pos-slider');
+    const doorPosVal = document.getElementById('door-pos-val');
+    const doorW = document.getElementById('door-w-slider');
+    const doorWVal = document.getElementById('door-w-val');
+    const doorSwing = document.getElementById('door-swing-slider');
+    const doorSwingVal = document.getElementById('door-swing-val');
+    const doorPill = document.getElementById('door-status-pill');
+
+    doorWall?.addEventListener('change', (e) => {
+      this.roomBuilder.updateDoor({ wall: e.target.value });
+      if (doorPill) {
+        doorPill.textContent = e.target.options[e.target.selectedIndex].text;
+      }
+      this.showToast(`Door moved to ${e.target.options[e.target.selectedIndex].text}`);
+    });
+
+    doorPos?.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      if (doorPosVal) doorPosVal.textContent = `${val >= 0 ? '+' : ''}${val.toFixed(1)}m`;
+      this.roomBuilder.updateDoor({ offset: val });
+    });
+
+    doorW?.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      if (doorWVal) doorWVal.textContent = `${val.toFixed(2)}m`;
+      this.roomBuilder.updateDoor({ width: val });
+    });
+
+    doorSwing?.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      if (doorSwingVal) doorSwingVal.textContent = `${val}°`;
+      this.roomBuilder.setDoorSwing(val);
+    });
   }
 
   // 6. CAMERA PRESETS & WALKTHROUGH

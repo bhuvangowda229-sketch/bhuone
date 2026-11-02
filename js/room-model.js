@@ -17,6 +17,27 @@ export class RoomBuilder {
     this.currentDimensions = { width: 5.0, length: 4.5, height: 2.8 };
     this.currentWallColor = 0xf3f4f6;
     this.currentFlooring = 'wood_oak';
+
+    // Adjustable configurations for Window and Door
+    this.windowConfig = {
+      wall: 'left',      // 'left' | 'back' | 'right'
+      offset: 0.0,       // position along the wall in meters
+      width: 1.6,        // window width
+      height: 1.4,       // window height
+      elevation: 1.5     // center height from floor
+    };
+
+    this.doorConfig = {
+      wall: 'right',     // 'right' | 'back' | 'left'
+      offset: 1.4,       // position along the wall in meters
+      width: 0.9,        // door width
+      height: 2.1,       // door height
+      openAngle: 0       // 0 to 90 degrees swing
+    };
+
+    this.windowGroup = null;
+    this.doorGroup = null;
+    this.doorHinge = null;
   }
 
   buildRoom(dimensions, wallColorHex = 0xf3f4f6, flooringType = 'wood_oak') {
@@ -84,7 +105,6 @@ export class RoomBuilder {
         break;
     }
 
-    // Repeat texture to fit room size
     floorTexture.repeat.set(W / 2, L / 2);
 
     const floorMat = new THREE.MeshStandardMaterial({
@@ -170,8 +190,42 @@ export class RoomBuilder {
   }
 
   buildArchitecturalDetails(W, L, H) {
-    // 1. Picture Window on the Left Wall
-    const windowGroup = new THREE.Group();
+    this.rebuildWindow(W, L, H);
+    this.rebuildDoor(W, L, H);
+  }
+
+  rebuildWindow(W, L, H) {
+    if (this.windowGroup) {
+      this.roomGroup.remove(this.windowGroup);
+      this.windowGroup.traverse(child => {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+          if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+          else child.material.dispose();
+        }
+      });
+      this.windowGroup = null;
+    }
+
+    const cfg = this.windowConfig;
+    const wallSpan = (cfg.wall === 'back') ? W : L;
+    const winW = Math.max(0.6, Math.min(wallSpan - 0.4, cfg.width));
+    const winH = Math.max(0.6, Math.min(H - 0.3, cfg.height));
+    const winDepth = 0.06;
+
+    // Clamp offset along wall so window stays safely on wall
+    const maxOffset = Math.max(0.1, (wallSpan / 2) - (winW / 2) - 0.15);
+    const minOffset = -maxOffset;
+    const clampedOffset = Math.max(minOffset, Math.min(maxOffset, cfg.offset));
+    cfg.offset = clampedOffset;
+
+    const elev = Math.max(winH / 2 + 0.3, Math.min(H - winH / 2 - 0.1, cfg.elevation));
+    cfg.elevation = elev;
+
+    this.windowGroup = new THREE.Group();
+    this.windowGroup.name = 'Picture Window';
+    this.windowGroup.userData = { isArchitecture: true, type: 'window', name: 'Picture Window' };
+
     const frameMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.3 });
     const glassMat = new THREE.MeshPhysicalMaterial({
       color: 0xbae6fd,
@@ -181,49 +235,152 @@ export class RoomBuilder {
       roughness: 0.1
     });
 
-    const winW = 1.6;
-    const winH = 1.4;
-    const winDepth = 0.06;
-
-    // Window frame
+    // Window frame (outer)
     const frame = new THREE.Mesh(new THREE.BoxGeometry(winDepth, winH, winW), frameMat);
-    windowGroup.add(frame);
+    frame.name = 'Window Frame';
+    this.windowGroup.add(frame);
 
     // Glass pane
     const glass = new THREE.Mesh(new THREE.BoxGeometry(0.01, winH - 0.1, winW - 0.1), glassMat);
-    windowGroup.add(glass);
+    glass.name = 'Window Glass';
+    this.windowGroup.add(glass);
 
     // Window mullions (crossbars)
     const crossV = new THREE.Mesh(new THREE.BoxGeometry(winDepth + 0.01, winH - 0.1, 0.03), frameMat);
+    crossV.name = 'Window Mullion Vertical';
     const crossH = new THREE.Mesh(new THREE.BoxGeometry(winDepth + 0.01, 0.03, winW - 0.1), frameMat);
-    windowGroup.add(crossV);
-    windowGroup.add(crossH);
+    crossH.name = 'Window Mullion Horizontal';
+    this.windowGroup.add(crossV);
+    this.windowGroup.add(crossH);
 
-    windowGroup.position.set(-W / 2 + 0.02, H * 0.55, 0);
-    this.roomGroup.add(windowGroup);
+    // Position based on selected wall
+    if (cfg.wall === 'left') {
+      this.windowGroup.position.set(-W / 2 + 0.02, elev, clampedOffset);
+      this.windowGroup.rotation.y = 0;
+    } else if (cfg.wall === 'right') {
+      this.windowGroup.position.set(W / 2 - 0.02, elev, clampedOffset);
+      this.windowGroup.rotation.y = Math.PI;
+    } else if (cfg.wall === 'back') {
+      this.windowGroup.position.set(clampedOffset, elev, -L / 2 + 0.02);
+      this.windowGroup.rotation.y = -Math.PI / 2;
+    }
 
-    // 2. Doorway hint on the Right Wall (back corner)
-    const doorGroup = new THREE.Group();
-    const doorFrameMat = new THREE.MeshStandardMaterial({ color: 0x334155 });
-    const doorMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7 });
+    this.windowGroup.traverse(child => {
+      child.userData.rootGroup = this.windowGroup;
+    });
 
-    const doorW = 0.9;
-    const doorH = 2.1;
-    const doorFrame = new THREE.Mesh(new THREE.BoxGeometry(0.04, doorH, doorW), doorFrameMat);
-    const doorPanel = new THREE.Mesh(new THREE.BoxGeometry(0.02, doorH - 0.05, doorW - 0.05), doorMat);
-    doorPanel.position.x = -0.01;
+    this.roomGroup.add(this.windowGroup);
+  }
 
-    // Brass door handle
-    const handleMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.8, roughness: 0.2 });
-    const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.12, 12), handleMat);
-    handle.rotation.x = Math.PI / 2;
-    handle.position.set(-0.03, 0, -doorW / 3);
+  rebuildDoor(W, L, H) {
+    if (this.doorGroup) {
+      this.roomGroup.remove(this.doorGroup);
+      this.doorGroup.traverse(child => {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+          if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+          else child.material.dispose();
+        }
+      });
+      this.doorGroup = null;
+      this.doorHinge = null;
+    }
 
-    doorGroup.add(doorFrame);
-    doorGroup.add(doorPanel);
-    doorGroup.add(handle);
-    doorGroup.position.set(W / 2 - 0.02, doorH / 2, L / 2 - 0.8);
-    this.roomGroup.add(doorGroup);
+    const cfg = this.doorConfig;
+    const wallSpan = (cfg.wall === 'back') ? W : L;
+    const doorW = Math.max(0.65, Math.min(1.4, cfg.width));
+    const doorH = Math.max(1.8, Math.min(H - 0.05, cfg.height));
+
+    // Clamp offset along wall
+    const maxOffset = Math.max(0.1, (wallSpan / 2) - (doorW / 2) - 0.15);
+    const minOffset = -maxOffset;
+    const clampedOffset = Math.max(minOffset, Math.min(maxOffset, cfg.offset));
+    cfg.offset = clampedOffset;
+
+    this.doorGroup = new THREE.Group();
+    this.doorGroup.name = 'Room Door';
+    this.doorGroup.userData = { isArchitecture: true, type: 'door', name: 'Room Door' };
+
+    const doorFrameMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6 });
+    const doorMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.7 });
+
+    // Outer door jamb / frame
+    const frameTop = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.04, doorW + 0.08), doorFrameMat);
+    frameTop.position.set(0, doorH + 0.02, 0);
+    const frameLeft = new THREE.Mesh(new THREE.BoxGeometry(0.06, doorH, 0.04), doorFrameMat);
+    frameLeft.position.set(0, doorH / 2, -doorW / 2 - 0.02);
+    const frameRight = new THREE.Mesh(new THREE.BoxGeometry(0.06, doorH, 0.04), doorFrameMat);
+    frameRight.position.set(0, doorH / 2, doorW / 2 + 0.02);
+
+    this.doorGroup.add(frameTop);
+    this.doorGroup.add(frameLeft);
+    this.doorGroup.add(frameRight);
+
+    // Door hinge pivot located at side of opening
+    this.doorHinge = new THREE.Group();
+    this.doorHinge.name = 'Door Hinge';
+    this.doorHinge.position.set(0, 0, -doorW / 2);
+
+    // Door panel centered inside hinge pivot
+    const doorPanel = new THREE.Mesh(new THREE.BoxGeometry(0.035, doorH - 0.02, doorW - 0.02), doorMat);
+    doorPanel.position.set(0, (doorH - 0.02) / 2, doorW / 2);
+    doorPanel.castShadow = true;
+    doorPanel.receiveShadow = true;
+    doorPanel.name = 'Door Panel';
+    this.doorHinge.add(doorPanel);
+
+    // Door handle (brass)
+    const handleMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.2 });
+    const handleCyl = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.12, 12), handleMat);
+    handleCyl.rotation.x = Math.PI / 2;
+    handleCyl.position.set(-0.035, 1.0, doorW - 0.12);
+    const handleLever = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.015, 0.1), handleMat);
+    handleLever.position.set(-0.05, 1.0, doorW - 0.07);
+    this.doorHinge.add(handleCyl);
+    this.doorHinge.add(handleLever);
+
+    // Apply swing angle
+    const rad = (cfg.openAngle || 0) * (Math.PI / 180);
+    this.doorHinge.rotation.y = rad;
+
+    this.doorGroup.add(this.doorHinge);
+
+    // Position based on selected wall
+    if (cfg.wall === 'right') {
+      this.doorGroup.position.set(W / 2 - 0.02, 0, clampedOffset);
+      this.doorGroup.rotation.y = 0;
+    } else if (cfg.wall === 'left') {
+      this.doorGroup.position.set(-W / 2 + 0.02, 0, clampedOffset);
+      this.doorGroup.rotation.y = Math.PI;
+    } else if (cfg.wall === 'back') {
+      this.doorGroup.position.set(clampedOffset, 0, -L / 2 + 0.02);
+      this.doorGroup.rotation.y = -Math.PI / 2;
+    }
+
+    this.doorGroup.traverse(child => {
+      child.userData.rootGroup = this.doorGroup;
+    });
+
+    this.roomGroup.add(this.doorGroup);
+  }
+
+  setDoorSwing(angleDegrees) {
+    this.doorConfig.openAngle = angleDegrees;
+    if (this.doorHinge) {
+      this.doorHinge.rotation.y = (angleDegrees || 0) * (Math.PI / 180);
+    }
+  }
+
+  updateWindow(newConfig) {
+    Object.assign(this.windowConfig, newConfig);
+    const { width: W, length: L, height: H } = this.currentDimensions;
+    this.rebuildWindow(W, L, H);
+  }
+
+  updateDoor(newConfig) {
+    Object.assign(this.doorConfig, newConfig);
+    const { width: W, length: L, height: H } = this.currentDimensions;
+    this.rebuildDoor(W, L, H);
   }
 
   buildFloorGrid(W, L) {
