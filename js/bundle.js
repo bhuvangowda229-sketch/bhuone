@@ -3744,7 +3744,7 @@ class App {
       style: this.currentStyle,
       colorScheme: document.getElementById('color-scheme').value,
       flooring: document.getElementById('flooring-select').value,
-      lighting: document.getElementById('lighting-select').value,
+      lighting: 'warm_ambient',
       customNotes: ''
     };
 
@@ -3972,8 +3972,8 @@ class App {
     const areaSqFt = ((w * l) * 10.7639).toFixed(0);
     const flooring = document.getElementById('flooring-select')?.value || 'wood_oak';
     const flooringLabel = flooring.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
-    const lighting = document.getElementById('lighting-select')?.value || 'warm_ambient';
-    const lightingLabel = lighting.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const lighting = 'warm_ambient';
+    const lightingLabel = 'Warm Ambient';
     const wallColor = document.getElementById('wall-color-picker')?.value || '#faf5ee';
 
     // Schedule of all placed furniture
@@ -4108,7 +4108,7 @@ class App {
       style: this.currentStyle,
       colorScheme: document.getElementById('color-scheme')?.value || 'warm_neutral',
       flooring: document.getElementById('flooring-select')?.value || 'wood_oak',
-      lighting: document.getElementById('lighting-select')?.value || 'warm_ambient',
+      lighting: 'warm_ambient',
       wallColor: document.getElementById('wall-color-picker')?.value || '#faf5ee',
       furniture: this.furnitureGroup.children.map(child => ({
         type: child.userData?.type || 'furniture',
