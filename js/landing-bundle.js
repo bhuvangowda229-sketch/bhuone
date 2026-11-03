@@ -3670,82 +3670,493 @@ class AIEngine {
           cost: 180
         });
       }
-    } else if (roomType === 'home_office') {
-      concept = `${style.toUpperCase()} FOCUS & PRODUCTIVITY STUDIO`;
-      spatialRationale = `The workstation is positioned perpendicular to the window to invite abundant daylight while avoiding monitor reflection. An ergonomic chair and open shelving provide ergonomic comfort and organized storage.`;
-      lightingPlan = `Focused task lighting on work surface combined with daylight simulation for alertness and eye comfort.`;
+    } else if (roomType === 'home_office' || roomType.startsWith('home_office_')) {
+      // Determine which of the 4 Home Office / Study Design Types is selected
+      let officeType = pref.officeType || 1;
+      if (roomType === 'home_office_minimal' || roomType === 'home_office_type2') officeType = 2;
+      else if (roomType === 'home_office_creative' || roomType === 'home_office_type3') officeType = 3;
+      else if (roomType === 'home_office_academic' || roomType === 'home_office_type4') officeType = 4;
+      else if (roomType === 'home_office' && pref.officeType) officeType = parseInt(pref.officeType, 10) || 1;
 
-      // Desk (detect gaming or default executive)
-      const isGaming = (customNotes || '').toLowerCase().includes('game') || (customNotes || '').toLowerCase().includes('gaming');
-      const deskType = isGaming ? 'gaming_desk' : 'desk';
-      const deskName = isGaming ? 'Dual Monitor Battlestation' : 'Executive Workstation';
-      const deskCost = isGaming ? 980 : 620;
+      if (officeType === 1) {
+        // TYPE 1: EXECUTIVE SUITE & LIBRARY
+        concept = `TYPE 1: EXECUTIVE SUITE & LIBRARY (${style.toUpperCase()})`;
+        spatialRationale = `Follows the classic 'Commanding Position' principle with an executive desk facing the room entrance backed by expansive library shelving. A dedicated visitor/reading armchair and storage credenza create a professional, authoritative environment for high-level decision making.`;
+        lightingPlan = `Dual-circuit illumination: balanced 4000K shadowless task lighting across the executive desk surface complemented by 3000K warm vertical book-washing illumination across reference shelves.`;
 
-      items.push({
-        id: 'desk_1',
-        type: deskType,
-        name: deskName,
-        position: [0, 0, 0],
-        rotation: [0, 0, 0],
-        style: style,
-        cost: deskCost
-      });
+        // Executive Workstation Desk in commanding position
+        items.push({
+          id: 'desk_1',
+          type: 'desk',
+          name: 'Executive Workstation Desk',
+          position: [0, 0, 0.1],
+          rotation: [0, 0, 0],
+          style: style,
+          color: palette.woodColor,
+          cost: 850
+        });
 
-      // Ergonomic Chair behind desk
-      items.push({
-        id: 'office_chair_1',
-        type: 'office_chair',
-        name: 'Ergonomic Mesh Chair',
-        position: [0, 0, -0.65],
-        rotation: [0, 0, 0],
-        style: style,
-        cost: 340
-      });
+        // Ergonomic High-Back Executive Chair behind desk
+        items.push({
+          id: 'office_chair_1',
+          type: 'office_chair',
+          name: 'High-Back Ergonomic Executive Chair',
+          position: [0, 0, -0.65],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 390
+        });
 
-      // Bookshelf behind chair on back wall
-      items.push({
-        id: 'bookshelf_1',
-        type: 'bookshelf',
-        name: 'Reference Library Shelving',
-        position: [0, 0, -L / 2 + 0.3],
-        rotation: [0, 0, 0],
-        style: style,
-        cost: 490
-      });
+        // Floor-to-Ceiling Reference Library Bookshelf
+        items.push({
+          id: 'bookshelf_1',
+          type: 'bookshelf',
+          name: 'Reference Library Shelving',
+          position: [0, 0, -L / 2 + 0.35],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 520
+        });
 
-      // Floor Lamp
-      items.push({
-        id: 'lamp_1',
-        type: 'floor_lamp',
-        name: 'Task Floor Lamp',
-        position: [W / 2 - 0.8, 0, -L / 2 + 0.8],
-        rotation: [0, 0, 0],
-        style: style,
-        cost: 210
-      });
+        // Executive Filing & Storage Credenza along right wall
+        items.push({
+          id: 'credenza_1',
+          type: 'credenza',
+          name: 'Executive Storage Credenza',
+          position: [W / 2 - 0.35, 0, 0.3],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.woodColor,
+          cost: 680
+        });
 
-      // Indoor Plant
-      items.push({
-        id: 'plant_1',
-        type: 'plant',
-        name: 'Air-Purifying Plant',
-        position: [-W / 2 + 0.6, 0, -L / 2 + 0.6],
-        rotation: [0, 0, 0],
-        style: style,
-        cost: 75
-      });
+        // Visitor / Client Lounge Accent Armchair
+        items.push({
+          id: 'chair_1',
+          type: 'armchair',
+          name: 'Executive Lounge Club Chair',
+          position: [-W / 2 + 1.2, 0, 0.85],
+          rotation: [0, Math.PI / 3, 0],
+          style: style,
+          color: palette.accentColor,
+          cost: 480
+        });
 
-      // Rug
-      items.push({
-        id: 'rug_1',
-        type: 'rug',
-        name: 'Low-Pile Office Rug',
-        position: [0, 0, -0.2],
-        rotation: [0, 0, 0],
-        style: style,
-        dimensions: [2.2, 1.8],
-        cost: 200
-      });
+        // Low Round Side Table next to armchair
+        items.push({
+          id: 'table_1',
+          type: 'coffee_table',
+          name: 'Marble & Brass Side Table',
+          position: [-W / 2 + 1.85, 0, 0.55],
+          rotation: [0, 0, 0],
+          style: style,
+          color: palette.woodColor,
+          cost: 260
+        });
+
+        // Wall Art above credenza
+        items.push({
+          id: 'art_1',
+          type: 'wall_art',
+          name: 'Executive Fine Art Canvas',
+          position: [-W / 2 + 0.05, 1.9, -0.2],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          cost: 190
+        });
+
+        // Brass Task Floor Lamp
+        items.push({
+          id: 'lamp_1',
+          type: 'floor_lamp',
+          name: 'Sculptural Brass Task Lamp',
+          position: [W / 2 - 0.75, 0, -L / 2 + 0.8],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 230
+        });
+
+        // Overhead Pendant Light
+        items.push({
+          id: 'pendant_1',
+          type: 'pendant_light',
+          name: 'Architectural Linear Pendant',
+          position: [0, 0, 0.1],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 210
+        });
+
+        // Potted Fiddle Leaf Fig
+        items.push({
+          id: 'plant_1',
+          type: 'plant',
+          name: 'Potted Fiddle Leaf Fig',
+          position: [-W / 2 + 0.65, 0, -L / 2 + 0.7],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 95
+        });
+
+        // Low-pile Executive Area Rug
+        items.push({
+          id: 'rug_1',
+          type: 'rug',
+          name: 'Executive Wool Area Rug',
+          position: [0, 0, -0.15],
+          rotation: [0, 0, 0],
+          style: style,
+          dimensions: [2.6, 2.0],
+          cost: 290
+        });
+
+      } else if (officeType === 2) {
+        // TYPE 2: MINIMALIST ZEN FOCUS STUDIO
+        concept = `TYPE 2: MINIMALIST ZEN FOCUS STUDIO (${style.toUpperCase()})`;
+        spatialRationale = `Optimized for deep unbroken focus and cognitive tranquility. Employs low-horizon storage and floating lines to minimize visual clutter. Unobstructed sightlines and ample negative floor space prevent mental fatigue during long working sprints.`;
+        lightingPlan = `Gentle, indirect daylight-balanced illumination (3500K) that reduces eye strain, paired with a warm twilight paper-lantern floor lamp for calm evening reflection.`;
+
+        // Clean-lined Minimalist Desk
+        items.push({
+          id: 'desk_1',
+          type: 'desk',
+          name: 'Minimalist Japandi Work Desk',
+          position: [0, 0, -L / 2 + 0.95],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          color: palette.woodColor,
+          cost: 580
+        });
+
+        // Sleek Ergonomic Chair
+        items.push({
+          id: 'office_chair_1',
+          type: 'office_chair',
+          name: 'Sleek Ergonomic Task Chair',
+          position: [0, 0, -L / 2 + 1.6],
+          rotation: [0, Math.PI, 0],
+          style: 'minimalist',
+          cost: 320
+        });
+
+        // Low Horizontal Floating Storage Credenza along left wall
+        items.push({
+          id: 'credenza_1',
+          type: 'credenza',
+          name: 'Low Horizon Storage Credenza',
+          position: [-W / 2 + 0.38, 0, 0.2],
+          rotation: [0, Math.PI / 2, 0],
+          style: 'minimalist',
+          color: palette.woodColor,
+          cost: 590
+        });
+
+        // Full-Length Leaning Floor Mirror in corner
+        items.push({
+          id: 'mirror_1',
+          type: 'floor_mirror',
+          name: 'Full-Length Leaning Mirror',
+          position: [W / 2 - 0.65, 0, L / 2 - 0.8],
+          rotation: [0, -Math.PI / 4, 0],
+          style: 'minimalist',
+          cost: 210
+        });
+
+        // Minimalist Bauhaus Canvas
+        items.push({
+          id: 'art_1',
+          type: 'wall_art',
+          name: 'Zen Bauhaus Minimal Canvas',
+          position: [0, 1.9, -L / 2 + 0.05],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          cost: 160
+        });
+
+        // Paper Lantern Floor Lamp
+        items.push({
+          id: 'lamp_1',
+          type: 'floor_lamp',
+          name: 'Zen Paper Lantern Lamp',
+          position: [-W / 2 + 0.65, 0, -L / 2 + 0.75],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          cost: 160
+        });
+
+        // Diffused Orb Pendant Light
+        items.push({
+          id: 'pendant_1',
+          type: 'pendant_light',
+          name: 'Diffused Orb Pendant Light',
+          position: [0, 0, -L / 2 + 1.25],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          cost: 175
+        });
+
+        // Potted Zen Bamboo
+        items.push({
+          id: 'plant_1',
+          type: 'plant',
+          name: 'Potted Zen Bamboo',
+          position: [W / 2 - 0.6, 0, -L / 2 + 0.75],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          cost: 85
+        });
+
+        // Organic Jute & Wool Low-pile Rug
+        items.push({
+          id: 'rug_1',
+          type: 'rug',
+          name: 'Organic Jute & Wool Rug',
+          position: [0, 0, -L / 2 + 1.3],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          dimensions: [2.5, 1.9],
+          cost: 220
+        });
+
+      } else if (officeType === 3) {
+        // TYPE 3: CREATIVE DUAL-SCREEN TECH BATTLESTATION
+        concept = `TYPE 3: CREATIVE TECH BATTLESTATION (${style.toUpperCase()})`;
+        spatialRationale = `Specially calibrated for software engineers, designers, and multimedia creators. Centers on a wide-format dual-monitor battlestation with ergonomic caster clearances, supplemented by a secondary breakout armchair for creative brainstorming away from screens.`;
+        lightingPlan = `Crisp 4000K-4500K circadian-tuned task lighting designed to banish screen glare, backed by warm ambient fill lighting to eliminate contrast eye fatigue during nighttime builds.`;
+
+        // Dual Monitor Battlestation
+        items.push({
+          id: 'desk_1',
+          type: 'gaming_desk',
+          name: 'Dual-Monitor Battlestation Desk',
+          position: [0, 0, -L / 2 + 0.95],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 1050
+        });
+
+        // High-Performance Ergonomic Task Chair
+        items.push({
+          id: 'office_chair_1',
+          type: 'office_chair',
+          name: 'Pro Mesh Ergonomic Task Chair',
+          position: [0, 0, -L / 2 + 1.65],
+          rotation: [0, Math.PI, 0],
+          style: style,
+          cost: 380
+        });
+
+        // Tech Bookshelf & Component Tower along right wall
+        items.push({
+          id: 'bookshelf_1',
+          type: 'bookshelf',
+          name: 'Tech Reference & Component Shelf',
+          position: [W / 2 - 0.35, 0, -0.2],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          cost: 460
+        });
+
+        // Hardware & Media Credenza along left wall
+        items.push({
+          id: 'credenza_1',
+          type: 'credenza',
+          name: 'Hardware & Media Credenza',
+          position: [-W / 2 + 0.35, 0, -0.2],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          color: palette.woodColor,
+          cost: 640
+        });
+
+        // Creative Breakout Lounge Armchair
+        items.push({
+          id: 'chair_1',
+          type: 'armchair',
+          name: 'Creative Breakout Lounge Chair',
+          position: [-W / 2 + 1.15, 0, L / 2 - 1.1],
+          rotation: [0, Math.PI / 4, 0],
+          style: style,
+          color: palette.accentColor,
+          cost: 440
+        });
+
+        // Contemporary Geometric Wall Art
+        items.push({
+          id: 'art_1',
+          type: 'wall_art',
+          name: 'Geometric Modern Tech Canvas',
+          position: [0, 1.9, -L / 2 + 0.05],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 180
+        });
+
+        // Articulated Arc Floor Task Lamp
+        items.push({
+          id: 'lamp_1',
+          type: 'floor_lamp',
+          name: 'Articulated Arc Task Lamp',
+          position: [W / 2 - 0.65, 0, L / 2 - 1.2],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 230
+        });
+
+        // Modern Articulated Overhead Pendant Light
+        items.push({
+          id: 'pendant_1',
+          type: 'pendant_light',
+          name: 'Modern Articulated Pendant',
+          position: [0, 0, -L / 2 + 1.25],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 210
+        });
+
+        // Low-friction Tech Area Rug
+        items.push({
+          id: 'rug_1',
+          type: 'rug',
+          name: 'Low-Friction Caster Office Rug',
+          position: [0, 0, -L / 2 + 1.3],
+          rotation: [0, 0, 0],
+          style: style,
+          dimensions: [2.6, 2.0],
+          cost: 240
+        });
+
+        // Air-Purifying Snake Plant
+        items.push({
+          id: 'plant_1',
+          type: 'plant',
+          name: 'Air-Filtering Snake Plant',
+          position: [W / 2 - 0.6, 0, -L / 2 + 0.7],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 85
+        });
+
+      } else {
+        // TYPE 4: ACADEMIC SCHOLAR & READING SANCTUARY
+        concept = `TYPE 4: ACADEMIC SCHOLAR & READING SANCTUARY (${style.toUpperCase()})`;
+        spatialRationale = `A quiet, reflective intellectual haven inspired by historic university libraries. Features expansive reference wall shelving, a dedicated writing desk oriented for natural daylight, and an intimate reading armchair corner for immersive study and deep literature review.`;
+        lightingPlan = `Warm, atmospheric 2700K incandescent-style lighting: dedicated directional reading illumination beside the wing armchair, soft vertical shelf uplighting, and a cozy central timber pendant fixture.`;
+
+        // Solid Natural Wood Writing Desk along right wall
+        items.push({
+          id: 'desk_1',
+          type: 'desk',
+          name: 'Solid Oak Scholar Writing Desk',
+          position: [W / 2 - 0.85, 0, 0.0],
+          rotation: [0, -Math.PI / 2, 0],
+          style: 'traditional',
+          color: palette.woodColor,
+          cost: 780
+        });
+
+        // Ergonomic Scholar Desk Chair
+        items.push({
+          id: 'office_chair_1',
+          type: 'office_chair',
+          name: 'Classic Ergonomic Study Chair',
+          position: [W / 2 - 1.55, 0, 0.0],
+          rotation: [0, Math.PI / 2, 0],
+          style: 'traditional',
+          cost: 340
+        });
+
+        // Expansive Open Library Bookshelf along back wall
+        items.push({
+          id: 'bookshelf_1',
+          type: 'bookshelf',
+          name: 'Grand Scholar Library Bookshelf',
+          position: [0, 0, -L / 2 + 0.35],
+          rotation: [0, 0, 0],
+          style: 'traditional',
+          cost: 580
+        });
+
+        // Deep Hygge Reading Armchair in left corner
+        items.push({
+          id: 'chair_1',
+          type: 'armchair',
+          name: 'Scholar Wingback Reading Chair',
+          position: [-W / 2 + 1.15, 0, 0.5],
+          rotation: [0, Math.PI / 4, 0],
+          style: 'traditional',
+          color: palette.accentColor,
+          cost: 490
+        });
+
+        // Round Timber Reading Table
+        items.push({
+          id: 'table_1',
+          type: 'coffee_table',
+          name: 'Round Timber Reading Table',
+          position: [-W / 2 + 1.8, 0, 0.25],
+          rotation: [0, 0, 0],
+          style: 'traditional',
+          color: palette.woodColor,
+          cost: 220
+        });
+
+        // Directional Timber Reading Floor Lamp
+        items.push({
+          id: 'lamp_1',
+          type: 'floor_lamp',
+          name: 'Nordic Timber Reading Lamp',
+          position: [-W / 2 + 0.6, 0, 1.2],
+          rotation: [0, 0, 0],
+          style: 'traditional',
+          cost: 210
+        });
+
+        // Botanical Historical Canvas
+        items.push({
+          id: 'art_1',
+          type: 'wall_art',
+          name: 'Botanical Scholar Canvas',
+          position: [W / 2 - 0.05, 1.9, 0.0],
+          rotation: [0, -Math.PI / 2, 0],
+          style: 'traditional',
+          cost: 180
+        });
+
+        // Woven Timber Overhead Pendant
+        items.push({
+          id: 'pendant_1',
+          type: 'pendant_light',
+          name: 'Woven Timber Pendant Light',
+          position: [0, 0, 0.1],
+          rotation: [0, 0, 0],
+          style: 'traditional',
+          cost: 190
+        });
+
+        // Plush Wool Scholar Area Rug
+        items.push({
+          id: 'rug_1',
+          type: 'rug',
+          name: 'Plush Wool Scholar Rug',
+          position: [0, 0, 0.1],
+          rotation: [0, 0, 0],
+          style: 'traditional',
+          dimensions: [2.8, 2.2],
+          cost: 320
+        });
+
+        // Potted Ficus Tree
+        items.push({
+          id: 'plant_1',
+          type: 'plant',
+          name: 'Potted Scholar Ficus Tree',
+          position: [-W / 2 + 0.65, 0, -L / 2 + 0.7],
+          rotation: [0, 0, 0],
+          style: 'traditional',
+          cost: 95
+        });
+      }
     } else if (roomType === 'dining_room') {
       // Dining Room
       concept = `${style.toUpperCase()} ELEVATED DINING SUITE`;
@@ -4041,6 +4452,10 @@ class AIEngine {
       : pref.roomType === 'living_room_luxury' ? 'Modern Luxury Penthouse Living Salon'
       : pref.roomType === 'living_room_cozy' ? 'Scandinavian Hygge Family Living Room'
       : pref.roomType.startsWith('living_room') ? 'Contemporary Media & Conversation Living Room'
+      : pref.roomType === 'home_office_minimal' ? 'Minimalist Zen Focus Home Office'
+      : pref.roomType === 'home_office_creative' ? 'Creative Tech Battlestation Studio'
+      : pref.roomType === 'home_office_academic' ? 'Academic Scholar & Reading Sanctuary Study'
+      : pref.roomType.startsWith('home_office') ? 'Executive Suite & Library Home Office'
       : pref.roomType.replace('_', ' ');
 
     const prompt = `You are a world-class AI interior architect. Generate an interior design plan for a ${typeTitle} with dimensions ${pref.dimensions.width}m width by ${pref.dimensions.length}m length by ${pref.dimensions.height}m height.

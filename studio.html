@@ -97,8 +97,13 @@
                   <option value="living_room_luxury">Living Room - Type 3: Luxury Penthouse</option>
                   <option value="living_room_cozy">Living Room - Type 4: Scandi Hygge</option>
                 </optgroup>
+                <optgroup label="Home Office / Study (4 Designs)">
+                  <option value="home_office">Home Office - Type 1: Executive Suite</option>
+                  <option value="home_office_minimal">Home Office - Type 2: Zen Focus</option>
+                  <option value="home_office_creative">Home Office - Type 3: Tech Studio</option>
+                  <option value="home_office_academic">Home Office - Type 4: Scholar Nook</option>
+                </optgroup>
                 <optgroup label="Other Spaces">
-                  <option value="home_office">Home Office / Study</option>
                   <option value="dining_room">Dining Room</option>
                   <option value="kitchen">Modular Kitchen</option>
                 </optgroup>
@@ -180,6 +185,46 @@
                   <div class="btype-meta">
                     <strong>Type 4: Scandi Hygge</strong>
                     <span>Sofa, Bookshelf & Study Desk</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- HOME OFFICE / STUDY 4 DESIGN TYPES SELECTOR -->
+            <div class="form-group" id="office-variants-wrapper" style="margin-top: 10px; display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-primary); display: flex; align-items: center; gap: 4px; margin-bottom: 0;">
+                  <span>💻</span> Home Office: 4 Design Types
+                </label>
+                <span id="office-type-pill" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.3);">Type 1 Active</span>
+              </div>
+              <div class="bedroom-type-grid" id="office-type-selector">
+                <button type="button" class="office-type-btn active" data-office-type="home_office" title="Type 1: Executive Suite & Library">
+                  <div class="btype-icon">💼</div>
+                  <div class="btype-meta">
+                    <strong>Type 1: Executive Suite</strong>
+                    <span>Desk, Bookshelf & Lounge</span>
+                  </div>
+                </button>
+                <button type="button" class="office-type-btn" data-office-type="home_office_minimal" title="Type 2: Minimalist Zen Focus Studio">
+                  <div class="btype-icon">🧘</div>
+                  <div class="btype-meta">
+                    <strong>Type 2: Zen Focus</strong>
+                    <span>Clean Desk, Credenza & Mirror</span>
+                  </div>
+                </button>
+                <button type="button" class="office-type-btn" data-office-type="home_office_creative" title="Type 3: Creative Tech Battlestation">
+                  <div class="btype-icon">🖥️</div>
+                  <div class="btype-meta">
+                    <strong>Type 3: Tech Studio</strong>
+                    <span>Gaming Desk, Credenza & Breakout</span>
+                  </div>
+                </button>
+                <button type="button" class="office-type-btn" data-office-type="home_office_academic" title="Type 4: Academic Scholar & Reading Sanctuary">
+                  <div class="btype-icon">📖</div>
+                  <div class="btype-meta">
+                    <strong>Type 4: Scholar Nook</strong>
+                    <span>Wood Desk, Bookshelf & Armchair</span>
                   </div>
                 </button>
               </div>

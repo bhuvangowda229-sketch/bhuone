@@ -1031,6 +1031,21 @@ class App {
       });
     });
 
+    // Home Office 4 Design Types Selector Buttons
+    document.querySelectorAll('.office-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetType = btn.getAttribute('data-office-type');
+        const roomSelect = document.getElementById('room-type');
+        if (roomSelect) {
+          roomSelect.value = targetType;
+        }
+        this.syncRoomVariantsUI(targetType);
+        this.triggerAIGeneration();
+        const typeTitle = btn.querySelector('strong')?.textContent || 'Home Office Type';
+        this.showToast(`✨ Switched to ${typeTitle}`);
+      });
+    });
+
     // Instant Room Type Switching
     document.getElementById('room-type')?.addEventListener('change', (e) => {
       const selectedType = e.target.value;
@@ -1712,6 +1727,28 @@ class App {
         }
       }
     }
+
+    // 3. Home Office Variants
+    const officeWrapper = document.getElementById('office-variants-wrapper');
+    const officePill = document.getElementById('office-type-pill');
+    const officeButtons = document.querySelectorAll('.office-type-btn');
+    const isOffice = currentRoomType === 'home_office' || (currentRoomType && currentRoomType.startsWith('home_office_'));
+
+    if (officeWrapper) {
+      officeWrapper.style.display = isOffice ? 'block' : 'none';
+      if (isOffice) {
+        officeButtons.forEach(btn => {
+          const type = btn.getAttribute('data-office-type');
+          btn.classList.toggle('active', type === currentRoomType);
+        });
+        if (officePill) {
+          if (currentRoomType === 'home_office_minimal') officePill.textContent = 'Type 2 Active';
+          else if (currentRoomType === 'home_office_creative') officePill.textContent = 'Type 3 Active';
+          else if (currentRoomType === 'home_office_academic') officePill.textContent = 'Type 4 Active';
+          else officePill.textContent = 'Type 1 Active';
+        }
+      }
+    }
   }
 
   // Backward compatibility alias
@@ -1773,12 +1810,18 @@ class App {
     else if (currentRoomType === 'living_room_luxury') livingType = 3;
     else if (currentRoomType === 'living_room_cozy') livingType = 4;
 
+    let officeType = 1;
+    if (currentRoomType === 'home_office_minimal') officeType = 2;
+    else if (currentRoomType === 'home_office_creative') officeType = 3;
+    else if (currentRoomType === 'home_office_academic') officeType = 4;
+
     this.syncRoomVariantsUI(currentRoomType);
 
     const pref = {
       roomType: currentRoomType,
       bedroomType: bedType,
       livingRoomType: livingType,
+      officeType: officeType,
       dimensions: {
         width: parseFloat(document.getElementById('room-w').value) || 5.0,
         length: parseFloat(document.getElementById('room-l').value) || 4.5,
@@ -2033,7 +2076,10 @@ class App {
       living_room_zen: 'Living Room (Type 2: Japandi Zen)',
       living_room_luxury: 'Living Room (Type 3: Luxury Penthouse)',
       living_room_cozy: 'Living Room (Type 4: Scandi Hygge)',
-      home_office: 'Home Office / Study',
+      home_office: 'Home Office (Type 1: Executive Suite)',
+      home_office_minimal: 'Home Office (Type 2: Zen Focus Studio)',
+      home_office_creative: 'Home Office (Type 3: Tech Battlestation)',
+      home_office_academic: 'Home Office (Type 4: Academic Scholar Nook)',
       dining_room: 'Dining Room',
       kitchen: 'Modular Kitchen'
     };
