@@ -63,6 +63,41 @@ class UserDB {
       }
     }
 
+    // Always ensure pre-seeded normal user accounts exist
+    let sarahUser = users.find(u => u.email.toLowerCase() === 'sarah.miller@example.com');
+    if (!sarahUser) {
+      users.push({
+        id: 'usr_sarah',
+        name: 'Sarah Miller',
+        email: 'sarah.miller@example.com',
+        password: 'password123',
+        role: 'user',
+        avatarInitial: 'S',
+        registeredAt: '2026-11-02T10:00:00.000Z',
+        lastLoginAt: '2026-11-03T09:00:00.000Z',
+        loginCount: 2,
+        status: 'active'
+      });
+      this.saveUsers(users);
+    }
+
+    let defaultUser = users.find(u => u.email.toLowerCase() === 'user@designstudio.ai');
+    if (!defaultUser) {
+      users.push({
+        id: 'usr_default_user',
+        name: 'Demo Designer',
+        email: 'user@designstudio.ai',
+        password: 'user123',
+        role: 'user',
+        avatarInitial: 'D',
+        registeredAt: '2026-11-02T12:00:00.000Z',
+        lastLoginAt: '2026-11-03T09:30:00.000Z',
+        loginCount: 1,
+        status: 'active'
+      });
+      this.saveUsers(users);
+    }
+
     return users;
   }
 

@@ -157,6 +157,47 @@
 
   <script src="js/user-db.js"></script>
   <script>
+    if (typeof window.UserDB === 'undefined') {
+      window.UserDB = {
+        STORAGE_KEY: 'ai_interior_users_db',
+        SESSION_KEY: 'ai_interior_user',
+        ADMIN_EMAIL: 'bhuvan@gmail.com',
+        getUsers: function() {
+          try {
+            const raw = localStorage.getItem(this.STORAGE_KEY);
+            return raw ? JSON.parse(raw) : [];
+          } catch(e) { return []; }
+        },
+        setCurrentUser: function(user) {
+          try { localStorage.setItem(this.SESSION_KEY, JSON.stringify(user)); } catch(e) {}
+        },
+        registerUser: function(data) {
+          const email = (data.email || '').trim().toLowerCase();
+          const name = (data.name || '').trim() || email.split('@')[0];
+          const pwd = (data.password || '').trim();
+          if (!email || !pwd) return { success: false, error: 'Email and password required.' };
+          if (email === this.ADMIN_EMAIL) return { success: false, error: 'This email is reserved.' };
+          const users = this.getUsers();
+          if (users.find(u => (u.email || '').toLowerCase() === email)) {
+            return { success: false, error: 'Account already exists. Please sign in.' };
+          }
+          const newUser = {
+            id: 'usr_' + Date.now(),
+            name: name,
+            email: email,
+            password: pwd,
+            role: 'user',
+            registeredAt: new Date().toISOString(),
+            loginCount: 1,
+            status: 'active'
+          };
+          users.unshift(newUser);
+          try { localStorage.setItem(this.STORAGE_KEY, JSON.stringify(users)); } catch(e) {}
+          this.setCurrentUser(newUser);
+          return { success: true, user: newUser };
+        }
+      };
+    }
     const UserDB = window.UserDB;
 
     // 3D Three.js Background

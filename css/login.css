@@ -261,10 +261,12 @@
   color: #cbd5e1;
 }
 
-.auth-input-box {
+.auth-input-box,
+.auth-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .auth-input-icon {
@@ -297,7 +299,8 @@
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
 }
 
-.auth-pwd-toggle {
+.auth-pwd-toggle,
+.btn-pwd-toggle {
   position: absolute;
   right: 12px;
   background: none;
@@ -310,9 +313,11 @@
   align-items: center;
   justify-content: center;
   transition: color 0.2s;
+  z-index: 5;
 }
 
-.auth-pwd-toggle:hover {
+.auth-pwd-toggle:hover,
+.btn-pwd-toggle:hover {
   color: #fff;
 }
 

@@ -698,6 +698,74 @@
 
   <script src="js/user-db.js"></script>
   <script>
+    if (typeof window.UserDB === 'undefined') {
+      window.UserDB = {
+        STORAGE_KEY: 'ai_interior_users_db',
+        SESSION_KEY: 'ai_interior_user',
+        ADMIN_EMAIL: 'bhuvan@gmail.com',
+        getUsers: function() {
+          try {
+            const raw = localStorage.getItem(this.STORAGE_KEY);
+            return raw ? JSON.parse(raw) : [];
+          } catch(e) { return []; }
+        },
+        getCurrentUser: function() {
+          try {
+            const raw = localStorage.getItem(this.SESSION_KEY);
+            return raw ? JSON.parse(raw) : null;
+          } catch(e) { return null; }
+        },
+        signOut: function() {
+          try { localStorage.removeItem(this.SESSION_KEY); } catch(e) {}
+        },
+        formatDate: function(iso) {
+          if (!iso) return '';
+          try { return new Date(iso).toLocaleString(); } catch(e) { return iso; }
+        },
+        formatRelativeTime: function(iso) {
+          if (!iso) return '';
+          try {
+            const diffMin = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+            if (diffMin < 1) return 'Just now';
+            if (diffMin < 60) return diffMin + 'm ago';
+            return Math.floor(diffMin / 60) + 'h ago';
+          } catch(e) { return ''; }
+        },
+        updateUserRole: function(id, role) {
+          const users = this.getUsers();
+          const u = users.find(x => x.id === id);
+          if (u) { u.role = role; localStorage.setItem(this.STORAGE_KEY, JSON.stringify(users)); }
+        },
+        deleteUser: function(id) {
+          let users = this.getUsers().filter(x => x.id !== id);
+          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(users));
+        },
+        registerUser: function(data) {
+          const users = this.getUsers();
+          users.unshift({
+            id: 'usr_' + Date.now(),
+            name: data.name,
+            email: data.email,
+            password: data.password || 'password123',
+            role: data.role || 'user',
+            registeredAt: new Date().toISOString(),
+            loginCount: 1,
+            status: 'active'
+          });
+          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(users));
+          return { success: true };
+        },
+        exportUsersCSV: function() {
+          const users = this.getUsers();
+          const rows = users.map(u => `"${u.name}","${u.email}","${u.role}","${u.registeredAt}"`);
+          const blob = new Blob([["Name,Email,Role,RegisteredAt", ...rows].join("\n")], { type: 'text/csv' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'users.csv';
+          a.click();
+        }
+      };
+    }
     const UserDB = window.UserDB;
 
     let currentFilter = 'all';
