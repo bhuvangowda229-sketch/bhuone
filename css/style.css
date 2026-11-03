@@ -945,7 +945,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   font-weight: 500;
 }
 .add-catalog-item {
-  display: flex !important;
+  display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 8px;
@@ -959,6 +959,10 @@ input[type="range"]::-webkit-slider-thumb:hover {
   color: var(--text-main);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
+}
+.add-catalog-item.hidden,
+.catalog-category-group.hidden {
+  display: none !important;
 }
 .add-catalog-item:hover {
   background: rgba(99, 102, 241, 0.12);

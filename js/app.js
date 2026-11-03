@@ -18,6 +18,7 @@ class App {
     }
 
     this.canvas = document.getElementById('canvas3d');
+    window.appInstance = this;
     this.furnitureGroup = new THREE.Group();
     this.furnitureGroup.name = 'FurnitureGroup';
     this.furnitureList = [];
@@ -393,7 +394,7 @@ class App {
     if (actions) actions.style.display = 'grid';
     if (shortcutsTip) shortcutsTip.style.display = 'block';
 
-    const isWallArt = this.selectedRoot?.userData?.type === 'wall_art' || this.selectedRoot?.userData?.isWallMounted;
+    const isWallArt = this.selectedRoot?.userData?.type === 'wall_art';
     const wallartPanel = document.getElementById('inspector-wallart-panel');
     const stdControls = document.getElementById('inspector-standard-controls');
     if (wallartPanel && stdControls) {
@@ -438,7 +439,7 @@ class App {
   syncInspectorPosition() {
     if (!this.selectedTarget) return;
 
-    if (this.selectedRoot?.userData?.type === 'wall_art' || this.selectedRoot?.userData?.isWallMounted) {
+    if (this.selectedRoot?.userData?.type === 'wall_art') {
       this.syncWallArtInspector();
     }
 
@@ -558,8 +559,8 @@ class App {
   rotateSelected() {
     if (!this.selectedTarget) return;
 
-    const isWallMounted = this.selectedRoot?.userData?.isWallMounted || this.selectedRoot?.userData?.type === 'wall_art';
-    if (isWallMounted) {
+    const isWallArt = this.selectedRoot?.userData?.type === 'wall_art';
+    if (isWallArt) {
       const rotY = this.selectedRoot.rotation.y;
       const isSideWall = Math.abs(Math.sin(rotY)) > 0.5;
       const isRightWall = this.selectedRoot.position.x > 0;
@@ -757,7 +758,7 @@ class App {
   }
 
   syncWallArtInspector() {
-    if (!this.selectedRoot || (this.selectedRoot.userData?.type !== 'wall_art' && !this.selectedRoot.userData?.isWallMounted)) return;
+    if (!this.selectedRoot || this.selectedRoot.userData?.type !== 'wall_art') return;
     const info = this.getWallArtInfo(this.selectedRoot);
     if (!info) return;
 
@@ -1312,14 +1313,17 @@ class App {
         let visibleCount = 0;
 
         group.querySelectorAll('.add-catalog-item').forEach(item => {
-          const text = item.textContent.toLowerCase();
+          const text = (item.textContent || '').toLowerCase();
           const matchesSearch = !q || text.includes(q);
           const show = matchesCategory && matchesSearch;
+          item.classList.toggle('hidden', !show);
           item.style.display = show ? 'flex' : 'none';
           if (show) visibleCount++;
         });
 
-        group.style.display = visibleCount > 0 ? 'block' : 'none';
+        const showGroup = matchesCategory && visibleCount > 0;
+        group.classList.toggle('hidden', !showGroup);
+        group.style.display = showGroup ? 'block' : 'none';
       });
     };
 
