@@ -3425,16 +3425,32 @@ class HeroDemo {
     // Check user session and adjust navbar
     try {
       const stored = localStorage.getItem('ai_interior_user');
-      const adminLink = document.getElementById('nav-admin-link');
+      const userLoginLink = document.getElementById('nav-user-login-link');
+      const adminLoginLink = document.getElementById('nav-admin-login-link');
+      const signupLink = document.getElementById('nav-signup-link');
+
       if (stored) {
         const user = JSON.parse(stored);
-        const signinLink = document.getElementById('nav-signin-link');
-        const signupLink = document.getElementById('nav-signup-link');
-        if (signinLink && user && user.name) {
-          signinLink.innerHTML = `👤 Hi, ${user.name.split(' ')[0]}`;
-          signinLink.href = 'studio.html';
-          signinLink.title = `Signed in as ${user.name} (${user.email || ''})`;
+        const isAdmin = user.role === 'admin' && user.email && user.email.toLowerCase() === 'bhuvan@gmail.com';
+
+        if (userLoginLink) {
+          userLoginLink.innerHTML = `${isAdmin ? '👑' : '👤'} Hi, ${user.name.split(' ')[0]}`;
+          userLoginLink.href = isAdmin ? 'admin.html' : 'studio.html';
+          userLoginLink.title = `Signed in as ${user.name} (${user.email || ''})`;
+          userLoginLink.style.borderColor = isAdmin ? 'rgba(245, 158, 11, 0.4)' : 'rgba(99, 102, 241, 0.4)';
+          userLoginLink.style.color = isAdmin ? '#fbbf24' : '#fff';
         }
+
+        if (adminLoginLink) {
+          if (isAdmin) {
+            adminLoginLink.innerHTML = '<span>⚙️</span> Dashboard';
+            adminLoginLink.href = 'admin.html';
+            adminLoginLink.style.display = 'inline-flex';
+          } else {
+            adminLoginLink.style.display = 'none';
+          }
+        }
+
         if (signupLink) {
           signupLink.innerHTML = '<span>🚪</span> Sign Out';
           signupLink.href = '#';
@@ -3447,16 +3463,10 @@ class HeroDemo {
             window.location.reload();
           });
         }
-        // Only show Admin button if user is bhuvan@gmail.com
-        if (adminLink) {
-          if (user.role === 'admin' && user.email && user.email.toLowerCase() === 'bhuvan@gmail.com') {
-            adminLink.style.display = 'inline-flex';
-          } else {
-            adminLink.style.display = 'none';
-          }
-        }
       } else {
-        if (adminLink) adminLink.style.display = 'none';
+        if (userLoginLink) userLoginLink.style.display = 'inline-flex';
+        if (adminLoginLink) adminLoginLink.style.display = 'inline-flex';
+        if (signupLink) signupLink.style.display = 'inline-flex';
       }
     } catch (e) {}
   }

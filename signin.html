@@ -3,9 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In | AI Interior Studio - 3D Spatial Suggester</title>
+  <title>Sign In | AI Interior Studio - User & Admin Access</title>
   <link rel="stylesheet" href="css/login.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    .auth-tab-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .auth-tab-btn.active.admin-active {
+      background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+      color: #fff !important;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4) !important;
+    }
+    .auth-tab-btn.active.user-active {
+      background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+      color: #fff !important;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4) !important;
+    }
+  </style>
 </head>
 <body>
 
@@ -30,28 +54,38 @@
 
   <!-- Auth Main Centerpiece -->
   <div class="auth-wrapper">
-    <div class="auth-card">
+    <div class="auth-card" style="max-width: 460px;">
+
+      <!-- Dual Login Switcher: User Login vs Admin Login -->
+      <div class="auth-tabs" id="login-role-tabs" style="margin-bottom: 24px;">
+        <button type="button" class="auth-tab-btn active user-active" id="tab-user-btn" data-role="user">
+          <span>👤</span> User Login
+        </button>
+        <button type="button" class="auth-tab-btn" id="tab-admin-btn" data-role="admin">
+          <span>👑</span> Admin Login
+        </button>
+      </div>
 
       <!-- Brand Header -->
-      <div class="auth-header">
-        <div class="auth-brand-badge">✨</div>
-        <h1 class="auth-title" id="auth-main-title">Sign In to 3D Studio</h1>
+      <div class="auth-header" style="margin-bottom: 22px;">
+        <div class="auth-brand-badge" id="portal-badge">✨</div>
+        <h1 class="auth-title" id="auth-main-title">User Sign In</h1>
         <p class="auth-subtitle" id="auth-main-subtitle">
-          Please sign in to proceed into the interactive 3D Design Studio.
+          Sign in to design, customize, and view interior spaces in 3D.
         </p>
       </div>
 
       <!-- Active Session Notice (Subtle, non-blocking) -->
-      <div id="active-session-banner" style="display: none; margin-bottom: 20px; padding: 12px 16px; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); border-radius: 12px; font-size: 13px; color: #cbd5e1; align-items: center; justify-content: space-between;">
+      <div id="active-session-banner" style="display: none; margin-bottom: 18px; padding: 12px 16px; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); border-radius: 12px; font-size: 13px; color: #cbd5e1; align-items: center; justify-content: space-between;">
         <div style="display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 18px;">👤</span>
+          <span style="font-size: 18px;" id="active-banner-icon">👤</span>
           <div>
             <div style="font-weight: 600; color: #fff;" id="active-banner-name">User</div>
             <div style="font-size: 11px; color: #94a3b8;" id="active-banner-email">user@example.com</div>
           </div>
         </div>
         <div style="display: flex; gap: 8px;">
-          <a href="studio.html" id="btn-active-go-studio" class="btn btn-sm" style="padding: 5px 10px; font-size: 11px; text-decoration: none; background: #6366f1; color: #fff;">
+          <a href="studio.html" id="btn-active-go" class="btn btn-sm" style="padding: 5px 10px; font-size: 11px; text-decoration: none; background: #6366f1; color: #fff;">
             Continue →
           </a>
           <button type="button" id="btn-active-signout" class="btn btn-sm" style="padding: 5px 10px; font-size: 11px; border-color: rgba(239, 68, 68, 0.4); color: #fca5a5;">
@@ -65,14 +99,14 @@
         <form class="auth-form" id="signin-form" autocomplete="on">
           
           <div class="auth-field">
-            <label class="auth-label" for="signin-email">Email Address</label>
+            <label class="auth-label" for="signin-email" id="email-field-label">Email Address</label>
             <div class="auth-input-wrapper">
-              <span class="auth-input-icon">✉️</span>
+              <span class="auth-input-icon" id="email-field-icon">✉️</span>
               <input 
                 type="email" 
                 id="signin-email" 
                 class="auth-input" 
-                placeholder="Enter your email" 
+                placeholder="sarah.miller@example.com" 
                 required 
                 autocomplete="email"
               >
@@ -80,14 +114,14 @@
           </div>
 
           <div class="auth-field">
-            <label class="auth-label" for="signin-password">Password</label>
+            <label class="auth-label" for="signin-password" id="password-field-label">Password</label>
             <div class="auth-input-wrapper">
               <span class="auth-input-icon">🔒</span>
               <input 
                 type="password" 
                 id="signin-password" 
                 class="auth-input" 
-                placeholder="Enter your password" 
+                placeholder="Enter password" 
                 required 
                 autocomplete="current-password"
               >
@@ -106,16 +140,21 @@
 
           <!-- Submit Button -->
           <button type="submit" class="auth-submit-btn" id="btn-submit-signin">
-            <span>🚀</span> <span id="submit-label">Sign In & Launch Studio</span>
+            <span id="submit-icon">🚀</span> <span id="submit-label">Sign In & Launch Studio</span>
           </button>
         </form>
 
-        <!-- Switch to Sign Up -->
-        <div style="text-align: center; margin-top: 22px; font-size: 13px; color: var(--text-dim);">
+        <!-- Switch to Sign Up (Shown for User tab) -->
+        <div id="signup-switch-row" style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-dim);">
           Don't have an account yet? 
           <a href="signup.html" style="color: var(--accent-primary); font-weight: 600; text-decoration: none; margin-left: 4px;">
             Create Free Account →
           </a>
+        </div>
+
+        <!-- Admin Secure Notice (Shown for Admin tab) -->
+        <div id="admin-security-note" style="display: none; text-align: center; margin-top: 18px; font-size: 12px; color: #94a3b8; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); padding: 8px 12px; border-radius: 8px;">
+          🔒 <strong>Restricted Admin Portal:</strong> Authorized studio administrators only.
         </div>
       </div>
 
@@ -131,6 +170,7 @@
   <script src="js/user-db.js"></script>
   <script>
     const UserDB = window.UserDB;
+    let activeRoleTab = 'user'; // 'user' | 'admin'
 
     // 3D Three.js Background
     function initBackground() {
@@ -186,31 +226,96 @@
       setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
+    // Role Tab Switcher: User vs Admin
+    function setRoleTab(role) {
+      activeRoleTab = role;
+      const userBtn = document.getElementById('tab-user-btn');
+      const adminBtn = document.getElementById('tab-admin-btn');
+      const title = document.getElementById('auth-main-title');
+      const subtitle = document.getElementById('auth-main-subtitle');
+      const badge = document.getElementById('portal-badge');
+      const emailLabel = document.getElementById('email-field-label');
+      const emailInput = document.getElementById('signin-email');
+      const submitLabel = document.getElementById('submit-label');
+      const submitIcon = document.getElementById('submit-icon');
+      const submitBtn = document.getElementById('btn-submit-signin');
+      const signupRow = document.getElementById('signup-switch-row');
+      const adminNote = document.getElementById('admin-security-note');
+
+      if (role === 'admin') {
+        userBtn.className = 'auth-tab-btn';
+        adminBtn.className = 'auth-tab-btn active admin-active';
+        badge.textContent = '👑';
+        badge.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+        title.textContent = 'Administrator Sign In';
+        subtitle.textContent = 'Enter admin credentials to manage users and access records.';
+        emailLabel.textContent = 'Administrator Email';
+        emailInput.placeholder = 'bhuvan@gmail.com';
+        submitLabel.textContent = 'Sign In to Admin Dashboard';
+        submitIcon.textContent = '👑';
+        submitBtn.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+        signupRow.style.display = 'none';
+        adminNote.style.display = 'block';
+      } else {
+        adminBtn.className = 'auth-tab-btn';
+        userBtn.className = 'auth-tab-btn active user-active';
+        badge.textContent = '✨';
+        badge.style.background = 'var(--gradient-brand)';
+        title.textContent = 'User Sign In';
+        subtitle.textContent = 'Sign in to design, customize, and view interior spaces in 3D.';
+        emailLabel.textContent = 'Email Address';
+        emailInput.placeholder = 'sarah.miller@example.com';
+        submitLabel.textContent = 'Sign In & Launch Studio';
+        submitIcon.textContent = '🚀';
+        submitBtn.style.background = 'var(--gradient-brand)';
+        signupRow.style.display = 'block';
+        adminNote.style.display = 'none';
+      }
+    }
+
     // Initialize Page Controller
     window.addEventListener('DOMContentLoaded', () => {
       initBackground();
 
       const params = new URLSearchParams(window.location.search);
       const redirectUrl = params.get('redirect') || 'studio.html';
+      const roleParam = params.get('role');
 
-      // Check if admin was required
+      // Check role param or default
+      if (roleParam === 'admin' || params.get('redirect') === 'admin.html') {
+        setRoleTab('admin');
+      } else {
+        setRoleTab('user');
+      }
+
+      // Check if admin error
       if (params.get('error') === 'admin_required') {
+        setRoleTab('admin');
         showToast('Administrator privileges required. Please sign in as Admin.', false);
       }
 
-      // Check existing session (show subtle banner without hiding the form)
+      // Tab clicks
+      document.getElementById('tab-user-btn')?.addEventListener('click', () => setRoleTab('user'));
+      document.getElementById('tab-admin-btn')?.addEventListener('click', () => setRoleTab('admin'));
+
+      // Check existing session
       const currentUser = UserDB.getCurrentUser();
       const banner = document.getElementById('active-session-banner');
       const bannerName = document.getElementById('active-banner-name');
       const bannerEmail = document.getElementById('active-banner-email');
+      const bannerIcon = document.getElementById('active-banner-icon');
+      const btnActiveGo = document.getElementById('btn-active-go');
 
       if (currentUser && currentUser.name) {
         if (banner) {
-          bannerName.textContent = currentUser.name;
+          const isAdmin = currentUser.role === 'admin';
+          bannerName.textContent = currentUser.name + (isAdmin ? ' (Admin)' : '');
           bannerEmail.textContent = currentUser.email || 'Active Account';
+          bannerIcon.textContent = isAdmin ? '👑' : '👤';
+          btnActiveGo.href = isAdmin ? 'admin.html' : 'studio.html';
+          btnActiveGo.textContent = isAdmin ? 'Admin Dashboard →' : '3D Studio →';
           banner.style.display = 'flex';
           
-          // Pre-fill email
           const emailInput = document.getElementById('signin-email');
           if (emailInput && !emailInput.value) {
             emailInput.value = currentUser.email || '';
@@ -243,19 +348,28 @@
         const email = document.getElementById('signin-email').value.trim();
         const password = document.getElementById('signin-password').value;
 
+        // Perform authentication
         const result = UserDB.authenticateUser(email, password);
         if (result.success) {
-          showToast(`Welcome back, ${result.user.name}! Proceeding...`, true);
-          
-          // Determine target destination
-          let destination = redirectUrl;
-          if (result.user.role === 'admin') {
-            // Admin destination: admin.html if directly accessed or requested, else studio.html
-            destination = (!params.get('redirect') || params.get('redirect') === 'admin.html') ? 'admin.html' : redirectUrl;
+          const user = result.user;
+
+          // If on admin tab, ensure the authenticated account is an admin
+          if (activeRoleTab === 'admin') {
+            if (user.role !== 'admin' || user.email.toLowerCase() !== 'bhuvan@gmail.com') {
+              showToast('Access denied: This account does not have administrator privileges.', false);
+              return;
+            }
+            showToast(`Welcome Administrator ${user.name}! Opening Admin Dashboard...`, true);
+            setTimeout(() => {
+              window.location.href = 'admin.html';
+            }, 600);
+            return;
           }
 
+          // User login flow
+          showToast(`Welcome back, ${user.name}! Launching 3D Studio...`, true);
           setTimeout(() => {
-            window.location.href = destination;
+            window.location.href = redirectUrl === 'admin.html' ? 'studio.html' : redirectUrl;
           }, 600);
         } else {
           showToast(result.error || 'Authentication failed', false);
