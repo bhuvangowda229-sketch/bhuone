@@ -915,93 +915,473 @@ class FurnitureFactory {
     return group;
   }
 
-  // 3b. MISSOURI ENGINEERED WOOD TV ENTERTAINMENT UNIT
-  static createMissouriTVUnit(style = 'modern', customColor = null) {
-    const group = new THREE.Group();
-    group.name = 'Missouri TV Entertainment Unit';
-    group.userData = { type: 'missouri_tv_unit', name: 'Missouri TV Entertainment Unit', cost: 1450 };
+  // 3b. MISSOURI ENGINEERED WOOD TV ENTERTAINMENT UNIT (4 DISTINCT ARCHITECTURAL DESIGNS)
+  static createMissouriTVUnit(style = 'modern', customColor = null, designType = 1) {
+    const dType = parseInt(designType, 10) || (designType === 'floating' ? 2 : (designType === 'luxury' ? 3 : (designType === 'midcentury' ? 4 : 1)));
 
-    // Dual-tone engineered wood color palette
-    let darkWalnut = 0x362215; // Rich dark walnut carcass
-    let lightWalnut = 0x935c36; // Warm light walnut doors/drawers/slats
+    const group = new THREE.Group();
+    const designNames = {
+      1: 'Missouri Classic Grand Entertainment Center',
+      2: 'Missouri Floating Minimalist Fluted TV Console',
+      3: 'Missouri Luxury Symmetrical Dual-Tower Center',
+      4: 'Missouri Mid-Century Slatted Media Credenza'
+    };
+    const designCosts = { 1: 1450, 2: 1250, 3: 1850, 4: 1380 };
+
+    group.name = designNames[dType] || 'Missouri TV Entertainment Unit';
+    group.userData = {
+      type: 'missouri_tv_unit',
+      name: group.name,
+      cost: designCosts[dType] || 1450,
+      design: dType
+    };
+
+    // Color definitions based on design and style
+    let darkWalnut = 0x362215;
+    let lightWalnut = 0x935c36;
+
     if (customColor) {
       darkWalnut = typeof customColor === 'number' ? customColor : parseInt(customColor.replace('#', '0x'), 16);
       lightWalnut = darkWalnut;
+    } else if (dType === 2) {
+      // Floating Minimalist (Japandi Natural Ash & Honey Oak)
+      darkWalnut = 0x5a3e28;
+      lightWalnut = 0xb58257;
+    } else if (dType === 3) {
+      // Luxury Symmetrical (Deep Espresso & Champagne Gold)
+      darkWalnut = 0x1f140e;
+      lightWalnut = 0x7c4927;
+    } else if (dType === 4) {
+      // Mid-Century Modern (Warm Amber Honey Walnut)
+      darkWalnut = 0x6e3d1f;
+      lightWalnut = 0x9e5f32;
     } else if (style === 'luxury') {
       darkWalnut = 0x221812;
       lightWalnut = 0x8a532b;
-    } else if (style === 'traditional') {
-      darkWalnut = 0x442713;
-      lightWalnut = 0x7c4927;
     } else if (style === 'minimalist') {
       darkWalnut = 0xcab9a5;
       lightWalnut = 0xeee4d7;
     }
 
-    // Melamine Satin Carcass Material
-    const carcassMat = new THREE.MeshStandardMaterial({
-      color: darkWalnut,
-      roughness: 0.38,
-      metalness: 0.05
-    });
-
-    // Light Walnut Engineered Wood Fronts Material
-    const frontWoodMat = new THREE.MeshStandardMaterial({
-      color: lightWalnut,
-      roughness: 0.35,
-      metalness: 0.04
-    });
-
-    // Vertical Acoustic Ribbed Slats Material
-    const slatMat = new THREE.MeshStandardMaterial({
-      color: lightWalnut,
-      roughness: 0.42,
-      metalness: 0.06
-    });
-
-    // Metallic Champagne / Matte Black Hardware Material
+    const carcassMat = new THREE.MeshStandardMaterial({ color: darkWalnut, roughness: 0.38, metalness: 0.05 });
+    const frontWoodMat = new THREE.MeshStandardMaterial({ color: lightWalnut, roughness: 0.35, metalness: 0.04 });
+    const slatMat = new THREE.MeshStandardMaterial({ color: lightWalnut, roughness: 0.42, metalness: 0.06 });
     const handleMat = new THREE.MeshStandardMaterial({
-      color: style === 'luxury' ? 0xd4af37 : 0x27272a,
+      color: (dType === 3 || style === 'luxury') ? 0xd4af37 : (dType === 4 ? 0xb45309 : 0x27272a),
       metalness: 0.85,
       roughness: 0.25
     });
+    const glassMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.42, roughness: 0.08, metalness: 0.2 });
+    const screenMat = new THREE.MeshStandardMaterial({ color: 0x080808, roughness: 0.08, metalness: 0.92 });
+    const tvBezelMat = new THREE.MeshStandardMaterial({ color: 0x18181b, metalness: 0.8, roughness: 0.3 });
+    const soundbarMat = new THREE.MeshStandardMaterial({ color: 0x1c1917, roughness: 0.88, metalness: 0.05 });
+    const ledGlowMat = new THREE.MeshBasicMaterial({ color: 0xffedd5, transparent: true, opacity: 0.45 });
 
-    // Smoked / Tempered Glass Door Material
-    const glassMat = new THREE.MeshStandardMaterial({
-      color: 0x94a3b8,
-      transparent: true,
-      opacity: 0.42,
-      roughness: 0.08,
-      metalness: 0.2
-    });
+    // ==============================================================
+    // DESIGN 2: FLOATING MINIMALIST FLUTED CONSOLE (JAPANDI / CONTEMPORARY)
+    // ==============================================================
+    if (dType === 2) {
+      const credW = 2.15;
+      const credH = 0.36;
+      const credD = 0.38;
+      const groundElev = 0.26; // Floating above the floor!
+      const credY = groundElev + credH / 2; // 0.44
 
-    // Obsidian Ultra-Thin Smart TV Screen Material
-    const screenMat = new THREE.MeshStandardMaterial({
-      color: 0x080808,
-      roughness: 0.08,
-      metalness: 0.92
-    });
+      // Floating Credenza Body
+      const floatingCarcass = this.createMesh(new THREE.BoxGeometry(credW, credH, credD), carcassMat, 'Floating Console Cabinet');
+      floatingCarcass.position.set(0, credY, 0);
+      group.add(floatingCarcass);
 
-    const tvBezelMat = new THREE.MeshStandardMaterial({
-      color: 0x18181b,
-      metalness: 0.8,
-      roughness: 0.3
-    });
+      // Under-Cabinet Warm Ambient LED Glow Strip
+      const underGlow = this.createMesh(new THREE.BoxGeometry(credW - 0.1, 0.005, credD - 0.06), ledGlowMat, 'Under-Cabinet Ambient Glow Strip');
+      underGlow.position.set(0, groundElev - 0.005, 0);
+      group.add(underGlow);
 
-    // Acoustic Soundbar Fabric Material
-    const soundbarMat = new THREE.MeshStandardMaterial({
-      color: 0x1c1917,
-      roughness: 0.88,
-      metalness: 0.05
-    });
+      // Fluted Tambour Vertical Grooves across front
+      const numFlutes = 26;
+      const fluteStep = (credW - 0.12) / (numFlutes - 1);
+      const fluteStartX = -credW / 2 + 0.06;
+      for (let f = 0; f < numFlutes; f++) {
+        const fx = fluteStartX + f * fluteStep;
+        const flute = this.createMesh(new THREE.BoxGeometry(0.025, credH - 0.03, 0.015), frontWoodMat, `Fluted Front Slat ${f + 1}`);
+        flute.position.set(fx, credY, credD / 2 + 0.008);
+        group.add(flute);
+      }
 
-    // Ambient Warm LED Backlight Material
-    const ledGlowMat = new THREE.MeshBasicMaterial({
-      color: 0xffedd5,
-      transparent: true,
-      opacity: 0.4
-    });
+      // Minimalist Horizontal Slatted Back Panel
+      const backW = 1.45;
+      const backH = 1.05;
+      const backY = groundElev + credH + backH / 2 + 0.04;
+      const backZ = -0.15;
+      const backdropX = 0.15;
 
+      const backPanel = this.createMesh(new THREE.BoxGeometry(backW, backH, 0.025), carcassMat, 'Horizontal Slatted Backdrop');
+      backPanel.position.set(backdropX, backY, backZ);
+      group.add(backPanel);
+
+      // 6 Horizontal Acoustic Slats
+      for (let h = 0; h < 6; h++) {
+        const hy = backY - backH / 2 + 0.10 + h * 0.17;
+        const hSlat = this.createMesh(new THREE.BoxGeometry(backW - 0.04, 0.035, 0.015), slatMat, `Horizontal Acoustic Slat ${h + 1}`);
+        hSlat.position.set(backdropX, hy, backZ + 0.018);
+        group.add(hSlat);
+      }
+
+      // 65" Borderless OLED TV
+      const tvW = 1.38;
+      const tvH = 0.78;
+      const tvY = backY;
+      const tvZ = backZ + 0.045;
+
+      const tvBezel = this.createMesh(new THREE.BoxGeometry(tvW, tvH, 0.025), tvBezelMat, 'OLED TV Frame');
+      tvBezel.position.set(backdropX, tvY, tvZ);
+      group.add(tvBezel);
+
+      const tvScreen = this.createMesh(new THREE.BoxGeometry(tvW - 0.02, tvH - 0.02, 0.008), screenMat, '65-Inch Borderless OLED Display');
+      tvScreen.position.set(backdropX, tvY, tvZ + 0.014);
+      group.add(tvScreen);
+
+      // Slim Recessed Soundbar
+      const soundbar = this.createMesh(new THREE.BoxGeometry(0.85, 0.05, 0.06), soundbarMat, 'Recessed Slim Soundbar');
+      soundbar.position.set(backdropX, groundElev + credH + 0.04, 0.02);
+      group.add(soundbar);
+
+      // Asymmetrical Left Floating Display Shelves
+      const shelfW = 0.58;
+      const shelfX = -0.75;
+      const shelfD = 0.22;
+      const shelfH = 0.03;
+
+      const shelf1 = this.createMesh(new THREE.BoxGeometry(shelfW, shelfH, shelfD), frontWoodMat, 'Floating Display Shelf Upper');
+      shelf1.position.set(shelfX, backY + 0.28, -0.06);
+      group.add(shelf1);
+
+      const shelf2 = this.createMesh(new THREE.BoxGeometry(shelfW, shelfH, shelfD), frontWoodMat, 'Floating Display Shelf Lower');
+      shelf2.position.set(shelfX, backY - 0.16, -0.06);
+      group.add(shelf2);
+
+      // Decor on Upper Shelf: Sculptural White Ceramic Bowl & Zen Succulent
+      const bowl = this.createMesh(new THREE.CylinderGeometry(0.08, 0.05, 0.06, 16), new THREE.MeshStandardMaterial({ color: 0xf5f5f4, roughness: 0.2 }), 'Zen Ceramic Bowl');
+      bowl.position.set(shelfX - 0.14, backY + 0.28 + 0.045, -0.06);
+      group.add(bowl);
+
+      const succulentPot = this.createMesh(new THREE.CylinderGeometry(0.04, 0.035, 0.06, 12), new THREE.MeshStandardMaterial({ color: 0x27272a, roughness: 0.6 }), 'Potted Zen Succulent');
+      succulentPot.position.set(shelfX + 0.14, backY + 0.28 + 0.045, -0.06);
+      group.add(succulentPot);
+
+      const succulentLeaf = this.createMesh(new THREE.SphereGeometry(0.045, 10, 8), new THREE.MeshStandardMaterial({ color: 0x166534, roughness: 0.5 }), 'Succulent Foliage');
+      succulentLeaf.position.set(shelfX + 0.14, backY + 0.28 + 0.08, -0.06);
+      group.add(succulentLeaf);
+
+      // Decor on Lower Shelf: 2 Stacked Architectural Monograph Books & Stone
+      const b1 = this.createMesh(new THREE.BoxGeometry(0.24, 0.03, 0.18), new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.4 }), 'Design Monograph Volume 1');
+      b1.position.set(shelfX - 0.08, backY - 0.16 + 0.03, -0.06);
+      group.add(b1);
+
+      const b2 = this.createMesh(new THREE.BoxGeometry(0.22, 0.025, 0.16), new THREE.MeshStandardMaterial({ color: 0xd4d4d8, roughness: 0.3 }), 'Design Monograph Volume 2');
+      b2.position.set(shelfX - 0.08, backY - 0.16 + 0.057, -0.06);
+      group.add(b2);
+
+      const stoneSphere = this.createMesh(new THREE.SphereGeometry(0.04, 16, 16), new THREE.MeshStandardMaterial({ color: 0x71717a, roughness: 0.3 }), 'Sculpted River Stone Decor');
+      stoneSphere.position.set(shelfX + 0.16, backY - 0.16 + 0.055, -0.06);
+      group.add(stoneSphere);
+
+      return group;
+    }
+
+    // ==============================================================
+    // DESIGN 3: SYMMETRICAL GRAND SHOWCASE LUXURY CENTER (PENTHOUSE SALON)
+    // ==============================================================
+    if (dType === 3) {
+      const centerW = 1.48;
+      const baseH = 0.46;
+      const baseD = 0.42;
+      const baseY = 0.05 + baseH / 2;
+
+      // Plinth
+      const plinth = this.createMesh(new THREE.BoxGeometry(2.44, 0.05, 0.38), carcassMat, 'Grand Plinth Base');
+      plinth.position.set(0, 0.025, 0);
+      group.add(plinth);
+
+      // Center Base Credenza
+      const centerCred = this.createMesh(new THREE.BoxGeometry(centerW, baseH, baseD), carcassMat, 'Center Luxury Credenza Body');
+      centerCred.position.set(0, baseY, 0);
+      group.add(centerCred);
+
+      // Gold Trim Divider Lines on Center Credenza (3 Drawer Fronts)
+      const drawerW = centerW / 3 - 0.03;
+      for (let dr = 0; dr < 3; dr++) {
+        const dx = -centerW / 2 + 0.03 + drawerW / 2 + dr * (drawerW + 0.02);
+        const drawerPanel = this.createMesh(new THREE.BoxGeometry(drawerW, baseH - 0.06, 0.02), frontWoodMat, `Luxury Fluted Drawer ${dr + 1}`);
+        drawerPanel.position.set(dx, baseY, baseD / 2 + 0.01);
+        group.add(drawerPanel);
+
+        // Gold Handle Bar
+        const handle = this.createMesh(new THREE.CylinderGeometry(0.007, 0.007, 0.18, 12), handleMat, `Gold Drawer Pull ${dr + 1}`);
+        handle.rotation.z = Math.PI / 2;
+        handle.position.set(dx, baseY, baseD / 2 + 0.025);
+        group.add(handle);
+      }
+
+      // SYMMETRICAL DUAL GLASS CURIO TOWERS (LEFT & RIGHT)
+      const towerW = 0.46;
+      const towerH = 1.25;
+      const towerD = 0.36;
+      const towerY = 0.51 + towerH / 2;
+      const towerDist = centerW / 2 + towerW / 2 + 0.01;
+
+      [-towerDist, towerDist].forEach((tx, idx) => {
+        const side = idx === 0 ? 'Left' : 'Right';
+        const towerFrame = this.createMesh(new THREE.BoxGeometry(towerW, towerH, towerD), carcassMat, `${side} Glass Curio Tower Frame`);
+        towerFrame.position.set(tx, towerY, 0);
+        group.add(towerFrame);
+
+        // Smoked Glass Door
+        const gDoor = this.createMesh(new THREE.BoxGeometry(towerW - 0.04, towerH - 0.04, 0.01), glassMat, `${side} Smoked Glass Door`);
+        gDoor.position.set(tx, towerY, towerD / 2 + 0.008);
+        group.add(gDoor);
+
+        // Luxury Gold Vertical Handle
+        const gHandle = this.createMesh(new THREE.CylinderGeometry(0.006, 0.006, 0.22, 12), handleMat, `${side} Glass Door Gold Handle`);
+        const hOffset = idx === 0 ? towerW / 2 - 0.04 : -towerW / 2 + 0.04;
+        gHandle.position.set(tx + hOffset, towerY, towerD / 2 + 0.022);
+        group.add(gHandle);
+
+        // Interior Glass Shelves
+        const s1 = this.createMesh(new THREE.BoxGeometry(towerW - 0.06, 0.015, towerD - 0.06), glassMat, `${side} Interior Glass Shelf Upper`);
+        s1.position.set(tx, towerY + 0.22, 0);
+        group.add(s1);
+
+        const s2 = this.createMesh(new THREE.BoxGeometry(towerW - 0.06, 0.015, towerD - 0.06), glassMat, `${side} Interior Glass Shelf Lower`);
+        s2.position.set(tx, towerY - 0.22, 0);
+        group.add(s2);
+
+        // Warm Interior LED Downlight Spotlight
+        const spot = this.createMesh(new THREE.CylinderGeometry(0.03, 0.03, 0.01, 16), handleMat, `${side} Interior Downlight Housing`);
+        spot.position.set(tx, towerY + towerH / 2 - 0.015, 0);
+        group.add(spot);
+      });
+
+      // Left Tower Decor: Art Monograph Volumes & Geometric Pyramid
+      const bookMatL = new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.5 });
+      const bL = this.createMesh(new THREE.BoxGeometry(0.06, 0.22, 0.24), bookMatL, 'Curated Art Book Monograph');
+      bL.position.set(-towerDist - 0.06, towerY - 0.10, 0);
+      group.add(bL);
+
+      const pyramid = this.createMesh(new THREE.ConeGeometry(0.06, 0.14, 4), handleMat, 'Sculptural Brass Obelisk');
+      pyramid.position.set(-towerDist + 0.06, towerY - 0.14, 0);
+      group.add(pyramid);
+
+      // Right Tower Decor: Crystal Decanter & Brass Mantle Clock
+      const decanterMat = new THREE.MeshStandardMaterial({ color: 0xe0e7ff, transparent: true, opacity: 0.65, roughness: 0.05, metalness: 0.3 });
+      const decanter = this.createMesh(new THREE.CylinderGeometry(0.03, 0.065, 0.18, 16), decanterMat, 'Crystal Decanter Curio');
+      decanter.position.set(towerDist - 0.06, towerY - 0.12, 0);
+      group.add(decanter);
+
+      const clockMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.2 });
+      const mantleClock = this.createMesh(new THREE.CylinderGeometry(0.06, 0.06, 0.04, 24), clockMat, 'Brass Mantle Clock');
+      mantleClock.rotation.x = Math.PI / 2;
+      mantleClock.position.set(towerDist + 0.06, towerY + 0.28, 0);
+      group.add(mantleClock);
+
+      // Center Back Wall Accent Panel with Gold Inlay Strips
+      const backH = 1.25;
+      const backY = towerY;
+      const backZ = -0.15;
+      const backPanel = this.createMesh(new THREE.BoxGeometry(centerW, backH, 0.03), carcassMat, 'Luxury Dark Walnut Back Panel');
+      backPanel.position.set(0, backY, backZ);
+      group.add(backPanel);
+
+      // 4 Vertical Brushed Gold Inlays
+      [-0.50, -0.20, 0.20, 0.50].forEach((ix, i) => {
+        const inlay = this.createMesh(new THREE.BoxGeometry(0.015, backH - 0.04, 0.008), handleMat, `Gold Vertical Inlay Strip ${i + 1}`);
+        inlay.position.set(ix, backY, backZ + 0.018);
+        group.add(inlay);
+      });
+
+      // 65" Luxury Smart TV with Gold Accent Edge
+      const tvW = 1.36;
+      const tvH = 0.76;
+      const tvY = backY + 0.05;
+      const tvZ = backZ + 0.05;
+
+      const tvGoldBezel = this.createMesh(new THREE.BoxGeometry(tvW, tvH, 0.03), handleMat, 'Television Gold Bezel Frame');
+      tvGoldBezel.position.set(0, tvY, tvZ);
+      group.add(tvGoldBezel);
+
+      const tvScreen = this.createMesh(new THREE.BoxGeometry(tvW - 0.03, tvH - 0.03, 0.008), screenMat, '65-Inch Cinema Display');
+      tvScreen.position.set(0, tvY, tvZ + 0.018);
+      group.add(tvScreen);
+
+      // Curved Dolby Atmos Soundbar with Gold Badging
+      const soundbar = this.createMesh(new THREE.BoxGeometry(0.96, 0.07, 0.08), soundbarMat, 'Luxury Curved Soundbar');
+      soundbar.position.set(0, 0.51 + 0.08, 0.06);
+      group.add(soundbar);
+
+      // Overhead Crown Architectural Canopy
+      const canopy = this.createMesh(new THREE.BoxGeometry(centerW + 0.02, 0.04, 0.36), carcassMat, 'Overhead Crown Canopy');
+      canopy.position.set(0, towerY + towerH / 2 + 0.02, 0);
+      group.add(canopy);
+
+      return group;
+    }
+
+    // ==============================================================
+    // DESIGN 4: MID-CENTURY MODERN SLATTED WITH TAPERED LEGS (SCANDI HYGGE)
+    // ==============================================================
+    if (dType === 4) {
+      const credW = 2.10;
+      const credH = 0.42;
+      const credD = 0.42;
+      const legH = 0.18;
+      const credY = legH + credH / 2;
+
+      // 4 ANGLED TAPERED WOODEN RETRO LEGS WITH BRASS FERRULES
+      const legPositions = [
+        [-credW / 2 + 0.14, legH / 2, -credD / 2 + 0.08],
+        [credW / 2 - 0.14, legH / 2, -credD / 2 + 0.08],
+        [-credW / 2 + 0.14, legH / 2, credD / 2 - 0.08],
+        [credW / 2 - 0.14, legH / 2, credD / 2 - 0.08],
+        [0, legH / 2, 0]
+      ];
+
+      legPositions.forEach((pos, idx) => {
+        const legGroup = new THREE.Group();
+        legGroup.position.set(...pos);
+
+        // Tapered Wooden Leg
+        const legGeom = new THREE.CylinderGeometry(0.018, 0.028, legH, 12);
+        const leg = this.createMesh(legGeom, carcassMat, `Tapered Wooden Leg ${idx + 1}`);
+        legGroup.add(leg);
+
+        // Brushed Brass Cap / Ferrule at foot
+        const ferruleGeom = new THREE.CylinderGeometry(0.019, 0.021, 0.04, 12);
+        const ferrule = this.createMesh(ferruleGeom, handleMat, `Brass Leg Ferrule ${idx + 1}`);
+        ferrule.position.set(0, -legH / 2 + 0.02, 0);
+        legGroup.add(ferrule);
+
+        // Splay angles outward
+        if (pos[0] < 0) legGroup.rotation.z = 0.14;
+        else if (pos[0] > 0) legGroup.rotation.z = -0.14;
+
+        group.add(legGroup);
+      });
+
+      // Mid-Century Credenza Body with Warm Honey Walnut finish
+      const credenza = this.createMesh(new THREE.BoxGeometry(credW, credH, credD), carcassMat, 'Mid-Century Credenza Body');
+      credenza.position.set(0, credY, 0);
+      group.add(credenza);
+
+      // Slatted Tambour Sliding Doors (Left & Right)
+      const doorW = 0.65;
+      const doorH = credH - 0.06;
+      [-0.62, 0.62].forEach((dx, didx) => {
+        const door = this.createMesh(new THREE.BoxGeometry(doorW, doorH, 0.02), frontWoodMat, `Slatted Tambour Door ${didx + 1}`);
+        door.position.set(dx, credY, credD / 2 + 0.01);
+        group.add(door);
+
+        // Vertical fine slat grooves
+        for (let s = 0; s < 7; s++) {
+          const sx = dx - doorW / 2 + 0.06 + s * 0.085;
+          const vLine = this.createMesh(new THREE.BoxGeometry(0.012, doorH - 0.02, 0.01), slatMat, `Tambour Groove ${didx + 1}-${s + 1}`);
+          vLine.position.set(sx, credY, credD / 2 + 0.018);
+          group.add(vLine);
+        }
+
+        // Circular Recessed Finger Pull
+        const ringPull = this.createMesh(new THREE.TorusGeometry(0.02, 0.005, 8, 16), handleMat, `Recessed Finger Pull ${didx + 1}`);
+        ringPull.position.set(dx + (didx === 0 ? 0.22 : -0.22), credY, credD / 2 + 0.022);
+        group.add(ringPull);
+      });
+
+      // Center Open Bay: Vintage Vinyl Turntable & Record Sleeves
+      const turntableBase = this.createMesh(new THREE.BoxGeometry(0.36, 0.05, 0.30), frontWoodMat, 'Vintage Vinyl Turntable Base');
+      turntableBase.position.set(0, credY - 0.08, 0.04);
+      group.add(turntableBase);
+
+      const platter = this.createMesh(new THREE.CylinderGeometry(0.12, 0.12, 0.015, 24), screenMat, 'Vinyl Platter & Record');
+      platter.position.set(-0.02, credY - 0.045, 0.04);
+      group.add(platter);
+
+      const tonearm = this.createMesh(new THREE.CylinderGeometry(0.004, 0.004, 0.14, 8), handleMat, 'Brass Tonearm');
+      tonearm.rotation.z = Math.PI / 3;
+      tonearm.position.set(0.10, credY - 0.035, 0.06);
+      group.add(tonearm);
+
+      // Stacked Vinyl Records
+      const vinylMat = new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.6 });
+      const recordStack = this.createMesh(new THREE.BoxGeometry(0.10, 0.24, 0.24), vinylMat, 'Vintage Vinyl LP Record Collection');
+      recordStack.position.set(0, credY + 0.06, 0.04);
+      group.add(recordStack);
+
+      // Mounted 55" TV with Retro Wood Bezel
+      const tvW = 1.28;
+      const tvH = 0.74;
+      const tvY = credY + credH / 2 + tvH / 2 + 0.14;
+      const tvZ = -0.08;
+
+      const tvWoodBezel = this.createMesh(new THREE.BoxGeometry(tvW, tvH, 0.035), carcassMat, 'Retro Wood Bezel Television Frame');
+      tvWoodBezel.position.set(0, tvY, tvZ);
+      group.add(tvWoodBezel);
+
+      const tvScreen = this.createMesh(new THREE.BoxGeometry(tvW - 0.04, tvH - 0.04, 0.008), screenMat, '55-Inch Television Display');
+      tvScreen.position.set(0, tvY, tvZ + 0.02);
+      group.add(tvScreen);
+
+      // Compact Soundbar
+      const soundbar = this.createMesh(new THREE.BoxGeometry(0.80, 0.055, 0.07), soundbarMat, 'Mid-Century Fabric Soundbar');
+      soundbar.position.set(0, credY + credH / 2 + 0.04, 0.04);
+      group.add(soundbar);
+
+      // OVERHEAD 3-BAY OPEN GRID BOOKSHELF BRIDGE
+      const bridgeW = 1.60;
+      const bridgeH = 0.34;
+      const bridgeD = 0.24;
+      const bridgeY = tvY + tvH / 2 + bridgeH / 2 + 0.06;
+      const bridgeZ = -0.06;
+
+      const gridBridge = this.createMesh(new THREE.BoxGeometry(bridgeW, bridgeH, bridgeD), carcassMat, 'Overhead 3-Bay Grid Bookshelf Bridge');
+      gridBridge.position.set(0, bridgeY, bridgeZ);
+      group.add(gridBridge);
+
+      // 2 Vertical Bay Dividers inside grid
+      [-0.26, 0.26].forEach((vx, i) => {
+        const div = this.createMesh(new THREE.BoxGeometry(0.02, bridgeH - 0.03, bridgeD - 0.02), frontWoodMat, `Grid Shelf Divider ${i + 1}`);
+        div.position.set(vx, bridgeY, bridgeZ);
+        group.add(div);
+      });
+
+      // Bay 1: Leaning Books with Bookend
+      const bookMat1 = new THREE.MeshStandardMaterial({ color: 0x0369a1, roughness: 0.6 });
+      const b1 = this.createMesh(new THREE.BoxGeometry(0.12, 0.20, 0.18), bookMat1, 'Bookshelf Leaning Literature');
+      b1.rotation.z = -0.12;
+      b1.position.set(-0.52, bridgeY - 0.04, bridgeZ);
+      group.add(b1);
+
+      // Bay 2: Terracotta Planter with Trailing Monstera Leaf
+      const potMat = new THREE.MeshStandardMaterial({ color: 0xc2410c, roughness: 0.7 });
+      const pot = this.createMesh(new THREE.CylinderGeometry(0.05, 0.04, 0.08, 16), potMat, 'Terracotta Mini Planter');
+      pot.position.set(0, bridgeY - 0.08, bridgeZ);
+      group.add(pot);
+
+      const leafMat = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.5 });
+      const leaf = this.createMesh(new THREE.SphereGeometry(0.06, 10, 8), leafMat, 'Potted Foliage Canopy');
+      leaf.position.set(0, bridgeY - 0.03, bridgeZ);
+      group.add(leaf);
+
+      // Bay 3: Vintage Analog Clock
+      const clockMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.8, roughness: 0.25 });
+      const analogClock = this.createMesh(new THREE.CylinderGeometry(0.05, 0.05, 0.03, 16), clockMat, 'Vintage Mid-Century Analog Desk Clock');
+      analogClock.rotation.x = Math.PI / 2;
+      analogClock.position.set(0.52, bridgeY - 0.06, bridgeZ);
+      group.add(analogClock);
+
+      return group;
+    }
+
+    // ==============================================================
+    // DESIGN 1: CLASSIC GRAND WALNUT ENTERTAINMENT CENTER (SIGNATURE HOMETOWN MISSOURI)
+    // ==============================================================
     // 1. BASE PLINTH
     const plinth = this.createMesh(new THREE.BoxGeometry(2.16, 0.05, 0.38), carcassMat, 'Media Console Plinth');
     plinth.position.set(0, 0.025, 0);
@@ -1011,7 +1391,7 @@ class FurnitureFactory {
     const baseW = 2.20;
     const baseH = 0.44;
     const baseD = 0.42;
-    const baseY = 0.05 + baseH / 2; // 0.27
+    const baseY = 0.05 + baseH / 2;
     const carcass = this.createMesh(new THREE.BoxGeometry(baseW, baseH, baseD), carcassMat, 'Media Console Cabinet');
     carcass.position.set(0, baseY, 0);
     group.add(carcass);
@@ -1077,7 +1457,7 @@ class FurnitureFactory {
     // 4. VERTICAL SLATTED WOOD BACK PANEL & BACKDROP
     const backW = 1.48;
     const backH = 1.18;
-    const backY = 0.50 + backH / 2; // 1.09
+    const backY = 0.50 + backH / 2;
     const backZ = -0.15;
     const backdropX = -0.22;
 
@@ -1101,7 +1481,7 @@ class FurnitureFactory {
       group.add(slat);
     }
 
-    // 5. 55-65" SMART WIDESCREEN TELEVISION & SOUNDBAR
+    // 5. 55" SMART WIDESCREEN TELEVISION & SOUNDBAR
     const tvW = 1.28;
     const tvH = 0.74;
     const tvY = backY + 0.06;
@@ -1192,7 +1572,7 @@ class FurnitureFactory {
     const bridgeW = 1.54;
     const bridgeH = 0.035;
     const bridgeD = 0.24;
-    const bridgeY = backY + backH / 2 + bridgeH / 2; // 1.70
+    const bridgeY = backY + backH / 2 + bridgeH / 2;
     const bridgeZ = -0.06;
 
     const bridgeShelf = this.createMesh(new THREE.BoxGeometry(bridgeW, bridgeH, bridgeD), carcassMat, 'Overhead Floating Bridge Shelf');
@@ -3708,10 +4088,11 @@ class AIEngine {
         items.push({
           id: 'tv_1',
           type: 'missouri_tv_unit',
-          name: 'Missouri Engineered Wood TV Unit',
+          name: 'Missouri Classic Grand TV Unit',
           position: [0, 0, tvZ],
           rotation: [0, Math.PI, 0],
           style: style,
+          design: 1,
           cost: 1450
         });
 
@@ -3827,16 +4208,16 @@ class AIEngine {
           cost: 240
         });
 
-        // Low Media & Storage Credenza on front wall
+        // Missouri Floating Minimalist Fluted TV Console on front wall
         items.push({
-          id: 'credenza_1',
-          type: 'credenza',
-          name: 'Low Horizon Media Credenza',
+          id: 'tv_1',
+          type: 'missouri_tv_unit',
+          name: 'Missouri Floating Minimalist TV Console',
           position: [0, 0, L / 2 - 0.45],
           rotation: [0, Math.PI, 0],
           style: 'minimalist',
-          color: palette.woodColor,
-          cost: 620
+          design: 2,
+          cost: 1250
         });
 
         // Low Japandi Accent Chair
@@ -3942,11 +4323,12 @@ class AIEngine {
         items.push({
           id: 'tv_1',
           type: 'missouri_tv_unit',
-          name: 'Missouri Luxury Engineered Wood TV Unit',
+          name: 'Missouri Luxury Dual-Tower TV Unit',
           position: [0, 0, L / 2 - 0.45],
           rotation: [0, Math.PI, 0],
           style: 'luxury',
-          cost: 1650
+          design: 3,
+          cost: 1850
         });
 
         // Symmetrical Luxury Armchairs (Left & Right)
@@ -4074,11 +4456,12 @@ class AIEngine {
         items.push({
           id: 'tv_1',
           type: 'missouri_tv_unit',
-          name: 'Missouri Engineered Wood TV Unit',
+          name: 'Missouri Mid-Century Slatted TV Unit',
           position: [-0.35, 0, L / 2 - 0.45],
           rotation: [0, Math.PI, 0],
           style: style,
-          cost: 1350
+          design: 4,
+          cost: 1380
         });
 
         // Open Nordic Library Bookshelf
@@ -6759,6 +7142,21 @@ class App {
       }
     }
 
+    // Missouri TV Entertainment Unit Design Switcher Panel
+    const isMissouriTV = this.selectedRoot?.userData?.type === 'missouri_tv_unit';
+    const tvPanel = document.getElementById('inspector-tv-panel');
+    if (tvPanel) {
+      tvPanel.style.display = isMissouriTV ? 'block' : 'none';
+      if (isMissouriTV) {
+        const currentDesign = this.selectedRoot?.userData?.design || 1;
+        const badge = document.getElementById('tv-design-badge');
+        if (badge) badge.textContent = `Design ${currentDesign}`;
+        document.querySelectorAll('.tv-design-btn').forEach(b => {
+          b.classList.toggle('active', parseInt(b.dataset.design, 10) === currentDesign);
+        });
+      }
+    }
+
     // Update 3D Selection Box
     if (this.selectionHelper) {
       this.selectionHelper.setFromObject(this.selectedTarget);
@@ -7616,6 +8014,28 @@ class App {
       this.deleteSelectedTarget();
     });
 
+    // Missouri TV Entertainment Unit Design Switcher
+    document.querySelectorAll('.tv-design-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!this.selectedRoot || this.selectedRoot.userData?.type !== 'missouri_tv_unit') return;
+        const targetDesign = parseInt(btn.dataset.design, 10) || 1;
+        const pos = this.selectedRoot.position.clone();
+        const rot = this.selectedRoot.rotation.clone();
+        const col = this.selectedRoot.userData?.color || null;
+
+        this.furnitureGroup.remove(this.selectedRoot);
+
+        const newUnit = FurnitureFactory.createMissouriTVUnit(this.currentStyle, col, targetDesign);
+        newUnit.position.copy(pos);
+        newUnit.rotation.copy(rot);
+        this.furnitureGroup.add(newUnit);
+
+        this.selectTarget(newUnit, newUnit);
+        this.updateTargetByMode();
+        this.showToast(`Switched to ${newUnit.name}`);
+      });
+    });
+
     // Add items from catalog
     document.querySelectorAll('.add-catalog-item').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -7637,12 +8057,14 @@ class App {
         }
 
         const itemName = btn.textContent.trim();
+        const variant = btn.dataset.variant ? parseInt(btn.dataset.variant, 10) : 1;
         this.addFurnitureItem({
           type: type,
           name: itemName,
           style: this.currentStyle,
           position: initialPos,
-          rotation: initialRot
+          rotation: initialRot,
+          design: variant
         });
 
         if (isWall) {
@@ -8420,7 +8842,7 @@ class App {
         meshGroup = FurnitureFactory.createCoffeeTable(style, itemData.color);
         break;
       case 'missouri_tv_unit':
-        meshGroup = FurnitureFactory.createMissouriTVUnit(style, itemData.color);
+        meshGroup = FurnitureFactory.createMissouriTVUnit(style, itemData.color, itemData.design || itemData.variant || 1);
         break;
       case 'tv_unit':
         meshGroup = FurnitureFactory.createTVUnit(style);

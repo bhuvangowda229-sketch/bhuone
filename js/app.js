@@ -408,6 +408,21 @@ class App {
       }
     }
 
+    // Missouri TV Entertainment Unit Design Switcher Panel
+    const isMissouriTV = this.selectedRoot?.userData?.type === 'missouri_tv_unit';
+    const tvPanel = document.getElementById('inspector-tv-panel');
+    if (tvPanel) {
+      tvPanel.style.display = isMissouriTV ? 'block' : 'none';
+      if (isMissouriTV) {
+        const currentDesign = this.selectedRoot?.userData?.design || 1;
+        const badge = document.getElementById('tv-design-badge');
+        if (badge) badge.textContent = `Design ${currentDesign}`;
+        document.querySelectorAll('.tv-design-btn').forEach(b => {
+          b.classList.toggle('active', parseInt(b.dataset.design, 10) === currentDesign);
+        });
+      }
+    }
+
     // Update 3D Selection Box
     if (this.selectionHelper) {
       this.selectionHelper.setFromObject(this.selectedTarget);
@@ -1265,6 +1280,28 @@ class App {
       this.deleteSelectedTarget();
     });
 
+    // Missouri TV Entertainment Unit Design Switcher
+    document.querySelectorAll('.tv-design-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!this.selectedRoot || this.selectedRoot.userData?.type !== 'missouri_tv_unit') return;
+        const targetDesign = parseInt(btn.dataset.design, 10) || 1;
+        const pos = this.selectedRoot.position.clone();
+        const rot = this.selectedRoot.rotation.clone();
+        const col = this.selectedRoot.userData?.color || null;
+
+        this.furnitureGroup.remove(this.selectedRoot);
+
+        const newUnit = FurnitureFactory.createMissouriTVUnit(this.currentStyle, col, targetDesign);
+        newUnit.position.copy(pos);
+        newUnit.rotation.copy(rot);
+        this.furnitureGroup.add(newUnit);
+
+        this.selectTarget(newUnit, newUnit);
+        this.updateTargetByMode();
+        this.showToast(`Switched to ${newUnit.name}`);
+      });
+    });
+
     // Add items from catalog
     document.querySelectorAll('.add-catalog-item').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1286,12 +1323,14 @@ class App {
         }
 
         const itemName = btn.textContent.trim();
+        const variant = btn.dataset.variant ? parseInt(btn.dataset.variant, 10) : 1;
         this.addFurnitureItem({
           type: type,
           name: itemName,
           style: this.currentStyle,
           position: initialPos,
-          rotation: initialRot
+          rotation: initialRot,
+          design: variant
         });
 
         if (isWall) {
@@ -2069,7 +2108,7 @@ class App {
         meshGroup = FurnitureFactory.createCoffeeTable(style, itemData.color);
         break;
       case 'missouri_tv_unit':
-        meshGroup = FurnitureFactory.createMissouriTVUnit(style, itemData.color);
+        meshGroup = FurnitureFactory.createMissouriTVUnit(style, itemData.color, itemData.design || itemData.variant || 1);
         break;
       case 'tv_unit':
         meshGroup = FurnitureFactory.createTVUnit(style);

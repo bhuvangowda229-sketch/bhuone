@@ -101,10 +101,11 @@ export class AIEngine {
         items.push({
           id: 'tv_1',
           type: 'missouri_tv_unit',
-          name: 'Missouri Engineered Wood TV Unit',
+          name: 'Missouri Classic Grand TV Unit',
           position: [0, 0, tvZ],
           rotation: [0, Math.PI, 0],
           style: style,
+          design: 1,
           cost: 1450
         });
 
@@ -220,16 +221,16 @@ export class AIEngine {
           cost: 240
         });
 
-        // Low Media & Storage Credenza on front wall
+        // Missouri Floating Minimalist Fluted TV Console on front wall
         items.push({
-          id: 'credenza_1',
-          type: 'credenza',
-          name: 'Low Horizon Media Credenza',
+          id: 'tv_1',
+          type: 'missouri_tv_unit',
+          name: 'Missouri Floating Minimalist TV Console',
           position: [0, 0, L / 2 - 0.45],
           rotation: [0, Math.PI, 0],
           style: 'minimalist',
-          color: palette.woodColor,
-          cost: 620
+          design: 2,
+          cost: 1250
         });
 
         // Low Japandi Accent Chair
@@ -335,11 +336,12 @@ export class AIEngine {
         items.push({
           id: 'tv_1',
           type: 'missouri_tv_unit',
-          name: 'Missouri Luxury Engineered Wood TV Unit',
+          name: 'Missouri Luxury Dual-Tower TV Unit',
           position: [0, 0, L / 2 - 0.45],
           rotation: [0, Math.PI, 0],
           style: 'luxury',
-          cost: 1650
+          design: 3,
+          cost: 1850
         });
 
         // Symmetrical Luxury Armchairs (Left & Right)
@@ -467,11 +469,12 @@ export class AIEngine {
         items.push({
           id: 'tv_1',
           type: 'missouri_tv_unit',
-          name: 'Missouri Engineered Wood TV Unit',
+          name: 'Missouri Mid-Century Slatted TV Unit',
           position: [-0.35, 0, L / 2 - 0.45],
           rotation: [0, Math.PI, 0],
           style: style,
-          cost: 1350
+          design: 4,
+          cost: 1380
         });
 
         // Open Nordic Library Bookshelf

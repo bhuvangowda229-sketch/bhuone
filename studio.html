@@ -598,7 +598,7 @@
           <div class="section-card">
             <div class="section-title">
               <span>Furniture & Daily Essentials</span>
-              <span style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 7px; border-radius: 8px; font-weight: 600;">42 Items</span>
+              <span style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 7px; border-radius: 8px; font-weight: 600;">45 Items</span>
             </div>
 
             <!-- Instant Search Input -->
@@ -606,9 +606,9 @@
 
             <!-- Category Filter Pills -->
             <div class="catalog-filter-pills" id="catalog-pills">
-              <button type="button" class="catalog-filter-pill active" data-filter="all">All (42)</button>
+              <button type="button" class="catalog-filter-pill active" data-filter="all">All (45)</button>
               <button type="button" class="catalog-filter-pill" data-filter="utilities">⚡ Daily Appliances (10)</button>
-              <button type="button" class="catalog-filter-pill" data-filter="living">🛋️ Living (8)</button>
+              <button type="button" class="catalog-filter-pill" data-filter="living">🛋️ Living (11)</button>
               <button type="button" class="catalog-filter-pill" data-filter="bedroom">🛏️ Bedroom (6)</button>
               <button type="button" class="catalog-filter-pill" data-filter="kitchen">🍽️ Kitchen & Dining (10)</button>
               <button type="button" class="catalog-filter-pill" data-filter="office">💻 Office (5)</button>
@@ -639,13 +639,16 @@
             <div class="catalog-category-group" data-category="living">
               <div class="catalog-category-title">
                 <span>🛋️ Living & Seating</span>
-                <span class="count-badge">8</span>
+                <span class="count-badge">11</span>
               </div>
               <div class="style-selector" style="grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 12px;">
                 <button class="btn btn-sm add-catalog-item" data-type="sofa">🛋️ Deep Lounge Sofa</button>
                 <button class="btn btn-sm add-catalog-item" data-type="armchair">🪑 Accent Armchair</button>
                 <button class="btn btn-sm add-catalog-item" data-type="coffee_table">🪵 Coffee Table</button>
-                <button class="btn btn-sm add-catalog-item" data-type="missouri_tv_unit" style="border-color: rgba(99, 102, 241, 0.45); background: rgba(99, 102, 241, 0.12); font-weight: 600;">📺 Missouri TV Unit</button>
+                <button class="btn btn-sm add-catalog-item" data-type="missouri_tv_unit" data-variant="1" style="border-color: rgba(99, 102, 241, 0.45); background: rgba(99, 102, 241, 0.12); font-weight: 600;">📺 Missouri Classic Grand</button>
+                <button class="btn btn-sm add-catalog-item" data-type="missouri_tv_unit" data-variant="2" style="border-color: rgba(16, 185, 129, 0.45); background: rgba(16, 185, 129, 0.1); font-weight: 600;">☁️ Missouri Floating Minimal</button>
+                <button class="btn btn-sm add-catalog-item" data-type="missouri_tv_unit" data-variant="3" style="border-color: rgba(245, 158, 11, 0.45); background: rgba(245, 158, 11, 0.1); font-weight: 600;">✨ Missouri Luxury Dual-Tower</button>
+                <button class="btn btn-sm add-catalog-item" data-type="missouri_tv_unit" data-variant="4" style="border-color: rgba(217, 119, 6, 0.45); background: rgba(217, 119, 6, 0.1); font-weight: 600;">📻 Missouri Mid-Century</button>
                 <button class="btn btn-sm add-catalog-item" data-type="tv_unit">📺 Media TV Console</button>
                 <button class="btn btn-sm add-catalog-item" data-type="ottoman">🛋️ Comfort Ottoman</button>
                 <button class="btn btn-sm add-catalog-item" data-type="rug">🧶 Area Rug</button>
@@ -846,6 +849,23 @@
               <button type="button" class="quick-swatch wall-swatch-inspect" data-color="#A5B4C4" title="Nordic Sky" style="background: #A5B4C4;"></button>
               <button type="button" class="quick-swatch wall-swatch-inspect" data-color="#C5BCB3" title="Warm Greige" style="background: #C5BCB3;"></button>
               <button type="button" class="quick-swatch wall-swatch-inspect" data-color="#C8963E" title="Mustard Ochre" style="background: #C8963E;"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- DEDICATED MISSOURI TV UNIT DESIGN CHANGER -->
+        <div id="inspector-tv-panel" style="display: none; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 8px; padding: 10px; margin-bottom: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong style="font-size: 12px; color: #a5b4fc;">📺 Missouri TV Designs</strong>
+            <span id="tv-design-badge" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 7px; border-radius: 6px; font-weight: 600;">Design 1</span>
+          </div>
+          <div class="form-group" style="margin-bottom: 2px;">
+            <label style="font-size: 11px; margin-bottom: 4px;">Choose Architectural Configuration</label>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px;">
+              <button type="button" class="btn btn-sm tv-design-btn active" data-design="1" style="font-size: 10.5px; padding: 6px; text-align: left;">🏛️ Classic Grand</button>
+              <button type="button" class="btn btn-sm tv-design-btn" data-design="2" style="font-size: 10.5px; padding: 6px; text-align: left;">☁️ Floating Minimal</button>
+              <button type="button" class="btn btn-sm tv-design-btn" data-design="3" style="font-size: 10.5px; padding: 6px; text-align: left;">✨ Luxury Dual-Tower</button>
+              <button type="button" class="btn btn-sm tv-design-btn" data-design="4" style="font-size: 10.5px; padding: 6px; text-align: left;">📻 Mid-Century Slats</button>
             </div>
           </div>
         </div>
