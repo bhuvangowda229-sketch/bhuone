@@ -193,6 +193,17 @@ class HeroDemo {
       });
     }
 
+    // Require login before proceeding to 3D studio
+    document.querySelectorAll('a[href*="studio.html"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const user = localStorage.getItem('ai_interior_user');
+        if (!user) {
+          e.preventDefault();
+          window.location.href = 'login.html?redirect=studio.html';
+        }
+      });
+    });
+
     // Check user session
     try {
       const stored = localStorage.getItem('ai_interior_user');

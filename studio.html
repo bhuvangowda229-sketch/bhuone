@@ -4,6 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Interior Studio - 3D Room Visualizer & Design Suggester</title>
+  <script>
+    // Authentication Guard: Ensure user is signed in before proceeding to Studio
+    (function() {
+      try {
+        var user = localStorage.getItem('ai_interior_user');
+        if (!user) {
+          window.location.replace('login.html?redirect=studio.html');
+        }
+      } catch (e) {
+        window.location.replace('login.html?redirect=studio.html');
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="css/style.css">
   <!-- Three.js and OrbitControls -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -32,6 +45,9 @@
       </button>
       <button class="btn btn-sm btn-primary" id="btn-quick-screenshot">
         <span>📷</span> Snapshot
+      </button>
+      <button class="btn btn-sm" id="btn-studio-signout" style="border-color: rgba(239, 68, 68, 0.35); color: #fca5a5;" title="Sign out of AI Interior Studio">
+        <span>🚪</span> Sign Out
       </button>
     </div>
   </header>

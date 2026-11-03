@@ -5,6 +5,18 @@ import { AIEngine } from './ai-engine.js';
 
 class App {
   constructor() {
+    // Authentication Guard
+    try {
+      const stored = localStorage.getItem('ai_interior_user');
+      if (!stored) {
+        window.location.replace('login.html?redirect=studio.html');
+        return;
+      }
+    } catch (e) {
+      window.location.replace('login.html?redirect=studio.html');
+      return;
+    }
+
     this.canvas = document.getElementById('canvas3d');
     this.furnitureGroup = new THREE.Group();
     this.furnitureGroup.name = 'FurnitureGroup';
@@ -1234,6 +1246,12 @@ class App {
 
     document.getElementById('btn-close-report')?.addEventListener('click', () => {
       reportModal?.classList.remove('open');
+    });
+
+    // Studio Sign Out button
+    document.getElementById('btn-studio-signout')?.addEventListener('click', () => {
+      localStorage.removeItem('ai_interior_user');
+      window.location.href = 'login.html?redirect=studio.html';
     });
 
     // Display user session in studio navbar if signed in
