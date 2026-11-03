@@ -7,20 +7,63 @@ class UserDB {
   static STORAGE_KEY = 'ai_interior_users_db';
   static SESSION_KEY = 'ai_interior_user';
 
-  // Retrieve all users from localStorage, automatically seeding initial accounts if empty
+  // Dedicated Admin Account
+  static ADMIN_EMAIL = 'bhuvan@gmail.com';
+  static ADMIN_PASSWORD = 'Bhuvan@123';
+
+  // Retrieve all users from localStorage, automatically ensuring the official admin exists
   static getUsers() {
+    let users = [];
     try {
       const raw = localStorage.getItem(this.STORAGE_KEY);
       if (raw) {
-        const users = JSON.parse(raw);
-        if (Array.isArray(users) && users.length > 0) {
-          return users;
-        }
+        users = JSON.parse(raw);
+        if (!Array.isArray(users)) users = [];
       }
     } catch (e) {
       console.warn('UserDB: Failed to read from localStorage:', e);
     }
-    return this.seedDefaultUsers();
+
+    if (users.length === 0) {
+      users = this.seedDefaultUsers();
+    }
+
+    // Remove legacy demo accounts
+    users = users.filter(u => u.email.toLowerCase() !== 'admin@designstudio.ai');
+
+    // Always ensure the official admin bhuvan@gmail.com exists with password Bhuvan@123
+    let adminUser = users.find(u => u.email.toLowerCase() === this.ADMIN_EMAIL.toLowerCase());
+    if (!adminUser) {
+      adminUser = {
+        id: 'usr_admin_bhuvan',
+        name: 'Bhuvan (Admin)',
+        email: this.ADMIN_EMAIL,
+        password: this.ADMIN_PASSWORD,
+        role: 'admin',
+        avatarInitial: 'B',
+        registeredAt: '2026-11-01T08:00:00.000Z',
+        lastLoginAt: new Date().toISOString(),
+        loginCount: 1,
+        status: 'active'
+      };
+      users.unshift(adminUser);
+      this.saveUsers(users);
+    } else {
+      let changed = false;
+      if (adminUser.password !== this.ADMIN_PASSWORD) {
+        adminUser.password = this.ADMIN_PASSWORD;
+        changed = true;
+      }
+      if (adminUser.role !== 'admin') {
+        adminUser.role = 'admin';
+        changed = true;
+      }
+      if (changed) {
+        this.saveUsers(users);
+      }
+    }
+
+    return users;
   }
 
   // Save the full user list to localStorage
@@ -32,43 +75,31 @@ class UserDB {
     }
   }
 
-  // Pre-seed default administrator and demo user accounts with realistic creation dates
+  // Pre-seed default administrator with realistic creation dates
   static seedDefaultUsers() {
     const defaults = [
       {
-        id: 'usr_admin',
-        name: 'Studio Administrator',
-        email: 'admin@designstudio.ai',
-        password: 'admin',
+        id: 'usr_admin_bhuvan',
+        name: 'Bhuvan (Admin)',
+        email: 'bhuvan@gmail.com',
+        password: 'Bhuvan@123',
         role: 'admin',
-        avatarInitial: 'A',
-        registeredAt: '2026-10-15T08:30:00.000Z',
+        avatarInitial: 'B',
+        registeredAt: '2026-11-01T08:00:00.000Z',
         lastLoginAt: '2026-11-03T10:00:00.000Z',
-        loginCount: 28,
+        loginCount: 3,
         status: 'active'
       },
       {
-        id: 'usr_alex',
-        name: 'Alex Rivera',
-        email: 'alex.rivera@designstudio.ai',
-        password: 'password123',
-        role: 'user',
-        avatarInitial: 'A',
-        registeredAt: '2026-10-24T14:15:00.000Z',
-        lastLoginAt: '2026-11-02T19:20:00.000Z',
-        loginCount: 12,
-        status: 'active'
-      },
-      {
-        id: 'usr_sophia',
-        name: 'Sophia Chen',
-        email: 'sophia.chen@archdesign.org',
+        id: 'usr_sarah',
+        name: 'Sarah Miller',
+        email: 'sarah.miller@example.com',
         password: 'password123',
         role: 'user',
         avatarInitial: 'S',
-        registeredAt: '2026-10-30T11:45:00.000Z',
-        lastLoginAt: '2026-11-01T16:10:00.000Z',
-        loginCount: 5,
+        registeredAt: '2026-11-02T14:15:00.000Z',
+        lastLoginAt: '2026-11-03T09:20:00.000Z',
+        loginCount: 2,
         status: 'active'
       }
     ];
@@ -86,15 +117,20 @@ class UserDB {
 
   // Register a new user and store their registration date
   static registerUser({ name, email, password, role = 'user' }) {
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanName = name ? name.trim() : cleanEmail.split('@')[0];
-
-    if (!cleanEmail || !password) {
+    if (!email || !password) {
       return { success: false, error: 'Email and password are required.' };
     }
 
-    if (password.length < 6) {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
+    const cleanName = name ? name.trim() : cleanEmail.split('@')[0];
+
+    if (cleanPassword.length < 6) {
       return { success: false, error: 'Password must be at least 6 characters.' };
+    }
+
+    if (cleanEmail === this.ADMIN_EMAIL.toLowerCase()) {
+      return { success: false, error: 'This email is reserved. Please sign in.' };
     }
 
     const existing = this.findUserByEmail(cleanEmail);
@@ -109,8 +145,8 @@ class UserDB {
       id: 'usr_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
       name: cleanName,
       email: cleanEmail,
-      password: password,
-      role: role || (cleanEmail.includes('admin') ? 'admin' : 'user'),
+      password: cleanPassword,
+      role: 'user', // Public registrations are always regular users
       avatarInitial: initial,
       registeredAt: nowIso, // Exact date and time of user registration
       lastLoginAt: nowIso,
@@ -130,7 +166,12 @@ class UserDB {
 
   // Authenticate user with email and password
   static authenticateUser(email, password) {
+    if (!email || !password) {
+      return { success: false, error: 'Please enter both email and password.' };
+    }
+
     const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
     const users = this.getUsers();
     const userIndex = users.findIndex(u => u.email.toLowerCase() === cleanEmail);
 
@@ -139,7 +180,7 @@ class UserDB {
     }
 
     const user = users[userIndex];
-    if (user.password && user.password !== password.trim()) {
+    if (user.password !== cleanPassword) {
       return { success: false, error: 'Incorrect password. Please try again.' };
     }
 

@@ -1271,6 +1271,15 @@ class App {
             link.title = `Signed in as ${user.name} (${user.email || ''})`;
           }
         }
+        // Only show Admin portal link if user is bhuvan@gmail.com
+        const adminBtn = document.getElementById('btn-studio-admin');
+        if (adminBtn) {
+          if (user.role === 'admin' && user.email && user.email.toLowerCase() === 'bhuvan@gmail.com') {
+            adminBtn.style.display = 'inline-flex';
+          } else {
+            adminBtn.style.display = 'none';
+          }
+        }
       }
     } catch (e) {}
 

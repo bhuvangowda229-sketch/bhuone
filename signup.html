@@ -22,9 +22,6 @@
       <span>←</span> Back to Showcase
     </a>
     <div style="display: flex; gap: 10px; align-items: center;">
-      <a href="admin.html" class="auth-back-link" style="color: #a5b4fc; border-color: rgba(99, 102, 241, 0.3);">
-        <span>👑</span> Admin Portal
-      </a>
       <a href="signin.html" class="auth-back-link" style="background: rgba(99, 102, 241, 0.2); border-color: rgba(99, 102, 241, 0.4); color: #fff;">
         <span>🔑</span> Sign In
       </a>
@@ -87,7 +84,6 @@
             <select id="signup-role" class="auth-input" style="cursor: pointer; background: transparent; appearance: none; -webkit-appearance: none; color: #fff;">
               <option value="user" style="background: #111425; color: #fff;">Architect & Interior Designer</option>
               <option value="user" style="background: #111425; color: #fff;">Homeowner / Space Planner</option>
-              <option value="admin" style="background: #111425; color: #fff;">Studio Administrator (Admin)</option>
             </select>
             <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-dim); font-size: 11px;">▼</span>
           </div>
@@ -264,7 +260,7 @@
           showToast(`Welcome, ${result.user.name}! Your account has been registered.`, true);
           setTimeout(() => {
             window.location.href = redirectUrl;
-          }, 800);
+          }, 700);
         } else {
           showToast(result.error || 'Failed to create account', false);
         }

@@ -22,9 +22,6 @@
       <span>←</span> Back to Showcase
     </a>
     <div style="display: flex; gap: 10px; align-items: center;">
-      <a href="admin.html" class="auth-back-link" style="color: #a5b4fc; border-color: rgba(99, 102, 241, 0.3);">
-        <span>👑</span> Admin Portal
-      </a>
       <a href="signup.html" class="auth-back-link" style="background: rgba(99, 102, 241, 0.2); border-color: rgba(99, 102, 241, 0.4); color: #fff;">
         <span>✨</span> Sign Up
       </a>
@@ -44,24 +41,21 @@
         </p>
       </div>
 
-      <!-- Active Session Box (shown dynamically if already signed in) -->
-      <div class="auth-session-box" id="auth-session-box" style="display: none;">
-        <div class="auth-avatar-ring">
-          <div class="auth-avatar-inner" id="session-avatar-initial">A</div>
+      <!-- Active Session Notice (Subtle, non-blocking) -->
+      <div id="active-session-banner" style="display: none; margin-bottom: 20px; padding: 12px 16px; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); border-radius: 12px; font-size: 13px; color: #cbd5e1; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 18px;">👤</span>
+          <div>
+            <div style="font-weight: 600; color: #fff;" id="active-banner-name">User</div>
+            <div style="font-size: 11px; color: #94a3b8;" id="active-banner-email">user@example.com</div>
+          </div>
         </div>
-        <div>
-          <div class="auth-user-name" id="session-user-name">Alex Rivera</div>
-          <div class="auth-user-email" id="session-user-email">alex.rivera@designstudio.ai</div>
-        </div>
-        <div class="auth-session-actions">
-          <a href="studio.html" class="auth-submit-btn" style="text-decoration: none; justify-content: center;">
-            <span>🚀</span> Proceed to 3D Studio
+        <div style="display: flex; gap: 8px;">
+          <a href="studio.html" id="btn-active-go-studio" class="btn btn-sm" style="padding: 5px 10px; font-size: 11px; text-decoration: none; background: #6366f1; color: #fff;">
+            Continue →
           </a>
-          <a href="admin.html" id="session-admin-link" class="btn btn-secondary" style="text-decoration: none; justify-content: center; width: 100%; border-color: rgba(99, 102, 241, 0.4); color: #a5b4fc;">
-            <span>👑</span> Open Admin Dashboard
-          </a>
-          <button id="btn-switch-account" class="btn btn-secondary" style="width: 100%; border-color: rgba(239, 68, 68, 0.35); color: #fca5a5;">
-            <span>🚪</span> Sign Out & Switch Account
+          <button type="button" id="btn-active-signout" class="btn btn-sm" style="padding: 5px 10px; font-size: 11px; border-color: rgba(239, 68, 68, 0.4); color: #fca5a5;">
+            Sign Out
           </button>
         </div>
       </div>
@@ -78,7 +72,7 @@
                 type="email" 
                 id="signin-email" 
                 class="auth-input" 
-                placeholder="architect@example.com" 
+                placeholder="Enter your email" 
                 required 
                 autocomplete="email"
               >
@@ -93,7 +87,7 @@
                 type="password" 
                 id="signin-password" 
                 class="auth-input" 
-                placeholder="••••••••" 
+                placeholder="Enter your password" 
                 required 
                 autocomplete="current-password"
               >
@@ -116,23 +110,8 @@
           </button>
         </form>
 
-        <!-- Quick Demo Accounts -->
-        <div style="margin-top: 16px; padding: 12px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
-          <div style="font-size: 11px; color: var(--text-dim); text-align: center; margin-bottom: 8px;">
-            ⚡ Quick Demo Accounts:
-          </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <button type="button" class="btn btn-sm demo-account-btn" data-email="admin@designstudio.ai" data-pwd="admin" style="font-size: 11px; padding: 6px;">
-              👑 Admin Demo
-            </button>
-            <button type="button" class="btn btn-sm demo-account-btn" data-email="alex.rivera@designstudio.ai" data-pwd="password123" style="font-size: 11px; padding: 6px;">
-              👤 User Demo
-            </button>
-          </div>
-        </div>
-
         <!-- Switch to Sign Up -->
-        <div style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-dim);">
+        <div style="text-align: center; margin-top: 22px; font-size: 13px; color: var(--text-dim);">
           Don't have an account yet? 
           <a href="signup.html" style="color: var(--accent-primary); font-weight: 600; text-decoration: none; margin-left: 4px;">
             Create Free Account →
@@ -214,23 +193,39 @@
       const params = new URLSearchParams(window.location.search);
       const redirectUrl = params.get('redirect') || 'studio.html';
 
-      // Check existing session
+      // Check if admin was required
+      if (params.get('error') === 'admin_required') {
+        showToast('Administrator privileges required. Please sign in as Admin.', false);
+      }
+
+      // Check existing session (show subtle banner without hiding the form)
       const currentUser = UserDB.getCurrentUser();
-      const sessionBox = document.getElementById('auth-session-box');
-      const formsContainer = document.getElementById('auth-forms-container');
-      const sessionName = document.getElementById('session-user-name');
-      const sessionEmail = document.getElementById('session-user-email');
-      const sessionAvatar = document.getElementById('session-avatar-initial');
+      const banner = document.getElementById('active-session-banner');
+      const bannerName = document.getElementById('active-banner-name');
+      const bannerEmail = document.getElementById('active-banner-email');
 
       if (currentUser && currentUser.name) {
-        if (sessionBox && formsContainer) {
-          sessionName.textContent = currentUser.name;
-          sessionEmail.textContent = currentUser.email || 'Active Account';
-          sessionAvatar.textContent = currentUser.avatarInitial || currentUser.name.charAt(0).toUpperCase();
-          sessionBox.style.display = 'flex';
-          formsContainer.style.display = 'none';
+        if (banner) {
+          bannerName.textContent = currentUser.name;
+          bannerEmail.textContent = currentUser.email || 'Active Account';
+          banner.style.display = 'flex';
+          
+          // Pre-fill email
+          const emailInput = document.getElementById('signin-email');
+          if (emailInput && !emailInput.value) {
+            emailInput.value = currentUser.email || '';
+          }
         }
       }
+
+      // Active banner sign out
+      document.getElementById('btn-active-signout')?.addEventListener('click', () => {
+        UserDB.signOut();
+        banner.style.display = 'none';
+        document.getElementById('signin-email').value = '';
+        document.getElementById('signin-password').value = '';
+        showToast('Signed out of previous session.');
+      });
 
       // Password Toggle
       const pwdInput = document.getElementById('signin-password');
@@ -241,39 +236,30 @@
         pwdToggle.textContent = isPwd ? '🙈' : '👁';
       });
 
-      // Quick Demo Accounts Fill
-      document.querySelectorAll('.demo-account-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.getElementById('signin-email').value = btn.dataset.email;
-          document.getElementById('signin-password').value = btn.dataset.pwd;
-          showToast(`Filled ${btn.textContent.trim()} credentials`);
-        });
-      });
-
       // Sign In Form Submission
       const form = document.getElementById('signin-form');
       form?.addEventListener('submit', (e) => {
         e.preventDefault();
-        const email = document.getElementById('signin-email').value;
+        const email = document.getElementById('signin-email').value.trim();
         const password = document.getElementById('signin-password').value;
 
         const result = UserDB.authenticateUser(email, password);
         if (result.success) {
-          showToast(`Welcome back, ${result.user.name}! Launching Studio...`, true);
+          showToast(`Welcome back, ${result.user.name}! Proceeding...`, true);
+          
+          // Determine target destination
+          let destination = redirectUrl;
+          if (result.user.role === 'admin') {
+            // Admin destination: admin.html if directly accessed or requested, else studio.html
+            destination = (!params.get('redirect') || params.get('redirect') === 'admin.html') ? 'admin.html' : redirectUrl;
+          }
+
           setTimeout(() => {
-            window.location.href = redirectUrl;
+            window.location.href = destination;
           }, 600);
         } else {
           showToast(result.error || 'Authentication failed', false);
         }
-      });
-
-      // Switch Account / Sign Out
-      document.getElementById('btn-switch-account')?.addEventListener('click', () => {
-        UserDB.signOut();
-        sessionBox.style.display = 'none';
-        formsContainer.style.display = 'block';
-        showToast('Signed out. Please enter your credentials.');
       });
 
       // Forgot Password

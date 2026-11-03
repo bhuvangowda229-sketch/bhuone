@@ -207,6 +207,7 @@ class HeroDemo {
     // Check user session and adjust navbar
     try {
       const stored = localStorage.getItem('ai_interior_user');
+      const adminLink = document.getElementById('nav-admin-link');
       if (stored) {
         const user = JSON.parse(stored);
         const signinLink = document.getElementById('nav-signin-link');
@@ -228,6 +229,16 @@ class HeroDemo {
             window.location.reload();
           });
         }
+        // Only show Admin button if user is bhuvan@gmail.com
+        if (adminLink) {
+          if (user.role === 'admin' && user.email && user.email.toLowerCase() === 'bhuvan@gmail.com') {
+            adminLink.style.display = 'inline-flex';
+          } else {
+            adminLink.style.display = 'none';
+          }
+        }
+      } else {
+        if (adminLink) adminLink.style.display = 'none';
       }
     } catch (e) {}
   }

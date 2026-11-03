@@ -4,6 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard | AI Interior Studio - User Management & Registrations</title>
+  <script>
+    // Strict Admin Security Guard: Only bhuvan@gmail.com with role === 'admin' can access
+    (function() {
+      try {
+        var raw = localStorage.getItem('ai_interior_user');
+        if (!raw) {
+          window.location.replace('signin.html?redirect=admin.html&error=admin_required');
+          return;
+        }
+        var user = JSON.parse(raw);
+        if (!user || user.role !== 'admin' || !user.email || user.email.toLowerCase() !== 'bhuvan@gmail.com') {
+          window.location.replace('signin.html?redirect=admin.html&error=admin_required');
+        }
+      } catch (e) {
+        window.location.replace('signin.html?redirect=admin.html&error=admin_required');
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="css/login.css">
   <style>
     /* Admin Dashboard Specific Styles */
@@ -809,6 +827,10 @@
           const userId = el.dataset.id;
           const user = UserDB.getUsers().find(u => u.id === userId);
           if (!user) return;
+          if (user.email && user.email.toLowerCase() === 'bhuvan@gmail.com') {
+            showToast('Primary administrator role cannot be altered.', false);
+            return;
+          }
           const newRole = user.role === 'admin' ? 'user' : 'admin';
           UserDB.updateUserRole(userId, newRole);
           showToast(`Updated ${user.name}'s role to ${newRole.toUpperCase()}`);
@@ -821,8 +843,14 @@
         btn.addEventListener('click', () => {
           const userId = btn.dataset.id;
           const userName = btn.dataset.name;
-          const currentUser = UserDB.getCurrentUser();
+          const user = UserDB.getUsers().find(u => u.id === userId);
+          
+          if (user && user.email && user.email.toLowerCase() === 'bhuvan@gmail.com') {
+            showToast('Primary administrator account cannot be deleted.', false);
+            return;
+          }
 
+          const currentUser = UserDB.getCurrentUser();
           if (currentUser && currentUser.id === userId) {
             showToast('Cannot delete the currently signed-in account.', false);
             return;
