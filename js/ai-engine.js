@@ -43,7 +43,7 @@ export class AIEngine {
       if (livingType === 1) {
         // TYPE 1: CONTEMPORARY MEDIA & CONVERSATION LOUNGE
         concept = `TYPE 1: CONTEMPORARY MEDIA & CONVERSATION LOUNGE (${style.toUpperCase()})`;
-        spatialRationale = `Engineered for effortless social hosting and cinematic immersion. The spacious seating zone is anchored by a deep designer sofa and accent armchair angled for face-to-face dialogue, with an expansive low-profile media console providing a balanced architectural focal point.`;
+        spatialRationale = `Engineered for effortless social hosting and cinematic immersion. The spacious seating zone is anchored by a deep designer sofa and accent armchair angled for face-to-face dialogue, with an expansive Missouri engineered wood TV entertainment unit providing a balanced architectural focal point.`;
         lightingPlan = `Layered ambient and bias entertainment lighting: a designer central pendant provides soft overhead warmth while a perimeter floor lamp creates glare-free mood pools for movie evenings.`;
 
         // Area Rug in center
@@ -96,16 +96,16 @@ export class AIEngine {
           cost: 320
         });
 
-        // Media Console & TV Unit on front wall
+        // Missouri Engineered Wood TV Entertainment Unit on front wall
         const tvZ = L / 2 - 0.45;
         items.push({
           id: 'tv_1',
-          type: 'tv_unit',
-          name: 'Media Console & 4K Display',
+          type: 'missouri_tv_unit',
+          name: 'Missouri Engineered Wood TV Unit',
           position: [0, 0, tvZ],
           rotation: [0, Math.PI, 0],
           style: style,
-          cost: 1350
+          cost: 1450
         });
 
         // Accent Armchair angled on side
@@ -331,15 +331,15 @@ export class AIEngine {
           cost: 420
         });
 
-        // Grand Floating Media Console & Display
+        // Missouri Luxury Engineered Wood TV Entertainment Center
         items.push({
           id: 'tv_1',
-          type: 'tv_unit',
-          name: 'Grand Floating Media Console',
+          type: 'missouri_tv_unit',
+          name: 'Missouri Luxury Engineered Wood TV Unit',
           position: [0, 0, L / 2 - 0.45],
           rotation: [0, Math.PI, 0],
           style: 'luxury',
-          cost: 1550
+          cost: 1650
         });
 
         // Symmetrical Luxury Armchairs (Left & Right)
@@ -463,15 +463,15 @@ export class AIEngine {
           cost: 290
         });
 
-        // Low Media Console & TV
+        // Missouri Nordic Engineered Wood TV Entertainment Unit
         items.push({
           id: 'tv_1',
-          type: 'tv_unit',
-          name: 'Nordic Oak Media Console',
+          type: 'missouri_tv_unit',
+          name: 'Missouri Engineered Wood TV Unit',
           position: [-0.35, 0, L / 2 - 0.45],
           rotation: [0, Math.PI, 0],
           style: style,
-          cost: 1200
+          cost: 1350
         });
 
         // Open Nordic Library Bookshelf

@@ -1274,11 +1274,15 @@ class App {
         const halfL = (this.currentRoomDimensions?.length || 4.5) / 2;
 
         let initialPos = [0, 0, 0];
+        let initialRot = [0, 0, 0];
         if (isWall) {
           const wallY = type === 'air_conditioner' ? 2.3 : (type === 'curtains' ? 1.1 : (type === 'wall_clock' ? 2.0 : (type === 'water_purifier' ? 1.6 : 1.85)));
           initialPos = [0, wallY, -halfL + 0.04];
         } else if (isCeiling) {
           initialPos = [0, 0, 0];
+        } else if (type === 'missouri_tv_unit' || type === 'tv_unit') {
+          initialPos = [0, 0, halfL - 0.45];
+          initialRot = [0, Math.PI, 0];
         }
 
         const itemName = btn.textContent.trim();
@@ -1287,7 +1291,7 @@ class App {
           name: itemName,
           style: this.currentStyle,
           position: initialPos,
-          rotation: [0, 0, 0]
+          rotation: initialRot
         });
 
         if (isWall) {
@@ -2063,6 +2067,9 @@ class App {
         break;
       case 'coffee_table':
         meshGroup = FurnitureFactory.createCoffeeTable(style, itemData.color);
+        break;
+      case 'missouri_tv_unit':
+        meshGroup = FurnitureFactory.createMissouriTVUnit(style, itemData.color);
         break;
       case 'tv_unit':
         meshGroup = FurnitureFactory.createTVUnit(style);

@@ -110,6 +110,7 @@ class HeroDemo {
         case 'sofa': mesh = FurnitureFactory.createSofa(style, item.color); break;
         case 'coffee_table': mesh = FurnitureFactory.createCoffeeTable(style, item.color); break;
         case 'tv_unit': mesh = FurnitureFactory.createTVUnit(style); break;
+        case 'missouri_tv_unit': mesh = FurnitureFactory.createMissouriTVUnit(style, item.color); break;
         case 'armchair': mesh = FurnitureFactory.createArmchair(style, item.color); break;
         case 'floor_lamp': mesh = FurnitureFactory.createFloorLamp(style); break;
         case 'plant': mesh = FurnitureFactory.createPlant(); break;

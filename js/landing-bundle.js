@@ -915,6 +915,317 @@ class FurnitureFactory {
     return group;
   }
 
+  // 3b. MISSOURI ENGINEERED WOOD TV ENTERTAINMENT UNIT
+  static createMissouriTVUnit(style = 'modern', customColor = null) {
+    const group = new THREE.Group();
+    group.name = 'Missouri TV Entertainment Unit';
+    group.userData = { type: 'missouri_tv_unit', name: 'Missouri TV Entertainment Unit', cost: 1450 };
+
+    // Dual-tone engineered wood color palette
+    let darkWalnut = 0x362215; // Rich dark walnut carcass
+    let lightWalnut = 0x935c36; // Warm light walnut doors/drawers/slats
+    if (customColor) {
+      darkWalnut = typeof customColor === 'number' ? customColor : parseInt(customColor.replace('#', '0x'), 16);
+      lightWalnut = darkWalnut;
+    } else if (style === 'luxury') {
+      darkWalnut = 0x221812;
+      lightWalnut = 0x8a532b;
+    } else if (style === 'traditional') {
+      darkWalnut = 0x442713;
+      lightWalnut = 0x7c4927;
+    } else if (style === 'minimalist') {
+      darkWalnut = 0xcab9a5;
+      lightWalnut = 0xeee4d7;
+    }
+
+    // Melamine Satin Carcass Material
+    const carcassMat = new THREE.MeshStandardMaterial({
+      color: darkWalnut,
+      roughness: 0.38,
+      metalness: 0.05
+    });
+
+    // Light Walnut Engineered Wood Fronts Material
+    const frontWoodMat = new THREE.MeshStandardMaterial({
+      color: lightWalnut,
+      roughness: 0.35,
+      metalness: 0.04
+    });
+
+    // Vertical Acoustic Ribbed Slats Material
+    const slatMat = new THREE.MeshStandardMaterial({
+      color: lightWalnut,
+      roughness: 0.42,
+      metalness: 0.06
+    });
+
+    // Metallic Champagne / Matte Black Hardware Material
+    const handleMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0x27272a,
+      metalness: 0.85,
+      roughness: 0.25
+    });
+
+    // Smoked / Tempered Glass Door Material
+    const glassMat = new THREE.MeshStandardMaterial({
+      color: 0x94a3b8,
+      transparent: true,
+      opacity: 0.42,
+      roughness: 0.08,
+      metalness: 0.2
+    });
+
+    // Obsidian Ultra-Thin Smart TV Screen Material
+    const screenMat = new THREE.MeshStandardMaterial({
+      color: 0x080808,
+      roughness: 0.08,
+      metalness: 0.92
+    });
+
+    const tvBezelMat = new THREE.MeshStandardMaterial({
+      color: 0x18181b,
+      metalness: 0.8,
+      roughness: 0.3
+    });
+
+    // Acoustic Soundbar Fabric Material
+    const soundbarMat = new THREE.MeshStandardMaterial({
+      color: 0x1c1917,
+      roughness: 0.88,
+      metalness: 0.05
+    });
+
+    // Ambient Warm LED Backlight Material
+    const ledGlowMat = new THREE.MeshBasicMaterial({
+      color: 0xffedd5,
+      transparent: true,
+      opacity: 0.4
+    });
+
+    // 1. BASE PLINTH
+    const plinth = this.createMesh(new THREE.BoxGeometry(2.16, 0.05, 0.38), carcassMat, 'Media Console Plinth');
+    plinth.position.set(0, 0.025, 0);
+    group.add(plinth);
+
+    // 2. MAIN CONSOLE CREDENZA
+    const baseW = 2.20;
+    const baseH = 0.44;
+    const baseD = 0.42;
+    const baseY = 0.05 + baseH / 2; // 0.27
+    const carcass = this.createMesh(new THREE.BoxGeometry(baseW, baseH, baseD), carcassMat, 'Media Console Cabinet');
+    carcass.position.set(0, baseY, 0);
+    group.add(carcass);
+
+    // Top Surface Trim
+    const topTrim = this.createMesh(new THREE.BoxGeometry(baseW + 0.02, 0.02, baseD + 0.02), carcassMat, 'Console Top Surface');
+    topTrim.position.set(0, 0.05 + baseH + 0.01, 0);
+    group.add(topTrim);
+
+    // 3. STORAGE COMPARTMENTS & SHUTTER DOORS
+    // 3a. Left Shutter Door
+    const leftDoor = this.createMesh(new THREE.BoxGeometry(0.52, 0.38, 0.02), frontWoodMat, 'Left Cabinet Shutter Door');
+    leftDoor.position.set(-0.78, baseY, baseD / 2 + 0.01);
+    group.add(leftDoor);
+
+    const leftHandle = this.createMesh(new THREE.CylinderGeometry(0.007, 0.007, 0.18, 12), handleMat, 'Left Door Handle');
+    leftHandle.position.set(-0.57, baseY, baseD / 2 + 0.025);
+    group.add(leftHandle);
+
+    // 3b. Center Open Dual Media Deck
+    const centerShelf = this.createMesh(new THREE.BoxGeometry(0.92, 0.02, baseD - 0.02), carcassMat, 'Center Media Shelf Divider');
+    centerShelf.position.set(0, baseY, 0.01);
+    group.add(centerShelf);
+
+    // Set-top Box & Indicator LED
+    const stb = this.createMesh(new THREE.BoxGeometry(0.24, 0.035, 0.20), soundbarMat, 'Set-Top Streaming Box');
+    stb.position.set(-0.22, baseY + 0.04, 0.06);
+    group.add(stb);
+
+    const stbLed = this.createMesh(new THREE.CylinderGeometry(0.004, 0.004, 0.005, 8), new THREE.MeshBasicMaterial({ color: 0x06b6d4 }), 'Media Status LED');
+    stbLed.rotation.x = Math.PI / 2;
+    stbLed.position.set(-0.14, baseY + 0.04, 0.165);
+    group.add(stbLed);
+
+    // Gaming Console
+    const consoleBox = this.createMesh(new THREE.BoxGeometry(0.30, 0.05, 0.22), soundbarMat, 'Next-Gen Gaming Console');
+    consoleBox.position.set(0.22, 0.05 + 0.07, 0.06);
+    group.add(consoleBox);
+
+    const consoleGlow = this.createMesh(new THREE.BoxGeometry(0.28, 0.005, 0.005), new THREE.MeshBasicMaterial({ color: 0x60a5fa }), 'Console Accent Light');
+    consoleGlow.position.set(0.22, 0.05 + 0.09, 0.172);
+    group.add(consoleGlow);
+
+    // 3c. Right Storage Drawers
+    const drawerTop = this.createMesh(new THREE.BoxGeometry(0.52, 0.18, 0.02), frontWoodMat, 'Right Upper Storage Drawer');
+    drawerTop.position.set(0.78, baseY + 0.10, baseD / 2 + 0.01);
+    group.add(drawerTop);
+
+    const handleR1 = this.createMesh(new THREE.CylinderGeometry(0.006, 0.006, 0.16, 12), handleMat, 'Upper Drawer Pull');
+    handleR1.rotation.z = Math.PI / 2;
+    handleR1.position.set(0.78, baseY + 0.10, baseD / 2 + 0.025);
+    group.add(handleR1);
+
+    const drawerBtm = this.createMesh(new THREE.BoxGeometry(0.52, 0.18, 0.02), frontWoodMat, 'Right Lower Storage Drawer');
+    drawerBtm.position.set(0.78, baseY - 0.10, baseD / 2 + 0.01);
+    group.add(drawerBtm);
+
+    const handleR2 = this.createMesh(new THREE.CylinderGeometry(0.006, 0.006, 0.16, 12), handleMat, 'Lower Drawer Pull');
+    handleR2.rotation.z = Math.PI / 2;
+    handleR2.position.set(0.78, baseY - 0.10, baseD / 2 + 0.025);
+    group.add(handleR2);
+
+    // 4. VERTICAL SLATTED WOOD BACK PANEL & BACKDROP
+    const backW = 1.48;
+    const backH = 1.18;
+    const backY = 0.50 + backH / 2; // 1.09
+    const backZ = -0.15;
+    const backdropX = -0.22;
+
+    const backPanel = this.createMesh(new THREE.BoxGeometry(backW, backH, 0.03), carcassMat, 'Engineered Wood Wall Backdrop');
+    backPanel.position.set(backdropX, backY, backZ);
+    group.add(backPanel);
+
+    // Ambient LED Glow Strip behind back panel
+    const ledGlow = this.createMesh(new THREE.BoxGeometry(backW + 0.06, backH + 0.06, 0.005), ledGlowMat, 'Ambient Backlight Strip');
+    ledGlow.position.set(backdropX, backY, backZ - 0.02);
+    group.add(ledGlow);
+
+    // 14 Architectural Vertical Wood Slats
+    const numSlats = 14;
+    const slatStartX = backdropX - backW / 2 + 0.06;
+    const slatStep = (backW - 0.12) / (numSlats - 1);
+    for (let i = 0; i < numSlats; i++) {
+      const slatX = slatStartX + i * slatStep;
+      const slat = this.createMesh(new THREE.BoxGeometry(0.035, backH - 0.04, 0.02), slatMat, `Decorative Wood Slat ${i + 1}`);
+      slat.position.set(slatX, backY, backZ + 0.02);
+      group.add(slat);
+    }
+
+    // 5. 55-65" SMART WIDESCREEN TELEVISION & SOUNDBAR
+    const tvW = 1.28;
+    const tvH = 0.74;
+    const tvY = backY + 0.06;
+    const tvZ = backZ + 0.05;
+
+    // Bezel Frame
+    const tvBezel = this.createMesh(new THREE.BoxGeometry(tvW, tvH, 0.03), tvBezelMat, 'Smart TV Bezel Frame');
+    tvBezel.position.set(backdropX, tvY, tvZ);
+    group.add(tvBezel);
+
+    // Screen
+    const tvScreen = this.createMesh(new THREE.BoxGeometry(tvW - 0.03, tvH - 0.03, 0.008), screenMat, '55-Inch Obsidian Screen');
+    tvScreen.position.set(backdropX, tvY, tvZ + 0.018);
+    group.add(tvScreen);
+
+    // Standby Power Indicator
+    const pwrLed = this.createMesh(new THREE.SphereGeometry(0.004, 8, 8), new THREE.MeshBasicMaterial({ color: 0xef4444 }), 'TV Standby Power LED');
+    pwrLed.position.set(backdropX + tvW / 2 - 0.04, tvY - tvH / 2 + 0.015, tvZ + 0.02);
+    group.add(pwrLed);
+
+    // Dolby Atmos Soundbar
+    const soundbar = this.createMesh(new THREE.BoxGeometry(0.92, 0.065, 0.075), soundbarMat, 'Dolby Atmos Soundbar');
+    soundbar.position.set(backdropX, 0.50 + 0.08, 0.08);
+    group.add(soundbar);
+
+    const soundbarLogo = this.createMesh(new THREE.BoxGeometry(0.04, 0.01, 0.002), handleMat, 'Soundbar Brand Plate');
+    soundbarLogo.position.set(backdropX, 0.50 + 0.08, 0.12);
+    group.add(soundbarLogo);
+
+    // 6. SIDE CURIO DISPLAY TOWER WITH TEMPERED GLASS DOOR
+    const towerX = 0.83;
+    const towerW = 0.48;
+    const towerH = 1.18;
+    const towerD = 0.34;
+    const towerY = backY;
+    const towerZ = -0.04;
+
+    const towerFrame = this.createMesh(new THREE.BoxGeometry(towerW, towerH, towerD), carcassMat, 'Curio Display Tower Frame');
+    towerFrame.position.set(towerX, towerY, towerZ);
+    group.add(towerFrame);
+
+    // Interior Glass Shelves
+    const gShelf1 = this.createMesh(new THREE.BoxGeometry(towerW - 0.06, 0.015, towerD - 0.06), glassMat, 'Curio Glass Shelf Upper');
+    gShelf1.position.set(towerX, towerY + 0.20, towerZ);
+    group.add(gShelf1);
+
+    const gShelf2 = this.createMesh(new THREE.BoxGeometry(towerW - 0.06, 0.015, towerD - 0.06), glassMat, 'Curio Glass Shelf Lower');
+    gShelf2.position.set(towerX, towerY - 0.20, towerZ);
+    group.add(gShelf2);
+
+    // Smoked Glass Door Front
+    const glassDoor = this.createMesh(new THREE.BoxGeometry(towerW - 0.04, towerH - 0.04, 0.01), glassMat, 'Smoked Glass Curio Door');
+    glassDoor.position.set(towerX, towerY, towerZ + towerD / 2 + 0.005);
+    group.add(glassDoor);
+
+    const glassDoorHandle = this.createMesh(new THREE.CylinderGeometry(0.006, 0.006, 0.14, 12), handleMat, 'Glass Door Handle');
+    glassDoorHandle.position.set(towerX - towerW / 2 + 0.04, towerY, towerZ + towerD / 2 + 0.02);
+    group.add(glassDoorHandle);
+
+    // Curio Decor 1: Stack of 3 Art Books on Lower Shelf
+    const bookColors = [0x991b1b, 0x1e40af, 0x166534];
+    for (let b = 0; b < 3; b++) {
+      const bookMat = new THREE.MeshStandardMaterial({ color: bookColors[b], roughness: 0.6 });
+      const book = this.createMesh(new THREE.BoxGeometry(0.04, 0.16 + b * 0.02, 0.22), bookMat, `Curio Art Book ${b + 1}`);
+      book.position.set(towerX - 0.06 + b * 0.055, towerY - 0.10, towerZ);
+      group.add(book);
+    }
+
+    // Curio Decor 2: Minimalist Ivory Ceramic Vase on Middle Shelf
+    const vaseMat = new THREE.MeshStandardMaterial({ color: 0xf5f5f4, roughness: 0.25 });
+    const vase = this.createMesh(new THREE.CylinderGeometry(0.045, 0.065, 0.17, 16), vaseMat, 'Modern Ceramic Curio Vase');
+    vase.position.set(towerX + 0.04, towerY + 0.30, towerZ);
+    group.add(vase);
+
+    const twigMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.9 });
+    const twig = this.createMesh(new THREE.CylinderGeometry(0.005, 0.005, 0.22, 8), twigMat, 'Dried Botanical Accent Twig');
+    twig.rotation.z = 0.15;
+    twig.position.set(towerX + 0.05, towerY + 0.45, towerZ);
+    group.add(twig);
+
+    // Curio Decor 3: Brass Arch Sculpture on Upper Shelf
+    const archMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.2 });
+    const arch = this.createMesh(new THREE.TorusGeometry(0.06, 0.012, 12, 24, Math.PI), archMat, 'Brass Curio Arch Sculpture');
+    arch.position.set(towerX - 0.05, towerY + 0.24, towerZ);
+    group.add(arch);
+
+    // 7. OVERHEAD FLOATING BRIDGE DISPLAY SHELF
+    const bridgeW = 1.54;
+    const bridgeH = 0.035;
+    const bridgeD = 0.24;
+    const bridgeY = backY + backH / 2 + bridgeH / 2; // 1.70
+    const bridgeZ = -0.06;
+
+    const bridgeShelf = this.createMesh(new THREE.BoxGeometry(bridgeW, bridgeH, bridgeD), carcassMat, 'Overhead Floating Bridge Shelf');
+    bridgeShelf.position.set(backdropX, bridgeY, bridgeZ);
+    group.add(bridgeShelf);
+
+    // Overhead Decor: Potted Trailing Pothos Plant
+    const potMat = new THREE.MeshStandardMaterial({ color: 0xc2410c, roughness: 0.65 });
+    const pot = this.createMesh(new THREE.CylinderGeometry(0.055, 0.04, 0.08, 16), potMat, 'Bridge Trailing Plant Pot');
+    pot.position.set(backdropX + 0.38, bridgeY + 0.05, bridgeZ);
+    group.add(pot);
+
+    const foliageMat = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.5 });
+    const plantTop = this.createMesh(new THREE.SphereGeometry(0.065, 12, 10), foliageMat, 'Plant Canopy');
+    plantTop.position.set(backdropX + 0.38, bridgeY + 0.09, bridgeZ);
+    group.add(plantTop);
+
+    // Trailing vine cascading down
+    const vine1 = this.createMesh(new THREE.CylinderGeometry(0.008, 0.005, 0.26, 8), foliageMat, 'Trailing Foliage Vine');
+    vine1.position.set(backdropX + 0.42, bridgeY - 0.08, bridgeZ + 0.06);
+    vine1.rotation.x = 0.2;
+    group.add(vine1);
+
+    // Framed Art Memoir
+    const frameMat = new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.4 });
+    const photoFrame = this.createMesh(new THREE.BoxGeometry(0.14, 0.16, 0.02), frameMat, 'Framed Art Memoir');
+    photoFrame.position.set(backdropX - 0.45, bridgeY + 0.09, bridgeZ);
+    photoFrame.rotation.y = 0.1;
+    group.add(photoFrame);
+
+    return group;
+  }
+
   // 4. ARMCHAIR
   static createArmchair(style = 'modern', color = 0xd97706) {
     const group = new THREE.Group();
@@ -3339,7 +3650,7 @@ class AIEngine {
       if (livingType === 1) {
         // TYPE 1: CONTEMPORARY MEDIA & CONVERSATION LOUNGE
         concept = `TYPE 1: CONTEMPORARY MEDIA & CONVERSATION LOUNGE (${style.toUpperCase()})`;
-        spatialRationale = `Engineered for effortless social hosting and cinematic immersion. The spacious seating zone is anchored by a deep designer sofa and accent armchair angled for face-to-face dialogue, with an expansive low-profile media console providing a balanced architectural focal point.`;
+        spatialRationale = `Engineered for effortless social hosting and cinematic immersion. The spacious seating zone is anchored by a deep designer sofa and accent armchair angled for face-to-face dialogue, with an expansive Missouri engineered wood TV entertainment unit providing a balanced architectural focal point.`;
         lightingPlan = `Layered ambient and bias entertainment lighting: a designer central pendant provides soft overhead warmth while a perimeter floor lamp creates glare-free mood pools for movie evenings.`;
 
         // Area Rug in center
@@ -3392,16 +3703,16 @@ class AIEngine {
           cost: 320
         });
 
-        // Media Console & TV Unit on front wall
+        // Missouri Engineered Wood TV Entertainment Unit on front wall
         const tvZ = L / 2 - 0.45;
         items.push({
           id: 'tv_1',
-          type: 'tv_unit',
-          name: 'Media Console & 4K Display',
+          type: 'missouri_tv_unit',
+          name: 'Missouri Engineered Wood TV Unit',
           position: [0, 0, tvZ],
           rotation: [0, Math.PI, 0],
           style: style,
-          cost: 1350
+          cost: 1450
         });
 
         // Accent Armchair angled on side
@@ -3627,15 +3938,15 @@ class AIEngine {
           cost: 420
         });
 
-        // Grand Floating Media Console & Display
+        // Missouri Luxury Engineered Wood TV Entertainment Center
         items.push({
           id: 'tv_1',
-          type: 'tv_unit',
-          name: 'Grand Floating Media Console',
+          type: 'missouri_tv_unit',
+          name: 'Missouri Luxury Engineered Wood TV Unit',
           position: [0, 0, L / 2 - 0.45],
           rotation: [0, Math.PI, 0],
           style: 'luxury',
-          cost: 1550
+          cost: 1650
         });
 
         // Symmetrical Luxury Armchairs (Left & Right)
@@ -3759,15 +4070,15 @@ class AIEngine {
           cost: 290
         });
 
-        // Low Media Console & TV
+        // Missouri Nordic Engineered Wood TV Entertainment Unit
         items.push({
           id: 'tv_1',
-          type: 'tv_unit',
-          name: 'Nordic Oak Media Console',
+          type: 'missouri_tv_unit',
+          name: 'Missouri Engineered Wood TV Unit',
           position: [-0.35, 0, L / 2 - 0.45],
           rotation: [0, Math.PI, 0],
           style: style,
-          cost: 1200
+          cost: 1350
         });
 
         // Open Nordic Library Bookshelf
@@ -6150,6 +6461,7 @@ class HeroDemo {
         case 'sofa': mesh = FurnitureFactory.createSofa(style, item.color); break;
         case 'coffee_table': mesh = FurnitureFactory.createCoffeeTable(style, item.color); break;
         case 'tv_unit': mesh = FurnitureFactory.createTVUnit(style); break;
+        case 'missouri_tv_unit': mesh = FurnitureFactory.createMissouriTVUnit(style, item.color); break;
         case 'armchair': mesh = FurnitureFactory.createArmchair(style, item.color); break;
         case 'floor_lamp': mesh = FurnitureFactory.createFloorLamp(style); break;
         case 'plant': mesh = FurnitureFactory.createPlant(); break;
