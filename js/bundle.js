@@ -2710,101 +2710,560 @@ class AIEngine {
         style: style,
         cost: 180
       });
-    } else if (roomType === 'bedroom') {
-      concept = `${style.toUpperCase()} SERENITY RETREAT`;
-      spatialRationale = `The bed serves as the foundational anchor along the solid back wall, maximizing peace and alignment with Feng Shui principles. Symmetrical nightstands flank each side, while generous clearance ensures easy wardrobe access.`;
-      lightingPlan = `Layered lighting including soft dimmable bedside table lamps and overhead ambient glow to foster restful sleep.`;
+    } else if (roomType === 'bedroom' || roomType.startsWith('bedroom_')) {
+      // Determine which of the 4 Master Bedroom Design Types is selected
+      let bedType = pref.bedroomType || 1;
+      if (roomType === 'bedroom_zen' || roomType === 'bedroom_type2') bedType = 2;
+      else if (roomType === 'bedroom_hotel' || roomType === 'bedroom_type3') bedType = 3;
+      else if (roomType === 'bedroom_scandi' || roomType === 'bedroom_type4') bedType = 4;
+      else if (roomType === 'bedroom' && pref.bedroomType) bedType = parseInt(pref.bedroomType, 10) || 1;
 
-      // Bed against back wall
-      const bedZ = -L / 2 + 1.35;
-      items.push({
-        id: 'bed_1',
-        type: 'bed',
-        name: 'Platform Bed',
-        position: [0, 0, bedZ],
-        rotation: [0, 0, 0],
-        style: style,
-        color: palette.sofaColor,
-        cost: 1450
-      });
+      if (bedType === 1) {
+        // TYPE 1: LUXURY EXECUTIVE MASTER SUITE
+        // King bed, mirrored double wardrobe, private lounge armchair & side table, brass floor lamp & chandelier
+        concept = `TYPE 1: LUXURY EXECUTIVE MASTER SUITE (${style.toUpperCase()})`;
+        spatialRationale = `A palatial master suite anchored by an opulent King platform bed framed by symmetrical floating nightstands. The foreground features an exclusive private reading and cocktail lounge nook with a plush velvet armchair, sculpted side table, and reading floor lamp. A built-in mirrored wardrobe along the perimeter reflects ambient light to double visual room volume.`;
+        lightingPlan = `Multi-layered architectural lighting: warm 2700K bedside reading accents, a central statement designer chandelier, and targeted ambient illumination over the reading lounge.`;
 
-      // Bedside Nightstands
-      items.push({
-        id: 'nightstand_l',
-        type: 'nightstand',
-        name: 'Left Nightstand',
-        position: [-1.4, 0, bedZ - 0.7],
-        rotation: [0, 0, 0],
-        style: style,
-        cost: 160
-      });
+        // King Bed against back wall
+        const bedZ = -L / 2 + 1.35;
+        items.push({
+          id: 'bed_1',
+          type: 'bed',
+          name: 'Executive King Platform Bed',
+          position: [0, 0, bedZ],
+          rotation: [0, 0, 0],
+          style: style,
+          color: palette.sofaColor,
+          cost: 1650
+        });
 
-      items.push({
-        id: 'nightstand_r',
-        type: 'nightstand',
-        name: 'Right Nightstand',
-        position: [1.4, 0, bedZ - 0.7],
-        rotation: [0, 0, 0],
-        style: style,
-        cost: 160
-      });
+        // Symmetrical Bedside Nightstands
+        items.push({
+          id: 'nightstand_l',
+          type: 'nightstand',
+          name: 'Executive Nightstand (L)',
+          position: [-1.4, 0, bedZ - 0.7],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 180
+        });
+        items.push({
+          id: 'nightstand_r',
+          type: 'nightstand',
+          name: 'Executive Nightstand (R)',
+          position: [1.4, 0, bedZ - 0.7],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 180
+        });
 
-      // Wall Art above headboard
-      items.push({
-        id: 'art_1',
-        type: 'wall_art',
-        name: 'Abstract Wall Art',
-        position: [0, 1.9, -L / 2 + 0.05],
-        rotation: [0, 0, 0],
-        style: style,
-        cost: 160
-      });
+        // Master Wall Art above Headboard
+        items.push({
+          id: 'art_1',
+          type: 'wall_art',
+          name: 'Executive Fine Art Canvas',
+          position: [0, 1.9, -L / 2 + 0.05],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 220
+        });
 
-      // Area Rug under bed extending forward
-      items.push({
-        id: 'rug_1',
-        type: 'rug',
-        name: 'Plush Bedroom Rug',
-        position: [0, 0, bedZ + 0.4],
-        rotation: [0, 0, 0],
-        style: style,
-        dimensions: [2.6, 2.0],
-        cost: 280
-      });
+        // Extended Plush Bedroom Rug
+        items.push({
+          id: 'rug_1',
+          type: 'rug',
+          name: 'Plush Silk-Wool Master Rug',
+          position: [0, 0, bedZ + 0.4],
+          rotation: [0, 0, 0],
+          style: style,
+          dimensions: [2.8, 2.2],
+          cost: 350
+        });
 
-      // Built-in Mirrored Wardrobe along right wall
-      items.push({
-        id: 'wardrobe_1',
-        type: 'mirrored_wardrobe',
-        name: 'Mirrored Double Wardrobe',
-        position: [W / 2 - 0.36, 0, 0.0],
-        rotation: [0, -Math.PI / 2, 0],
-        style: style,
-        color: palette.sofaColor,
-        cost: 950
-      });
+        // Mirrored Double Wardrobe along right wall
+        items.push({
+          id: 'wardrobe_1',
+          type: 'mirrored_wardrobe',
+          name: 'Mirrored Double Dressing Robe',
+          position: [W / 2 - 0.36, 0, -0.2],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.sofaColor,
+          cost: 1100
+        });
 
-      // Ceiling Pendant Light
-      items.push({
-        id: 'pendant_1',
-        type: 'pendant_light',
-        name: 'Designer Pendant Light',
-        position: [0, 0, bedZ + 0.4],
-        rotation: [0, 0, 0],
-        style: style,
-        cost: 180
-      });
+        // Luxury Armchair in lounge corner
+        items.push({
+          id: 'chair_1',
+          type: 'armchair',
+          name: 'Velvet Lounge Accent Chair',
+          position: [-W / 2 + 1.15, 0, L / 2 - 1.15],
+          rotation: [0, Math.PI / 3, 0],
+          style: style,
+          color: palette.accentColor,
+          cost: 520
+        });
 
-      // Indoor Plant in corner
-      items.push({
-        id: 'plant_1',
-        type: 'plant',
-        name: 'Fiddle Leaf Fig',
-        position: [-W / 2 + 0.6, 0, -L / 2 + 0.7],
-        rotation: [0, 0, 0],
-        style: style,
-        cost: 85
-      });
+        // Marble & Brass Side Table next to armchair
+        items.push({
+          id: 'table_1',
+          type: 'coffee_table',
+          name: 'Marble & Brass Side Table',
+          position: [-W / 2 + 1.85, 0, L / 2 - 0.85],
+          rotation: [0, 0, 0],
+          style: style,
+          color: palette.woodColor,
+          cost: 280
+        });
+
+        // Reading Floor Lamp
+        items.push({
+          id: 'lamp_1',
+          type: 'floor_lamp',
+          name: 'Sculptural Brass Floor Lamp',
+          position: [-W / 2 + 0.65, 0, L / 2 - 1.5],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 240
+        });
+
+        // Statement Ceiling Chandelier / Pendant
+        items.push({
+          id: 'pendant_1',
+          type: 'pendant_light',
+          name: 'Grand Designer Chandelier',
+          position: [0, 0, bedZ + 0.4],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 290
+        });
+
+        // Tall Fiddle Leaf Fig Plant
+        items.push({
+          id: 'plant_1',
+          type: 'plant',
+          name: 'Potted Fiddle Leaf Fig',
+          position: [W / 2 - 0.65, 0, L / 2 - 0.75],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 110
+        });
+
+      } else if (bedType === 2) {
+        // TYPE 2: MINIMALIST ZEN RETREAT
+        // Low Japandi bed, low storage credenza, full-length leaning mirror, paper lantern lamp & orb pendant
+        concept = `TYPE 2: MINIMALIST ZEN MASTER RETREAT (${style.toUpperCase()})`;
+        spatialRationale = `Inspired by Japandi and Wabi-Sabi philosophies, this layout prioritizes uncluttered horizontal horizons and generous floor breathing room. A low-profile platform bed is complemented by a low horizontal storage credenza and a full-length leaning mirror, creating an organic, grounding sanctuary that calms sensory overload.`;
+        lightingPlan = `Soft, indirect diffused 2700K illumination: a warm paper-lantern floor lamp and an overhead glowing sphere pendant that create gentle, shadowless ambiance.`;
+
+        // Low Platform Bed against back wall
+        const bedZ = -L / 2 + 1.35;
+        items.push({
+          id: 'bed_1',
+          type: 'bed',
+          name: 'Low Japandi Platform Bed',
+          position: [0, 0, bedZ],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          color: palette.sofaColor,
+          cost: 1350
+        });
+
+        // Floating Minimalist Nightstands
+        items.push({
+          id: 'nightstand_l',
+          type: 'nightstand',
+          name: 'Floating Zen Nightstand (L)',
+          position: [-1.35, 0, bedZ - 0.7],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          cost: 140
+        });
+        items.push({
+          id: 'nightstand_r',
+          type: 'nightstand',
+          name: 'Floating Zen Nightstand (R)',
+          position: [1.35, 0, bedZ - 0.7],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          cost: 140
+        });
+
+        // Serene Bauhaus Wall Art
+        items.push({
+          id: 'art_1',
+          type: 'wall_art',
+          name: 'Zen Geometric Bauhaus Art',
+          position: [0, 1.85, -L / 2 + 0.05],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          cost: 160
+        });
+
+        // Natural Woven Area Rug
+        items.push({
+          id: 'rug_1',
+          type: 'rug',
+          name: 'Organic Jute & Wool Rug',
+          position: [0, 0, bedZ + 0.35],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          dimensions: [2.5, 1.9],
+          cost: 220
+        });
+
+        // Low Storage Credenza along left wall
+        items.push({
+          id: 'credenza_1',
+          type: 'credenza',
+          name: 'Low Oak Media & Storage Credenza',
+          position: [-W / 2 + 0.38, 0, 0.4],
+          rotation: [0, Math.PI / 2, 0],
+          style: 'minimalist',
+          color: palette.woodColor,
+          cost: 580
+        });
+
+        // Full-length Leaning Floor Mirror
+        items.push({
+          id: 'mirror_1',
+          type: 'floor_mirror',
+          name: 'Full-Length Leaning Mirror',
+          position: [W / 2 - 0.65, 0, L / 2 - 0.85],
+          rotation: [0, -Math.PI / 4, 0],
+          style: 'minimalist',
+          cost: 210
+        });
+
+        // Flush Wardrobe along right wall
+        items.push({
+          id: 'wardrobe_1',
+          type: 'wardrobe',
+          name: 'Concealed Sliding Wardrobe',
+          position: [W / 2 - 0.35, 0, -0.6],
+          rotation: [0, -Math.PI / 2, 0],
+          style: 'minimalist',
+          color: palette.sofaColor,
+          cost: 850
+        });
+
+        // Paper Lantern Floor Lamp
+        items.push({
+          id: 'lamp_1',
+          type: 'floor_lamp',
+          name: 'Zen Lantern Floor Lamp',
+          position: [-W / 2 + 0.65, 0, -L / 2 + 0.7],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          cost: 160
+        });
+
+        // Potted Zen Bamboo / Plant
+        items.push({
+          id: 'plant_1',
+          type: 'plant',
+          name: 'Potted Zen Bamboo / Plant',
+          position: [-W / 2 + 0.6, 0, L / 2 - 0.7],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          cost: 80
+        });
+
+        // Diffused Orb Pendant Light
+        items.push({
+          id: 'pendant_1',
+          type: 'pendant_light',
+          name: 'Diffused Orb Pendant Light',
+          position: [0, 0, bedZ + 0.35],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          cost: 170
+        });
+
+      } else if (bedType === 3) {
+        // TYPE 3: MODERN HOTEL CHIC & VANITY
+        // Designer bed, work/vanity desk + ergonomic chair, mirrored robe, floor mirror, task lamp
+        concept = `TYPE 3: MODERN HOTEL CHIC & VANITY SUITE (${style.toUpperCase()})`;
+        spatialRationale = `A high-functioning master suite combining premium sleeping comfort with a dedicated grooming vanity and laptop workstation. By placing the bed on the left-center axis and positioning the vanity station along the opposite wall, two functional zones coexist with uninterrupted traffic flow. A full mirrored wardrobe and tall mirror optimize morning preparation.`;
+        lightingPlan = `Dual-zone illumination: soft dimmable ambient glow over the sleeping quarter paired with crisp 4000K daylight-balanced task illumination at the vanity workstation.`;
+
+        // Designer Bed
+        const bedZ = -L / 2 + 1.35;
+        items.push({
+          id: 'bed_1',
+          type: 'bed',
+          name: 'Hotel Chic Upholstered Bed',
+          position: [-0.45, 0, bedZ],
+          rotation: [0, 0, 0],
+          style: style,
+          color: palette.sofaColor,
+          cost: 1550
+        });
+
+        // Nightstands
+        items.push({
+          id: 'nightstand_l',
+          type: 'nightstand',
+          name: 'Bedside Nightstand (L)',
+          position: [-1.85, 0, bedZ - 0.7],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 160
+        });
+        items.push({
+          id: 'nightstand_r',
+          type: 'nightstand',
+          name: 'Bedside Nightstand (R)',
+          position: [0.95, 0, bedZ - 0.7],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 160
+        });
+
+        // Wall Art
+        items.push({
+          id: 'art_1',
+          type: 'wall_art',
+          name: 'Urban Contemporary Canvas',
+          position: [-0.45, 1.9, -L / 2 + 0.05],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 180
+        });
+
+        // Geometric Rug
+        items.push({
+          id: 'rug_1',
+          type: 'rug',
+          name: 'Geometric Designer Rug',
+          position: [-0.45, 0, bedZ + 0.4],
+          rotation: [0, 0, 0],
+          style: style,
+          dimensions: [2.7, 2.1],
+          cost: 310
+        });
+
+        // Executive Vanity / Laptop Desk along right wall
+        items.push({
+          id: 'desk_1',
+          type: 'desk',
+          name: 'Executive Vanity & Laptop Desk',
+          position: [W / 2 - 0.75, 0, 0.4],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.woodColor,
+          cost: 580
+        });
+
+        // Velvet Ergonomic Vanity Chair
+        items.push({
+          id: 'office_chair_1',
+          type: 'office_chair',
+          name: 'Ergonomic Vanity Chair',
+          position: [W / 2 - 1.45, 0, 0.4],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          cost: 290
+        });
+
+        // Mirrored Double Wardrobe along left wall
+        items.push({
+          id: 'wardrobe_1',
+          type: 'mirrored_wardrobe',
+          name: 'Mirrored Double Wardrobe',
+          position: [-W / 2 + 0.36, 0, 0.7],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          cost: 1050
+        });
+
+        // Floor Dressing Mirror in corner
+        items.push({
+          id: 'mirror_1',
+          type: 'floor_mirror',
+          name: 'Illuminated Dressing Mirror',
+          position: [W / 2 - 0.55, 0, -L / 2 + 0.75],
+          rotation: [0, -Math.PI / 3, 0],
+          style: style,
+          cost: 220
+        });
+
+        // Vanity Task Floor Lamp
+        items.push({
+          id: 'lamp_1',
+          type: 'floor_lamp',
+          name: 'Vanity Arc Task Lamp',
+          position: [W / 2 - 0.55, 0, 1.35],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 190
+        });
+
+        // Ceiling Pendant Light
+        items.push({
+          id: 'pendant_1',
+          type: 'pendant_light',
+          name: 'Modern Articulated Pendant',
+          position: [-0.45, 0, bedZ + 0.4],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 200
+        });
+
+        // Potted Plant
+        items.push({
+          id: 'plant_1',
+          type: 'plant',
+          name: 'Potted Air-Filtering Plant',
+          position: [W / 2 - 0.6, 0, L / 2 - 0.6],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 75
+        });
+
+      } else {
+        // TYPE 4: SCANDINAVIAN COZY HAVEN
+        // Solid wood bed, library bookshelf, cozy reading armchair, timber table & reading lamp
+        concept = `TYPE 4: SCANDINAVIAN COZY MASTER HAVEN (${style.toUpperCase()})`;
+        spatialRationale = `Rooted in Nordic hygge philosophy, this layout pairs warm natural oak tones with a dedicated reading library nook. An open bookshelf, deep upholstered armchair, and timber reading lamp create an inviting corner for winding down with a book before sleep, while an expansive wool rug under the wood platform bed grounds the space in comfort.`;
+        lightingPlan = `Hygge-inspired 2500K warm amber lighting: focused directional light at the reading chair, gentle nightstand glow, and a woven Scandinavian overhead pendant fixture.`;
+
+        // Natural Oak Bed
+        const bedZ = -L / 2 + 1.35;
+        items.push({
+          id: 'bed_1',
+          type: 'bed',
+          name: 'Solid Natural Oak Bed',
+          position: [0.35, 0, bedZ],
+          rotation: [0, 0, 0],
+          style: 'traditional',
+          color: palette.woodColor,
+          cost: 1400
+        });
+
+        // Matching Nightstands
+        items.push({
+          id: 'nightstand_l',
+          type: 'nightstand',
+          name: 'Oak Bedside Table (L)',
+          position: [-1.05, 0, bedZ - 0.7],
+          rotation: [0, 0, 0],
+          style: 'traditional',
+          cost: 150
+        });
+        items.push({
+          id: 'nightstand_r',
+          type: 'nightstand',
+          name: 'Oak Bedside Table (R)',
+          position: [1.75, 0, bedZ - 0.7],
+          rotation: [0, 0, 0],
+          style: 'traditional',
+          cost: 150
+        });
+
+        // Botanical Wall Art
+        items.push({
+          id: 'art_1',
+          type: 'wall_art',
+          name: 'Botanical Scandinavian Canvas',
+          position: [0.35, 1.9, -L / 2 + 0.05],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 170
+        });
+
+        // Textured Chunky Wool Rug
+        items.push({
+          id: 'rug_1',
+          type: 'rug',
+          name: 'Chunky Wool Hygge Rug',
+          position: [0.35, 0, bedZ + 0.4],
+          rotation: [0, 0, 0],
+          style: style,
+          dimensions: [2.6, 2.0],
+          cost: 290
+        });
+
+        // Open Library Bookshelf along left wall
+        items.push({
+          id: 'bookshelf_1',
+          type: 'bookshelf',
+          name: 'Nordic Open Library Shelf',
+          position: [-W / 2 + 0.35, 0, -0.6],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          cost: 420
+        });
+
+        // Cozy Reading Armchair
+        items.push({
+          id: 'chair_1',
+          type: 'armchair',
+          name: 'Hygge Reading Armchair',
+          position: [-W / 2 + 1.15, 0, 0.85],
+          rotation: [0, Math.PI / 4, 0],
+          style: style,
+          color: palette.accentColor,
+          cost: 460
+        });
+
+        // Round Timber Reading Table
+        items.push({
+          id: 'table_1',
+          type: 'coffee_table',
+          name: 'Round Oak Reading Table',
+          position: [-W / 2 + 1.75, 0, 0.5],
+          rotation: [0, 0, 0],
+          style: style,
+          color: palette.woodColor,
+          cost: 210
+        });
+
+        // Directional Reading Floor Lamp
+        items.push({
+          id: 'lamp_1',
+          type: 'floor_lamp',
+          name: 'Nordic Timber Reading Lamp',
+          position: [-W / 2 + 0.55, 0, 1.55],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 190
+        });
+
+        // Mirrored Wardrobe along right wall
+        items.push({
+          id: 'wardrobe_1',
+          type: 'mirrored_wardrobe',
+          name: 'Ash Mirrored Double Wardrobe',
+          position: [W / 2 - 0.36, 0, 0.4],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          cost: 980
+        });
+
+        // Potted Monstera Plant
+        items.push({
+          id: 'plant_1',
+          type: 'plant',
+          name: 'Lush Monstera Deliciosa',
+          position: [W / 2 - 0.6, 0, -L / 2 + 0.7],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 85
+        });
+
+        // Woven Timber Pendant Lamp
+        items.push({
+          id: 'pendant_1',
+          type: 'pendant_light',
+          name: 'Woven Timber Pendant Light',
+          position: [0.35, 0, bedZ + 0.4],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 180
+        });
+      }
     } else if (roomType === 'home_office') {
       concept = `${style.toUpperCase()} FOCUS & PRODUCTIVITY STUDIO`;
       spatialRationale = `The workstation is positioned perpendicular to the window to invite abundant daylight while avoiding monitor reflection. An ergonomic chair and open shelving provide ergonomic comfort and organized storage.`;
@@ -3168,7 +3627,13 @@ class AIEngine {
 
   // Gemini API integration for live AI reasoning
   static async callGeminiAPI(pref, apiKey) {
-    const prompt = `You are a world-class AI interior architect. Generate an interior design plan for a ${pref.roomType.replace('_', ' ')} with dimensions ${pref.dimensions.width}m width by ${pref.dimensions.length}m length by ${pref.dimensions.height}m height.
+    const typeTitle = pref.roomType === 'bedroom_zen' ? 'Minimalist Zen Retreat Master Bedroom'
+      : pref.roomType === 'bedroom_hotel' ? 'Modern Hotel Chic & Vanity Master Bedroom'
+      : pref.roomType === 'bedroom_scandi' ? 'Scandinavian Cozy Haven Master Bedroom'
+      : pref.roomType.startsWith('bedroom') ? 'Luxury Executive Master Bedroom Suite'
+      : pref.roomType.replace('_', ' ');
+
+    const prompt = `You are a world-class AI interior architect. Generate an interior design plan for a ${typeTitle} with dimensions ${pref.dimensions.width}m width by ${pref.dimensions.length}m length by ${pref.dimensions.height}m height.
 Style: ${pref.style}. Preferred Color Scheme: ${pref.colorScheme}. Flooring: ${pref.flooring}. Lighting: ${pref.lighting}.
 Notes: ${pref.customNotes || 'None'}.
 
@@ -4219,10 +4684,27 @@ class App {
       });
     });
 
+    // Master Bedroom 4 Design Types Selector Buttons
+    document.querySelectorAll('.bedroom-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetType = btn.getAttribute('data-bedroom-type');
+        const roomSelect = document.getElementById('room-type');
+        if (roomSelect) {
+          roomSelect.value = targetType;
+        }
+        this.syncBedroomVariantsUI(targetType);
+        this.triggerAIGeneration();
+        const typeTitle = btn.querySelector('strong')?.textContent || 'Master Bedroom Type';
+        this.showToast(`✨ Switched to ${typeTitle}`);
+      });
+    });
+
     // Instant Room Type Switching
-    document.getElementById('room-type')?.addEventListener('change', () => {
+    document.getElementById('room-type')?.addEventListener('change', (e) => {
+      const selectedType = e.target.value;
+      this.syncBedroomVariantsUI(selectedType);
       this.triggerAIGeneration();
-      const rName = document.getElementById('room-type').options[document.getElementById('room-type').selectedIndex]?.text || 'Space';
+      const rName = e.target.options[e.target.selectedIndex]?.text || 'Space';
       this.showToast(`Switched space to ${rName}`);
     });
 
@@ -4849,6 +5331,37 @@ class App {
       if (doorSwingVal) doorSwingVal.textContent = `${val}°`;
       this.roomBuilder.setDoorSwing(val);
     });
+
+    this.syncBedroomVariantsUI(document.getElementById('room-type')?.value || 'bedroom');
+  }
+
+  // Master Bedroom UI Synchronizer
+  syncBedroomVariantsUI(currentRoomType) {
+    const wrapper = document.getElementById('bedroom-variants-wrapper');
+    const pill = document.getElementById('bedroom-type-pill');
+    const buttons = document.querySelectorAll('.bedroom-type-btn');
+    if (!wrapper) return;
+
+    const isBedroom = currentRoomType === 'bedroom' || (currentRoomType && currentRoomType.startsWith('bedroom_'));
+    wrapper.style.display = isBedroom ? 'block' : 'none';
+
+    if (isBedroom) {
+      buttons.forEach(btn => {
+        const type = btn.getAttribute('data-bedroom-type');
+        if (type === currentRoomType) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      if (pill) {
+        if (currentRoomType === 'bedroom_zen') pill.textContent = 'Type 2 Active';
+        else if (currentRoomType === 'bedroom_hotel') pill.textContent = 'Type 3 Active';
+        else if (currentRoomType === 'bedroom_scandi') pill.textContent = 'Type 4 Active';
+        else pill.textContent = 'Type 1 Active';
+      }
+    }
   }
 
   // 6. CAMERA PRESETS & WALKTHROUGH
@@ -4894,8 +5407,16 @@ class App {
   async triggerAIGeneration() {
     this.showToast('AI is optimizing spatial layout...');
 
+    const currentRoomType = document.getElementById('room-type')?.value || 'bedroom';
+    let bedType = 1;
+    if (currentRoomType === 'bedroom_zen') bedType = 2;
+    else if (currentRoomType === 'bedroom_hotel') bedType = 3;
+    else if (currentRoomType === 'bedroom_scandi') bedType = 4;
+    this.syncBedroomVariantsUI(currentRoomType);
+
     const pref = {
-      roomType: document.getElementById('room-type').value,
+      roomType: currentRoomType,
+      bedroomType: bedType,
       dimensions: {
         width: parseFloat(document.getElementById('room-w').value) || 5.0,
         length: parseFloat(document.getElementById('room-l').value) || 4.5,
@@ -5140,8 +5661,18 @@ class App {
     const snapshotUrl = this.canvas.toDataURL('image/png');
 
     const conceptTitle = `${this.currentStyle.toUpperCase()} Interior Layout`;
-    const roomType = document.getElementById('room-type')?.value || 'living_room';
-    const roomTypeLabel = roomType.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const roomType = document.getElementById('room-type')?.value || 'bedroom';
+    const roomLabels = {
+      bedroom: 'Master Bedroom (Type 1: Luxury Suite)',
+      bedroom_zen: 'Master Bedroom (Type 2: Minimalist Zen)',
+      bedroom_hotel: 'Master Bedroom (Type 3: Hotel Chic & Vanity)',
+      bedroom_scandi: 'Master Bedroom (Type 4: Scandinavian Haven)',
+      living_room: 'Living Room',
+      home_office: 'Home Office / Study',
+      dining_room: 'Dining Room',
+      kitchen: 'Modular Kitchen'
+    };
+    const roomTypeLabel = roomLabels[roomType] || roomType.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
     const w = parseFloat(document.getElementById('room-w')?.value) || 5.0;
     const l = parseFloat(document.getElementById('room-l')?.value) || 4.5;
     const h = parseFloat(document.getElementById('room-h')?.value) || 2.8;
@@ -5351,7 +5882,10 @@ class App {
   loadProjectData(data) {
     if (!data) return;
     if (data.name) document.getElementById('project-name-input').value = data.name;
-    if (data.roomType) document.getElementById('room-type').value = data.roomType;
+    if (data.roomType) {
+      document.getElementById('room-type').value = data.roomType;
+      this.syncBedroomVariantsUI(data.roomType);
+    }
     if (data.dimensions) {
       document.getElementById('room-w').value = data.dimensions.width;
       document.getElementById('room-l').value = data.dimensions.length;

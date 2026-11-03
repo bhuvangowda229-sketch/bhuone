@@ -85,12 +85,55 @@
             <div class="form-group">
               <label for="room-type">Room Type</label>
               <select id="room-type" class="form-select">
-                <option value="bedroom" selected>Master Bedroom</option>
+                <option value="bedroom" selected>Master Bedroom - Type 1: Luxury Suite</option>
+                <option value="bedroom_zen">Master Bedroom - Type 2: Minimalist Zen</option>
+                <option value="bedroom_hotel">Master Bedroom - Type 3: Hotel Chic & Vanity</option>
+                <option value="bedroom_scandi">Master Bedroom - Type 4: Scandinavian Haven</option>
                 <option value="living_room">Living Room</option>
                 <option value="home_office">Home Office / Study</option>
                 <option value="dining_room">Dining Room</option>
                 <option value="kitchen">Modular Kitchen</option>
               </select>
+            </div>
+
+            <!-- MASTER BEDROOM 4 DESIGN TYPES SELECTOR -->
+            <div class="form-group" id="bedroom-variants-wrapper" style="margin-top: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-primary); display: flex; align-items: center; gap: 4px; margin-bottom: 0;">
+                  <span>🛏️</span> Master Bedroom: 4 Design Types
+                </label>
+                <span id="bedroom-type-pill" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.3);">Type 1 Active</span>
+              </div>
+              <div class="bedroom-type-grid" id="bedroom-type-selector">
+                <button type="button" class="bedroom-type-btn active" data-bedroom-type="bedroom" title="Type 1: Luxury Executive Suite">
+                  <div class="btype-icon">👑</div>
+                  <div class="btype-meta">
+                    <strong>Type 1: Luxury Suite</strong>
+                    <span>King Bed, Lounge & Robe</span>
+                  </div>
+                </button>
+                <button type="button" class="bedroom-type-btn" data-bedroom-type="bedroom_zen" title="Type 2: Minimalist Zen Retreat">
+                  <div class="btype-icon">🧘</div>
+                  <div class="btype-meta">
+                    <strong>Type 2: Minimalist Zen</strong>
+                    <span>Low Bed, Credenza & Mirror</span>
+                  </div>
+                </button>
+                <button type="button" class="bedroom-type-btn" data-bedroom-type="bedroom_hotel" title="Type 3: Hotel Chic & Vanity">
+                  <div class="btype-icon">💼</div>
+                  <div class="btype-meta">
+                    <strong>Type 3: Hotel Chic</strong>
+                    <span>Plush Bed, Vanity / Desk</span>
+                  </div>
+                </button>
+                <button type="button" class="bedroom-type-btn" data-bedroom-type="bedroom_scandi" title="Type 4: Scandinavian Haven">
+                  <div class="btype-icon">📖</div>
+                  <div class="btype-meta">
+                    <strong>Type 4: Scandi Haven</strong>
+                    <span>Wood Bed, Bookshelf & Nook</span>
+                  </div>
+                </button>
+              </div>
             </div>
 
             <div class="grid-3">

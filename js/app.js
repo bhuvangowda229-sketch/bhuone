@@ -1001,10 +1001,27 @@ class App {
       });
     });
 
+    // Master Bedroom 4 Design Types Selector Buttons
+    document.querySelectorAll('.bedroom-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetType = btn.getAttribute('data-bedroom-type');
+        const roomSelect = document.getElementById('room-type');
+        if (roomSelect) {
+          roomSelect.value = targetType;
+        }
+        this.syncBedroomVariantsUI(targetType);
+        this.triggerAIGeneration();
+        const typeTitle = btn.querySelector('strong')?.textContent || 'Master Bedroom Type';
+        this.showToast(`✨ Switched to ${typeTitle}`);
+      });
+    });
+
     // Instant Room Type Switching
-    document.getElementById('room-type')?.addEventListener('change', () => {
+    document.getElementById('room-type')?.addEventListener('change', (e) => {
+      const selectedType = e.target.value;
+      this.syncBedroomVariantsUI(selectedType);
       this.triggerAIGeneration();
-      const rName = document.getElementById('room-type').options[document.getElementById('room-type').selectedIndex]?.text || 'Space';
+      const rName = e.target.options[e.target.selectedIndex]?.text || 'Space';
       this.showToast(`Switched space to ${rName}`);
     });
 
@@ -1631,6 +1648,37 @@ class App {
       if (doorSwingVal) doorSwingVal.textContent = `${val}°`;
       this.roomBuilder.setDoorSwing(val);
     });
+
+    this.syncBedroomVariantsUI(document.getElementById('room-type')?.value || 'bedroom');
+  }
+
+  // Master Bedroom UI Synchronizer
+  syncBedroomVariantsUI(currentRoomType) {
+    const wrapper = document.getElementById('bedroom-variants-wrapper');
+    const pill = document.getElementById('bedroom-type-pill');
+    const buttons = document.querySelectorAll('.bedroom-type-btn');
+    if (!wrapper) return;
+
+    const isBedroom = currentRoomType === 'bedroom' || (currentRoomType && currentRoomType.startsWith('bedroom_'));
+    wrapper.style.display = isBedroom ? 'block' : 'none';
+
+    if (isBedroom) {
+      buttons.forEach(btn => {
+        const type = btn.getAttribute('data-bedroom-type');
+        if (type === currentRoomType) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      if (pill) {
+        if (currentRoomType === 'bedroom_zen') pill.textContent = 'Type 2 Active';
+        else if (currentRoomType === 'bedroom_hotel') pill.textContent = 'Type 3 Active';
+        else if (currentRoomType === 'bedroom_scandi') pill.textContent = 'Type 4 Active';
+        else pill.textContent = 'Type 1 Active';
+      }
+    }
   }
 
   // 6. CAMERA PRESETS & WALKTHROUGH
@@ -1676,8 +1724,16 @@ class App {
   async triggerAIGeneration() {
     this.showToast('AI is optimizing spatial layout...');
 
+    const currentRoomType = document.getElementById('room-type')?.value || 'bedroom';
+    let bedType = 1;
+    if (currentRoomType === 'bedroom_zen') bedType = 2;
+    else if (currentRoomType === 'bedroom_hotel') bedType = 3;
+    else if (currentRoomType === 'bedroom_scandi') bedType = 4;
+    this.syncBedroomVariantsUI(currentRoomType);
+
     const pref = {
-      roomType: document.getElementById('room-type').value,
+      roomType: currentRoomType,
+      bedroomType: bedType,
       dimensions: {
         width: parseFloat(document.getElementById('room-w').value) || 5.0,
         length: parseFloat(document.getElementById('room-l').value) || 4.5,
@@ -1922,8 +1978,18 @@ class App {
     const snapshotUrl = this.canvas.toDataURL('image/png');
 
     const conceptTitle = `${this.currentStyle.toUpperCase()} Interior Layout`;
-    const roomType = document.getElementById('room-type')?.value || 'living_room';
-    const roomTypeLabel = roomType.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const roomType = document.getElementById('room-type')?.value || 'bedroom';
+    const roomLabels = {
+      bedroom: 'Master Bedroom (Type 1: Luxury Suite)',
+      bedroom_zen: 'Master Bedroom (Type 2: Minimalist Zen)',
+      bedroom_hotel: 'Master Bedroom (Type 3: Hotel Chic & Vanity)',
+      bedroom_scandi: 'Master Bedroom (Type 4: Scandinavian Haven)',
+      living_room: 'Living Room',
+      home_office: 'Home Office / Study',
+      dining_room: 'Dining Room',
+      kitchen: 'Modular Kitchen'
+    };
+    const roomTypeLabel = roomLabels[roomType] || roomType.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
     const w = parseFloat(document.getElementById('room-w')?.value) || 5.0;
     const l = parseFloat(document.getElementById('room-l')?.value) || 4.5;
     const h = parseFloat(document.getElementById('room-h')?.value) || 2.8;
@@ -2133,7 +2199,10 @@ class App {
   loadProjectData(data) {
     if (!data) return;
     if (data.name) document.getElementById('project-name-input').value = data.name;
-    if (data.roomType) document.getElementById('room-type').value = data.roomType;
+    if (data.roomType) {
+      document.getElementById('room-type').value = data.roomType;
+      this.syncBedroomVariantsUI(data.roomType);
+    }
     if (data.dimensions) {
       document.getElementById('room-w').value = data.dimensions.width;
       document.getElementById('room-l').value = data.dimensions.length;
