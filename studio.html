@@ -103,8 +103,13 @@
                   <option value="home_office_creative">Home Office - Type 3: Tech Studio</option>
                   <option value="home_office_academic">Home Office - Type 4: Scholar Nook</option>
                 </optgroup>
+                <optgroup label="Dining Room (4 Designs)">
+                  <option value="dining_room">Dining Room - Type 1: Grand Banquet</option>
+                  <option value="dining_room_minimal">Dining Room - Type 2: Zen Pavilion</option>
+                  <option value="dining_room_luxury">Dining Room - Type 3: Luxury Penthouse</option>
+                  <option value="dining_room_scandi">Dining Room - Type 4: Scandi Farmhouse</option>
+                </optgroup>
                 <optgroup label="Other Spaces">
-                  <option value="dining_room">Dining Room</option>
                   <option value="kitchen">Modular Kitchen</option>
                 </optgroup>
               </select>
@@ -225,6 +230,46 @@
                   <div class="btype-meta">
                     <strong>Type 4: Scholar Nook</strong>
                     <span>Wood Desk, Bookshelf & Armchair</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- DINING ROOM 4 DESIGN TYPES SELECTOR -->
+            <div class="form-group" id="dining-variants-wrapper" style="margin-top: 10px; display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-primary); display: flex; align-items: center; gap: 4px; margin-bottom: 0;">
+                  <span>🍽️</span> Dining Room: 4 Design Types
+                </label>
+                <span id="dining-type-pill" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.3);">Type 1 Active</span>
+              </div>
+              <div class="bedroom-type-grid" id="dining-type-selector">
+                <button type="button" class="dining-type-btn active" data-dining-type="dining_room" title="Type 1: Grand Banquet & Entertaining Suite">
+                  <div class="btype-icon">🍷</div>
+                  <div class="btype-meta">
+                    <strong>Type 1: Grand Banquet</strong>
+                    <span>6-Chairs, Sideboard & China Shelf</span>
+                  </div>
+                </button>
+                <button type="button" class="dining-type-btn" data-dining-type="dining_room_minimal" title="Type 2: Minimalist Zen Tea & Dining Pavilion">
+                  <div class="btype-icon">🪴</div>
+                  <div class="btype-meta">
+                    <strong>Type 2: Zen Pavilion</strong>
+                    <span>Low Table, Credenza & Mirror</span>
+                  </div>
+                </button>
+                <button type="button" class="dining-type-btn" data-dining-type="dining_room_luxury" title="Type 3: Modern Luxury Penthouse Dining Salon">
+                  <div class="btype-icon">👑</div>
+                  <div class="btype-meta">
+                    <strong>Type 3: Luxury Penthouse</strong>
+                    <span>Marble Table, Velvet & Bar Lounge</span>
+                  </div>
+                </button>
+                <button type="button" class="dining-type-btn" data-dining-type="dining_room_scandi" title="Type 4: Scandinavian Hygge Farmhouse Dining">
+                  <div class="btype-icon">🌾</div>
+                  <div class="btype-meta">
+                    <strong>Type 4: Scandi Farmhouse</strong>
+                    <span>Oak Table, Hutch & Reading Nook</span>
                   </div>
                 </button>
               </div>

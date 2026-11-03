@@ -4157,102 +4157,513 @@ class AIEngine {
           cost: 95
         });
       }
-    } else if (roomType === 'dining_room') {
-      // Dining Room
-      concept = `${style.toUpperCase()} ELEVATED DINING SUITE`;
-      spatialRationale = `The 6-seater dining table takes center stage with a minimum 1.0m pull-out clearance for all chairs. A low credenza / storage unit lines the perimeter for dinnerware.`;
-      lightingPlan = `Warm, intimate overhead pendant lighting (2700K) cast directly onto the dining surface to create a cozy gathering ambiance.`;
+    } else if (roomType === 'dining_room' || roomType.startsWith('dining_room_')) {
+      // Determine which of the 4 Dining Room Design Types is selected
+      let diningType = pref.diningType || 1;
+      if (roomType === 'dining_room_minimal' || roomType === 'dining_room_type2') diningType = 2;
+      else if (roomType === 'dining_room_luxury' || roomType === 'dining_room_type3') diningType = 3;
+      else if (roomType === 'dining_room_scandi' || roomType === 'dining_room_type4') diningType = 4;
+      else if (roomType === 'dining_room' && pref.diningType) diningType = parseInt(pref.diningType, 10) || 1;
 
-      // Dining Table in center
-      items.push({
-        id: 'dining_table_1',
-        type: 'dining_table',
-        name: 'Dining Table',
-        position: [0, 0, 0],
-        rotation: [0, 0, 0],
-        style: style,
-        color: palette.woodColor,
-        cost: 650
-      });
+      if (diningType === 1) {
+        // TYPE 1: GRAND BANQUET & ENTERTAINING SUITE
+        concept = `TYPE 1: GRAND BANQUET & ENTERTAINING SUITE (${style.toUpperCase()})`;
+        spatialRationale = `A stately formal dining hall designed around a central 6-seater dining ensemble with a minimum 1.1m pull-out clearance for all guests. The long perimeter buffet sideboard ensures seamless multi-course hospitality, while the opposite open display unit provides an elegant backdrop for glassware and fine ceramics.`;
+        lightingPlan = `Warm intimate 2700K overhead illumination cast downward onto the dining surface via an architectural statement chandelier, balanced by subtle perimeter mood lighting from the floor lamp and buffet accent sconces.`;
 
-      // Individual Dining Chairs (each independently moveable & recolorable)
-      const chairConfigs = [
-        { id: 'chair_1', name: 'Dining Chair 1', pos: [-0.55, 0, 0.68], rot: Math.PI },
-        { id: 'chair_2', name: 'Dining Chair 2', pos: [0.55, 0, 0.68], rot: Math.PI },
-        { id: 'chair_3', name: 'Dining Chair 3', pos: [-0.55, 0, -0.68], rot: 0 },
-        { id: 'chair_4', name: 'Dining Chair 4', pos: [0.55, 0, -0.68], rot: 0 },
-        { id: 'chair_5', name: 'Dining Chair 5', pos: [-1.15, 0, 0], rot: -Math.PI / 2 },
-        { id: 'chair_6', name: 'Dining Chair 6', pos: [1.15, 0, 0], rot: Math.PI / 2 }
-      ];
-      chairConfigs.forEach(c => {
+        // 6-Seater Formal Dining Table in center
         items.push({
-          id: c.id,
-          type: 'dining_chair',
-          name: c.name,
-          position: c.pos,
-          rotation: [0, c.rot, 0],
+          id: 'dining_table_1',
+          type: 'dining_table',
+          name: 'Grand 6-Seater Banquet Table',
+          position: [0, 0, 0],
+          rotation: [0, 0, 0],
           style: style,
-          color: palette.accentColor,
-          cost: 150
+          color: palette.woodColor,
+          cost: 750
         });
-      });
 
-      // Wall Art
-      items.push({
-        id: 'art_1',
-        type: 'wall_art',
-        name: 'Curated Wall Art',
-        position: [0, 1.8, -L / 2 + 0.05],
-        rotation: [0, 0, 0],
-        style: style,
-        cost: 160
-      });
+        // 6 Individual Symmetrical Dining Chairs
+        const banquetChairs = [
+          { id: 'chair_1', name: 'Banquet Dining Chair 1', pos: [-0.55, 0, 0.68], rot: Math.PI },
+          { id: 'chair_2', name: 'Banquet Dining Chair 2', pos: [0.55, 0, 0.68], rot: Math.PI },
+          { id: 'chair_3', name: 'Banquet Dining Chair 3', pos: [-0.55, 0, -0.68], rot: 0 },
+          { id: 'chair_4', name: 'Banquet Dining Chair 4', pos: [0.55, 0, -0.68], rot: 0 },
+          { id: 'chair_5', name: 'Host Captain Chair (W)', pos: [-1.15, 0, 0], rot: -Math.PI / 2 },
+          { id: 'chair_6', name: 'Host Captain Chair (E)', pos: [1.15, 0, 0], rot: Math.PI / 2 }
+        ];
+        banquetChairs.forEach(c => {
+          items.push({
+            id: c.id,
+            type: 'dining_chair',
+            name: c.name,
+            position: c.pos,
+            rotation: [0, c.rot, 0],
+            style: style,
+            color: palette.accentColor,
+            cost: 160
+          });
+        });
 
-      // Area Rug under dining table
-      items.push({
-        id: 'rug_1',
-        type: 'rug',
-        name: 'Dining Area Rug',
-        position: [0, 0, 0],
-        rotation: [0, 0, 0],
-        style: style,
-        dimensions: [2.8, 2.0],
-        cost: 290
-      });
+        // Curated Wall Canvas
+        items.push({
+          id: 'art_1',
+          type: 'wall_art',
+          name: 'Curated Banquet Fine Art',
+          position: [0, 1.85, -L / 2 + 0.05],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 190
+        });
 
-      // Ceiling Pendant Light above dining table
-      items.push({
-        id: 'pendant_1',
-        type: 'pendant_light',
-        name: 'Dining Chandelier / Pendant',
-        position: [0, 0, 0],
-        rotation: [0, 0, 0],
-        style: style,
-        cost: 180
-      });
+        // Large Wool Dining Area Rug
+        items.push({
+          id: 'rug_1',
+          type: 'rug',
+          name: 'Plush Dining Area Rug',
+          position: [0, 0, 0],
+          rotation: [0, 0, 0],
+          style: style,
+          dimensions: [3.0, 2.2],
+          cost: 320
+        });
 
-      // Credenza Buffet / Sideboard on right wall
-      items.push({
-        id: 'credenza_1',
-        type: 'credenza',
-        name: 'Buffet Credenza / Sideboard',
-        position: [W / 2 - 0.35, 0, 0],
-        rotation: [0, -Math.PI / 2, 0],
-        style: style,
-        color: palette.woodColor,
-        cost: 650
-      });
+        // Architectural Statement Chandelier
+        items.push({
+          id: 'pendant_1',
+          type: 'pendant_light',
+          name: 'Grand Banquet Chandelier',
+          position: [0, 0, 0],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 240
+        });
 
-      // Plant
-      items.push({
-        id: 'plant_1',
-        type: 'plant',
-        name: 'Potted Olive Tree',
-        position: [-W / 2 + 0.7, 0, -L / 2 + 0.7],
-        rotation: [0, 0, 0],
-        style: style,
-        cost: 95
-      });
+        // Long Buffet Credenza / Sideboard along right wall
+        items.push({
+          id: 'credenza_1',
+          type: 'credenza',
+          name: 'Hospitality Buffet Sideboard',
+          position: [W / 2 - 0.35, 0, 0],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.woodColor,
+          cost: 690
+        });
+
+        // Open China & Glassware Bookshelf along left wall
+        items.push({
+          id: 'bookshelf_1',
+          type: 'bookshelf',
+          name: 'Fine China & Glassware Shelving',
+          position: [-W / 2 + 0.35, 0, -0.4],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          cost: 480
+        });
+
+        // Sculptural Floor Lamp in corner
+        items.push({
+          id: 'lamp_1',
+          type: 'floor_lamp',
+          name: 'Sculptural Brass Floor Lamp',
+          position: [W / 2 - 0.7, 0, -L / 2 + 0.7],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 220
+        });
+
+        // Potted Mediterranean Olive Tree
+        items.push({
+          id: 'plant_1',
+          type: 'plant',
+          name: 'Potted Mediterranean Olive Tree',
+          position: [-W / 2 + 0.7, 0, -L / 2 + 0.7],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 110
+        });
+
+      } else if (diningType === 2) {
+        // TYPE 2: MINIMALIST ZEN TEA & DINING PAVILION
+        concept = `TYPE 2: MINIMALIST ZEN TEA & DINING PAVILION (${style.toUpperCase()})`;
+        spatialRationale = `Rooted in Wabi-Sabi and Japandi values of simplicity and mindful dining. The central low-profile dining set is anchored by an organic flatweave rug, while flush perimeter credenzas and a leaning mirror preserve tranquil, unbroken sightlines throughout the dining pavilion.`;
+        lightingPlan = `Soft 2500K twilight-diffused illumination: a glowing paper-lantern orb overhead paired with an ambient corner floor lantern, creating a tranquil sanctuary for slow meals and tea ceremonies.`;
+
+        // Clean-lined Minimalist Wood Dining Table
+        items.push({
+          id: 'dining_table_1',
+          type: 'dining_table',
+          name: 'Minimalist Japandi Dining Table',
+          position: [0, 0, 0],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          color: palette.woodColor,
+          cost: 620
+        });
+
+        // 4 Minimalist Linen Dining Chairs
+        const zenChairs = [
+          { id: 'chair_1', name: 'Zen Dining Chair 1', pos: [-0.5, 0, 0.65], rot: Math.PI },
+          { id: 'chair_2', name: 'Zen Dining Chair 2', pos: [0.5, 0, 0.65], rot: Math.PI },
+          { id: 'chair_3', name: 'Zen Dining Chair 3', pos: [-0.5, 0, -0.65], rot: 0 },
+          { id: 'chair_4', name: 'Zen Dining Chair 4', pos: [0.5, 0, -0.65], rot: 0 }
+        ];
+        zenChairs.forEach(c => {
+          items.push({
+            id: c.id,
+            type: 'dining_chair',
+            name: c.name,
+            position: c.pos,
+            rotation: [0, c.rot, 0],
+            style: 'minimalist',
+            color: palette.accentColor,
+            cost: 140
+          });
+        });
+
+        // Organic Flatweave Jute & Wool Rug
+        items.push({
+          id: 'rug_1',
+          type: 'rug',
+          name: 'Organic Jute Flatweave Rug',
+          position: [0, 0, 0],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          dimensions: [2.7, 2.1],
+          cost: 230
+        });
+
+        // Low Horizontal Floating Storage Credenza along left wall
+        items.push({
+          id: 'credenza_1',
+          type: 'credenza',
+          name: 'Low Horizon Tea Credenza',
+          position: [-W / 2 + 0.38, 0, 0],
+          rotation: [0, Math.PI / 2, 0],
+          style: 'minimalist',
+          color: palette.woodColor,
+          cost: 580
+        });
+
+        // Full-length Leaning Floor Mirror in corner
+        items.push({
+          id: 'mirror_1',
+          type: 'floor_mirror',
+          name: 'Full-Length Leaning Mirror',
+          position: [W / 2 - 0.65, 0, L / 2 - 0.8],
+          rotation: [0, -Math.PI / 4, 0],
+          style: 'minimalist',
+          cost: 210
+        });
+
+        // Zen Bauhaus Geometric Canvas Art
+        items.push({
+          id: 'art_1',
+          type: 'wall_art',
+          name: 'Zen Bauhaus Dining Canvas',
+          position: [0, 1.9, -L / 2 + 0.05],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          cost: 160
+        });
+
+        // Paper Lantern Floor Lamp
+        items.push({
+          id: 'lamp_1',
+          type: 'floor_lamp',
+          name: 'Paper Lantern Floor Lamp',
+          position: [-W / 2 + 0.65, 0, -L / 2 + 0.7],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          cost: 160
+        });
+
+        // Diffused Orb Pendant Light
+        items.push({
+          id: 'pendant_1',
+          type: 'pendant_light',
+          name: 'Diffused Orb Dining Pendant',
+          position: [0, 0, 0],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          cost: 175
+        });
+
+        // Potted Zen Bamboo
+        items.push({
+          id: 'plant_1',
+          type: 'plant',
+          name: 'Potted Zen Bamboo',
+          position: [W / 2 - 0.6, 0, -L / 2 + 0.7],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          cost: 85
+        });
+
+      } else if (diningType === 3) {
+        // TYPE 3: MODERN LUXURY PENTHOUSE DINING SALON
+        concept = `TYPE 3: MODERN LUXURY PENTHOUSE DINING SALON (${style.toUpperCase()})`;
+        spatialRationale = `A glamorous penthouse dining salon configured for bespoke culinary experiences and private wine tastings. The dining quadrangle is flanked by a dedicated sommelier buffet credenza and an intimate pre-dinner cocktail lounge nook, creating multiple experiential zones in one harmonious space.`;
+        lightingPlan = `Dramatic multi-tiered architectural lighting: a brilliant brass chandelier serves as the dining room's visual centerpiece, supported by warm dimmable accent downlighting and perimeter floor lamps.`;
+
+        // Grand Luxury Dining Table in center
+        items.push({
+          id: 'dining_table_1',
+          type: 'dining_table',
+          name: 'Penthouse Marble Dining Table',
+          position: [0, 0, 0],
+          rotation: [0, 0, 0],
+          style: 'luxury',
+          color: palette.woodColor,
+          cost: 950
+        });
+
+        // 6 Velvet Luxury Dining Chairs
+        const luxuryChairs = [
+          { id: 'chair_1', name: 'Velvet Dining Chair 1', pos: [-0.55, 0, 0.7], rot: Math.PI },
+          { id: 'chair_2', name: 'Velvet Dining Chair 2', pos: [0.55, 0, 0.7], rot: Math.PI },
+          { id: 'chair_3', name: 'Velvet Dining Chair 3', pos: [-0.55, 0, -0.7], rot: 0 },
+          { id: 'chair_4', name: 'Velvet Dining Chair 4', pos: [0.55, 0, -0.7], rot: 0 },
+          { id: 'chair_5', name: 'Velvet Host Chair (W)', pos: [-1.2, 0, 0], rot: -Math.PI / 2 },
+          { id: 'chair_6', name: 'Velvet Host Chair (E)', pos: [1.2, 0, 0], rot: Math.PI / 2 }
+        ];
+        luxuryChairs.forEach(c => {
+          items.push({
+            id: c.id,
+            type: 'dining_chair',
+            name: c.name,
+            position: c.pos,
+            rotation: [0, c.rot, 0],
+            style: 'luxury',
+            color: palette.accentColor,
+            cost: 180
+          });
+        });
+
+        // Extra-large Plush Silk-Wool Dining Rug
+        items.push({
+          id: 'rug_1',
+          type: 'rug',
+          name: 'Plush Silk-Wool Dining Rug',
+          position: [0, 0, 0],
+          rotation: [0, 0, 0],
+          style: 'luxury',
+          dimensions: [3.2, 2.4],
+          cost: 440
+        });
+
+        // Grand Brass Ring Chandelier
+        items.push({
+          id: 'pendant_1',
+          type: 'pendant_light',
+          name: 'Grand Brass Chandelier',
+          position: [0, 0, 0],
+          rotation: [0, 0, 0],
+          style: 'luxury',
+          cost: 340
+        });
+
+        // Sommelier Bar Buffet Credenza along right wall
+        items.push({
+          id: 'credenza_1',
+          type: 'credenza',
+          name: 'Sommelier Buffet Credenza',
+          position: [W / 2 - 0.35, 0, 0],
+          rotation: [0, -Math.PI / 2, 0],
+          style: 'luxury',
+          color: palette.woodColor,
+          cost: 760
+        });
+
+        // Pre-Dinner Cocktail Lounge Corner: Velvet Club Chair
+        items.push({
+          id: 'chair_lounge',
+          type: 'armchair',
+          name: 'Velvet Pre-Dinner Club Chair',
+          position: [-W / 2 + 1.15, 0, L / 2 - 1.1],
+          rotation: [0, Math.PI / 4, 0],
+          style: 'luxury',
+          color: palette.accentColor,
+          cost: 490
+        });
+
+        // Sculptural Side Table next to cocktail chair
+        items.push({
+          id: 'table_1',
+          type: 'coffee_table',
+          name: 'Marble Aperitif Side Table',
+          position: [-W / 2 + 1.8, 0, L / 2 - 0.8],
+          rotation: [0, 0, 0],
+          style: 'luxury',
+          color: palette.woodColor,
+          cost: 260
+        });
+
+        // Executive Fine Art Canvas
+        items.push({
+          id: 'art_1',
+          type: 'wall_art',
+          name: 'Penthouse Salon Fine Art',
+          position: [0, 1.9, -L / 2 + 0.05],
+          rotation: [0, 0, 0],
+          style: 'luxury',
+          cost: 240
+        });
+
+        // Sculptural Brass Floor Lamp
+        items.push({
+          id: 'lamp_1',
+          type: 'floor_lamp',
+          name: 'Sculptural Brass Floor Lamp',
+          position: [W / 2 - 0.7, 0, -L / 2 + 0.7],
+          rotation: [0, 0, 0],
+          style: 'luxury',
+          cost: 250
+        });
+
+        // Statement Architectural Palm
+        items.push({
+          id: 'plant_1',
+          type: 'plant',
+          name: 'Statement Architectural Palm',
+          position: [-W / 2 + 0.65, 0, -L / 2 + 0.7],
+          rotation: [0, 0, 0],
+          style: 'luxury',
+          cost: 115
+        });
+
+      } else {
+        // TYPE 4: SCANDINAVIAN HYGGE FARMHOUSE DINING
+        concept = `TYPE 4: SCANDINAVIAN HYGGE FARMHOUSE DINING (${style.toUpperCase()})`;
+        spatialRationale = `Celebrates Nordic communal dining and authentic hygge hospitality. Combines a solid oak dining table with an open pottery display hutch and perimeter serving sideboard, plus an integrated corner relaxation chair for conversational lingerings long after dessert.`;
+        lightingPlan = `Cozy 2700K warm amber lighting: focused downward glow from a woven timber pendant directly over the dining table, accented by soft atmospheric corner illumination.`;
+
+        // Solid Natural Oak Farmhouse Dining Table
+        items.push({
+          id: 'dining_table_1',
+          type: 'dining_table',
+          name: 'Solid Oak Farmhouse Dining Table',
+          position: [0, 0, 0],
+          rotation: [0, 0, 0],
+          style: 'traditional',
+          color: palette.woodColor,
+          cost: 790
+        });
+
+        // 6 Warm Timber & Fabric Dining Chairs
+        const scandiChairs = [
+          { id: 'chair_1', name: 'Oak Farmhouse Chair 1', pos: [-0.55, 0, 0.68], rot: Math.PI },
+          { id: 'chair_2', name: 'Oak Farmhouse Chair 2', pos: [0.55, 0, 0.68], rot: Math.PI },
+          { id: 'chair_3', name: 'Oak Farmhouse Chair 3', pos: [-0.55, 0, -0.68], rot: 0 },
+          { id: 'chair_4', name: 'Oak Farmhouse Chair 4', pos: [0.55, 0, -0.68], rot: 0 },
+          { id: 'chair_5', name: 'Oak Farmhouse Host (W)', pos: [-1.15, 0, 0], rot: -Math.PI / 2 },
+          { id: 'chair_6', name: 'Oak Farmhouse Host (E)', pos: [1.15, 0, 0], rot: Math.PI / 2 }
+        ];
+        scandiChairs.forEach(c => {
+          items.push({
+            id: c.id,
+            type: 'dining_chair',
+            name: c.name,
+            position: c.pos,
+            rotation: [0, c.rot, 0],
+            style: 'traditional',
+            color: palette.accentColor,
+            cost: 155
+          });
+        });
+
+        // Chunky Woven Wool Hygge Rug
+        items.push({
+          id: 'rug_1',
+          type: 'rug',
+          name: 'Chunky Wool Hygge Dining Rug',
+          position: [0, 0, 0],
+          rotation: [0, 0, 0],
+          style: 'traditional',
+          dimensions: [2.9, 2.2],
+          cost: 290
+        });
+
+        // Open Nordic Pottery & Dinnerware Bookshelf along back wall
+        items.push({
+          id: 'bookshelf_1',
+          type: 'bookshelf',
+          name: 'Nordic Pottery & China Hutch',
+          position: [0, 0, -L / 2 + 0.35],
+          rotation: [0, 0, 0],
+          style: 'traditional',
+          cost: 490
+        });
+
+        // Warm Oak Serving Credenza along left wall
+        items.push({
+          id: 'credenza_1',
+          type: 'credenza',
+          name: 'Nordic Oak Serving Sideboard',
+          position: [-W / 2 + 0.35, 0, 0.2],
+          rotation: [0, Math.PI / 2, 0],
+          style: 'traditional',
+          color: palette.woodColor,
+          cost: 650
+        });
+
+        // Hygge Reading & Relaxation Armchair in front corner
+        items.push({
+          id: 'chair_lounge',
+          type: 'armchair',
+          name: 'Hygge Corner Dining Lounge Chair',
+          position: [W / 2 - 1.15, 0, L / 2 - 1.1],
+          rotation: [0, -Math.PI / 4, 0],
+          style: 'traditional',
+          color: palette.accentColor,
+          cost: 460
+        });
+
+        // Botanical Scandinavian Wall Canvas
+        items.push({
+          id: 'art_1',
+          type: 'wall_art',
+          name: 'Botanical Scandinavian Canvas',
+          position: [W / 2 - 0.05, 1.9, 0.0],
+          rotation: [0, -Math.PI / 2, 0],
+          style: 'traditional',
+          cost: 180
+        });
+
+        // Woven Timber Scandinavian Pendant Fixture
+        items.push({
+          id: 'pendant_1',
+          type: 'pendant_light',
+          name: 'Woven Timber Dining Pendant',
+          position: [0, 0, 0],
+          rotation: [0, 0, 0],
+          style: 'traditional',
+          cost: 195
+        });
+
+        // Timber Directional Floor Lamp
+        items.push({
+          id: 'lamp_1',
+          type: 'floor_lamp',
+          name: 'Timber Reading Floor Lamp',
+          position: [W / 2 - 0.65, 0, -L / 2 + 0.7],
+          rotation: [0, 0, 0],
+          style: 'traditional',
+          cost: 210
+        });
+
+        // Lush Monstera Deliciosa
+        items.push({
+          id: 'plant_1',
+          type: 'plant',
+          name: 'Lush Monstera Deliciosa',
+          position: [-W / 2 + 0.65, 0, -L / 2 + 0.7],
+          rotation: [0, 0, 0],
+          style: 'traditional',
+          cost: 85
+        });
+      }
     } else {
       // Modular Chef's Kitchen (roomType === 'kitchen')
       concept = `${style.toUpperCase()} CHEF'S CULINARY STUDIO`;
@@ -4456,6 +4867,10 @@ class AIEngine {
       : pref.roomType === 'home_office_creative' ? 'Creative Tech Battlestation Studio'
       : pref.roomType === 'home_office_academic' ? 'Academic Scholar & Reading Sanctuary Study'
       : pref.roomType.startsWith('home_office') ? 'Executive Suite & Library Home Office'
+      : pref.roomType === 'dining_room_minimal' ? 'Minimalist Zen Tea & Dining Pavilion'
+      : pref.roomType === 'dining_room_luxury' ? 'Modern Luxury Penthouse Dining Salon'
+      : pref.roomType === 'dining_room_scandi' ? 'Scandinavian Hygge Farmhouse Dining Room'
+      : pref.roomType.startsWith('dining_room') ? 'Grand Banquet & Entertaining Dining Suite'
       : pref.roomType.replace('_', ' ');
 
     const prompt = `You are a world-class AI interior architect. Generate an interior design plan for a ${typeTitle} with dimensions ${pref.dimensions.width}m width by ${pref.dimensions.length}m length by ${pref.dimensions.height}m height.
@@ -5554,6 +5969,21 @@ class App {
       });
     });
 
+    // Dining Room 4 Design Types Selector Buttons
+    document.querySelectorAll('.dining-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetType = btn.getAttribute('data-dining-type');
+        const roomSelect = document.getElementById('room-type');
+        if (roomSelect) {
+          roomSelect.value = targetType;
+        }
+        this.syncRoomVariantsUI(targetType);
+        this.triggerAIGeneration();
+        const typeTitle = btn.querySelector('strong')?.textContent || 'Dining Room Type';
+        this.showToast(`✨ Switched to ${typeTitle}`);
+      });
+    });
+
     // Instant Room Type Switching
     document.getElementById('room-type')?.addEventListener('change', (e) => {
       const selectedType = e.target.value;
@@ -6257,6 +6687,28 @@ class App {
         }
       }
     }
+
+    // 4. Dining Room Variants
+    const diningWrapper = document.getElementById('dining-variants-wrapper');
+    const diningPill = document.getElementById('dining-type-pill');
+    const diningButtons = document.querySelectorAll('.dining-type-btn');
+    const isDining = currentRoomType === 'dining_room' || (currentRoomType && currentRoomType.startsWith('dining_room_'));
+
+    if (diningWrapper) {
+      diningWrapper.style.display = isDining ? 'block' : 'none';
+      if (isDining) {
+        diningButtons.forEach(btn => {
+          const type = btn.getAttribute('data-dining-type');
+          btn.classList.toggle('active', type === currentRoomType);
+        });
+        if (diningPill) {
+          if (currentRoomType === 'dining_room_minimal') diningPill.textContent = 'Type 2 Active';
+          else if (currentRoomType === 'dining_room_luxury') diningPill.textContent = 'Type 3 Active';
+          else if (currentRoomType === 'dining_room_scandi') diningPill.textContent = 'Type 4 Active';
+          else diningPill.textContent = 'Type 1 Active';
+        }
+      }
+    }
   }
 
   // Backward compatibility alias
@@ -6323,6 +6775,11 @@ class App {
     else if (currentRoomType === 'home_office_creative') officeType = 3;
     else if (currentRoomType === 'home_office_academic') officeType = 4;
 
+    let diningType = 1;
+    if (currentRoomType === 'dining_room_minimal') diningType = 2;
+    else if (currentRoomType === 'dining_room_luxury') diningType = 3;
+    else if (currentRoomType === 'dining_room_scandi') diningType = 4;
+
     this.syncRoomVariantsUI(currentRoomType);
 
     const pref = {
@@ -6330,6 +6787,7 @@ class App {
       bedroomType: bedType,
       livingRoomType: livingType,
       officeType: officeType,
+      diningType: diningType,
       dimensions: {
         width: parseFloat(document.getElementById('room-w').value) || 5.0,
         length: parseFloat(document.getElementById('room-l').value) || 4.5,
@@ -6588,7 +7046,10 @@ class App {
       home_office_minimal: 'Home Office (Type 2: Zen Focus Studio)',
       home_office_creative: 'Home Office (Type 3: Tech Battlestation)',
       home_office_academic: 'Home Office (Type 4: Academic Scholar Nook)',
-      dining_room: 'Dining Room',
+      dining_room: 'Dining Room (Type 1: Grand Banquet)',
+      dining_room_minimal: 'Dining Room (Type 2: Zen Tea Pavilion)',
+      dining_room_luxury: 'Dining Room (Type 3: Luxury Penthouse Salon)',
+      dining_room_scandi: 'Dining Room (Type 4: Scandi Farmhouse)',
       kitchen: 'Modular Kitchen'
     };
     const roomTypeLabel = roomLabels[roomType] || roomType.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());

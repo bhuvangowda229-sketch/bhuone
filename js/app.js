@@ -1046,6 +1046,21 @@ class App {
       });
     });
 
+    // Dining Room 4 Design Types Selector Buttons
+    document.querySelectorAll('.dining-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetType = btn.getAttribute('data-dining-type');
+        const roomSelect = document.getElementById('room-type');
+        if (roomSelect) {
+          roomSelect.value = targetType;
+        }
+        this.syncRoomVariantsUI(targetType);
+        this.triggerAIGeneration();
+        const typeTitle = btn.querySelector('strong')?.textContent || 'Dining Room Type';
+        this.showToast(`✨ Switched to ${typeTitle}`);
+      });
+    });
+
     // Instant Room Type Switching
     document.getElementById('room-type')?.addEventListener('change', (e) => {
       const selectedType = e.target.value;
@@ -1749,6 +1764,28 @@ class App {
         }
       }
     }
+
+    // 4. Dining Room Variants
+    const diningWrapper = document.getElementById('dining-variants-wrapper');
+    const diningPill = document.getElementById('dining-type-pill');
+    const diningButtons = document.querySelectorAll('.dining-type-btn');
+    const isDining = currentRoomType === 'dining_room' || (currentRoomType && currentRoomType.startsWith('dining_room_'));
+
+    if (diningWrapper) {
+      diningWrapper.style.display = isDining ? 'block' : 'none';
+      if (isDining) {
+        diningButtons.forEach(btn => {
+          const type = btn.getAttribute('data-dining-type');
+          btn.classList.toggle('active', type === currentRoomType);
+        });
+        if (diningPill) {
+          if (currentRoomType === 'dining_room_minimal') diningPill.textContent = 'Type 2 Active';
+          else if (currentRoomType === 'dining_room_luxury') diningPill.textContent = 'Type 3 Active';
+          else if (currentRoomType === 'dining_room_scandi') diningPill.textContent = 'Type 4 Active';
+          else diningPill.textContent = 'Type 1 Active';
+        }
+      }
+    }
   }
 
   // Backward compatibility alias
@@ -1815,6 +1852,11 @@ class App {
     else if (currentRoomType === 'home_office_creative') officeType = 3;
     else if (currentRoomType === 'home_office_academic') officeType = 4;
 
+    let diningType = 1;
+    if (currentRoomType === 'dining_room_minimal') diningType = 2;
+    else if (currentRoomType === 'dining_room_luxury') diningType = 3;
+    else if (currentRoomType === 'dining_room_scandi') diningType = 4;
+
     this.syncRoomVariantsUI(currentRoomType);
 
     const pref = {
@@ -1822,6 +1864,7 @@ class App {
       bedroomType: bedType,
       livingRoomType: livingType,
       officeType: officeType,
+      diningType: diningType,
       dimensions: {
         width: parseFloat(document.getElementById('room-w').value) || 5.0,
         length: parseFloat(document.getElementById('room-l').value) || 4.5,
@@ -2080,7 +2123,10 @@ class App {
       home_office_minimal: 'Home Office (Type 2: Zen Focus Studio)',
       home_office_creative: 'Home Office (Type 3: Tech Battlestation)',
       home_office_academic: 'Home Office (Type 4: Academic Scholar Nook)',
-      dining_room: 'Dining Room',
+      dining_room: 'Dining Room (Type 1: Grand Banquet)',
+      dining_room_minimal: 'Dining Room (Type 2: Zen Tea Pavilion)',
+      dining_room_luxury: 'Dining Room (Type 3: Luxury Penthouse Salon)',
+      dining_room_scandi: 'Dining Room (Type 4: Scandi Farmhouse)',
       kitchen: 'Modular Kitchen'
     };
     const roomTypeLabel = roomLabels[roomType] || roomType.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
