@@ -1009,9 +1009,24 @@ class App {
         if (roomSelect) {
           roomSelect.value = targetType;
         }
-        this.syncBedroomVariantsUI(targetType);
+        this.syncRoomVariantsUI(targetType);
         this.triggerAIGeneration();
         const typeTitle = btn.querySelector('strong')?.textContent || 'Master Bedroom Type';
+        this.showToast(`✨ Switched to ${typeTitle}`);
+      });
+    });
+
+    // Living Room 4 Design Types Selector Buttons
+    document.querySelectorAll('.living-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetType = btn.getAttribute('data-living-type');
+        const roomSelect = document.getElementById('room-type');
+        if (roomSelect) {
+          roomSelect.value = targetType;
+        }
+        this.syncRoomVariantsUI(targetType);
+        this.triggerAIGeneration();
+        const typeTitle = btn.querySelector('strong')?.textContent || 'Living Room Type';
         this.showToast(`✨ Switched to ${typeTitle}`);
       });
     });
@@ -1019,7 +1034,7 @@ class App {
     // Instant Room Type Switching
     document.getElementById('room-type')?.addEventListener('change', (e) => {
       const selectedType = e.target.value;
-      this.syncBedroomVariantsUI(selectedType);
+      this.syncRoomVariantsUI(selectedType);
       this.triggerAIGeneration();
       const rName = e.target.options[e.target.selectedIndex]?.text || 'Space';
       this.showToast(`Switched space to ${rName}`);
@@ -1649,36 +1664,59 @@ class App {
       this.roomBuilder.setDoorSwing(val);
     });
 
-    this.syncBedroomVariantsUI(document.getElementById('room-type')?.value || 'bedroom');
+    this.syncRoomVariantsUI(document.getElementById('room-type')?.value || 'bedroom');
   }
 
-  // Master Bedroom UI Synchronizer
-  syncBedroomVariantsUI(currentRoomType) {
-    const wrapper = document.getElementById('bedroom-variants-wrapper');
-    const pill = document.getElementById('bedroom-type-pill');
-    const buttons = document.querySelectorAll('.bedroom-type-btn');
-    if (!wrapper) return;
-
+  // Master Bedroom & Living Room Variants UI Synchronizer
+  syncRoomVariantsUI(currentRoomType) {
+    // 1. Bedroom Variants
+    const bedWrapper = document.getElementById('bedroom-variants-wrapper');
+    const bedPill = document.getElementById('bedroom-type-pill');
+    const bedButtons = document.querySelectorAll('.bedroom-type-btn');
     const isBedroom = currentRoomType === 'bedroom' || (currentRoomType && currentRoomType.startsWith('bedroom_'));
-    wrapper.style.display = isBedroom ? 'block' : 'none';
 
-    if (isBedroom) {
-      buttons.forEach(btn => {
-        const type = btn.getAttribute('data-bedroom-type');
-        if (type === currentRoomType) {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
+    if (bedWrapper) {
+      bedWrapper.style.display = isBedroom ? 'block' : 'none';
+      if (isBedroom) {
+        bedButtons.forEach(btn => {
+          const type = btn.getAttribute('data-bedroom-type');
+          btn.classList.toggle('active', type === currentRoomType);
+        });
+        if (bedPill) {
+          if (currentRoomType === 'bedroom_zen') bedPill.textContent = 'Type 2 Active';
+          else if (currentRoomType === 'bedroom_hotel') bedPill.textContent = 'Type 3 Active';
+          else if (currentRoomType === 'bedroom_scandi') bedPill.textContent = 'Type 4 Active';
+          else bedPill.textContent = 'Type 1 Active';
         }
-      });
-
-      if (pill) {
-        if (currentRoomType === 'bedroom_zen') pill.textContent = 'Type 2 Active';
-        else if (currentRoomType === 'bedroom_hotel') pill.textContent = 'Type 3 Active';
-        else if (currentRoomType === 'bedroom_scandi') pill.textContent = 'Type 4 Active';
-        else pill.textContent = 'Type 1 Active';
       }
     }
+
+    // 2. Living Room Variants
+    const livingWrapper = document.getElementById('living-variants-wrapper');
+    const livingPill = document.getElementById('living-type-pill');
+    const livingButtons = document.querySelectorAll('.living-type-btn');
+    const isLiving = currentRoomType === 'living_room' || (currentRoomType && currentRoomType.startsWith('living_room_'));
+
+    if (livingWrapper) {
+      livingWrapper.style.display = isLiving ? 'block' : 'none';
+      if (isLiving) {
+        livingButtons.forEach(btn => {
+          const type = btn.getAttribute('data-living-type');
+          btn.classList.toggle('active', type === currentRoomType);
+        });
+        if (livingPill) {
+          if (currentRoomType === 'living_room_zen') livingPill.textContent = 'Type 2 Active';
+          else if (currentRoomType === 'living_room_luxury') livingPill.textContent = 'Type 3 Active';
+          else if (currentRoomType === 'living_room_cozy') livingPill.textContent = 'Type 4 Active';
+          else livingPill.textContent = 'Type 1 Active';
+        }
+      }
+    }
+  }
+
+  // Backward compatibility alias
+  syncBedroomVariantsUI(currentRoomType) {
+    this.syncRoomVariantsUI(currentRoomType);
   }
 
   // 6. CAMERA PRESETS & WALKTHROUGH
@@ -1729,11 +1767,18 @@ class App {
     if (currentRoomType === 'bedroom_zen') bedType = 2;
     else if (currentRoomType === 'bedroom_hotel') bedType = 3;
     else if (currentRoomType === 'bedroom_scandi') bedType = 4;
-    this.syncBedroomVariantsUI(currentRoomType);
+
+    let livingType = 1;
+    if (currentRoomType === 'living_room_zen') livingType = 2;
+    else if (currentRoomType === 'living_room_luxury') livingType = 3;
+    else if (currentRoomType === 'living_room_cozy') livingType = 4;
+
+    this.syncRoomVariantsUI(currentRoomType);
 
     const pref = {
       roomType: currentRoomType,
       bedroomType: bedType,
+      livingRoomType: livingType,
       dimensions: {
         width: parseFloat(document.getElementById('room-w').value) || 5.0,
         length: parseFloat(document.getElementById('room-l').value) || 4.5,
@@ -1984,7 +2029,10 @@ class App {
       bedroom_zen: 'Master Bedroom (Type 2: Minimalist Zen)',
       bedroom_hotel: 'Master Bedroom (Type 3: Hotel Chic & Vanity)',
       bedroom_scandi: 'Master Bedroom (Type 4: Scandinavian Haven)',
-      living_room: 'Living Room',
+      living_room: 'Living Room (Type 1: Media Lounge)',
+      living_room_zen: 'Living Room (Type 2: Japandi Zen)',
+      living_room_luxury: 'Living Room (Type 3: Luxury Penthouse)',
+      living_room_cozy: 'Living Room (Type 4: Scandi Hygge)',
       home_office: 'Home Office / Study',
       dining_room: 'Dining Room',
       kitchen: 'Modular Kitchen'
@@ -2201,7 +2249,7 @@ class App {
     if (data.name) document.getElementById('project-name-input').value = data.name;
     if (data.roomType) {
       document.getElementById('room-type').value = data.roomType;
-      this.syncBedroomVariantsUI(data.roomType);
+      this.syncRoomVariantsUI(data.roomType);
     }
     if (data.dimensions) {
       document.getElementById('room-w').value = data.dimensions.width;

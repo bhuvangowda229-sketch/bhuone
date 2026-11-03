@@ -85,14 +85,23 @@
             <div class="form-group">
               <label for="room-type">Room Type</label>
               <select id="room-type" class="form-select">
-                <option value="bedroom" selected>Master Bedroom - Type 1: Luxury Suite</option>
-                <option value="bedroom_zen">Master Bedroom - Type 2: Minimalist Zen</option>
-                <option value="bedroom_hotel">Master Bedroom - Type 3: Hotel Chic & Vanity</option>
-                <option value="bedroom_scandi">Master Bedroom - Type 4: Scandinavian Haven</option>
-                <option value="living_room">Living Room</option>
-                <option value="home_office">Home Office / Study</option>
-                <option value="dining_room">Dining Room</option>
-                <option value="kitchen">Modular Kitchen</option>
+                <optgroup label="Master Bedroom (4 Designs)">
+                  <option value="bedroom" selected>Master Bedroom - Type 1: Luxury Suite</option>
+                  <option value="bedroom_zen">Master Bedroom - Type 2: Minimalist Zen</option>
+                  <option value="bedroom_hotel">Master Bedroom - Type 3: Hotel Chic & Vanity</option>
+                  <option value="bedroom_scandi">Master Bedroom - Type 4: Scandinavian Haven</option>
+                </optgroup>
+                <optgroup label="Living Room (4 Designs)">
+                  <option value="living_room">Living Room - Type 1: Media Lounge</option>
+                  <option value="living_room_zen">Living Room - Type 2: Japandi Zen</option>
+                  <option value="living_room_luxury">Living Room - Type 3: Luxury Penthouse</option>
+                  <option value="living_room_cozy">Living Room - Type 4: Scandi Hygge</option>
+                </optgroup>
+                <optgroup label="Other Spaces">
+                  <option value="home_office">Home Office / Study</option>
+                  <option value="dining_room">Dining Room</option>
+                  <option value="kitchen">Modular Kitchen</option>
+                </optgroup>
               </select>
             </div>
 
@@ -131,6 +140,46 @@
                   <div class="btype-meta">
                     <strong>Type 4: Scandi Haven</strong>
                     <span>Wood Bed, Bookshelf & Nook</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- LIVING ROOM 4 DESIGN TYPES SELECTOR -->
+            <div class="form-group" id="living-variants-wrapper" style="margin-top: 10px; display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-primary); display: flex; align-items: center; gap: 4px; margin-bottom: 0;">
+                  <span>🛋️</span> Living Room: 4 Design Types
+                </label>
+                <span id="living-type-pill" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.3);">Type 1 Active</span>
+              </div>
+              <div class="bedroom-type-grid" id="living-type-selector">
+                <button type="button" class="living-type-btn active" data-living-type="living_room" title="Type 1: Contemporary Media & Conversation Lounge">
+                  <div class="btype-icon">🎬</div>
+                  <div class="btype-meta">
+                    <strong>Type 1: Media Lounge</strong>
+                    <span>Sofa, TV Unit & Credenza</span>
+                  </div>
+                </button>
+                <button type="button" class="living-type-btn" data-living-type="living_room_zen" title="Type 2: Minimalist Japandi Zen">
+                  <div class="btype-icon">🪴</div>
+                  <div class="btype-meta">
+                    <strong>Type 2: Japandi Zen</strong>
+                    <span>Low Sofa, Credenza & Mirror</span>
+                  </div>
+                </button>
+                <button type="button" class="living-type-btn" data-living-type="living_room_luxury" title="Type 3: Modern Luxury Penthouse Salon">
+                  <div class="btype-icon">👑</div>
+                  <div class="btype-meta">
+                    <strong>Type 3: Luxury Penthouse</strong>
+                    <span>Dual Chairs, Marble & TV</span>
+                  </div>
+                </button>
+                <button type="button" class="living-type-btn" data-living-type="living_room_cozy" title="Type 4: Scandinavian Hygge Family">
+                  <div class="btype-icon">📚</div>
+                  <div class="btype-meta">
+                    <strong>Type 4: Scandi Hygge</strong>
+                    <span>Sofa, Bookshelf & Study Desk</span>
                   </div>
                 </button>
               </div>

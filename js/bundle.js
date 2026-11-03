@@ -2584,132 +2584,538 @@ class AIEngine {
     let spatialRationale = '';
     let lightingPlan = '';
 
-    if (roomType === 'living_room') {
-      concept = `${style.toUpperCase()} HARMONY LIVING SPACE`;
-      spatialRationale = `Furniture is arranged to optimize conversation flow while maintaining a minimum 0.8m walking corridor from the entrance. The main focal wall features the media console, balanced by a comfortable seating cluster anchored by a tactile area rug.`;
-      lightingPlan = `${lighting === 'warm_ambient' ? 'Warm 2700K ambient illumination' : 'Bright 4000K daylight simulation'} with localized accent pools via a designer floor lamp beside the reading lounge chair.`;
+    if (roomType === 'living_room' || roomType.startsWith('living_room_')) {
+      // Determine which of the 4 Living Room Design Types is selected
+      let livingType = pref.livingRoomType || 1;
+      if (roomType === 'living_room_zen' || roomType === 'living_room_type2') livingType = 2;
+      else if (roomType === 'living_room_luxury' || roomType === 'living_room_type3') livingType = 3;
+      else if (roomType === 'living_room_cozy' || roomType === 'living_room_type4') livingType = 4;
+      else if (roomType === 'living_room' && pref.livingRoomType) livingType = parseInt(pref.livingRoomType, 10) || 1;
 
-      // Area Rug in center
-      const rugW = Math.min(W * 0.65, 3.0);
-      const rugL = Math.min(L * 0.55, 2.4);
-      items.push({
-        id: 'rug_1',
-        type: 'rug',
-        name: 'Area Rug',
-        position: [0, 0, 0.2],
-        rotation: [0, 0, 0],
-        style: style,
-        dimensions: [rugW, rugL],
-        cost: 250
-      });
+      if (livingType === 1) {
+        // TYPE 1: CONTEMPORARY MEDIA & CONVERSATION LOUNGE
+        concept = `TYPE 1: CONTEMPORARY MEDIA & CONVERSATION LOUNGE (${style.toUpperCase()})`;
+        spatialRationale = `Engineered for effortless social hosting and cinematic immersion. The spacious seating zone is anchored by a deep designer sofa and accent armchair angled for face-to-face dialogue, with an expansive low-profile media console providing a balanced architectural focal point.`;
+        lightingPlan = `Layered ambient and bias entertainment lighting: a designer central pendant provides soft overhead warmth while a perimeter floor lamp creates glare-free mood pools for movie evenings.`;
 
-      // Sofa against back wall or setback
-      const sofaZ = -L / 2 + 1.0;
-      items.push({
-        id: 'sofa_1',
-        type: 'sofa',
-        name: `${style.charAt(0).toUpperCase() + style.slice(1)} Sofa`,
-        position: [0, 0, sofaZ],
-        rotation: [0, 0, 0],
-        style: style,
-        color: palette.sofaColor,
-        cost: 950
-      });
+        // Area Rug in center
+        const rugW = Math.min(W * 0.65, 3.0);
+        const rugL = Math.min(L * 0.55, 2.4);
+        items.push({
+          id: 'rug_1',
+          type: 'rug',
+          name: 'Designer Area Rug',
+          position: [0, 0, 0.1],
+          rotation: [0, 0, 0],
+          style: style,
+          dimensions: [rugW, rugL],
+          cost: 260
+        });
 
-      // Wall Art above Sofa
-      items.push({
-        id: 'art_1',
-        type: 'wall_art',
-        name: 'Gallery Wall Canvas',
-        position: [0, 1.8, -L / 2 + 0.05],
-        rotation: [0, 0, 0],
-        style: style,
-        cost: 160
-      });
+        // Sofa against back wall setback
+        const sofaZ = -L / 2 + 1.05;
+        items.push({
+          id: 'sofa_1',
+          type: 'sofa',
+          name: `${style.charAt(0).toUpperCase() + style.slice(1)} Deep Lounge Sofa`,
+          position: [0, 0, sofaZ],
+          rotation: [0, 0, 0],
+          style: style,
+          color: palette.sofaColor,
+          cost: 1100
+        });
 
-      // Coffee Table in front of Sofa
-      items.push({
-        id: 'table_1',
-        type: 'coffee_table',
-        name: 'Coffee Table',
-        position: [0, 0, sofaZ + 1.1],
-        rotation: [0, 0, 0],
-        style: style,
-        color: palette.woodColor,
-        cost: 290
-      });
+        // Gallery Wall Art above Sofa
+        items.push({
+          id: 'art_1',
+          type: 'wall_art',
+          name: 'Contemporary Canvas Art',
+          position: [0, 1.85, -L / 2 + 0.05],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 180
+        });
 
-      // TV Console on front wall opposite sofa
-      const tvZ = L / 2 - 0.5;
-      items.push({
-        id: 'tv_1',
-        type: 'tv_unit',
-        name: 'Media Console & TV',
-        position: [0, 0, tvZ],
-        rotation: [0, Math.PI, 0],
-        style: style,
-        cost: 1200
-      });
+        // Coffee Table in front of Sofa
+        items.push({
+          id: 'table_1',
+          type: 'coffee_table',
+          name: 'Modern Coffee Table',
+          position: [0, 0, sofaZ + 1.15],
+          rotation: [0, 0, 0],
+          style: style,
+          color: palette.woodColor,
+          cost: 320
+        });
 
-      // Armchair angled on side
-      const chairX = -W / 2 + 1.1;
-      items.push({
-        id: 'chair_1',
-        type: 'armchair',
-        name: 'Accent Armchair',
-        position: [chairX, 0, 0.2],
-        rotation: [0, Math.PI / 4, 0],
-        style: style,
-        color: palette.accentColor,
-        cost: 440
-      });
+        // Media Console & TV Unit on front wall
+        const tvZ = L / 2 - 0.45;
+        items.push({
+          id: 'tv_1',
+          type: 'tv_unit',
+          name: 'Media Console & 4K Display',
+          position: [0, 0, tvZ],
+          rotation: [0, Math.PI, 0],
+          style: style,
+          cost: 1350
+        });
 
-      // Floor Lamp in cozy corner
-      items.push({
-        id: 'lamp_1',
-        type: 'floor_lamp',
-        name: 'Sculptural Floor Lamp',
-        position: [W / 2 - 0.7, 0, sofaZ - 0.2],
-        rotation: [0, 0, 0],
-        style: style,
-        cost: 210
-      });
+        // Accent Armchair angled on side
+        const chairX = -W / 2 + 1.15;
+        items.push({
+          id: 'chair_1',
+          type: 'armchair',
+          name: 'Sculptural Accent Armchair',
+          position: [chairX, 0, 0.2],
+          rotation: [0, Math.PI / 4, 0],
+          style: style,
+          color: palette.accentColor,
+          cost: 460
+        });
 
-      // Indoor Plant near window
-      items.push({
-        id: 'plant_1',
-        type: 'plant',
-        name: 'Monstera Plant',
-        position: [-W / 2 + 0.6, 0, -L / 2 + 0.7],
-        rotation: [0, 0.4, 0],
-        style: style,
-        cost: 85
-      });
+        // Sculptural Floor Lamp
+        items.push({
+          id: 'lamp_1',
+          type: 'floor_lamp',
+          name: 'Sculptural Brass Floor Lamp',
+          position: [W / 2 - 0.7, 0, sofaZ - 0.2],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 220
+        });
 
-      // Bookshelf along side wall if room is wide enough
-      if (W >= 4.0) {
+        // Storage Credenza along right wall
         items.push({
           id: 'credenza_1',
           type: 'credenza',
-          name: 'Storage Credenza',
+          name: 'Perimeter Storage Credenza',
           position: [W / 2 - 0.35, 0, 0.3],
           rotation: [0, -Math.PI / 2, 0],
           style: style,
           color: palette.woodColor,
-          cost: 650
+          cost: 680
+        });
+
+        // Overhead Pendant Light
+        items.push({
+          id: 'pendant_1',
+          type: 'pendant_light',
+          name: 'Architectural Pendant Light',
+          position: [0, 0, sofaZ + 1.15],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 190
+        });
+
+        // Tall Indoor Plant
+        items.push({
+          id: 'plant_1',
+          type: 'plant',
+          name: 'Monstera Deliciosa Plant',
+          position: [-W / 2 + 0.65, 0, L / 2 - 0.75],
+          rotation: [0, 0.4, 0],
+          style: style,
+          cost: 90
+        });
+
+      } else if (livingType === 2) {
+        // TYPE 2: MINIMALIST JAPANDI ZEN LOUNGE
+        concept = `TYPE 2: MINIMALIST JAPANDI ZEN LOUNGE (${style.toUpperCase()})`;
+        spatialRationale = `Embraces Wabi-Sabi simplicity with low-profile horizontal silhouettes, uncluttered pathways, and rich natural organic materials. Generous open floor clearance maintains sightlines, bringing peaceful breathing room into the home.`;
+        lightingPlan = `Warm 2500K-2700K indirect twilight glow: soft diffused orb illumination paired with a warm paper-shade floor accent.`;
+
+        // Low Minimalist Sofa
+        const sofaZ = -L / 2 + 1.1;
+        items.push({
+          id: 'sofa_1',
+          type: 'sofa',
+          name: 'Low Japandi Linen Sofa',
+          position: [0, 0, sofaZ],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          color: palette.sofaColor,
+          cost: 1050
+        });
+
+        // Bauhaus Wall Art
+        items.push({
+          id: 'art_1',
+          type: 'wall_art',
+          name: 'Zen Bauhaus Minimal Canvas',
+          position: [0, 1.9, -L / 2 + 0.05],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          cost: 160
+        });
+
+        // Low Organic Wood Coffee Table
+        items.push({
+          id: 'table_1',
+          type: 'coffee_table',
+          name: 'Low Organic Oak Coffee Table',
+          position: [0, 0, -0.05],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          color: palette.woodColor,
+          cost: 290
+        });
+
+        // Natural Woven Jute & Wool Rug
+        items.push({
+          id: 'rug_1',
+          type: 'rug',
+          name: 'Woven Jute & Wool Rug',
+          position: [0, 0, 0.1],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          dimensions: [2.8, 2.2],
+          cost: 240
+        });
+
+        // Low Media & Storage Credenza on front wall
+        items.push({
+          id: 'credenza_1',
+          type: 'credenza',
+          name: 'Low Horizon Media Credenza',
+          position: [0, 0, L / 2 - 0.45],
+          rotation: [0, Math.PI, 0],
+          style: 'minimalist',
+          color: palette.woodColor,
+          cost: 620
+        });
+
+        // Low Japandi Accent Chair
+        items.push({
+          id: 'chair_1',
+          type: 'armchair',
+          name: 'Low Oak Japandi Armchair',
+          position: [-W / 2 + 1.15, 0, 0.1],
+          rotation: [0, Math.PI / 4, 0],
+          style: 'minimalist',
+          color: palette.accentColor,
+          cost: 410
+        });
+
+        // Full-length Leaning Floor Mirror
+        items.push({
+          id: 'mirror_1',
+          type: 'floor_mirror',
+          name: 'Full-Length Leaning Mirror',
+          position: [W / 2 - 0.6, 0, L / 2 - 0.8],
+          rotation: [0, -Math.PI / 4, 0],
+          style: 'minimalist',
+          cost: 210
+        });
+
+        // Paper Lantern Floor Lamp
+        items.push({
+          id: 'lamp_1',
+          type: 'floor_lamp',
+          name: 'Paper Lantern Floor Lamp',
+          position: [-W / 2 + 0.65, 0, -L / 2 + 0.75],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          cost: 160
+        });
+
+        // Potted Zen Bamboo / Plant
+        items.push({
+          id: 'plant_1',
+          type: 'plant',
+          name: 'Potted Zen Bamboo',
+          position: [W / 2 - 0.6, 0, -L / 2 + 0.75],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          cost: 85
+        });
+
+        // Diffused Orb Pendant Light
+        items.push({
+          id: 'pendant_1',
+          type: 'pendant_light',
+          name: 'Diffused Orb Pendant Light',
+          position: [0, 0, -0.05],
+          rotation: [0, 0, 0],
+          style: 'minimalist',
+          cost: 175
+        });
+
+      } else if (livingType === 3) {
+        // TYPE 3: MODERN LUXURY PENTHOUSE SALON
+        concept = `TYPE 3: MODERN LUXURY PENTHOUSE SALON (${style.toUpperCase()})`;
+        spatialRationale = `A grand salon arrangement designed for formal hosting and luxurious relaxation. Symmetrical armchair placements form a high-end conversation quadrangle around a marble-topped coffee table, balanced by a perimeter luxury credenza and statement entertainment center.`;
+        lightingPlan = `Multi-tiered architectural luxury lighting: a brilliant sculptural brass pendant acts as the room's crown jewel, complemented by warm localized accent downlights and brass floor sconces.`;
+
+        // Luxury Velvet Tuxedo Sofa
+        const sofaZ = -L / 2 + 1.15;
+        items.push({
+          id: 'sofa_1',
+          type: 'sofa',
+          name: 'Velvet Tailored Luxury Sofa',
+          position: [0, 0, sofaZ],
+          rotation: [0, 0, 0],
+          style: 'luxury',
+          color: palette.sofaColor,
+          cost: 1450
+        });
+
+        // Executive Fine Art Canvas
+        items.push({
+          id: 'art_1',
+          type: 'wall_art',
+          name: 'Executive Fine Art Canvas',
+          position: [0, 1.9, -L / 2 + 0.05],
+          rotation: [0, 0, 0],
+          style: 'luxury',
+          cost: 250
+        });
+
+        // Polished Marble & Brass Coffee Table
+        items.push({
+          id: 'table_1',
+          type: 'coffee_table',
+          name: 'Polished Marble & Brass Table',
+          position: [0, 0, 0.0],
+          rotation: [0, 0, 0],
+          style: 'luxury',
+          color: palette.woodColor,
+          cost: 480
+        });
+
+        // Plush Silk-Wool Luxury Rug
+        items.push({
+          id: 'rug_1',
+          type: 'rug',
+          name: 'Plush Silk-Wool Luxury Rug',
+          position: [0, 0, 0.1],
+          rotation: [0, 0, 0],
+          style: 'luxury',
+          dimensions: [3.2, 2.5],
+          cost: 420
+        });
+
+        // Grand Floating Media Console & Display
+        items.push({
+          id: 'tv_1',
+          type: 'tv_unit',
+          name: 'Grand Floating Media Console',
+          position: [0, 0, L / 2 - 0.45],
+          rotation: [0, Math.PI, 0],
+          style: 'luxury',
+          cost: 1550
+        });
+
+        // Symmetrical Luxury Armchairs (Left & Right)
+        items.push({
+          id: 'chair_1',
+          type: 'armchair',
+          name: 'Velvet Salon Club Chair (L)',
+          position: [-W / 2 + 1.1, 0, 0.0],
+          rotation: [0, Math.PI / 3, 0],
+          style: 'luxury',
+          color: palette.accentColor,
+          cost: 520
+        });
+        items.push({
+          id: 'chair_2',
+          type: 'armchair',
+          name: 'Velvet Salon Club Chair (R)',
+          position: [W / 2 - 1.1, 0, 0.0],
+          rotation: [0, -Math.PI / 3, 0],
+          style: 'luxury',
+          color: palette.accentColor,
+          cost: 520
+        });
+
+        // Luxury Buffet / Bar Credenza along back right
+        items.push({
+          id: 'credenza_1',
+          type: 'credenza',
+          name: 'Cocktail Salon Buffet Credenza',
+          position: [W / 2 - 0.35, 0, -L / 2 + 1.4],
+          rotation: [0, -Math.PI / 2, 0],
+          style: 'luxury',
+          color: palette.woodColor,
+          cost: 780
+        });
+
+        // Sculptural Brass Floor Lamp
+        items.push({
+          id: 'lamp_1',
+          type: 'floor_lamp',
+          name: 'Sculptural Brass Floor Lamp',
+          position: [-W / 2 + 0.65, 0, -L / 2 + 0.75],
+          rotation: [0, 0, 0],
+          style: 'luxury',
+          cost: 260
+        });
+
+        // Grand Brass Designer Chandelier
+        items.push({
+          id: 'pendant_1',
+          type: 'pendant_light',
+          name: 'Grand Brass Designer Chandelier',
+          position: [0, 0, 0.0],
+          rotation: [0, 0, 0],
+          style: 'luxury',
+          cost: 320
+        });
+
+        // Statement Architectural Palm
+        items.push({
+          id: 'plant_1',
+          type: 'plant',
+          name: 'Statement Architectural Palm',
+          position: [-W / 2 + 0.65, 0, L / 2 - 0.75],
+          rotation: [0, 0, 0],
+          style: 'luxury',
+          cost: 120
+        });
+
+      } else {
+        // TYPE 4: SCANDINAVIAN HYGGE FAMILY LIVING (WITH LIBRARY & STUDY NOOK)
+        concept = `TYPE 4: SCANDINAVIAN HYGGE FAMILY LIVING (${style.toUpperCase()})`;
+        spatialRationale = `A versatile, warm family sanctuary that seamlessly combines relaxed communal lounging with an integrated library and laptop work nook. The corner reading zone invites quiet afternoon reading, while the central sofa cluster provides comfortable movie and game nights.`;
+        lightingPlan = `Cozy 2700K hygge illumination: directional reading lamp by the bookshelf nook, warm timber overhead pendant, and soft task lighting at the study desk.`;
+
+        // Cozy Hygge Family Sofa
+        const sofaZ = -L / 2 + 1.15;
+        items.push({
+          id: 'sofa_1',
+          type: 'sofa',
+          name: 'Hygge Family Fabric Sofa',
+          position: [-0.35, 0, sofaZ],
+          rotation: [0, 0, 0],
+          style: 'traditional',
+          color: palette.sofaColor,
+          cost: 1150
+        });
+
+        // Botanical Scandinavian Canvas
+        items.push({
+          id: 'art_1',
+          type: 'wall_art',
+          name: 'Botanical Scandinavian Canvas',
+          position: [-0.35, 1.9, -L / 2 + 0.05],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 175
+        });
+
+        // Round Oak Coffee & Reading Table
+        items.push({
+          id: 'table_1',
+          type: 'coffee_table',
+          name: 'Round Natural Oak Coffee Table',
+          position: [-0.35, 0, 0.0],
+          rotation: [0, 0, 0],
+          style: style,
+          color: palette.woodColor,
+          cost: 280
+        });
+
+        // Chunky Wool Hygge Rug
+        items.push({
+          id: 'rug_1',
+          type: 'rug',
+          name: 'Chunky Wool Hygge Rug',
+          position: [-0.35, 0, 0.1],
+          rotation: [0, 0, 0],
+          style: style,
+          dimensions: [2.8, 2.2],
+          cost: 290
+        });
+
+        // Low Media Console & TV
+        items.push({
+          id: 'tv_1',
+          type: 'tv_unit',
+          name: 'Nordic Oak Media Console',
+          position: [-0.35, 0, L / 2 - 0.45],
+          rotation: [0, Math.PI, 0],
+          style: style,
+          cost: 1200
+        });
+
+        // Open Nordic Library Bookshelf
+        items.push({
+          id: 'bookshelf_1',
+          type: 'bookshelf',
+          name: 'Nordic Open Library Shelf',
+          position: [-W / 2 + 0.35, 0, -L / 2 + 1.3],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          cost: 440
+        });
+
+        // Cozy Reading Armchair
+        items.push({
+          id: 'chair_1',
+          type: 'armchair',
+          name: 'Hygge Reading Armchair',
+          position: [-W / 2 + 1.1, 0, 0.35],
+          rotation: [0, Math.PI / 4, 0],
+          style: style,
+          color: palette.accentColor,
+          cost: 460
+        });
+
+        // Integrated Work & Study Desk along right wall
+        items.push({
+          id: 'desk_1',
+          type: 'desk',
+          name: 'Integrated Work / Study Desk',
+          position: [W / 2 - 0.75, 0, 0.3],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.woodColor,
+          cost: 560
+        });
+
+        // Ergonomic Desk Chair
+        items.push({
+          id: 'office_chair_1',
+          type: 'office_chair',
+          name: 'Ergonomic Desk Chair',
+          position: [W / 2 - 1.45, 0, 0.3],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          cost: 280
+        });
+
+        // Timber Directional Reading Lamp
+        items.push({
+          id: 'lamp_1',
+          type: 'floor_lamp',
+          name: 'Timber Reading Floor Lamp',
+          position: [-W / 2 + 0.6, 0, -L / 2 + 0.65],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 195
+        });
+
+        // Woven Timber Pendant Lamp
+        items.push({
+          id: 'pendant_1',
+          type: 'pendant_light',
+          name: 'Woven Timber Pendant Lamp',
+          position: [-0.35, 0, 0.0],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 185
+        });
+
+        // Lush Monstera Plant
+        items.push({
+          id: 'plant_1',
+          type: 'plant',
+          name: 'Lush Monstera Deliciosa',
+          position: [W / 2 - 0.6, 0, L / 2 - 0.75],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 85
         });
       }
-
-      // Overhead Pendant Light
-      items.push({
-        id: 'pendant_1',
-        type: 'pendant_light',
-        name: 'Overhead Pendant Light',
-        position: [0, 0, sofaZ + 1.1],
-        rotation: [0, 0, 0],
-        style: style,
-        cost: 180
-      });
     } else if (roomType === 'bedroom' || roomType.startsWith('bedroom_')) {
       // Determine which of the 4 Master Bedroom Design Types is selected
       let bedType = pref.bedroomType || 1;
@@ -3631,6 +4037,10 @@ class AIEngine {
       : pref.roomType === 'bedroom_hotel' ? 'Modern Hotel Chic & Vanity Master Bedroom'
       : pref.roomType === 'bedroom_scandi' ? 'Scandinavian Cozy Haven Master Bedroom'
       : pref.roomType.startsWith('bedroom') ? 'Luxury Executive Master Bedroom Suite'
+      : pref.roomType === 'living_room_zen' ? 'Minimalist Japandi Zen Living Room'
+      : pref.roomType === 'living_room_luxury' ? 'Modern Luxury Penthouse Living Salon'
+      : pref.roomType === 'living_room_cozy' ? 'Scandinavian Hygge Family Living Room'
+      : pref.roomType.startsWith('living_room') ? 'Contemporary Media & Conversation Living Room'
       : pref.roomType.replace('_', ' ');
 
     const prompt = `You are a world-class AI interior architect. Generate an interior design plan for a ${typeTitle} with dimensions ${pref.dimensions.width}m width by ${pref.dimensions.length}m length by ${pref.dimensions.height}m height.
@@ -4692,9 +5102,24 @@ class App {
         if (roomSelect) {
           roomSelect.value = targetType;
         }
-        this.syncBedroomVariantsUI(targetType);
+        this.syncRoomVariantsUI(targetType);
         this.triggerAIGeneration();
         const typeTitle = btn.querySelector('strong')?.textContent || 'Master Bedroom Type';
+        this.showToast(`✨ Switched to ${typeTitle}`);
+      });
+    });
+
+    // Living Room 4 Design Types Selector Buttons
+    document.querySelectorAll('.living-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetType = btn.getAttribute('data-living-type');
+        const roomSelect = document.getElementById('room-type');
+        if (roomSelect) {
+          roomSelect.value = targetType;
+        }
+        this.syncRoomVariantsUI(targetType);
+        this.triggerAIGeneration();
+        const typeTitle = btn.querySelector('strong')?.textContent || 'Living Room Type';
         this.showToast(`✨ Switched to ${typeTitle}`);
       });
     });
@@ -4702,7 +5127,7 @@ class App {
     // Instant Room Type Switching
     document.getElementById('room-type')?.addEventListener('change', (e) => {
       const selectedType = e.target.value;
-      this.syncBedroomVariantsUI(selectedType);
+      this.syncRoomVariantsUI(selectedType);
       this.triggerAIGeneration();
       const rName = e.target.options[e.target.selectedIndex]?.text || 'Space';
       this.showToast(`Switched space to ${rName}`);
@@ -5332,36 +5757,59 @@ class App {
       this.roomBuilder.setDoorSwing(val);
     });
 
-    this.syncBedroomVariantsUI(document.getElementById('room-type')?.value || 'bedroom');
+    this.syncRoomVariantsUI(document.getElementById('room-type')?.value || 'bedroom');
   }
 
-  // Master Bedroom UI Synchronizer
-  syncBedroomVariantsUI(currentRoomType) {
-    const wrapper = document.getElementById('bedroom-variants-wrapper');
-    const pill = document.getElementById('bedroom-type-pill');
-    const buttons = document.querySelectorAll('.bedroom-type-btn');
-    if (!wrapper) return;
-
+  // Master Bedroom & Living Room Variants UI Synchronizer
+  syncRoomVariantsUI(currentRoomType) {
+    // 1. Bedroom Variants
+    const bedWrapper = document.getElementById('bedroom-variants-wrapper');
+    const bedPill = document.getElementById('bedroom-type-pill');
+    const bedButtons = document.querySelectorAll('.bedroom-type-btn');
     const isBedroom = currentRoomType === 'bedroom' || (currentRoomType && currentRoomType.startsWith('bedroom_'));
-    wrapper.style.display = isBedroom ? 'block' : 'none';
 
-    if (isBedroom) {
-      buttons.forEach(btn => {
-        const type = btn.getAttribute('data-bedroom-type');
-        if (type === currentRoomType) {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
+    if (bedWrapper) {
+      bedWrapper.style.display = isBedroom ? 'block' : 'none';
+      if (isBedroom) {
+        bedButtons.forEach(btn => {
+          const type = btn.getAttribute('data-bedroom-type');
+          btn.classList.toggle('active', type === currentRoomType);
+        });
+        if (bedPill) {
+          if (currentRoomType === 'bedroom_zen') bedPill.textContent = 'Type 2 Active';
+          else if (currentRoomType === 'bedroom_hotel') bedPill.textContent = 'Type 3 Active';
+          else if (currentRoomType === 'bedroom_scandi') bedPill.textContent = 'Type 4 Active';
+          else bedPill.textContent = 'Type 1 Active';
         }
-      });
-
-      if (pill) {
-        if (currentRoomType === 'bedroom_zen') pill.textContent = 'Type 2 Active';
-        else if (currentRoomType === 'bedroom_hotel') pill.textContent = 'Type 3 Active';
-        else if (currentRoomType === 'bedroom_scandi') pill.textContent = 'Type 4 Active';
-        else pill.textContent = 'Type 1 Active';
       }
     }
+
+    // 2. Living Room Variants
+    const livingWrapper = document.getElementById('living-variants-wrapper');
+    const livingPill = document.getElementById('living-type-pill');
+    const livingButtons = document.querySelectorAll('.living-type-btn');
+    const isLiving = currentRoomType === 'living_room' || (currentRoomType && currentRoomType.startsWith('living_room_'));
+
+    if (livingWrapper) {
+      livingWrapper.style.display = isLiving ? 'block' : 'none';
+      if (isLiving) {
+        livingButtons.forEach(btn => {
+          const type = btn.getAttribute('data-living-type');
+          btn.classList.toggle('active', type === currentRoomType);
+        });
+        if (livingPill) {
+          if (currentRoomType === 'living_room_zen') livingPill.textContent = 'Type 2 Active';
+          else if (currentRoomType === 'living_room_luxury') livingPill.textContent = 'Type 3 Active';
+          else if (currentRoomType === 'living_room_cozy') livingPill.textContent = 'Type 4 Active';
+          else livingPill.textContent = 'Type 1 Active';
+        }
+      }
+    }
+  }
+
+  // Backward compatibility alias
+  syncBedroomVariantsUI(currentRoomType) {
+    this.syncRoomVariantsUI(currentRoomType);
   }
 
   // 6. CAMERA PRESETS & WALKTHROUGH
@@ -5412,11 +5860,18 @@ class App {
     if (currentRoomType === 'bedroom_zen') bedType = 2;
     else if (currentRoomType === 'bedroom_hotel') bedType = 3;
     else if (currentRoomType === 'bedroom_scandi') bedType = 4;
-    this.syncBedroomVariantsUI(currentRoomType);
+
+    let livingType = 1;
+    if (currentRoomType === 'living_room_zen') livingType = 2;
+    else if (currentRoomType === 'living_room_luxury') livingType = 3;
+    else if (currentRoomType === 'living_room_cozy') livingType = 4;
+
+    this.syncRoomVariantsUI(currentRoomType);
 
     const pref = {
       roomType: currentRoomType,
       bedroomType: bedType,
+      livingRoomType: livingType,
       dimensions: {
         width: parseFloat(document.getElementById('room-w').value) || 5.0,
         length: parseFloat(document.getElementById('room-l').value) || 4.5,
@@ -5667,7 +6122,10 @@ class App {
       bedroom_zen: 'Master Bedroom (Type 2: Minimalist Zen)',
       bedroom_hotel: 'Master Bedroom (Type 3: Hotel Chic & Vanity)',
       bedroom_scandi: 'Master Bedroom (Type 4: Scandinavian Haven)',
-      living_room: 'Living Room',
+      living_room: 'Living Room (Type 1: Media Lounge)',
+      living_room_zen: 'Living Room (Type 2: Japandi Zen)',
+      living_room_luxury: 'Living Room (Type 3: Luxury Penthouse)',
+      living_room_cozy: 'Living Room (Type 4: Scandi Hygge)',
       home_office: 'Home Office / Study',
       dining_room: 'Dining Room',
       kitchen: 'Modular Kitchen'
@@ -5884,7 +6342,7 @@ class App {
     if (data.name) document.getElementById('project-name-input').value = data.name;
     if (data.roomType) {
       document.getElementById('room-type').value = data.roomType;
-      this.syncBedroomVariantsUI(data.roomType);
+      this.syncRoomVariantsUI(data.roomType);
     }
     if (data.dimensions) {
       document.getElementById('room-w').value = data.dimensions.width;
