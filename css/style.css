@@ -792,7 +792,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* MASTER BEDROOM, LIVING ROOM, HOME OFFICE & DINING ROOM 4 DESIGN TYPES SELECTOR */
+/* MASTER BEDROOM, LIVING ROOM, HOME OFFICE, DINING ROOM & MODULAR KITCHEN 4 DESIGN TYPES SELECTOR */
 .bedroom-type-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -802,7 +802,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .bedroom-type-btn,
 .living-type-btn,
 .office-type-btn,
-.dining-type-btn {
+.dining-type-btn,
+.kitchen-type-btn {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -821,7 +822,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .bedroom-type-btn:hover,
 .living-type-btn:hover,
 .office-type-btn:hover,
-.dining-type-btn:hover {
+.dining-type-btn:hover,
+.kitchen-type-btn:hover {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(99, 102, 241, 0.4);
   transform: translateY(-1px);
@@ -830,7 +832,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .bedroom-type-btn.active,
 .living-type-btn.active,
 .office-type-btn.active,
-.dining-type-btn.active {
+.dining-type-btn.active,
+.kitchen-type-btn.active {
   background: rgba(99, 102, 241, 0.16);
   border-color: var(--accent-primary);
   box-shadow: 0 0 12px rgba(99, 102, 241, 0.25);
@@ -839,7 +842,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .bedroom-type-btn .btype-icon,
 .living-type-btn .btype-icon,
 .office-type-btn .btype-icon,
-.dining-type-btn .btype-icon {
+.dining-type-btn .btype-icon,
+.kitchen-type-btn .btype-icon {
   font-size: 20px;
   flex-shrink: 0;
   line-height: 1;
@@ -848,7 +852,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .bedroom-type-btn .btype-meta,
 .living-type-btn .btype-meta,
 .office-type-btn .btype-meta,
-.dining-type-btn .btype-meta {
+.dining-type-btn .btype-meta,
+.kitchen-type-btn .btype-meta {
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -858,7 +863,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .bedroom-type-btn .btype-meta strong,
 .living-type-btn .btype-meta strong,
 .office-type-btn .btype-meta strong,
-.dining-type-btn .btype-meta strong {
+.dining-type-btn .btype-meta strong,
+.kitchen-type-btn .btype-meta strong {
   font-size: 11px;
   font-weight: 600;
   color: #fff;
@@ -870,7 +876,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .bedroom-type-btn .btype-meta span,
 .living-type-btn .btype-meta span,
 .office-type-btn .btype-meta span,
-.dining-type-btn .btype-meta span {
+.dining-type-btn .btype-meta span,
+.kitchen-type-btn .btype-meta span {
   font-size: 9.5px;
   color: var(--text-dim);
   white-space: nowrap;

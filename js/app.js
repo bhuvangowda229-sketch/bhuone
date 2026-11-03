@@ -1061,6 +1061,21 @@ class App {
       });
     });
 
+    // Modular Kitchen 4 Design Types Selector Buttons
+    document.querySelectorAll('.kitchen-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetType = btn.getAttribute('data-kitchen-type');
+        const roomSelect = document.getElementById('room-type');
+        if (roomSelect) {
+          roomSelect.value = targetType;
+        }
+        this.syncRoomVariantsUI(targetType);
+        this.triggerAIGeneration();
+        const typeTitle = btn.querySelector('strong')?.textContent || 'Modular Kitchen Type';
+        this.showToast(`✨ Switched to ${typeTitle}`);
+      });
+    });
+
     // Instant Room Type Switching
     document.getElementById('room-type')?.addEventListener('change', (e) => {
       const selectedType = e.target.value;
@@ -1786,6 +1801,28 @@ class App {
         }
       }
     }
+
+    // 5. Modular Kitchen Variants
+    const kitchenWrapper = document.getElementById('kitchen-variants-wrapper');
+    const kitchenPill = document.getElementById('kitchen-type-pill');
+    const kitchenButtons = document.querySelectorAll('.kitchen-type-btn');
+    const isKitchen = currentRoomType === 'kitchen' || (currentRoomType && currentRoomType.startsWith('kitchen_'));
+
+    if (kitchenWrapper) {
+      kitchenWrapper.style.display = isKitchen ? 'block' : 'none';
+      if (isKitchen) {
+        kitchenButtons.forEach(btn => {
+          const type = btn.getAttribute('data-kitchen-type');
+          btn.classList.toggle('active', type === currentRoomType);
+        });
+        if (kitchenPill) {
+          if (currentRoomType === 'kitchen_lshape') kitchenPill.textContent = 'Type 2 Active';
+          else if (currentRoomType === 'kitchen_galley') kitchenPill.textContent = 'Type 3 Active';
+          else if (currentRoomType === 'kitchen_ushape') kitchenPill.textContent = 'Type 4 Active';
+          else kitchenPill.textContent = 'Type 1 Active';
+        }
+      }
+    }
   }
 
   // Backward compatibility alias
@@ -1857,6 +1894,11 @@ class App {
     else if (currentRoomType === 'dining_room_luxury') diningType = 3;
     else if (currentRoomType === 'dining_room_scandi') diningType = 4;
 
+    let kitchenType = 1;
+    if (currentRoomType === 'kitchen_lshape') kitchenType = 2;
+    else if (currentRoomType === 'kitchen_galley') kitchenType = 3;
+    else if (currentRoomType === 'kitchen_ushape') kitchenType = 4;
+
     this.syncRoomVariantsUI(currentRoomType);
 
     const pref = {
@@ -1865,6 +1907,7 @@ class App {
       livingRoomType: livingType,
       officeType: officeType,
       diningType: diningType,
+      kitchenType: kitchenType,
       dimensions: {
         width: parseFloat(document.getElementById('room-w').value) || 5.0,
         length: parseFloat(document.getElementById('room-l').value) || 4.5,
@@ -2127,7 +2170,10 @@ class App {
       dining_room_minimal: 'Dining Room (Type 2: Zen Tea Pavilion)',
       dining_room_luxury: 'Dining Room (Type 3: Luxury Penthouse Salon)',
       dining_room_scandi: 'Dining Room (Type 4: Scandi Farmhouse)',
-      kitchen: 'Modular Kitchen'
+      kitchen: "Modular Kitchen (Type 1: Island Chef's Gourmet)",
+      kitchen_lshape: "Modular Kitchen (Type 2: L-Shaped Family Nook)",
+      kitchen_galley: "Modular Kitchen (Type 3: Parallel Galley Studio)",
+      kitchen_ushape: "Modular Kitchen (Type 4: U-Shaped Luxury Peninsula)"
     };
     const roomTypeLabel = roomLabels[roomType] || roomType.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
     const w = parseFloat(document.getElementById('room-w')?.value) || 5.0;

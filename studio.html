@@ -109,8 +109,11 @@
                   <option value="dining_room_luxury">Dining Room - Type 3: Luxury Penthouse</option>
                   <option value="dining_room_scandi">Dining Room - Type 4: Scandi Farmhouse</option>
                 </optgroup>
-                <optgroup label="Other Spaces">
-                  <option value="kitchen">Modular Kitchen</option>
+                <optgroup label="Modular Kitchen (4 Designs)">
+                  <option value="kitchen">Modular Kitchen - Type 1: Island Chef's Gourmet</option>
+                  <option value="kitchen_lshape">Modular Kitchen - Type 2: L-Shaped Family Nook</option>
+                  <option value="kitchen_galley">Modular Kitchen - Type 3: Parallel Galley Studio</option>
+                  <option value="kitchen_ushape">Modular Kitchen - Type 4: U-Shaped Luxury Peninsula</option>
                 </optgroup>
               </select>
             </div>
@@ -270,6 +273,46 @@
                   <div class="btype-meta">
                     <strong>Type 4: Scandi Farmhouse</strong>
                     <span>Oak Table, Hutch & Reading Nook</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- MODULAR KITCHEN 4 DESIGN TYPES SELECTOR -->
+            <div class="form-group" id="kitchen-variants-wrapper" style="margin-top: 10px; display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-primary); display: flex; align-items: center; gap: 4px; margin-bottom: 0;">
+                  <span>🍳</span> Modular Kitchen: 4 Design Types
+                </label>
+                <span id="kitchen-type-pill" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.3);">Type 1 Active</span>
+              </div>
+              <div class="bedroom-type-grid" id="kitchen-type-selector">
+                <button type="button" class="kitchen-type-btn active" data-kitchen-type="kitchen" title="Type 1: Island Chef's Gourmet Kitchen">
+                  <div class="btype-icon">🍳</div>
+                  <div class="btype-meta">
+                    <strong>Type 1: Island Gourmet</strong>
+                    <span>Island, Stools & Work Triangle</span>
+                  </div>
+                </button>
+                <button type="button" class="kitchen-type-btn" data-kitchen-type="kitchen_lshape" title="Type 2: L-Shaped Family Kitchen with Breakfast Nook">
+                  <div class="btype-icon">☕</div>
+                  <div class="btype-meta">
+                    <strong>Type 2: L-Shaped Family</strong>
+                    <span>Corner Layout & Breakfast Table</span>
+                  </div>
+                </button>
+                <button type="button" class="kitchen-type-btn" data-kitchen-type="kitchen_galley" title="Type 3: Parallel Galley Professional Kitchen">
+                  <div class="btype-icon">🔪</div>
+                  <div class="btype-meta">
+                    <strong>Type 3: Parallel Galley</strong>
+                    <span>Dual Banks & Chef Runway</span>
+                  </div>
+                </button>
+                <button type="button" class="kitchen-type-btn" data-kitchen-type="kitchen_ushape" title="Type 4: U-Shaped Luxury Peninsula Kitchen">
+                  <div class="btype-icon">🍸</div>
+                  <div class="btype-meta">
+                    <strong>Type 4: Luxury Peninsula</strong>
+                    <span>Wrap-Around & Cocktail Bar</span>
                   </div>
                 </button>
               </div>
