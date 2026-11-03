@@ -2546,6 +2546,750 @@ class FurnitureFactory {
 
     return group;
   }
+
+  // 24. FRONT-LOADING WASHING MACHINE (DAILY LAUNDRY)
+  static createWashingMachine(style = 'modern', color = 0xf8fafc) {
+    const group = new THREE.Group();
+    group.name = 'Washing Machine';
+    group.userData = { type: 'washing_machine', name: 'Front-Load Washing Machine', cost: 650, color: color };
+
+    const w = 0.6, h = 0.85, d = 0.6;
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: color,
+      roughness: 0.35,
+      metalness: 0.15
+    });
+    const darkMat = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      roughness: 0.2,
+      metalness: 0.7
+    });
+    const chromeMat = new THREE.MeshStandardMaterial({
+      color: 0xe2e8f0,
+      metalness: 0.9,
+      roughness: 0.15
+    });
+    const screenMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+
+    // Main Chassis Body
+    const body = this.createMesh(new THREE.BoxGeometry(w, h - 0.04, d - 0.02), bodyMat, 'Washer Body');
+    body.position.set(0, (h - 0.04) / 2 + 0.02, 0);
+    group.add(body);
+
+    // Top Worktop Lid
+    const top = this.createMesh(new THREE.BoxGeometry(w + 0.01, 0.03, d + 0.01), bodyMat, 'Top Counter Lid');
+    top.position.set(0, h - 0.015, 0);
+    group.add(top);
+
+    // Front Control Panel Band (top front)
+    const panel = this.createMesh(new THREE.BoxGeometry(w - 0.02, 0.14, 0.02), darkMat, 'Control Panel');
+    panel.position.set(0, h - 0.1, d / 2);
+    group.add(panel);
+
+    // Detergent Dispenser Drawer (top-left)
+    const drawer = this.createMesh(new THREE.BoxGeometry(0.16, 0.09, 0.025), bodyMat, 'Detergent Drawer');
+    drawer.position.set(-w / 2 + 0.11, h - 0.1, d / 2 + 0.005);
+    group.add(drawer);
+
+    // Central Rotary Program Selector Knob
+    const knob = this.createMesh(new THREE.CylinderGeometry(0.035, 0.035, 0.025, 24), chromeMat, 'Program Dial');
+    knob.rotation.x = Math.PI / 2;
+    knob.position.set(0.04, h - 0.1, d / 2 + 0.015);
+    group.add(knob);
+
+    // Digital LED Timer Display (top-right)
+    const screen = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.04, 0.01), screenMat);
+    screen.position.set(w / 2 - 0.09, h - 0.09, d / 2 + 0.012);
+    group.add(screen);
+
+    // Front Loading Porthole Door Rim (circular chrome trim)
+    const doorRim = this.createMesh(new THREE.TorusGeometry(0.2, 0.025, 16, 32), chromeMat, 'Door Rim');
+    doorRim.position.set(0, 0.38, d / 2 + 0.005);
+    group.add(doorRim);
+
+    // Tinted Door Glass Window
+    const doorGlass = this.createMesh(new THREE.CylinderGeometry(0.18, 0.18, 0.02, 24), darkMat, 'Porthole Glass');
+    doorGlass.rotation.x = Math.PI / 2;
+    doorGlass.position.set(0, 0.38, d / 2 + 0.005);
+    group.add(doorGlass);
+
+    // Integrated Door Latch Handle
+    const handle = this.createMesh(new THREE.BoxGeometry(0.025, 0.09, 0.02), chromeMat, 'Door Latch Handle');
+    handle.position.set(0.2, 0.38, d / 2 + 0.02);
+    group.add(handle);
+
+    // 4 Rubber Leveling Feet
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([fx, fz], idx) => {
+      const foot = this.createMesh(new THREE.CylinderGeometry(0.025, 0.025, 0.02, 12), darkMat, `Leveling Foot ${idx + 1}`);
+      foot.position.set(fx * (w / 2 - 0.05), 0.01, fz * (d / 2 - 0.05));
+      group.add(foot);
+    });
+
+    return group;
+  }
+
+  // 25. COUNTERTOP MICROWAVE OVEN (DAILY COOKING & HEATING)
+  static createMicrowave(style = 'modern', color = 0x1e293b) {
+    const group = new THREE.Group();
+    group.name = 'Microwave Oven';
+    group.userData = { type: 'microwave', name: 'Digital Microwave Oven', cost: 220, color: color };
+
+    const w = 0.54, h = 0.32, d = 0.38;
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: color,
+      metalness: style === 'luxury' ? 0.8 : 0.4,
+      roughness: 0.3
+    });
+    const glassMat = new THREE.MeshStandardMaterial({
+      color: 0x020617,
+      metalness: 0.9,
+      roughness: 0.1
+    });
+    const chromeMat = new THREE.MeshStandardMaterial({
+      color: 0xe2e8f0,
+      metalness: 0.9,
+      roughness: 0.15
+    });
+    const displayMat = new THREE.MeshBasicMaterial({ color: 0x22c55e });
+
+    // Microwave Body Casing
+    const body = this.createMesh(new THREE.BoxGeometry(w, h, d), bodyMat, 'Microwave Casing');
+    body.position.set(0, h / 2, 0);
+    group.add(body);
+
+    // Front Glass Viewing Door (Left side of front)
+    const doorW = 0.36;
+    const door = this.createMesh(new THREE.BoxGeometry(doorW, h - 0.04, 0.015), glassMat, 'Microwave Glass Door');
+    door.position.set(-w / 2 + doorW / 2 + 0.02, h / 2, d / 2 + 0.008);
+    group.add(door);
+
+    // Vertical Door Pull Handle
+    const handle = this.createMesh(new THREE.BoxGeometry(0.02, h * 0.55, 0.025), chromeMat, 'Door Pull Handle');
+    handle.position.set(-w / 2 + doorW - 0.01, h / 2, d / 2 + 0.02);
+    group.add(handle);
+
+    // Control Panel on Right side
+    const panelW = w - doorW - 0.04;
+    const panel = this.createMesh(new THREE.BoxGeometry(panelW, h - 0.04, 0.01), bodyMat, 'Touch Control Panel');
+    panel.position.set(w / 2 - panelW / 2 - 0.015, h / 2, d / 2 + 0.006);
+    group.add(panel);
+
+    // Digital LED Clock Display
+    const display = new THREE.Mesh(new THREE.BoxGeometry(panelW - 0.02, 0.04, 0.005), displayMat);
+    display.position.set(w / 2 - panelW / 2 - 0.015, h - 0.07, d / 2 + 0.012);
+    group.add(display);
+
+    // Keypad Buttons & Dial
+    const dial = this.createMesh(new THREE.CylinderGeometry(0.02, 0.02, 0.015, 16), chromeMat, 'Time Dial Knob');
+    dial.rotation.x = Math.PI / 2;
+    dial.position.set(w / 2 - panelW / 2 - 0.015, 0.1, d / 2 + 0.015);
+    group.add(dial);
+
+    // 4 Rubber Feet
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([fx, fz], idx) => {
+      const foot = this.createMesh(new THREE.CylinderGeometry(0.018, 0.018, 0.015, 12), glassMat, `Foot ${idx + 1}`);
+      foot.position.set(fx * (w / 2 - 0.04), 0.008, fz * (d / 2 - 0.04));
+      group.add(foot);
+    });
+
+    return group;
+  }
+
+  // 26. WALL-MOUNTED SPLIT AIR CONDITIONER (DAILY CLIMATE CONTROL)
+  static createAirConditioner(style = 'modern') {
+    const group = new THREE.Group();
+    group.name = 'Split Air Conditioner';
+    group.userData = { type: 'air_conditioner', name: 'Smart Inverter Split AC', cost: 780, isWallMounted: true };
+
+    const w = 0.92, h = 0.3, d = 0.22;
+    const whiteMat = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc,
+      roughness: 0.3,
+      metalness: 0.1
+    });
+    const trimMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0x94a3b8,
+      metalness: 0.8,
+      roughness: 0.2
+    });
+    const ledMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+
+    // Main Curved Indoor AC Unit Body
+    const body = this.createMesh(new THREE.BoxGeometry(w, h, d), whiteMat, 'AC Chassis');
+    group.add(body);
+
+    // Front Decorative Accent Trim Strip
+    const trim = this.createMesh(new THREE.BoxGeometry(w + 0.005, 0.015, 0.01), trimMat, 'Chrome Trim Strip');
+    trim.position.set(0, -0.05, d / 2 + 0.005);
+    group.add(trim);
+
+    // Bottom Air Discharge Louver Blade (slight tilt downward)
+    const louver = this.createMesh(new THREE.BoxGeometry(w - 0.08, 0.04, 0.015), whiteMat, 'Airflow Louver Blade');
+    louver.rotation.x = 0.25;
+    louver.position.set(0, -h / 2 + 0.02, d / 2 - 0.02);
+    group.add(louver);
+
+    // Hidden Digital Temperature Glow Display (Right side showing 22°C)
+    const tempDisplay = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.03, 0.005), ledMat);
+    tempDisplay.position.set(w / 2 - 0.12, 0.02, d / 2 + 0.003);
+    group.add(tempDisplay);
+
+    // Power Indicator LED Dot
+    const powerLed = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, 0.005, 12), new THREE.MeshBasicMaterial({ color: 0x22c55e }));
+    powerLed.rotation.x = Math.PI / 2;
+    powerLed.position.set(w / 2 - 0.05, -0.05, d / 2 + 0.006);
+    group.add(powerLed);
+
+    return group;
+  }
+
+  // 27. CEILING FAN WITH INTEGRATED LIGHT (DAILY AIR CIRCULATION)
+  static createCeilingFan(style = 'modern', color = 0x2c3e50) {
+    const group = new THREE.Group();
+    group.name = 'Ceiling Fan';
+    group.userData = { type: 'ceiling_fan', name: 'Aero 4-Blade Ceiling Fan', cost: 190, color: color };
+
+    const canopyY = 2.7; // Ceiling mounting level
+
+    const motorMat = new THREE.MeshStandardMaterial({
+      color: color,
+      metalness: style === 'luxury' ? 0.85 : 0.5,
+      roughness: 0.3
+    });
+    const bladeMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0x3e2723 : color,
+      roughness: 0.6,
+      metalness: 0.1
+    });
+    const lightMat = new THREE.MeshBasicMaterial({ color: 0xfff3d6 });
+    const metalMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0x64748b,
+      metalness: 0.85,
+      roughness: 0.2
+    });
+
+    // Ceiling Mount Canopy Plate
+    const canopy = this.createMesh(new THREE.CylinderGeometry(0.12, 0.12, 0.03, 24), motorMat, 'Ceiling Canopy');
+    canopy.position.y = canopyY;
+    group.add(canopy);
+
+    // Vertical Downrod Suspension Pipe
+    const downrod = this.createMesh(new THREE.CylinderGeometry(0.015, 0.015, 0.28, 16), metalMat, 'Downrod');
+    downrod.position.y = canopyY - 0.14;
+    group.add(downrod);
+
+    // Central Motor Housing
+    const motorH = 0.12;
+    const motor = this.createMesh(new THREE.CylinderGeometry(0.16, 0.14, motorH, 32), motorMat, 'Fan Motor Housing');
+    motor.position.y = canopyY - 0.28;
+    group.add(motor);
+
+    // Integrated Bottom LED Light Dome
+    const globe = new THREE.Mesh(new THREE.SphereGeometry(0.09, 24, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), lightMat);
+    globe.position.y = canopyY - 0.34;
+    group.add(globe);
+
+    // 4 Aerodynamic Fan Blades radiating out
+    const bladeL = 0.46, bladeW = 0.12;
+    [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2].forEach((angle, idx) => {
+      const bladeArm = new THREE.Group();
+      bladeArm.rotation.y = angle;
+      bladeArm.position.y = canopyY - 0.28;
+
+      // Chrome blade bracket
+      const bracket = this.createMesh(new THREE.BoxGeometry(0.08, 0.015, 0.03), metalMat, `Blade Bracket ${idx + 1}`);
+      bracket.position.x = 0.16;
+      bladeArm.add(bracket);
+
+      // Aerodynamic Tapered Blade
+      const blade = this.createMesh(new THREE.BoxGeometry(bladeL, 0.008, bladeW), bladeMat, `Fan Blade ${idx + 1}`);
+      blade.position.x = 0.16 + bladeL / 2;
+      blade.rotation.x = 0.12; // Realistic aerodynamic pitch tilt
+      bladeArm.add(blade);
+
+      group.add(bladeArm);
+    });
+
+    return group;
+  }
+
+  // 28. ESPRESSO & COFFEE MACHINE STATION (DAILY MORNING COFFEE)
+  static createCoffeeMachine(style = 'modern') {
+    const group = new THREE.Group();
+    group.name = 'Coffee Machine';
+    group.userData = { type: 'coffee_machine', name: 'Barista Espresso Machine', cost: 350 };
+
+    const w = 0.28, h = 0.38, d = 0.32;
+    const chromeMat = new THREE.MeshStandardMaterial({
+      color: 0xf1f5f9,
+      metalness: 0.9,
+      roughness: 0.15
+    });
+    const darkMat = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      metalness: 0.7,
+      roughness: 0.3
+    });
+    const brassMat = new THREE.MeshStandardMaterial({
+      color: 0xd4af37,
+      metalness: 0.9,
+      roughness: 0.2
+    });
+
+    // Main Espresso Machine Body
+    const body = this.createMesh(new THREE.BoxGeometry(w, h, d), chromeMat, 'Espresso Body');
+    body.position.set(0, h / 2, 0);
+    group.add(body);
+
+    // Top Warming Tray with Railing
+    const rail = this.createMesh(new THREE.BoxGeometry(w - 0.02, 0.02, d - 0.04), chromeMat, 'Cup Warming Rail');
+    rail.position.set(0, h + 0.01, 0);
+    group.add(rail);
+
+    // Group Head & Portafilter Collar
+    const collar = this.createMesh(new THREE.CylinderGeometry(0.045, 0.045, 0.04, 24), chromeMat, 'Group Head');
+    collar.position.set(0, 0.23, d / 2 + 0.02);
+    group.add(collar);
+
+    // Portafilter Handle extending forward
+    const portafilter = this.createMesh(new THREE.CylinderGeometry(0.012, 0.012, 0.16, 12), darkMat, 'Portafilter Handle');
+    portafilter.rotation.x = Math.PI / 2;
+    portafilter.position.set(0, 0.22, d / 2 + 0.1);
+    group.add(portafilter);
+
+    // Dual Espresso Spouts
+    [-0.015, 0.015].forEach((sx, idx) => {
+      const spout = this.createMesh(new THREE.CylinderGeometry(0.005, 0.005, 0.025, 8), chromeMat, `Spout ${idx + 1}`);
+      spout.position.set(sx, 0.19, d / 2 + 0.02);
+      group.add(spout);
+    });
+
+    // Bottom Stainless Steel Drip Tray
+    const drip = this.createMesh(new THREE.BoxGeometry(w - 0.02, 0.04, 0.12), chromeMat, 'Drip Tray Grille');
+    drip.position.set(0, 0.02, d / 2 + 0.04);
+    group.add(drip);
+
+    // Analog Pressure Gauge Dial
+    const gauge = this.createMesh(new THREE.CylinderGeometry(0.025, 0.025, 0.01, 16), brassMat, 'Pressure Gauge');
+    gauge.rotation.x = Math.PI / 2;
+    gauge.position.set(0, 0.31, d / 2 + 0.005);
+    group.add(gauge);
+
+    // Steaming Wand on side
+    const wand = this.createMesh(new THREE.CylinderGeometry(0.006, 0.006, 0.18, 8), chromeMat, 'Milk Steam Wand');
+    wand.rotation.z = -0.3;
+    wand.position.set(w / 2 + 0.02, 0.2, d / 2 - 0.05);
+    group.add(wand);
+
+    return group;
+  }
+
+  // 29. ENTRYWAY SHOE RACK & BENCH (DAILY SHOE STORAGE)
+  static createShoeRack(style = 'modern', woodColor = 0x5c4033) {
+    const group = new THREE.Group();
+    group.name = 'Shoe Rack & Bench';
+    group.userData = { type: 'shoe_rack', name: 'Entryway Shoe Rack Bench', cost: 240, color: woodColor };
+
+    const w = 0.95, h = 0.48, d = 0.35;
+    const woodMat = new THREE.MeshStandardMaterial({
+      color: woodColor,
+      roughness: 0.65,
+      metalness: 0.1
+    });
+    const cushionMat = new THREE.MeshStandardMaterial({
+      color: 0x334155,
+      roughness: 0.85
+    });
+    const slatMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0x1e293b,
+      metalness: 0.8,
+      roughness: 0.3
+    });
+
+    // 4 Corner Legs
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([lx, lz], idx) => {
+      const leg = this.createMesh(new THREE.BoxGeometry(0.04, h - 0.05, 0.04), woodMat, `Shoe Rack Leg ${idx + 1}`);
+      leg.position.set(lx * (w / 2 - 0.03), (h - 0.05) / 2, lz * (d / 2 - 0.03));
+      group.add(leg);
+    });
+
+    // Top Bench Cushion
+    const cushion = this.createMesh(new THREE.BoxGeometry(w, 0.06, d), cushionMat, 'Padded Bench Cushion');
+    cushion.position.set(0, h - 0.03, 0);
+    group.add(cushion);
+
+    // 2 Tier Slatted Metal Shoe Shelves (Lower and Upper)
+    [0.12, 0.26].forEach((shelfY, tier) => {
+      [-0.1, 0, 0.1].forEach((slatZ, sIdx) => {
+        const slat = this.createMesh(new THREE.BoxGeometry(w - 0.08, 0.015, 0.02), slatMat, `Tier ${tier + 1} Slat ${sIdx + 1}`);
+        slat.position.set(0, shelfY, slatZ);
+        group.add(slat);
+      });
+    });
+
+    return group;
+  }
+
+  // 30. COAT RACK & HAT TREE STAND (DAILY ENTRYWAY ESSENTIAL)
+  static createCoatRack(style = 'modern') {
+    const group = new THREE.Group();
+    group.name = 'Coat Rack Stand';
+    group.userData = { type: 'coat_rack', name: 'Modern Coat & Hat Tree', cost: 140 };
+
+    const totalH = 1.76;
+    const metalMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0x1e293b,
+      metalness: 0.85,
+      roughness: 0.25
+    });
+    const tipMat = new THREE.MeshStandardMaterial({
+      color: 0x8b5a2b,
+      roughness: 0.6
+    });
+
+    // Heavy Circular Base Disc
+    const base = this.createMesh(new THREE.CylinderGeometry(0.18, 0.18, 0.04, 24), metalMat, 'Weighted Base');
+    base.position.y = 0.02;
+    group.add(base);
+
+    // Central Vertical Pole
+    const pole = this.createMesh(new THREE.CylinderGeometry(0.018, 0.022, totalH - 0.04, 16), metalMat, 'Central Pole');
+    pole.position.y = totalH / 2;
+    group.add(pole);
+
+    // Umbrella Ring at lower height (0.65m)
+    const ring = this.createMesh(new THREE.TorusGeometry(0.12, 0.01, 8, 24), metalMat, 'Umbrella Ring');
+    ring.rotation.x = Math.PI / 2;
+    ring.position.y = 0.65;
+    group.add(ring);
+
+    // 6 Staggered Angled Peg Hooks
+    const pegHeights = [1.25, 1.4, 1.55, 1.62, 1.68, 1.74];
+    pegHeights.forEach((ph, idx) => {
+      const angle = idx * (Math.PI / 3);
+      const hookGroup = new THREE.Group();
+      hookGroup.position.y = ph;
+      hookGroup.rotation.y = angle;
+
+      const hookPeg = this.createMesh(new THREE.CylinderGeometry(0.008, 0.008, 0.14, 8), metalMat, `Hook Arm ${idx + 1}`);
+      hookPeg.rotation.z = -0.55;
+      hookPeg.position.set(0.06, 0.03, 0);
+      hookGroup.add(hookPeg);
+
+      const tip = this.createMesh(new THREE.SphereGeometry(0.014, 12, 12), tipMat, `Hook Tip ${idx + 1}`);
+      tip.position.set(0.12, 0.06, 0);
+      hookGroup.add(tip);
+
+      group.add(hookGroup);
+    });
+
+    return group;
+  }
+
+  // 31. STEP WASTE BIN / TRASH CAN (DAILY CLEANLINESS)
+  static createTrashBin(style = 'modern') {
+    const group = new THREE.Group();
+    group.name = 'Trash Bin';
+    group.userData = { type: 'trash_bin', name: 'Step Pedal Waste Bin', cost: 60 };
+
+    const radius = 0.13, h = 0.42;
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0xe2e8f0,
+      metalness: 0.85,
+      roughness: 0.2
+    });
+    const darkMat = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      roughness: 0.7
+    });
+
+    // Cylinder Waste Bin Body
+    const bin = this.createMesh(new THREE.CylinderGeometry(radius, radius, h, 24), bodyMat, 'Bin Cylinder');
+    bin.position.y = h / 2;
+    group.add(bin);
+
+    // Domed Hinged Lid
+    const lid = this.createMesh(new THREE.CylinderGeometry(radius + 0.005, radius + 0.005, 0.025, 24), bodyMat, 'Bin Lid');
+    lid.position.y = h + 0.012;
+    group.add(lid);
+
+    // Step Foot Pedal at base
+    const pedal = this.createMesh(new THREE.BoxGeometry(0.06, 0.015, 0.07), darkMat, 'Foot Pedal');
+    pedal.position.set(0, 0.015, radius + 0.03);
+    group.add(pedal);
+
+    return group;
+  }
+
+  // 32. LAUNDRY HAMPER / CLOTHES BASKET (DAILY CLOTHES)
+  static createLaundryBasket(style = 'modern', color = 0xdfd3c3) {
+    const group = new THREE.Group();
+    group.name = 'Laundry Hamper';
+    group.userData = { type: 'laundry_basket', name: 'Woven Laundry Hamper', cost: 75, color: color };
+
+    const w = 0.42, h = 0.62, d = 0.32;
+    const basketMat = new THREE.MeshStandardMaterial({
+      color: color,
+      roughness: 0.9,
+      metalness: 0.05
+    });
+    const linerMat = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc,
+      roughness: 0.95
+    });
+    const handleMat = new THREE.MeshStandardMaterial({
+      color: 0x5c4033,
+      roughness: 0.8
+    });
+
+    // Hamper Body
+    const body = this.createMesh(new THREE.BoxGeometry(w, h, d), basketMat, 'Hamper Basket Body');
+    body.position.set(0, h / 2, 0);
+    group.add(body);
+
+    // Fabric Top Liner Rim
+    const liner = this.createMesh(new THREE.BoxGeometry(w + 0.02, 0.04, d + 0.02), linerMat, 'Fabric Liner Lip');
+    liner.position.set(0, h - 0.02, 0);
+    group.add(liner);
+
+    // Hinged Lid
+    const lid = this.createMesh(new THREE.BoxGeometry(w + 0.01, 0.03, d + 0.01), basketMat, 'Hamper Lid');
+    lid.position.set(0, h + 0.015, 0);
+    group.add(lid);
+
+    // Top Leather Handle Loop
+    const handle = this.createMesh(new THREE.BoxGeometry(0.08, 0.02, 0.025), handleMat, 'Lid Pull Handle');
+    handle.position.set(0, h + 0.035, 0);
+    group.add(handle);
+
+    return group;
+  }
+
+  // 33. MINIMALIST WALL CLOCK (DAILY TIMEKEEPING)
+  static createWallClock(style = 'modern') {
+    const group = new THREE.Group();
+    group.name = 'Wall Clock';
+    group.userData = { type: 'wall_clock', name: 'Minimalist Wall Clock', cost: 85, isWallMounted: true };
+
+    const radius = 0.22, depth = 0.03;
+    const rimMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0x1e293b,
+      metalness: 0.85,
+      roughness: 0.2
+    });
+    const faceMat = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc,
+      roughness: 0.4
+    });
+    const handMat = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      metalness: 0.8,
+      roughness: 0.2
+    });
+
+    // Clock Face Dial (facing along Z)
+    const face = this.createMesh(new THREE.CylinderGeometry(radius, radius, depth, 32), faceMat, 'Clock Dial');
+    face.rotation.x = Math.PI / 2;
+    group.add(face);
+
+    // Outer Rim Bezel
+    const rim = this.createMesh(new THREE.TorusGeometry(radius, 0.012, 12, 32), rimMat, 'Bezel Ring');
+    rim.position.z = depth / 2;
+    group.add(rim);
+
+    // Hour Hand (pointing toward 10 o'clock)
+    const hourHand = this.createMesh(new THREE.BoxGeometry(0.012, 0.09, 0.005), handMat, 'Hour Hand');
+    hourHand.rotation.z = Math.PI / 3;
+    hourHand.position.set(-0.04, 0.03, depth / 2 + 0.005);
+    group.add(hourHand);
+
+    // Minute Hand (pointing toward 2 o'clock)
+    const minuteHand = this.createMesh(new THREE.BoxGeometry(0.008, 0.13, 0.005), handMat, 'Minute Hand');
+    minuteHand.rotation.z = -Math.PI / 4;
+    minuteHand.position.set(0.04, 0.05, depth / 2 + 0.007);
+    group.add(minuteHand);
+
+    // Center Chrome Cap
+    const cap = this.createMesh(new THREE.CylinderGeometry(0.012, 0.012, 0.008, 16), rimMat, 'Center Cap');
+    cap.rotation.x = Math.PI / 2;
+    cap.position.z = depth / 2 + 0.01;
+    group.add(cap);
+
+    return group;
+  }
+
+  // 34. BEDSIDE / DESK TABLE LAMP (DAILY READING & AMBIENT LIGHT)
+  static createTableLamp(style = 'modern', color = 0xd97706) {
+    const group = new THREE.Group();
+    group.name = 'Table Lamp';
+    group.userData = { type: 'table_lamp', name: 'Bedside Table Lamp', cost: 95, color: color };
+
+    const totalH = 0.52;
+    const baseMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0x1e293b,
+      metalness: 0.85,
+      roughness: 0.2
+    });
+    const shadeMat = new THREE.MeshStandardMaterial({
+      color: color,
+      roughness: 0.8,
+      metalness: 0.1
+    });
+    const glowMat = new THREE.MeshBasicMaterial({ color: 0xfff4db });
+
+    // Lamp Base Pedestal
+    const base = this.createMesh(new THREE.CylinderGeometry(0.09, 0.1, 0.03, 24), baseMat, 'Lamp Base');
+    base.position.y = 0.015;
+    group.add(base);
+
+    // Slender Stem Column
+    const stem = this.createMesh(new THREE.CylinderGeometry(0.01, 0.01, totalH * 0.55, 16), baseMat, 'Lamp Stem');
+    stem.position.y = 0.16;
+    group.add(stem);
+
+    // Cylindrical Fabric Drum Shade
+    const shadeH = 0.22, shadeR = 0.13;
+    const shade = this.createMesh(new THREE.CylinderGeometry(shadeR, shadeR, shadeH, 24, 1, true), shadeMat, 'Fabric Drum Shade');
+    shade.position.y = totalH - shadeH / 2;
+    group.add(shade);
+
+    // Internal Glowing Bulb
+    const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.035, 16, 16), glowMat);
+    bulb.position.y = totalH - shadeH / 2;
+    group.add(bulb);
+
+    return group;
+  }
+
+  // 35. COMFORT OTTOMAN / POUF FOOTREST (DAILY LIVING & RESTING)
+  static createOttoman(style = 'modern', color = 0xd97706) {
+    const group = new THREE.Group();
+    group.name = 'Comfort Ottoman';
+    group.userData = { type: 'ottoman', name: 'Comfort Ottoman Pouf', cost: 180, color: color };
+
+    const radius = 0.32, h = 0.42;
+    const fabricMat = new THREE.MeshStandardMaterial({
+      color: color,
+      roughness: 0.85,
+      metalness: 0.05
+    });
+    const woodMat = new THREE.MeshStandardMaterial({
+      color: 0x3e2723,
+      roughness: 0.7
+    });
+
+    // Low Wooden Base Plinth
+    const plinth = this.createMesh(new THREE.CylinderGeometry(radius * 0.85, radius * 0.85, 0.04, 24), woodMat, 'Ottoman Base');
+    plinth.position.y = 0.02;
+    group.add(plinth);
+
+    // Main Upholstered Cylinder Cushion
+    const cushion = this.createMesh(new THREE.CylinderGeometry(radius, radius, h - 0.04, 32), fabricMat, 'Upholstered Pouf');
+    cushion.position.y = (h - 0.04) / 2 + 0.03;
+    group.add(cushion);
+
+    // Domed Tufted Top
+    const top = this.createMesh(new THREE.SphereGeometry(radius, 24, 12, 0, Math.PI * 2, 0, Math.PI / 4), fabricMat, 'Tufted Top');
+    top.position.y = h - 0.08;
+    group.add(top);
+
+    return group;
+  }
+
+  // 36. WINDOW DRAPERY CURTAINS (DAILY PRIVACY & LIGHT CONTROL)
+  static createCurtains(style = 'modern', color = 0xf1f5f9) {
+    const group = new THREE.Group();
+    group.name = 'Window Curtains';
+    group.userData = { type: 'curtains', name: 'Tailored Window Drapes', cost: 210, isWallMounted: true, color: color };
+
+    const rodW = 1.9, curH = 2.2;
+    const rodMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0xd4af37 : 0x1e293b,
+      metalness: 0.85,
+      roughness: 0.2
+    });
+    const fabricMat = new THREE.MeshStandardMaterial({
+      color: color,
+      roughness: 0.9,
+      metalness: 0.05
+    });
+
+    // Top Horizontal Curtain Rod
+    const rod = this.createMesh(new THREE.CylinderGeometry(0.015, 0.015, rodW, 16), rodMat, 'Curtain Rod');
+    rod.rotation.z = Math.PI / 2;
+    rod.position.y = curH / 2;
+    group.add(rod);
+
+    // Decorative Spherical Finials on Rod Ends
+    [-rodW / 2 - 0.02, rodW / 2 + 0.02].forEach((fx, idx) => {
+      const finial = this.createMesh(new THREE.SphereGeometry(0.025, 12, 12), rodMat, `Rod Finial ${idx + 1}`);
+      finial.position.set(fx, curH / 2, 0);
+      group.add(finial);
+    });
+
+    // Left and Right Pleated Curtain Panels
+    [-0.55, 0.55].forEach((panelX, pIdx) => {
+      const panelGroup = new THREE.Group();
+      panelGroup.position.set(panelX, 0, 0.02);
+
+      // Multiple vertical folds to simulate realistic drape pleating
+      [-0.15, -0.05, 0.05, 0.15].forEach((foldX, fIdx) => {
+        const fold = this.createMesh(new THREE.CylinderGeometry(0.04, 0.045, curH - 0.06, 12), fabricMat, `Pleat ${fIdx + 1}`);
+        fold.position.set(foldX, 0, (fIdx % 2 === 0 ? 0.015 : -0.015));
+        panelGroup.add(fold);
+      });
+
+      group.add(panelGroup);
+    });
+
+    return group;
+  }
+
+  // 37. WALL-MOUNTED RO WATER PURIFIER (DAILY CLEAN WATER)
+  static createWaterPurifier(style = 'modern') {
+    const group = new THREE.Group();
+    group.name = 'Water Purifier';
+    group.userData = { type: 'water_purifier', name: 'RO Water Purifier & Dispenser', cost: 320, isWallMounted: true };
+
+    const w = 0.32, h = 0.46, d = 0.22;
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc,
+      roughness: 0.3,
+      metalness: 0.1
+    });
+    const tankMat = new THREE.MeshStandardMaterial({
+      color: 0x38bdf8,
+      roughness: 0.1,
+      metalness: 0.8
+    });
+    const chromeMat = new THREE.MeshStandardMaterial({
+      color: 0xe2e8f0,
+      metalness: 0.9,
+      roughness: 0.15
+    });
+
+    // Main Purifier Cabinet
+    const body = this.createMesh(new THREE.BoxGeometry(w, h, d), bodyMat, 'Purifier Cabinet');
+    group.add(body);
+
+    // Front Transparent Water Reservoir Window
+    const tank = this.createMesh(new THREE.BoxGeometry(w - 0.06, h * 0.45, 0.01), tankMat, 'Water Level Window');
+    tank.position.set(0, 0.05, d / 2 + 0.005);
+    group.add(tank);
+
+    // Bottom Chrome Dispensing Spigot Tap
+    const tap = this.createMesh(new THREE.CylinderGeometry(0.012, 0.012, 0.05, 12), chromeMat, 'Dispensing Tap');
+    tap.position.set(0, -h / 2 + 0.05, d / 2 + 0.03);
+    group.add(tap);
+
+    // LED Status Indicator Dots
+    const ledMat = new THREE.MeshBasicMaterial({ color: 0x22c55e });
+    const led = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.01, 0.005), ledMat);
+    led.position.set(0, -h / 2 + 0.12, d / 2 + 0.005);
+    group.add(led);
+
+    return group;
+  }
 }
 
   window.FurnitureFactory = FurnitureFactory;
@@ -6564,15 +7308,69 @@ class App {
     document.querySelectorAll('.add-catalog-item').forEach(btn => {
       btn.addEventListener('click', () => {
         const type = btn.dataset.type;
-        const isWall = type === 'wall_art';
+        const isWall = type === 'wall_art' || type === 'wall_clock' || type === 'air_conditioner' || type === 'curtains' || type === 'water_purifier';
+        const isCeiling = type === 'ceiling_fan' || type === 'pendant_light';
         const halfL = (this.currentRoomDimensions?.length || 4.5) / 2;
+
+        let initialPos = [0, 0, 0];
+        if (isWall) {
+          const wallY = type === 'air_conditioner' ? 2.3 : (type === 'curtains' ? 1.1 : (type === 'wall_clock' ? 2.0 : (type === 'water_purifier' ? 1.6 : 1.85)));
+          initialPos = [0, wallY, -halfL + 0.04];
+        } else if (isCeiling) {
+          initialPos = [0, 0, 0];
+        }
+
+        const itemName = btn.textContent.trim();
         this.addFurnitureItem({
           type: type,
+          name: itemName,
           style: this.currentStyle,
-          position: isWall ? [0, 1.8, -halfL + 0.04] : [0, 0, 0],
+          position: initialPos,
           rotation: [0, 0, 0]
         });
-        this.showToast(isWall ? '🖼️ Added Wall Art to Back Wall' : `Added ${type.replace('_', ' ')} to center`);
+
+        if (isWall) {
+          this.showToast(`🧱 Added ${itemName} to Back Wall`);
+        } else if (isCeiling) {
+          this.showToast(`💡 Added ${itemName} to Ceiling`);
+        } else {
+          this.showToast(`✨ Added ${itemName} to room`);
+        }
+      });
+    });
+
+    // Real-time Catalog Search & Category Filter
+    const catSearch = document.getElementById('catalog-search');
+    const catPills = document.querySelectorAll('.catalog-filter-pill');
+    let activeCategory = 'all';
+
+    const filterCatalog = () => {
+      const q = (catSearch?.value || '').toLowerCase().trim();
+      document.querySelectorAll('.catalog-category-group').forEach(group => {
+        const groupCat = group.dataset.category;
+        const matchesCategory = activeCategory === 'all' || groupCat === activeCategory;
+        let visibleCount = 0;
+
+        group.querySelectorAll('.add-catalog-item').forEach(item => {
+          const text = item.textContent.toLowerCase();
+          const matchesSearch = !q || text.includes(q);
+          const show = matchesCategory && matchesSearch;
+          item.style.display = show ? 'flex' : 'none';
+          if (show) visibleCount++;
+        });
+
+        group.style.display = visibleCount > 0 ? 'block' : 'none';
+      });
+    };
+
+    catSearch?.addEventListener('input', filterCatalog);
+
+    catPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        catPills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        activeCategory = pill.dataset.filter || 'all';
+        filterCatalog();
       });
     });
 
@@ -7409,6 +8207,48 @@ class App {
         break;
       case 'bar_stool':
         meshGroup = FurnitureFactory.createBarStool(style, itemData.color, itemData.stoolIndex || 1);
+        break;
+      case 'washing_machine':
+        meshGroup = FurnitureFactory.createWashingMachine(style, itemData.color);
+        break;
+      case 'microwave':
+        meshGroup = FurnitureFactory.createMicrowave(style, itemData.color);
+        break;
+      case 'air_conditioner':
+        meshGroup = FurnitureFactory.createAirConditioner(style);
+        break;
+      case 'ceiling_fan':
+        meshGroup = FurnitureFactory.createCeilingFan(style, itemData.color);
+        break;
+      case 'coffee_machine':
+        meshGroup = FurnitureFactory.createCoffeeMachine(style);
+        break;
+      case 'shoe_rack':
+        meshGroup = FurnitureFactory.createShoeRack(style, itemData.color);
+        break;
+      case 'coat_rack':
+        meshGroup = FurnitureFactory.createCoatRack(style);
+        break;
+      case 'trash_bin':
+        meshGroup = FurnitureFactory.createTrashBin(style);
+        break;
+      case 'laundry_basket':
+        meshGroup = FurnitureFactory.createLaundryBasket(style, itemData.color);
+        break;
+      case 'wall_clock':
+        meshGroup = FurnitureFactory.createWallClock(style);
+        break;
+      case 'table_lamp':
+        meshGroup = FurnitureFactory.createTableLamp(style, itemData.color);
+        break;
+      case 'ottoman':
+        meshGroup = FurnitureFactory.createOttoman(style, itemData.color);
+        break;
+      case 'curtains':
+        meshGroup = FurnitureFactory.createCurtains(style, itemData.color);
+        break;
+      case 'water_purifier':
+        meshGroup = FurnitureFactory.createWaterPurifier(style);
         break;
       default:
         meshGroup = FurnitureFactory.createCoffeeTable(style);

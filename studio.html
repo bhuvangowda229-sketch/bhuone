@@ -596,35 +596,129 @@
         <!-- TAB 3: CATALOG & CUSTOMIZER -->
         <div class="tab-pane" id="tab-catalog">
           <div class="section-card">
-            <div class="section-title">Add Furniture to Room</div>
-            <div class="style-selector" style="grid-template-columns: repeat(2, 1fr); gap: 6px;">
-              <button class="btn btn-sm add-catalog-item" data-type="sofa">🛋️ Sofa</button>
-              <button class="btn btn-sm add-catalog-item" data-type="coffee_table">🪵 Coffee Table</button>
-              <button class="btn btn-sm add-catalog-item" data-type="armchair">🪑 Armchair</button>
-              <button class="btn btn-sm add-catalog-item" data-type="tv_unit">📺 TV Console</button>
-              <button class="btn btn-sm add-catalog-item" data-type="bed">🛏️ Platform Bed</button>
-              <button class="btn btn-sm add-catalog-item" data-type="nightstand">🪑 Nightstand</button>
-              <button class="btn btn-sm add-catalog-item" data-type="desk">💻 Office Desk</button>
-              <button class="btn btn-sm add-catalog-item" data-type="office_chair">💺 Office Chair</button>
-              <button class="btn btn-sm add-catalog-item" data-type="dining_table">🍽️ Dining Table</button>
-              <button class="btn btn-sm add-catalog-item" data-type="dining_chair">🪑 Dining Chair</button>
-              <button class="btn btn-sm add-catalog-item" data-type="dining_set">🍽️ Table + 6 Chairs</button>
-              <button class="btn btn-sm add-catalog-item" data-type="bookshelf">📚 Bookshelf</button>
-              <button class="btn btn-sm add-catalog-item" data-type="floor_lamp">💡 Floor Lamp</button>
-              <button class="btn btn-sm add-catalog-item" data-type="plant">🪴 Indoor Plant</button>
-              <button class="btn btn-sm add-catalog-item" data-type="wall_art">🖼️ Wall Art</button>
-              <button class="btn btn-sm add-catalog-item" data-type="rug">🧶 Area Rug</button>
-              <button class="btn btn-sm add-catalog-item" data-type="wardrobe">🚪 Standard Wardrobe</button>
-              <button class="btn btn-sm add-catalog-item" data-type="mirrored_wardrobe" style="border-color: rgba(99, 102, 241, 0.45); background: rgba(99, 102, 241, 0.12); font-weight: 600;">🪞 Mirrored Wardrobe</button>
-              <button class="btn btn-sm add-catalog-item" data-type="pendant_light">💡 Pendant Lamp</button>
-              <button class="btn btn-sm add-catalog-item" data-type="credenza">🗄️ Credenza</button>
-              <button class="btn btn-sm add-catalog-item" data-type="gaming_desk">🖥️ Gaming Desk</button>
-              <button class="btn btn-sm add-catalog-item" data-type="kitchen_cabinets">🗄️ Kitchen Counter & Sink</button>
-              <button class="btn btn-sm add-catalog-item" data-type="kitchen_island">🍳 Kitchen Island</button>
-              <button class="btn btn-sm add-catalog-item" data-type="refrigerator">🧊 Refrigerator</button>
-              <button class="btn btn-sm add-catalog-item" data-type="kitchen_range">🔥 Oven Range & Hood</button>
-              <button class="btn btn-sm add-catalog-item" data-type="bar_stool">🪑 Bar Stool</button>
+            <div class="section-title">
+              <span>Furniture & Daily Essentials</span>
+              <span style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 7px; border-radius: 8px; font-weight: 600;">40 Items</span>
             </div>
+
+            <!-- Instant Search Input -->
+            <input type="text" id="catalog-search" class="form-control" placeholder="🔍 Search daily items, appliances, furniture..." style="margin-bottom: 10px; font-size: 11.5px; padding: 8px 12px; background: rgba(255, 255, 255, 0.04);">
+
+            <!-- Category Filter Pills -->
+            <div class="catalog-filter-pills" id="catalog-pills">
+              <button type="button" class="catalog-filter-pill active" data-filter="all">All (40)</button>
+              <button type="button" class="catalog-filter-pill" data-filter="utilities">⚡ Daily Appliances (10)</button>
+              <button type="button" class="catalog-filter-pill" data-filter="living">🛋️ Living (7)</button>
+              <button type="button" class="catalog-filter-pill" data-filter="bedroom">🛏️ Bedroom (6)</button>
+              <button type="button" class="catalog-filter-pill" data-filter="kitchen">🍽️ Kitchen & Dining (9)</button>
+              <button type="button" class="catalog-filter-pill" data-filter="office">💻 Office (5)</button>
+              <button type="button" class="catalog-filter-pill" data-filter="decor">💡 Lighting & Decor (7)</button>
+            </div>
+
+            <!-- 1. DAILY APPLIANCES & UTILITIES -->
+            <div class="catalog-category-group" data-category="utilities">
+              <div class="catalog-category-title">
+                <span>⚡ Daily Appliances & Utilities</span>
+                <span class="count-badge">10</span>
+              </div>
+              <div class="style-selector" style="grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 12px;">
+                <button class="btn btn-sm add-catalog-item" data-type="air_conditioner">❄️ Split AC Unit</button>
+                <button class="btn btn-sm add-catalog-item" data-type="ceiling_fan">🌀 Ceiling Fan</button>
+                <button class="btn btn-sm add-catalog-item" data-type="washing_machine">🧺 Washing Machine</button>
+                <button class="btn btn-sm add-catalog-item" data-type="microwave">🍿 Microwave Oven</button>
+                <button class="btn btn-sm add-catalog-item" data-type="coffee_machine">☕ Espresso Machine</button>
+                <button class="btn btn-sm add-catalog-item" data-type="water_purifier">💧 RO Water Purifier</button>
+                <button class="btn btn-sm add-catalog-item" data-type="shoe_rack">👞 Shoe Rack & Bench</button>
+                <button class="btn btn-sm add-catalog-item" data-type="coat_rack">🧥 Coat & Hat Tree</button>
+                <button class="btn btn-sm add-catalog-item" data-type="trash_bin">🗑️ Step Trash Bin</button>
+                <button class="btn btn-sm add-catalog-item" data-type="laundry_basket">🧺 Laundry Hamper</button>
+              </div>
+            </div>
+
+            <!-- 2. LIVING & SEATING -->
+            <div class="catalog-category-group" data-category="living">
+              <div class="catalog-category-title">
+                <span>🛋️ Living & Seating</span>
+                <span class="count-badge">7</span>
+              </div>
+              <div class="style-selector" style="grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 12px;">
+                <button class="btn btn-sm add-catalog-item" data-type="sofa">🛋️ Deep Lounge Sofa</button>
+                <button class="btn btn-sm add-catalog-item" data-type="armchair">🪑 Accent Armchair</button>
+                <button class="btn btn-sm add-catalog-item" data-type="coffee_table">🪵 Coffee Table</button>
+                <button class="btn btn-sm add-catalog-item" data-type="tv_unit">📺 Media TV Console</button>
+                <button class="btn btn-sm add-catalog-item" data-type="ottoman">🛋️ Comfort Ottoman</button>
+                <button class="btn btn-sm add-catalog-item" data-type="rug">🧶 Area Rug</button>
+                <button class="btn btn-sm add-catalog-item" data-type="curtains">🪟 Window Curtains</button>
+              </div>
+            </div>
+
+            <!-- 3. BEDROOM & DRESSING -->
+            <div class="catalog-category-group" data-category="bedroom">
+              <div class="catalog-category-title">
+                <span>🛏️ Bedroom & Dressing</span>
+                <span class="count-badge">6</span>
+              </div>
+              <div class="style-selector" style="grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 12px;">
+                <button class="btn btn-sm add-catalog-item" data-type="bed">🛏️ Platform Bed</button>
+                <button class="btn btn-sm add-catalog-item" data-type="nightstand">🪑 Bedside Nightstand</button>
+                <button class="btn btn-sm add-catalog-item" data-type="table_lamp">💡 Bedside Table Lamp</button>
+                <button class="btn btn-sm add-catalog-item" data-type="wardrobe">🚪 Standard Wardrobe</button>
+                <button class="btn btn-sm add-catalog-item" data-type="mirrored_wardrobe" style="border-color: rgba(99, 102, 241, 0.45); background: rgba(99, 102, 241, 0.12); font-weight: 600;">🪞 Mirrored Wardrobe</button>
+                <button class="btn btn-sm add-catalog-item" data-type="curtains">🪟 Window Curtains</button>
+              </div>
+            </div>
+
+            <!-- 4. KITCHEN & DINING -->
+            <div class="catalog-category-group" data-category="kitchen">
+              <div class="catalog-category-title">
+                <span>🍽️ Kitchen & Dining</span>
+                <span class="count-badge">9</span>
+              </div>
+              <div class="style-selector" style="grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 12px;">
+                <button class="btn btn-sm add-catalog-item" data-type="kitchen_cabinets">🗄️ Counter & Sink</button>
+                <button class="btn btn-sm add-catalog-item" data-type="kitchen_island">🍳 Kitchen Island</button>
+                <button class="btn btn-sm add-catalog-item" data-type="refrigerator">🧊 Smart Refrigerator</button>
+                <button class="btn btn-sm add-catalog-item" data-type="kitchen_range">🔥 Oven Range & Hood</button>
+                <button class="btn btn-sm add-catalog-item" data-type="bar_stool">🪑 Counter Bar Stool</button>
+                <button class="btn btn-sm add-catalog-item" data-type="microwave">🍿 Microwave Oven</button>
+                <button class="btn btn-sm add-catalog-item" data-type="coffee_machine">☕ Espresso Machine</button>
+                <button class="btn btn-sm add-catalog-item" data-type="dining_table">🍽️ Dining Table</button>
+                <button class="btn btn-sm add-catalog-item" data-type="dining_chair">🪑 Dining Chair</button>
+              </div>
+            </div>
+
+            <!-- 5. OFFICE & STUDY -->
+            <div class="catalog-category-group" data-category="office">
+              <div class="catalog-category-title">
+                <span>💻 Office & Study</span>
+                <span class="count-badge">5</span>
+              </div>
+              <div class="style-selector" style="grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 12px;">
+                <button class="btn btn-sm add-catalog-item" data-type="desk">💻 Executive Desk</button>
+                <button class="btn btn-sm add-catalog-item" data-type="gaming_desk">🖥️ Gaming Battlestation</button>
+                <button class="btn btn-sm add-catalog-item" data-type="office_chair">💺 Ergonomic Chair</button>
+                <button class="btn btn-sm add-catalog-item" data-type="bookshelf">📚 Library Bookshelf</button>
+                <button class="btn btn-sm add-catalog-item" data-type="credenza">🗄️ Storage Credenza</button>
+              </div>
+            </div>
+
+            <!-- 6. LIGHTING, DECOR & WALL FIXTURES -->
+            <div class="catalog-category-group" data-category="decor">
+              <div class="catalog-category-title">
+                <span>💡 Lighting & Decor</span>
+                <span class="count-badge">7</span>
+              </div>
+              <div class="style-selector" style="grid-template-columns: repeat(2, 1fr); gap: 6px;">
+                <button class="btn btn-sm add-catalog-item" data-type="ceiling_fan">🌀 Ceiling Fan</button>
+                <button class="btn btn-sm add-catalog-item" data-type="pendant_light">💡 Pendant Lamp</button>
+                <button class="btn btn-sm add-catalog-item" data-type="floor_lamp">💡 Sculptural Floor Lamp</button>
+                <button class="btn btn-sm add-catalog-item" data-type="table_lamp">💡 Table Lamp</button>
+                <button class="btn btn-sm add-catalog-item" data-type="plant">🪴 Indoor Plant</button>
+                <button class="btn btn-sm add-catalog-item" data-type="wall_art">🖼️ Designer Wall Art</button>
+                <button class="btn btn-sm add-catalog-item" data-type="wall_clock">⏰ Minimalist Clock</button>
+              </div>
+            </div>
+
           </div>
 
           <div class="section-card">

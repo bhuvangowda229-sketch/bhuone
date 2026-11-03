@@ -1268,15 +1268,69 @@ class App {
     document.querySelectorAll('.add-catalog-item').forEach(btn => {
       btn.addEventListener('click', () => {
         const type = btn.dataset.type;
-        const isWall = type === 'wall_art';
+        const isWall = type === 'wall_art' || type === 'wall_clock' || type === 'air_conditioner' || type === 'curtains' || type === 'water_purifier';
+        const isCeiling = type === 'ceiling_fan' || type === 'pendant_light';
         const halfL = (this.currentRoomDimensions?.length || 4.5) / 2;
+
+        let initialPos = [0, 0, 0];
+        if (isWall) {
+          const wallY = type === 'air_conditioner' ? 2.3 : (type === 'curtains' ? 1.1 : (type === 'wall_clock' ? 2.0 : (type === 'water_purifier' ? 1.6 : 1.85)));
+          initialPos = [0, wallY, -halfL + 0.04];
+        } else if (isCeiling) {
+          initialPos = [0, 0, 0];
+        }
+
+        const itemName = btn.textContent.trim();
         this.addFurnitureItem({
           type: type,
+          name: itemName,
           style: this.currentStyle,
-          position: isWall ? [0, 1.8, -halfL + 0.04] : [0, 0, 0],
+          position: initialPos,
           rotation: [0, 0, 0]
         });
-        this.showToast(isWall ? '🖼️ Added Wall Art to Back Wall' : `Added ${type.replace('_', ' ')} to center`);
+
+        if (isWall) {
+          this.showToast(`🧱 Added ${itemName} to Back Wall`);
+        } else if (isCeiling) {
+          this.showToast(`💡 Added ${itemName} to Ceiling`);
+        } else {
+          this.showToast(`✨ Added ${itemName} to room`);
+        }
+      });
+    });
+
+    // Real-time Catalog Search & Category Filter
+    const catSearch = document.getElementById('catalog-search');
+    const catPills = document.querySelectorAll('.catalog-filter-pill');
+    let activeCategory = 'all';
+
+    const filterCatalog = () => {
+      const q = (catSearch?.value || '').toLowerCase().trim();
+      document.querySelectorAll('.catalog-category-group').forEach(group => {
+        const groupCat = group.dataset.category;
+        const matchesCategory = activeCategory === 'all' || groupCat === activeCategory;
+        let visibleCount = 0;
+
+        group.querySelectorAll('.add-catalog-item').forEach(item => {
+          const text = item.textContent.toLowerCase();
+          const matchesSearch = !q || text.includes(q);
+          const show = matchesCategory && matchesSearch;
+          item.style.display = show ? 'flex' : 'none';
+          if (show) visibleCount++;
+        });
+
+        group.style.display = visibleCount > 0 ? 'block' : 'none';
+      });
+    };
+
+    catSearch?.addEventListener('input', filterCatalog);
+
+    catPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        catPills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        activeCategory = pill.dataset.filter || 'all';
+        filterCatalog();
       });
     });
 
@@ -2113,6 +2167,48 @@ class App {
         break;
       case 'bar_stool':
         meshGroup = FurnitureFactory.createBarStool(style, itemData.color, itemData.stoolIndex || 1);
+        break;
+      case 'washing_machine':
+        meshGroup = FurnitureFactory.createWashingMachine(style, itemData.color);
+        break;
+      case 'microwave':
+        meshGroup = FurnitureFactory.createMicrowave(style, itemData.color);
+        break;
+      case 'air_conditioner':
+        meshGroup = FurnitureFactory.createAirConditioner(style);
+        break;
+      case 'ceiling_fan':
+        meshGroup = FurnitureFactory.createCeilingFan(style, itemData.color);
+        break;
+      case 'coffee_machine':
+        meshGroup = FurnitureFactory.createCoffeeMachine(style);
+        break;
+      case 'shoe_rack':
+        meshGroup = FurnitureFactory.createShoeRack(style, itemData.color);
+        break;
+      case 'coat_rack':
+        meshGroup = FurnitureFactory.createCoatRack(style);
+        break;
+      case 'trash_bin':
+        meshGroup = FurnitureFactory.createTrashBin(style);
+        break;
+      case 'laundry_basket':
+        meshGroup = FurnitureFactory.createLaundryBasket(style, itemData.color);
+        break;
+      case 'wall_clock':
+        meshGroup = FurnitureFactory.createWallClock(style);
+        break;
+      case 'table_lamp':
+        meshGroup = FurnitureFactory.createTableLamp(style, itemData.color);
+        break;
+      case 'ottoman':
+        meshGroup = FurnitureFactory.createOttoman(style, itemData.color);
+        break;
+      case 'curtains':
+        meshGroup = FurnitureFactory.createCurtains(style, itemData.color);
+        break;
+      case 'water_purifier':
+        meshGroup = FurnitureFactory.createWaterPurifier(style);
         break;
       default:
         meshGroup = FurnitureFactory.createCoffeeTable(style);
