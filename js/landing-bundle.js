@@ -2796,17 +2796,6 @@ class AIEngine {
           cost: 410
         });
 
-        // Full-length Leaning Floor Mirror
-        items.push({
-          id: 'mirror_1',
-          type: 'floor_mirror',
-          name: 'Full-Length Leaning Mirror',
-          position: [W / 2 - 0.6, 0, L / 2 - 0.8],
-          rotation: [0, -Math.PI / 4, 0],
-          style: 'minimalist',
-          cost: 210
-        });
-
         // Paper Lantern Floor Lamp
         items.push({
           id: 'lamp_1',
@@ -3258,9 +3247,9 @@ class AIEngine {
 
       } else if (bedType === 2) {
         // TYPE 2: MINIMALIST ZEN RETREAT
-        // Low Japandi bed, low storage credenza, full-length leaning mirror, paper lantern lamp & orb pendant
+        // Low Japandi bed, low storage credenza, paper lantern lamp & orb pendant
         concept = `TYPE 2: MINIMALIST ZEN MASTER RETREAT (${style.toUpperCase()})`;
-        spatialRationale = `Inspired by Japandi and Wabi-Sabi philosophies, this layout prioritizes uncluttered horizontal horizons and generous floor breathing room. A low-profile platform bed is complemented by a low horizontal storage credenza and a full-length leaning mirror, creating an organic, grounding sanctuary that calms sensory overload.`;
+        spatialRationale = `Inspired by Japandi and Wabi-Sabi philosophies, this layout prioritizes uncluttered horizontal horizons and generous floor breathing room. A low-profile platform bed is complemented by a low horizontal storage credenza and sliding wardrobe, creating an organic, grounding sanctuary that calms sensory overload.`;
         lightingPlan = `Soft, indirect diffused 2700K illumination: a warm paper-lantern floor lamp and an overhead glowing sphere pendant that create gentle, shadowless ambiance.`;
 
         // Low Platform Bed against back wall
@@ -3331,17 +3320,6 @@ class AIEngine {
           cost: 580
         });
 
-        // Full-length Leaning Floor Mirror
-        items.push({
-          id: 'mirror_1',
-          type: 'floor_mirror',
-          name: 'Full-Length Leaning Mirror',
-          position: [W / 2 - 0.65, 0, L / 2 - 0.85],
-          rotation: [0, -Math.PI / 4, 0],
-          style: 'minimalist',
-          cost: 210
-        });
-
         // Flush Wardrobe along right wall
         items.push({
           id: 'wardrobe_1',
@@ -3389,9 +3367,9 @@ class AIEngine {
 
       } else if (bedType === 3) {
         // TYPE 3: MODERN HOTEL CHIC & VANITY
-        // Designer bed, work/vanity desk + ergonomic chair, mirrored robe, floor mirror, task lamp
+        // Designer bed, work/vanity desk + ergonomic chair, mirrored robe, task lamp
         concept = `TYPE 3: MODERN HOTEL CHIC & VANITY SUITE (${style.toUpperCase()})`;
-        spatialRationale = `A high-functioning master suite combining premium sleeping comfort with a dedicated grooming vanity and laptop workstation. By placing the bed on the left-center axis and positioning the vanity station along the opposite wall, two functional zones coexist with uninterrupted traffic flow. A full mirrored wardrobe and tall mirror optimize morning preparation.`;
+        spatialRationale = `A high-functioning master suite combining premium sleeping comfort with a dedicated grooming vanity and laptop workstation. By placing the bed on the left-center axis and positioning the vanity station along the opposite wall, two functional zones coexist with uninterrupted traffic flow. A full mirrored wardrobe optimizes morning preparation.`;
         lightingPlan = `Dual-zone illumination: soft dimmable ambient glow over the sleeping quarter paired with crisp 4000K daylight-balanced task illumination at the vanity workstation.`;
 
         // Designer Bed
@@ -3482,17 +3460,6 @@ class AIEngine {
           rotation: [0, Math.PI / 2, 0],
           style: style,
           cost: 1050
-        });
-
-        // Floor Dressing Mirror in corner
-        items.push({
-          id: 'mirror_1',
-          type: 'floor_mirror',
-          name: 'Illuminated Dressing Mirror',
-          position: [W / 2 - 0.55, 0, -L / 2 + 0.75],
-          rotation: [0, -Math.PI / 3, 0],
-          style: style,
-          cost: 220
         });
 
         // Vanity Task Floor Lamp
@@ -3849,17 +3816,6 @@ class AIEngine {
           style: 'minimalist',
           color: palette.woodColor,
           cost: 590
-        });
-
-        // Full-Length Leaning Floor Mirror in corner
-        items.push({
-          id: 'mirror_1',
-          type: 'floor_mirror',
-          name: 'Full-Length Leaning Mirror',
-          position: [W / 2 - 0.65, 0, L / 2 - 0.8],
-          rotation: [0, -Math.PI / 4, 0],
-          style: 'minimalist',
-          cost: 210
         });
 
         // Minimalist Bauhaus Canvas
@@ -4287,7 +4243,7 @@ class AIEngine {
       } else if (diningType === 2) {
         // TYPE 2: MINIMALIST ZEN TEA & DINING PAVILION
         concept = `TYPE 2: MINIMALIST ZEN TEA & DINING PAVILION (${style.toUpperCase()})`;
-        spatialRationale = `Rooted in Wabi-Sabi and Japandi values of simplicity and mindful dining. The central low-profile dining set is anchored by an organic flatweave rug, while flush perimeter credenzas and a leaning mirror preserve tranquil, unbroken sightlines throughout the dining pavilion.`;
+        spatialRationale = `Rooted in Wabi-Sabi and Japandi values of simplicity and mindful dining. The central low-profile dining set is anchored by an organic flatweave rug, while flush perimeter credenzas preserve tranquil, unbroken sightlines throughout the dining pavilion.`;
         lightingPlan = `Soft 2500K twilight-diffused illumination: a glowing paper-lantern orb overhead paired with an ambient corner floor lantern, creating a tranquil sanctuary for slow meals and tea ceremonies.`;
 
         // Clean-lined Minimalist Wood Dining Table
@@ -4344,17 +4300,6 @@ class AIEngine {
           style: 'minimalist',
           color: palette.woodColor,
           cost: 580
-        });
-
-        // Full-length Leaning Floor Mirror in corner
-        items.push({
-          id: 'mirror_1',
-          type: 'floor_mirror',
-          name: 'Full-Length Leaning Mirror',
-          position: [W / 2 - 0.65, 0, L / 2 - 0.8],
-          rotation: [0, -Math.PI / 4, 0],
-          style: 'minimalist',
-          cost: 210
         });
 
         // Zen Bauhaus Geometric Canvas Art
