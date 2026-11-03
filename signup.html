@@ -3,309 +3,322 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign Up | AI Interior Studio - 3D Spatial Suggester</title>
-  <link rel="stylesheet" href="css/login.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <title>Create Account | AI Interior Studio</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: #0b0f19;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .bg-glow {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .top-nav {
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      right: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .nav-link {
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 14px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s;
+    }
+    .nav-link:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 440px;
+      background: #111827;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      padding: 32px 28px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      margin-top: 40px;
+    }
+
+    .brand-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .brand-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+    }
+
+    .brand-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .brand-subtitle {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    .status-msg {
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      text-align: center;
+      margin-bottom: 18px;
+      display: none;
+      line-height: 1.4;
+    }
+
+    .status-msg.error {
+      display: block;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    .status-msg.success {
+      display: block;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 6px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      font-size: 16px;
+      color: #64748b;
+      pointer-events: none;
+    }
+
+    .text-input {
+      width: 100%;
+      background: #0b0f19;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 11px 14px 11px 42px;
+      font-size: 14px;
+      color: #fff;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .text-input:focus {
+      border-color: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      background: #10b981;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+      margin-top: 18px;
+      transition: all 0.2s;
+    }
+
+    .submit-btn:hover {
+      background: #059669;
+    }
+
+    .bottom-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    .bottom-link a {
+      color: #34d399;
+      text-decoration: none;
+      font-weight: 600;
+      margin-left: 4px;
+    }
+
+    .bottom-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
 
-  <!-- Background 3D Canvas -->
-  <canvas id="auth-canvas"></canvas>
+  <div class="bg-glow"></div>
 
-  <!-- Glowing ambient blur orbs -->
-  <div class="auth-glow-orb-1"></div>
-  <div class="auth-glow-orb-2"></div>
-
-  <!-- Top Navigation -->
-  <header class="auth-nav">
-    <a href="index.html" class="auth-back-link">
+  <!-- Top Nav -->
+  <header class="top-nav">
+    <a href="index.html" class="nav-link">
       <span>←</span> Back to Showcase
     </a>
-    <div style="display: flex; gap: 10px; align-items: center;">
-      <a href="signin.html" class="auth-back-link" style="background: rgba(99, 102, 241, 0.2); border-color: rgba(99, 102, 241, 0.4); color: #fff;">
-        <span>🔑</span> Sign In
-      </a>
-    </div>
+    <a href="login.html" class="nav-link" style="color: #6ee7b7; border-color: rgba(16, 185, 129, 0.3);">
+      Sign In
+    </a>
   </header>
 
-  <!-- Auth Main Centerpiece -->
-  <div class="auth-wrapper">
-    <div class="auth-card" style="max-width: 480px;">
+  <!-- Card -->
+  <div class="card">
 
-      <!-- Brand Header -->
-      <div class="auth-header">
-        <div class="auth-brand-badge">✨</div>
-        <h1 class="auth-title">Create Your Account</h1>
-        <p class="auth-subtitle">
-          Sign up to access AI Interior 3D Studio, save custom layouts, and explore smart spatial layouts.
-        </p>
-      </div>
-
-      <!-- Main Sign Up Form -->
-      <form class="auth-form" id="signup-form" autocomplete="on">
-        
-        <!-- Full Name -->
-        <div class="auth-field">
-          <label class="auth-label" for="signup-name">Full Name</label>
-          <div class="auth-input-wrapper">
-            <span class="auth-input-icon">👤</span>
-            <input 
-              type="text" 
-              id="signup-name" 
-              class="auth-input" 
-              placeholder="e.g. Maya Lin" 
-              required 
-              autocomplete="name"
-            >
-          </div>
-        </div>
-
-        <!-- Email Address -->
-        <div class="auth-field">
-          <label class="auth-label" for="signup-email">Email Address</label>
-          <div class="auth-input-wrapper">
-            <span class="auth-input-icon">✉️</span>
-            <input 
-              type="email" 
-              id="signup-email" 
-              class="auth-input" 
-              placeholder="name@example.com" 
-              required 
-              autocomplete="email"
-            >
-          </div>
-        </div>
-
-        <!-- Role Selection -->
-        <div class="auth-field">
-          <label class="auth-label" for="signup-role">Your Role</label>
-          <div class="auth-input-wrapper">
-            <span class="auth-input-icon">📐</span>
-            <select id="signup-role" class="auth-input" style="cursor: pointer; background: transparent; appearance: none; -webkit-appearance: none; color: #fff;">
-              <option value="user" style="background: #111425; color: #fff;">Architect & Interior Designer</option>
-              <option value="user" style="background: #111425; color: #fff;">Homeowner / Space Planner</option>
-            </select>
-            <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-dim); font-size: 11px;">▼</span>
-          </div>
-        </div>
-
-        <!-- Password -->
-        <div class="auth-field">
-          <label class="auth-label" for="signup-password">Password</label>
-          <div class="auth-input-wrapper">
-            <span class="auth-input-icon">🔒</span>
-            <input 
-              type="password" 
-              id="signup-password" 
-              class="auth-input" 
-              placeholder="At least 6 characters" 
-              required 
-              minlength="6"
-              autocomplete="new-password"
-            >
-            <button type="button" class="btn-pwd-toggle" id="btn-toggle-pwd" title="Show/Hide Password">👁</button>
-          </div>
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="auth-field">
-          <label class="auth-label" for="signup-password-confirm">Confirm Password</label>
-          <div class="auth-input-wrapper">
-            <span class="auth-input-icon">🔒</span>
-            <input 
-              type="password" 
-              id="signup-password-confirm" 
-              class="auth-input" 
-              placeholder="Repeat your password" 
-              required 
-              minlength="6"
-              autocomplete="new-password"
-            >
-          </div>
-        </div>
-
-        <!-- Terms checkbox -->
-        <div class="auth-options" style="margin-top: 4px;">
-          <label class="auth-remember">
-            <input type="checkbox" id="terms-agree" required checked>
-            <span style="font-size: 12px;">I agree to the <span style="color: var(--accent-primary);">Workspace Terms</span> and privacy notice</span>
-          </label>
-        </div>
-
-        <!-- Submit Button -->
-        <button type="submit" class="auth-submit-btn" id="btn-submit-signup" style="margin-top: 14px;">
-          <span>🚀</span> Create Account & Launch Studio
-        </button>
-      </form>
-
-      <!-- Switch to Sign In -->
-      <div style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-dim);">
-        Already have an account? 
-        <a href="signin.html" style="color: var(--accent-primary); font-weight: 600; text-decoration: none; margin-left: 4px;">
-          Sign In here →
-        </a>
-      </div>
-
+    <div class="brand-header">
+      <div class="brand-icon">✨</div>
+      <h1 class="brand-title">Create Account</h1>
+      <p class="brand-subtitle">Join AI Interior Studio & save custom 3D layouts</p>
     </div>
-  </div>
 
-  <!-- Toast Notification -->
-  <div class="auth-toast" id="auth-toast">
-    <span id="toast-icon">✨</span>
-    <span id="toast-msg">Account created successfully!</span>
+    <div class="status-msg" id="status-box"></div>
+
+    <form id="signup-form">
+
+      <div class="form-group">
+        <label class="form-label" for="reg-name">Full Name</label>
+        <div class="input-wrapper">
+          <span class="input-icon">👤</span>
+          <input type="text" id="reg-name" class="text-input" placeholder="e.g. Maya Lin" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-email">Email Address</label>
+        <div class="input-wrapper">
+          <span class="input-icon">✉️</span>
+          <input type="email" id="reg-email" class="text-input" placeholder="maya@example.com" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-password">Password</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="reg-password" class="text-input" placeholder="At least 4 characters" minlength="4" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-confirm">Confirm Password</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="reg-confirm" class="text-input" placeholder="Repeat password" minlength="4" required>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="btn-submit">
+        <span>🚀</span> Create Account & Launch Studio
+      </button>
+
+    </form>
+
+    <div class="bottom-link">
+      Already have an account? 
+      <a href="login.html">Sign In here →</a>
+    </div>
+
   </div>
 
   <script src="js/user-db.js"></script>
+
   <script>
-    if (typeof window.UserDB === 'undefined') {
-      window.UserDB = {
-        STORAGE_KEY: 'ai_interior_users_db',
-        SESSION_KEY: 'ai_interior_user',
-        ADMIN_EMAIL: 'bhuvan@gmail.com',
-        getUsers: function() {
-          try {
-            const raw = localStorage.getItem(this.STORAGE_KEY);
-            return raw ? JSON.parse(raw) : [];
-          } catch(e) { return []; }
-        },
-        setCurrentUser: function(user) {
-          try { localStorage.setItem(this.SESSION_KEY, JSON.stringify(user)); } catch(e) {}
-        },
-        registerUser: function(data) {
-          const email = (data.email || '').trim().toLowerCase();
-          const name = (data.name || '').trim() || email.split('@')[0];
-          const pwd = (data.password || '').trim();
-          if (!email || !pwd) return { success: false, error: 'Email and password required.' };
-          if (email === this.ADMIN_EMAIL) return { success: false, error: 'This email is reserved.' };
-          const users = this.getUsers();
-          if (users.find(u => (u.email || '').toLowerCase() === email)) {
-            return { success: false, error: 'Account already exists. Please sign in.' };
-          }
-          const newUser = {
-            id: 'usr_' + Date.now(),
-            name: name,
-            email: email,
-            password: pwd,
-            role: 'user',
-            registeredAt: new Date().toISOString(),
-            loginCount: 1,
-            status: 'active'
-          };
-          users.unshift(newUser);
-          try { localStorage.setItem(this.STORAGE_KEY, JSON.stringify(users)); } catch(e) {}
-          this.setCurrentUser(newUser);
-          return { success: true, user: newUser };
-        }
-      };
+    function showStatus(text, isSuccess) {
+      var box = document.getElementById('status-box');
+      box.textContent = text;
+      box.className = 'status-msg ' + (isSuccess ? 'success' : 'error');
     }
-    const UserDB = window.UserDB;
 
-    // 3D Three.js Background
-    function initBackground() {
-      const canvas = document.getElementById('auth-canvas');
-      if (!canvas || typeof THREE === 'undefined') return;
+    document.getElementById('signup-form').addEventListener('submit', function(e) {
+      e.preventDefault();
 
-      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      var name = document.getElementById('reg-name').value.trim();
+      var email = document.getElementById('reg-email').value.trim();
+      var password = document.getElementById('reg-password').value.trim();
+      var confirm = document.getElementById('reg-confirm').value.trim();
 
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-      camera.position.set(0, 0, 7);
-
-      const group = new THREE.Group();
-      scene.add(group);
-
-      const boxGeom = new THREE.BoxGeometry(2.4, 2.4, 2.4);
-      const wireMat = new THREE.MeshBasicMaterial({ color: 0x6366f1, wireframe: true, transparent: true, opacity: 0.25 });
-      const cube = new THREE.Mesh(boxGeom, wireMat);
-      group.add(cube);
-
-      const ringGeom = new THREE.TorusGeometry(2.2, 0.02, 16, 100);
-      const ringMat = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.3 });
-      const ring = new THREE.Mesh(ringGeom, ringMat);
-      ring.rotation.x = Math.PI / 4;
-      group.add(ring);
-
-      window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      });
-
-      function animate() {
-        requestAnimationFrame(animate);
-        group.rotation.x += 0.003;
-        group.rotation.y += 0.004;
-        renderer.render(scene, camera);
+      if (password !== confirm) {
+        showStatus('Passwords do not match. Please re-enter.', false);
+        return;
       }
-      animate();
-    }
 
-    // UI Toast
-    function showToast(msg, isSuccess = true) {
-      const toast = document.getElementById('auth-toast');
-      const toastMsg = document.getElementById('toast-msg');
-      const toastIcon = document.getElementById('toast-icon');
-      if (!toast) return;
-      toastMsg.textContent = msg;
-      toastIcon.textContent = isSuccess ? '✨' : '⚠️';
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 3500);
-    }
+      var res = UserDB.register(name, email, password, 'user');
 
-    window.addEventListener('DOMContentLoaded', () => {
-      initBackground();
-
-      const params = new URLSearchParams(window.location.search);
-      const redirectUrl = params.get('redirect') || 'studio.html';
-
-      // Password Toggle
-      const pwdInput = document.getElementById('signup-password');
-      const pwdToggle = document.getElementById('btn-toggle-pwd');
-      pwdToggle?.addEventListener('click', () => {
-        const isPwd = pwdInput.type === 'password';
-        pwdInput.type = isPwd ? 'text' : 'password';
-        pwdToggle.textContent = isPwd ? '🙈' : '👁';
-      });
-
-      // Sign Up Form Submission
-      const form = document.getElementById('signup-form');
-      form?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = document.getElementById('signup-name').value.trim();
-        const email = document.getElementById('signup-email').value.trim();
-        const role = document.getElementById('signup-role').value;
-        const password = document.getElementById('signup-password').value;
-        const confirmPassword = document.getElementById('signup-password-confirm').value;
-
-        if (password !== confirmPassword) {
-          showToast('Passwords do not match. Please re-enter.', false);
-          return;
-        }
-
-        if (password.length < 6) {
-          showToast('Password must be at least 6 characters.', false);
-          return;
-        }
-
-        // Register user into UserDB (captures exact ISO registration date & time)
-        const result = UserDB.registerUser({
-          name,
-          email,
-          password,
-          role
-        });
-
-        if (result.success) {
-          showToast(`Welcome, ${result.user.name}! Your account has been registered.`, true);
-          setTimeout(() => {
-            window.location.href = redirectUrl;
-          }, 700);
-        } else {
-          showToast(result.error || 'Failed to create account', false);
-        }
-      });
+      if (res.success) {
+        showStatus('✨ Account created! Welcome, ' + res.user.name + '. Launching Studio...', true);
+        setTimeout(function() {
+          window.location.href = 'studio.html';
+        }, 500);
+      } else {
+        showStatus('⚠️ ' + (res.error || 'Failed to create account.'), false);
+      }
     });
   </script>
 

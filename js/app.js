@@ -1251,7 +1251,7 @@ class App {
     // Studio Sign Out button
     document.getElementById('btn-studio-signout')?.addEventListener('click', () => {
       localStorage.removeItem('ai_interior_user');
-      window.location.href = 'signin.html?redirect=studio.html';
+      window.location.href = 'login.html?redirect=studio.html';
     });
 
     // Display user session in studio navbar if signed in

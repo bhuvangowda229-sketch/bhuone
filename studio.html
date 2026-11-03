@@ -10,10 +10,10 @@
       try {
         var user = localStorage.getItem('ai_interior_user');
         if (!user) {
-          window.location.replace('signin.html?redirect=studio.html');
+          window.location.replace('login.html?redirect=studio.html');
         }
       } catch (e) {
-        window.location.replace('signin.html?redirect=studio.html');
+        window.location.replace('login.html?redirect=studio.html');
       }
     })();
   </script>

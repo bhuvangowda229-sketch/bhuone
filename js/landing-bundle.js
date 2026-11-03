@@ -3417,7 +3417,7 @@ class HeroDemo {
         const user = localStorage.getItem('ai_interior_user');
         if (!user) {
           e.preventDefault();
-          window.location.href = 'signin.html?redirect=studio.html';
+          window.location.href = 'login.html?redirect=studio.html';
         }
       });
     });
