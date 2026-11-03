@@ -3,126 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In | AI Interior Studio - 3D Spatial Suggester</title>
-  <link rel="stylesheet" href="css/login.css">
-  <!-- Three.js for interactive ambient 3D architectural background -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <title>Redirecting to Sign In | AI Interior Studio</title>
+  <meta http-equiv="refresh" content="0; url=signin.html">
+  <script>
+    window.location.replace('signin.html' + window.location.search);
+  </script>
 </head>
-<body>
-
-  <!-- Ambient 3D Three.js canvas in background -->
-  <canvas id="auth-canvas"></canvas>
-
-  <!-- Glowing ambient blur orbs -->
-  <div class="auth-glow-orb-1"></div>
-  <div class="auth-glow-orb-2"></div>
-
-  <!-- Top Navigation -->
-  <header class="auth-nav">
-    <a href="index.html" class="auth-back-link">
-      <span>←</span> Back to Showcase
-    </a>
-  </header>
-
-  <!-- Auth Main Centerpiece -->
-  <div class="auth-wrapper">
-    <div class="auth-card">
-
-      <!-- Brand Header -->
-      <div class="auth-header">
-        <div class="auth-brand-badge">✨</div>
-        <h1 class="auth-title" id="auth-main-title">Welcome Back</h1>
-        <p class="auth-subtitle" id="auth-main-subtitle">
-          Sign in to design, visualize, and customize interior spaces in real-time 3D.
-        </p>
-      </div>
-
-      <!-- Active Session View (shown dynamically when already signed in) -->
-      <div class="auth-session-box" id="auth-session-box">
-        <div class="auth-avatar-ring">
-          <div class="auth-avatar-inner" id="session-avatar-initial">A</div>
-        </div>
-        <div>
-          <div class="auth-user-name" id="session-user-name">Alex Rivera</div>
-          <div class="auth-user-email" id="session-user-email">alex.rivera@designstudio.ai</div>
-        </div>
-        <div class="auth-session-actions">
-          <a href="studio.html" class="auth-submit-btn" style="text-decoration: none; justify-content: center;">
-            <span>🚀</span> Proceed to 3D Studio
-          </a>
-          <a href="index.html" class="btn btn-secondary" style="text-decoration: none; justify-content: center; width: 100%;">
-            <span>🏠</span> Back to Showcase
-          </a>
-          <button id="btn-switch-account" class="btn btn-secondary" style="width: 100%; border-color: rgba(239, 68, 68, 0.35); color: #fca5a5;">
-            <span>🚪</span> Switch Account / Sign Out
-          </button>
-        </div>
-      </div>
-
-      <!-- Main Login/Register Forms Box -->
-      <div id="auth-forms-container">
-
-        <!-- Tabs: Sign In / Create Account -->
-        <div class="auth-tabs">
-          <button class="auth-tab-btn active" id="tab-signin-btn" type="button">Sign In</button>
-          <button class="auth-tab-btn" id="tab-signup-btn" type="button">Create Account</button>
-        </div>
-
-        <!-- Form -->
-        <form class="auth-form" id="auth-form" autocomplete="on">
-          <!-- Full Name Field (visible only in Sign Up mode) -->
-          <div class="auth-field" id="field-name" style="display: none;">
-            <label class="auth-label" for="input-name">Full Name</label>
-            <div class="auth-input-box">
-              <span class="auth-input-icon">👤</span>
-              <input type="text" id="input-name" class="auth-input" placeholder="e.g. Alex Rivera" autocomplete="name">
-            </div>
-          </div>
-
-          <!-- Email Field -->
-          <div class="auth-field">
-            <label class="auth-label" for="input-email">Work Email</label>
-            <div class="auth-input-box">
-              <span class="auth-input-icon">✉</span>
-              <input type="email" id="input-email" class="auth-input" placeholder="name@company.com" required autocomplete="email">
-            </div>
-          </div>
-
-          <!-- Password Field -->
-          <div class="auth-field">
-            <label class="auth-label" for="input-password">Password</label>
-            <div class="auth-input-box">
-              <span class="auth-input-icon">🔒</span>
-              <input type="password" id="input-password" class="auth-input" placeholder="Minimum 6 characters" required autocomplete="current-password" style="padding-right: 42px;">
-              <button type="button" class="auth-pwd-toggle" id="btn-toggle-pwd" title="Show/Hide Password">👁</button>
-            </div>
-          </div>
-
-          <!-- Options Row -->
-          <div class="auth-options-row" id="auth-options-row">
-            <label class="auth-checkbox-label">
-              <input type="checkbox" id="check-remember" checked>
-              <span>Remember me</span>
-            </label>
-            <a href="#" class="auth-forgot-link" id="link-forgot-pwd">Forgot password?</a>
-          </div>
-
-          <!-- Submit Button -->
-          <button type="submit" class="auth-submit-btn" id="btn-submit-auth">
-            <span>🚀</span> <span id="submit-label">Sign In to Studio</span>
-          </button>
-        </form>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast Notification -->
-  <div class="auth-toast" id="auth-toast">
-    <span id="toast-icon">✨</span>
-    <span id="toast-msg">Welcome to AI Interior Studio!</span>
-  </div>
-
-  <script src="js/login.js"></script>
+<body style="background: #0b0d17; color: #fff; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+  <p>Redirecting to <a href="signin.html" style="color: #6366f1;">Sign In</a>...</p>
 </body>
 </html>

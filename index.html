@@ -30,9 +30,18 @@
       <li><a href="#faq">FAQ</a></li>
     </ul>
 
-    <div class="nav-cta-group">
-      <a href="studio.html" class="btn btn-primary">
-        <span>🚀</span> Launch 3D Studio
+    <div class="nav-cta-group" id="nav-cta-group">
+      <a href="signin.html" class="nav-auth-link" id="nav-signin-link" style="color: #cbd5e1; text-decoration: none; font-size: 14px; font-weight: 500; padding: 8px 12px; transition: color 0.2s;">
+        Sign In
+      </a>
+      <a href="signup.html" class="nav-auth-link" id="nav-signup-link" style="color: #a5b4fc; text-decoration: none; font-size: 14px; font-weight: 500; padding: 7px 12px; border: 1px solid rgba(99, 102, 241, 0.35); border-radius: 8px; background: rgba(99, 102, 241, 0.12); transition: all 0.2s;">
+        Sign Up
+      </a>
+      <a href="admin.html" class="nav-auth-link" id="nav-admin-link" style="color: #fbbf24; text-decoration: none; font-size: 13px; font-weight: 600; padding: 8px 10px; display: inline-flex; align-items: center; gap: 4px;" title="Admin Portal & User Registrations">
+        <span>👑</span> Admin
+      </a>
+      <a href="studio.html" class="btn btn-primary" id="btn-launch-nav">
+        <span>🚀</span> Launch Studio
       </a>
     </div>
   </nav>
@@ -398,6 +407,21 @@
       </div>
     </div>
   </footer>
+
+  <!-- Immediate Authentication Guard for Launch Studio Buttons -->
+  <script>
+    document.addEventListener('click', function(e) {
+      var target = e.target.closest('a[href*="studio.html"]');
+      if (target) {
+        var user = localStorage.getItem('ai_interior_user');
+        if (!user) {
+          e.preventDefault();
+          e.stopPropagation();
+          window.location.href = 'signin.html?redirect=studio.html';
+        }
+      }
+    }, true);
+  </script>
 
   <!-- SCRIPT FOR LIVE HERO DEMO (Zero-CORS, Works directly on file:// and http://) -->
   <script src="js/landing-bundle.js"></script>

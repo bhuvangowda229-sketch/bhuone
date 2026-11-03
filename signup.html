@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up | AI Interior Studio - 3D Spatial Suggester</title>
+  <link rel="stylesheet" href="css/login.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+  <!-- Background 3D Canvas -->
+  <canvas id="auth-canvas"></canvas>
+
+  <!-- Glowing ambient blur orbs -->
+  <div class="auth-glow-orb-1"></div>
+  <div class="auth-glow-orb-2"></div>
+
+  <!-- Top Navigation -->
+  <header class="auth-nav">
+    <a href="index.html" class="auth-back-link">
+      <span>←</span> Back to Showcase
+    </a>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <a href="admin.html" class="auth-back-link" style="color: #a5b4fc; border-color: rgba(99, 102, 241, 0.3);">
+        <span>👑</span> Admin Portal
+      </a>
+      <a href="signin.html" class="auth-back-link" style="background: rgba(99, 102, 241, 0.2); border-color: rgba(99, 102, 241, 0.4); color: #fff;">
+        <span>🔑</span> Sign In
+      </a>
+    </div>
+  </header>
+
+  <!-- Auth Main Centerpiece -->
+  <div class="auth-wrapper">
+    <div class="auth-card" style="max-width: 480px;">
+
+      <!-- Brand Header -->
+      <div class="auth-header">
+        <div class="auth-brand-badge">✨</div>
+        <h1 class="auth-title">Create Your Account</h1>
+        <p class="auth-subtitle">
+          Sign up to access AI Interior 3D Studio, save custom layouts, and explore smart spatial layouts.
+        </p>
+      </div>
+
+      <!-- Main Sign Up Form -->
+      <form class="auth-form" id="signup-form" autocomplete="on">
+        
+        <!-- Full Name -->
+        <div class="auth-field">
+          <label class="auth-label" for="signup-name">Full Name</label>
+          <div class="auth-input-wrapper">
+            <span class="auth-input-icon">👤</span>
+            <input 
+              type="text" 
+              id="signup-name" 
+              class="auth-input" 
+              placeholder="e.g. Maya Lin" 
+              required 
+              autocomplete="name"
+            >
+          </div>
+        </div>
+
+        <!-- Email Address -->
+        <div class="auth-field">
+          <label class="auth-label" for="signup-email">Email Address</label>
+          <div class="auth-input-wrapper">
+            <span class="auth-input-icon">✉️</span>
+            <input 
+              type="email" 
+              id="signup-email" 
+              class="auth-input" 
+              placeholder="name@example.com" 
+              required 
+              autocomplete="email"
+            >
+          </div>
+        </div>
+
+        <!-- Role Selection -->
+        <div class="auth-field">
+          <label class="auth-label" for="signup-role">Your Role</label>
+          <div class="auth-input-wrapper">
+            <span class="auth-input-icon">📐</span>
+            <select id="signup-role" class="auth-input" style="cursor: pointer; background: transparent; appearance: none; -webkit-appearance: none; color: #fff;">
+              <option value="user" style="background: #111425; color: #fff;">Architect & Interior Designer</option>
+              <option value="user" style="background: #111425; color: #fff;">Homeowner / Space Planner</option>
+              <option value="admin" style="background: #111425; color: #fff;">Studio Administrator (Admin)</option>
+            </select>
+            <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-dim); font-size: 11px;">▼</span>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="auth-field">
+          <label class="auth-label" for="signup-password">Password</label>
+          <div class="auth-input-wrapper">
+            <span class="auth-input-icon">🔒</span>
+            <input 
+              type="password" 
+              id="signup-password" 
+              class="auth-input" 
+              placeholder="At least 6 characters" 
+              required 
+              minlength="6"
+              autocomplete="new-password"
+            >
+            <button type="button" class="btn-pwd-toggle" id="btn-toggle-pwd" title="Show/Hide Password">👁</button>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="auth-field">
+          <label class="auth-label" for="signup-password-confirm">Confirm Password</label>
+          <div class="auth-input-wrapper">
+            <span class="auth-input-icon">🔒</span>
+            <input 
+              type="password" 
+              id="signup-password-confirm" 
+              class="auth-input" 
+              placeholder="Repeat your password" 
+              required 
+              minlength="6"
+              autocomplete="new-password"
+            >
+          </div>
+        </div>
+
+        <!-- Terms checkbox -->
+        <div class="auth-options" style="margin-top: 4px;">
+          <label class="auth-remember">
+            <input type="checkbox" id="terms-agree" required checked>
+            <span style="font-size: 12px;">I agree to the <span style="color: var(--accent-primary);">Workspace Terms</span> and privacy notice</span>
+          </label>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="auth-submit-btn" id="btn-submit-signup" style="margin-top: 14px;">
+          <span>🚀</span> Create Account & Launch Studio
+        </button>
+      </form>
+
+      <!-- Switch to Sign In -->
+      <div style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-dim);">
+        Already have an account? 
+        <a href="signin.html" style="color: var(--accent-primary); font-weight: 600; text-decoration: none; margin-left: 4px;">
+          Sign In here →
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="auth-toast" id="auth-toast">
+    <span id="toast-icon">✨</span>
+    <span id="toast-msg">Account created successfully!</span>
+  </div>
+
+  <script src="js/user-db.js"></script>
+  <script>
+    const UserDB = window.UserDB;
+
+    // 3D Three.js Background
+    function initBackground() {
+      const canvas = document.getElementById('auth-canvas');
+      if (!canvas || typeof THREE === 'undefined') return;
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.set(0, 0, 7);
+
+      const group = new THREE.Group();
+      scene.add(group);
+
+      const boxGeom = new THREE.BoxGeometry(2.4, 2.4, 2.4);
+      const wireMat = new THREE.MeshBasicMaterial({ color: 0x6366f1, wireframe: true, transparent: true, opacity: 0.25 });
+      const cube = new THREE.Mesh(boxGeom, wireMat);
+      group.add(cube);
+
+      const ringGeom = new THREE.TorusGeometry(2.2, 0.02, 16, 100);
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.3 });
+      const ring = new THREE.Mesh(ringGeom, ringMat);
+      ring.rotation.x = Math.PI / 4;
+      group.add(ring);
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      function animate() {
+        requestAnimationFrame(animate);
+        group.rotation.x += 0.003;
+        group.rotation.y += 0.004;
+        renderer.render(scene, camera);
+      }
+      animate();
+    }
+
+    // UI Toast
+    function showToast(msg, isSuccess = true) {
+      const toast = document.getElementById('auth-toast');
+      const toastMsg = document.getElementById('toast-msg');
+      const toastIcon = document.getElementById('toast-icon');
+      if (!toast) return;
+      toastMsg.textContent = msg;
+      toastIcon.textContent = isSuccess ? '✨' : '⚠️';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initBackground();
+
+      const params = new URLSearchParams(window.location.search);
+      const redirectUrl = params.get('redirect') || 'studio.html';
+
+      // Password Toggle
+      const pwdInput = document.getElementById('signup-password');
+      const pwdToggle = document.getElementById('btn-toggle-pwd');
+      pwdToggle?.addEventListener('click', () => {
+        const isPwd = pwdInput.type === 'password';
+        pwdInput.type = isPwd ? 'text' : 'password';
+        pwdToggle.textContent = isPwd ? '🙈' : '👁';
+      });
+
+      // Sign Up Form Submission
+      const form = document.getElementById('signup-form');
+      form?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('signup-name').value.trim();
+        const email = document.getElementById('signup-email').value.trim();
+        const role = document.getElementById('signup-role').value;
+        const password = document.getElementById('signup-password').value;
+        const confirmPassword = document.getElementById('signup-password-confirm').value;
+
+        if (password !== confirmPassword) {
+          showToast('Passwords do not match. Please re-enter.', false);
+          return;
+        }
+
+        if (password.length < 6) {
+          showToast('Password must be at least 6 characters.', false);
+          return;
+        }
+
+        // Register user into UserDB (captures exact ISO registration date & time)
+        const result = UserDB.registerUser({
+          name,
+          email,
+          password,
+          role
+        });
+
+        if (result.success) {
+          showToast(`Welcome, ${result.user.name}! Your account has been registered.`, true);
+          setTimeout(() => {
+            window.location.href = redirectUrl;
+          }, 800);
+        } else {
+          showToast(result.error || 'Failed to create account', false);
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

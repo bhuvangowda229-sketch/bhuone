@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In | AI Interior Studio - 3D Spatial Suggester</title>
+  <link rel="stylesheet" href="css/login.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+  <!-- Background 3D Canvas -->
+  <canvas id="auth-canvas"></canvas>
+
+  <!-- Glowing ambient blur orbs -->
+  <div class="auth-glow-orb-1"></div>
+  <div class="auth-glow-orb-2"></div>
+
+  <!-- Top Navigation -->
+  <header class="auth-nav">
+    <a href="index.html" class="auth-back-link">
+      <span>←</span> Back to Showcase
+    </a>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <a href="admin.html" class="auth-back-link" style="color: #a5b4fc; border-color: rgba(99, 102, 241, 0.3);">
+        <span>👑</span> Admin Portal
+      </a>
+      <a href="signup.html" class="auth-back-link" style="background: rgba(99, 102, 241, 0.2); border-color: rgba(99, 102, 241, 0.4); color: #fff;">
+        <span>✨</span> Sign Up
+      </a>
+    </div>
+  </header>
+
+  <!-- Auth Main Centerpiece -->
+  <div class="auth-wrapper">
+    <div class="auth-card">
+
+      <!-- Brand Header -->
+      <div class="auth-header">
+        <div class="auth-brand-badge">✨</div>
+        <h1 class="auth-title" id="auth-main-title">Sign In to 3D Studio</h1>
+        <p class="auth-subtitle" id="auth-main-subtitle">
+          Please sign in to proceed into the interactive 3D Design Studio.
+        </p>
+      </div>
+
+      <!-- Active Session Box (shown dynamically if already signed in) -->
+      <div class="auth-session-box" id="auth-session-box" style="display: none;">
+        <div class="auth-avatar-ring">
+          <div class="auth-avatar-inner" id="session-avatar-initial">A</div>
+        </div>
+        <div>
+          <div class="auth-user-name" id="session-user-name">Alex Rivera</div>
+          <div class="auth-user-email" id="session-user-email">alex.rivera@designstudio.ai</div>
+        </div>
+        <div class="auth-session-actions">
+          <a href="studio.html" class="auth-submit-btn" style="text-decoration: none; justify-content: center;">
+            <span>🚀</span> Proceed to 3D Studio
+          </a>
+          <a href="admin.html" id="session-admin-link" class="btn btn-secondary" style="text-decoration: none; justify-content: center; width: 100%; border-color: rgba(99, 102, 241, 0.4); color: #a5b4fc;">
+            <span>👑</span> Open Admin Dashboard
+          </a>
+          <button id="btn-switch-account" class="btn btn-secondary" style="width: 100%; border-color: rgba(239, 68, 68, 0.35); color: #fca5a5;">
+            <span>🚪</span> Sign Out & Switch Account
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Sign In Form -->
+      <div id="auth-forms-container">
+        <form class="auth-form" id="signin-form" autocomplete="on">
+          
+          <div class="auth-field">
+            <label class="auth-label" for="signin-email">Email Address</label>
+            <div class="auth-input-wrapper">
+              <span class="auth-input-icon">✉️</span>
+              <input 
+                type="email" 
+                id="signin-email" 
+                class="auth-input" 
+                placeholder="architect@example.com" 
+                required 
+                autocomplete="email"
+              >
+            </div>
+          </div>
+
+          <div class="auth-field">
+            <label class="auth-label" for="signin-password">Password</label>
+            <div class="auth-input-wrapper">
+              <span class="auth-input-icon">🔒</span>
+              <input 
+                type="password" 
+                id="signin-password" 
+                class="auth-input" 
+                placeholder="••••••••" 
+                required 
+                autocomplete="current-password"
+              >
+              <button type="button" class="btn-pwd-toggle" id="btn-toggle-pwd" title="Show/Hide Password">👁</button>
+            </div>
+          </div>
+
+          <!-- Options Row: Remember Me & Forgot Password -->
+          <div class="auth-options" id="auth-options-row">
+            <label class="auth-remember">
+              <input type="checkbox" id="remember-me" checked>
+              <span>Remember me</span>
+            </label>
+            <a href="#" class="auth-forgot" id="link-forgot-pwd">Forgot password?</a>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="auth-submit-btn" id="btn-submit-signin">
+            <span>🚀</span> <span id="submit-label">Sign In & Launch Studio</span>
+          </button>
+        </form>
+
+        <!-- Quick Demo Accounts -->
+        <div style="margin-top: 16px; padding: 12px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+          <div style="font-size: 11px; color: var(--text-dim); text-align: center; margin-bottom: 8px;">
+            ⚡ Quick Demo Accounts:
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button type="button" class="btn btn-sm demo-account-btn" data-email="admin@designstudio.ai" data-pwd="admin" style="font-size: 11px; padding: 6px;">
+              👑 Admin Demo
+            </button>
+            <button type="button" class="btn btn-sm demo-account-btn" data-email="alex.rivera@designstudio.ai" data-pwd="password123" style="font-size: 11px; padding: 6px;">
+              👤 User Demo
+            </button>
+          </div>
+        </div>
+
+        <!-- Switch to Sign Up -->
+        <div style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-dim);">
+          Don't have an account yet? 
+          <a href="signup.html" style="color: var(--accent-primary); font-weight: 600; text-decoration: none; margin-left: 4px;">
+            Create Free Account →
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="auth-toast" id="auth-toast">
+    <span id="toast-icon">✨</span>
+    <span id="toast-msg">Welcome to AI Interior Studio!</span>
+  </div>
+
+  <script src="js/user-db.js"></script>
+  <script>
+    const UserDB = window.UserDB;
+
+    // 3D Three.js Background
+    function initBackground() {
+      const canvas = document.getElementById('auth-canvas');
+      if (!canvas || typeof THREE === 'undefined') return;
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.set(0, 0, 7);
+
+      const group = new THREE.Group();
+      scene.add(group);
+
+      const boxGeom = new THREE.BoxGeometry(2.4, 2.4, 2.4);
+      const wireMat = new THREE.MeshBasicMaterial({ color: 0x6366f1, wireframe: true, transparent: true, opacity: 0.25 });
+      const cube = new THREE.Mesh(boxGeom, wireMat);
+      group.add(cube);
+
+      const ringGeom = new THREE.TorusGeometry(2.0, 0.02, 16, 100);
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0xec4899, transparent: true, opacity: 0.3 });
+      const ring = new THREE.Mesh(ringGeom, ringMat);
+      ring.rotation.x = Math.PI / 3;
+      group.add(ring);
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      function animate() {
+        requestAnimationFrame(animate);
+        group.rotation.x += 0.003;
+        group.rotation.y += 0.005;
+        renderer.render(scene, camera);
+      }
+      animate();
+    }
+
+    // UI Toast
+    function showToast(msg, isSuccess = true) {
+      const toast = document.getElementById('auth-toast');
+      const toastMsg = document.getElementById('toast-msg');
+      const toastIcon = document.getElementById('toast-icon');
+      if (!toast) return;
+      toastMsg.textContent = msg;
+      toastIcon.textContent = isSuccess ? '✨' : '⚠️';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    // Initialize Page Controller
+    window.addEventListener('DOMContentLoaded', () => {
+      initBackground();
+
+      const params = new URLSearchParams(window.location.search);
+      const redirectUrl = params.get('redirect') || 'studio.html';
+
+      // Check existing session
+      const currentUser = UserDB.getCurrentUser();
+      const sessionBox = document.getElementById('auth-session-box');
+      const formsContainer = document.getElementById('auth-forms-container');
+      const sessionName = document.getElementById('session-user-name');
+      const sessionEmail = document.getElementById('session-user-email');
+      const sessionAvatar = document.getElementById('session-avatar-initial');
+
+      if (currentUser && currentUser.name) {
+        if (sessionBox && formsContainer) {
+          sessionName.textContent = currentUser.name;
+          sessionEmail.textContent = currentUser.email || 'Active Account';
+          sessionAvatar.textContent = currentUser.avatarInitial || currentUser.name.charAt(0).toUpperCase();
+          sessionBox.style.display = 'flex';
+          formsContainer.style.display = 'none';
+        }
+      }
+
+      // Password Toggle
+      const pwdInput = document.getElementById('signin-password');
+      const pwdToggle = document.getElementById('btn-toggle-pwd');
+      pwdToggle?.addEventListener('click', () => {
+        const isPwd = pwdInput.type === 'password';
+        pwdInput.type = isPwd ? 'text' : 'password';
+        pwdToggle.textContent = isPwd ? '🙈' : '👁';
+      });
+
+      // Quick Demo Accounts Fill
+      document.querySelectorAll('.demo-account-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('signin-email').value = btn.dataset.email;
+          document.getElementById('signin-password').value = btn.dataset.pwd;
+          showToast(`Filled ${btn.textContent.trim()} credentials`);
+        });
+      });
+
+      // Sign In Form Submission
+      const form = document.getElementById('signin-form');
+      form?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('signin-email').value;
+        const password = document.getElementById('signin-password').value;
+
+        const result = UserDB.authenticateUser(email, password);
+        if (result.success) {
+          showToast(`Welcome back, ${result.user.name}! Launching Studio...`, true);
+          setTimeout(() => {
+            window.location.href = redirectUrl;
+          }, 600);
+        } else {
+          showToast(result.error || 'Authentication failed', false);
+        }
+      });
+
+      // Switch Account / Sign Out
+      document.getElementById('btn-switch-account')?.addEventListener('click', () => {
+        UserDB.signOut();
+        sessionBox.style.display = 'none';
+        formsContainer.style.display = 'block';
+        showToast('Signed out. Please enter your credentials.');
+      });
+
+      // Forgot Password
+      document.getElementById('link-forgot-pwd')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('signin-email').value.trim();
+        if (!email) {
+          showToast('Please type your email above first.', false);
+          return;
+        }
+        showToast(`Password reset link sent to ${email}`, true);
+      });
+    });
+  </script>
+
+</body>
+</html>

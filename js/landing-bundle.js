@@ -3417,23 +3417,34 @@ class HeroDemo {
         const user = localStorage.getItem('ai_interior_user');
         if (!user) {
           e.preventDefault();
-          window.location.href = 'login.html?redirect=studio.html';
+          window.location.href = 'signin.html?redirect=studio.html';
         }
       });
     });
 
-    // Check user session
+    // Check user session and adjust navbar
     try {
       const stored = localStorage.getItem('ai_interior_user');
       if (stored) {
         const user = JSON.parse(stored);
-        const label = document.getElementById('nav-login-label');
-        if (label && user && user.name) {
-          label.textContent = user.name.split(' ')[0];
-          const icon = document.getElementById('nav-login-icon');
-          if (icon && user.avatarInitial) {
-            icon.textContent = '✨';
-          }
+        const signinLink = document.getElementById('nav-signin-link');
+        const signupLink = document.getElementById('nav-signup-link');
+        if (signinLink && user && user.name) {
+          signinLink.innerHTML = `👤 Hi, ${user.name.split(' ')[0]}`;
+          signinLink.href = 'studio.html';
+          signinLink.title = `Signed in as ${user.name} (${user.email || ''})`;
+        }
+        if (signupLink) {
+          signupLink.innerHTML = '<span>🚪</span> Sign Out';
+          signupLink.href = '#';
+          signupLink.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+          signupLink.style.background = 'rgba(239, 68, 68, 0.08)';
+          signupLink.style.color = '#fca5a5';
+          signupLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('ai_interior_user');
+            window.location.reload();
+          });
         }
       }
     } catch (e) {}
