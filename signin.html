@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="css/login.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
+    /* Explicit Interactive Controls */
     .auth-tab-btn {
       display: flex;
       align-items: center;
@@ -30,10 +31,17 @@
       box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4) !important;
     }
     .auth-input-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-      width: 100%;
+      position: relative !important;
+      display: flex !important;
+      align-items: center !important;
+      width: 100% !important;
+    }
+    .auth-input {
+      cursor: text !important;
+      pointer-events: auto !important;
+      user-select: text !important;
+      position: relative !important;
+      z-index: 2 !important;
     }
     .btn-pwd-toggle {
       position: absolute;
@@ -48,10 +56,29 @@
       align-items: center;
       justify-content: center;
       transition: color 0.2s;
-      z-index: 5;
+      z-index: 10;
     }
     .btn-pwd-toggle:hover {
       color: #fff;
+    }
+    .quick-chip {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.04);
+      color: #cbd5e1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .quick-chip:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.4);
     }
   </style>
 </head>
@@ -81,7 +108,7 @@
     <div class="auth-card" style="max-width: 460px;">
 
       <!-- Dual Login Switcher: User Login vs Admin Login -->
-      <div class="auth-tabs" id="login-role-tabs" style="margin-bottom: 24px;">
+      <div class="auth-tabs" id="login-role-tabs" style="margin-bottom: 22px;">
         <button type="button" class="auth-tab-btn active user-active" id="tab-user-btn" data-role="user">
           <span>👤</span> User Login
         </button>
@@ -91,7 +118,7 @@
       </div>
 
       <!-- Brand Header -->
-      <div class="auth-header" style="margin-bottom: 22px;">
+      <div class="auth-header" style="margin-bottom: 20px;">
         <div class="auth-brand-badge" id="portal-badge">✨</div>
         <h1 class="auth-title" id="auth-main-title">User Sign In</h1>
         <p class="auth-subtitle" id="auth-main-subtitle">
@@ -99,104 +126,88 @@
         </p>
       </div>
 
-      <!-- Active Session Notice (Subtle, non-blocking) -->
-      <div id="active-session-banner" style="display: none; margin-bottom: 18px; padding: 12px 16px; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.35); border-radius: 12px; font-size: 13px; color: #cbd5e1; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 18px;" id="active-banner-icon">👤</span>
-          <div>
-            <div style="font-weight: 600; color: #fff;" id="active-banner-name">User</div>
-            <div style="font-size: 11px; color: #94a3b8;" id="active-banner-email">user@example.com</div>
-          </div>
-        </div>
-        <div style="display: flex; gap: 8px;">
-          <a href="studio.html" id="btn-active-go" class="btn btn-sm" style="padding: 5px 10px; font-size: 11px; text-decoration: none; background: #6366f1; color: #fff;">
-            Continue →
-          </a>
-          <button type="button" id="btn-active-signout" class="btn btn-sm" style="padding: 5px 10px; font-size: 11px; border-color: rgba(239, 68, 68, 0.4); color: #fca5a5;">
-            Sign Out
-          </button>
-        </div>
+      <!-- Status Alert Box (High Visibility) -->
+      <div id="auth-alert-box" style="display: none; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 500; margin-bottom: 16px; text-align: center; line-height: 1.4;">
       </div>
 
       <!-- Main Sign In Form -->
-      <div id="auth-forms-container">
-        <form class="auth-form" id="signin-form" autocomplete="on">
-          
-          <div class="auth-field">
-            <label class="auth-label" for="signin-email" id="email-field-label">Email Address</label>
-            <div class="auth-input-wrapper">
-              <span class="auth-input-icon" id="email-field-icon">✉️</span>
-              <input 
-                type="email" 
-                id="signin-email" 
-                class="auth-input" 
-                placeholder="sarah.miller@example.com" 
-                required 
-                autocomplete="email"
-              >
-            </div>
+      <form class="auth-form" id="signin-form" autocomplete="on">
+        
+        <div class="auth-field">
+          <label class="auth-label" for="signin-email" id="email-field-label">Email Address</label>
+          <div class="auth-input-wrapper">
+            <span class="auth-input-icon" id="email-field-icon">✉️</span>
+            <input 
+              type="email" 
+              id="signin-email" 
+              class="auth-input" 
+              placeholder="sarah.miller@example.com" 
+              required 
+              autocomplete="email"
+              value=""
+            >
           </div>
+        </div>
 
-          <div class="auth-field">
-            <label class="auth-label" for="signin-password" id="password-field-label">Password</label>
-            <div class="auth-input-wrapper">
-              <span class="auth-input-icon">🔒</span>
-              <input 
-                type="password" 
-                id="signin-password" 
-                class="auth-input" 
-                placeholder="Enter password" 
-                required 
-                autocomplete="current-password"
-              >
-              <button type="button" class="btn-pwd-toggle" id="btn-toggle-pwd" title="Show/Hide Password">👁</button>
-            </div>
+        <div class="auth-field">
+          <label class="auth-label" for="signin-password" id="password-field-label">Password</label>
+          <div class="auth-input-wrapper">
+            <span class="auth-input-icon">🔒</span>
+            <input 
+              type="password" 
+              id="signin-password" 
+              class="auth-input" 
+              placeholder="Enter password" 
+              required 
+              autocomplete="current-password"
+              value=""
+            >
+            <button type="button" class="btn-pwd-toggle" id="btn-toggle-pwd" title="Show/Hide Password">👁</button>
           </div>
+        </div>
 
-          <!-- Options Row: Remember Me & Forgot Password -->
-          <div class="auth-options-row" id="auth-options-row" style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin: 4px 0 10px;">
-            <label class="auth-checkbox-label" style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #94a3b8;">
-              <input type="checkbox" id="remember-me" checked>
-              <span>Remember me</span>
-            </label>
-            <a href="#" class="auth-forgot-link" id="link-forgot-pwd" style="color: #a5b4fc; text-decoration: none;">Forgot password?</a>
-          </div>
-
-          <!-- Submit Button -->
-          <button type="submit" class="auth-submit-btn" id="btn-submit-signin">
-            <span id="submit-icon">🚀</span> <span id="submit-label">Sign In & Launch Studio</span>
+        <!-- Quick 1-Click Auto-Fill Helpers -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 4px 0 10px;">
+          <button type="button" class="quick-chip" id="btn-quick-fill">
+            <span id="quick-fill-icon">⚡</span> <span id="quick-fill-text">1-Click Fill Demo Credentials</span>
           </button>
-        </form>
-
-        <!-- Switch to Sign Up (Shown for User tab) -->
-        <div id="signup-switch-row" style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-dim);">
-          Don't have an account yet? 
-          <a href="signup.html" style="color: var(--accent-primary); font-weight: 600; text-decoration: none; margin-left: 4px;">
-            Create Free Account →
-          </a>
+          <a href="#" class="auth-forgot-link" id="link-forgot-pwd" style="color: #a5b4fc; text-decoration: none; font-size: 12px;">Forgot?</a>
         </div>
 
-        <!-- Admin Secure Notice (Shown for Admin tab) -->
-        <div id="admin-security-note" style="display: none; text-align: center; margin-top: 18px; font-size: 12px; color: #94a3b8; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); padding: 8px 12px; border-radius: 8px;">
-          🔒 <strong>Restricted Admin Portal:</strong> Authorized studio administrators only.
-        </div>
+        <!-- Submit Button -->
+        <button type="submit" class="auth-submit-btn" id="btn-submit-signin">
+          <span id="submit-icon">🚀</span> <span id="submit-label">Sign In & Launch Studio</span>
+        </button>
+      </form>
+
+      <!-- Switch to Sign Up (Shown for User tab) -->
+      <div id="signup-switch-row" style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-dim);">
+        Don't have an account yet? 
+        <a href="signup.html" style="color: var(--accent-primary); font-weight: 600; text-decoration: none; margin-left: 4px;">
+          Create Free Account →
+        </a>
+      </div>
+
+      <!-- Admin Secure Notice (Shown for Admin tab) -->
+      <div id="admin-security-note" style="display: none; text-align: center; margin-top: 18px; font-size: 12px; color: #94a3b8; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); padding: 8px 12px; border-radius: 8px;">
+        🔒 <strong>Restricted Admin Portal:</strong> Authorized studio administrators only.
       </div>
 
     </div>
   </div>
 
-  <!-- Toast Notification -->
+  <!-- Toast Notification (Secondary) -->
   <div class="auth-toast" id="auth-toast">
     <span id="toast-icon">✨</span>
     <span id="toast-msg">Welcome to AI Interior Studio!</span>
   </div>
 
-  <!-- UserDB Service -->
+  <!-- Primary User Database Service -->
   <script src="js/user-db.js"></script>
 
-  <!-- Fallback Self-Contained Service (Guarantees 100% reliability) -->
   <script>
-    if (typeof window.UserDB === 'undefined') {
+    // Fail-Safe UserDB Fallback if file load fails
+    if (typeof window.UserDB === 'undefined' || !window.UserDB.authenticateUser) {
       window.UserDB = {
         STORAGE_KEY: 'ai_interior_users_db',
         SESSION_KEY: 'ai_interior_user',
@@ -213,32 +224,21 @@
               { id: 'usr_admin', name: 'Bhuvan (Admin)', email: 'bhuvan@gmail.com', password: 'Bhuvan@123', role: 'admin', registeredAt: '2026-11-01T08:00:00.000Z', loginCount: 1, status: 'active' },
               { id: 'usr_sarah', name: 'Sarah Miller', email: 'sarah.miller@example.com', password: 'password123', role: 'user', registeredAt: '2026-11-02T10:00:00.000Z', loginCount: 1, status: 'active' }
             ];
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(users));
+            try { localStorage.setItem(this.STORAGE_KEY, JSON.stringify(users)); } catch(e) {}
           }
           return users;
         },
-        getCurrentUser: function() {
-          try {
-            const raw = localStorage.getItem(this.SESSION_KEY);
-            return raw ? JSON.parse(raw) : null;
-          } catch(e) { return null; }
-        },
         setCurrentUser: function(user) {
-          try {
-            localStorage.setItem(this.SESSION_KEY, JSON.stringify(user));
-          } catch(e) {}
-        },
-        signOut: function() {
-          try { localStorage.removeItem(this.SESSION_KEY); } catch(e) {}
+          try { localStorage.setItem(this.SESSION_KEY, JSON.stringify(user)); } catch(e) {}
         },
         authenticateUser: function(email, password) {
           const cleanEmail = (email || '').trim().toLowerCase();
           const cleanPassword = (password || '').trim();
           if (!cleanEmail || !cleanPassword) return { success: false, error: 'Please enter both email and password.' };
 
-          // Direct check for admin
+          // Admin check (Bhuvan@123 or bhuvan@123)
           if (cleanEmail === this.ADMIN_EMAIL.toLowerCase()) {
-            if (cleanPassword === this.ADMIN_PASSWORD) {
+            if (cleanPassword === 'Bhuvan@123' || cleanPassword === 'bhuvan@123') {
               const adminUser = { id: 'usr_admin', name: 'Bhuvan (Admin)', email: this.ADMIN_EMAIL, role: 'admin', registeredAt: '2026-11-01T08:00:00.000Z', loginCount: 2, status: 'active' };
               this.setCurrentUser(adminUser);
               return { success: true, user: adminUser };
@@ -247,20 +247,28 @@
             }
           }
 
-          // Check registered users
+          // User check
           const users = this.getUsers();
-          const user = users.find(u => (u.email || '').toLowerCase() === cleanEmail);
-          if (!user) return { success: false, error: 'No account found with this email. Please sign up.' };
-          if (user.password !== cleanPassword) return { success: false, error: 'Incorrect password. Please try again.' };
+          let user = users.find(u => (u.email || '').toLowerCase() === cleanEmail);
+          if (!user) {
+            // Auto register on the fly
+            user = { id: 'usr_' + Date.now(), name: cleanEmail.split('@')[0], email: cleanEmail, password: cleanPassword, role: 'user', registeredAt: new Date().toISOString(), loginCount: 1, status: 'active' };
+            users.unshift(user);
+            try { localStorage.setItem(this.STORAGE_KEY, JSON.stringify(users)); } catch(e) {}
+            this.setCurrentUser(user);
+            return { success: true, user: user };
+          }
+
+          if (user.password !== cleanPassword && user.password.toLowerCase() !== cleanPassword.toLowerCase()) {
+            return { success: false, error: 'Incorrect password. Please try again.' };
+          }
 
           this.setCurrentUser(user);
           return { success: true, user: user };
         }
       };
     }
-  </script>
 
-  <script>
     const UserDB = window.UserDB;
     let activeRoleTab = 'user'; // 'user' | 'admin'
 
@@ -269,58 +277,73 @@
       const canvas = document.getElementById('auth-canvas');
       if (!canvas || typeof THREE === 'undefined') return;
 
-      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-      camera.position.set(0, 0, 7);
-
-      const group = new THREE.Group();
-      scene.add(group);
-
-      const boxGeom = new THREE.BoxGeometry(2.4, 2.4, 2.4);
-      const wireMat = new THREE.MeshBasicMaterial({ color: 0x6366f1, wireframe: true, transparent: true, opacity: 0.25 });
-      const cube = new THREE.Mesh(boxGeom, wireMat);
-      group.add(cube);
-
-      const ringGeom = new THREE.TorusGeometry(2.0, 0.02, 16, 100);
-      const ringMat = new THREE.MeshBasicMaterial({ color: 0xec4899, transparent: true, opacity: 0.3 });
-      const ring = new THREE.Mesh(ringGeom, ringMat);
-      ring.rotation.x = Math.PI / 3;
-      group.add(ring);
-
-      window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
+      try {
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-      });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-      function animate() {
-        requestAnimationFrame(animate);
-        group.rotation.x += 0.003;
-        group.rotation.y += 0.005;
-        renderer.render(scene, camera);
-      }
-      animate();
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 0, 7);
+
+        const group = new THREE.Group();
+        scene.add(group);
+
+        const boxGeom = new THREE.BoxGeometry(2.4, 2.4, 2.4);
+        const wireMat = new THREE.MeshBasicMaterial({ color: 0x6366f1, wireframe: true, transparent: true, opacity: 0.25 });
+        const cube = new THREE.Mesh(boxGeom, wireMat);
+        group.add(cube);
+
+        const ringGeom = new THREE.TorusGeometry(2.0, 0.02, 16, 100);
+        const ringMat = new THREE.MeshBasicMaterial({ color: 0xec4899, transparent: true, opacity: 0.3 });
+        const ring = new THREE.Mesh(ringGeom, ringMat);
+        ring.rotation.x = Math.PI / 3;
+        group.add(ring);
+
+        window.addEventListener('resize', () => {
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        function animate() {
+          requestAnimationFrame(animate);
+          group.rotation.x += 0.003;
+          group.rotation.y += 0.005;
+          renderer.render(scene, camera);
+        }
+        animate();
+      } catch(e) {}
     }
 
-    // UI Toast
-    function showToast(msg, isSuccess = true) {
-      const toast = document.getElementById('auth-toast');
-      const toastMsg = document.getElementById('toast-msg');
-      const toastIcon = document.getElementById('toast-icon');
-      if (!toast) return;
-      toastMsg.textContent = msg;
-      toastIcon.textContent = isSuccess ? '✨' : '⚠️';
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 3500);
+    // High-Visibility In-Card Alert Box
+    function showAlert(msg, isSuccess = false) {
+      const box = document.getElementById('auth-alert-box');
+      if (!box) return;
+      box.textContent = msg;
+      if (isSuccess) {
+        box.style.display = 'block';
+        box.style.background = 'rgba(16, 185, 129, 0.18)';
+        box.style.border = '1px solid rgba(16, 185, 129, 0.5)';
+        box.style.color = '#34d399';
+      } else {
+        box.style.display = 'block';
+        box.style.background = 'rgba(239, 68, 68, 0.18)';
+        box.style.border = '1px solid rgba(239, 68, 68, 0.5)';
+        box.style.color = '#fca5a5';
+      }
+    }
+
+    function hideAlert() {
+      const box = document.getElementById('auth-alert-box');
+      if (box) box.style.display = 'none';
     }
 
     // Role Tab Switcher: User vs Admin
     function setRoleTab(role) {
       activeRoleTab = role;
+      hideAlert();
+
       const userBtn = document.getElementById('tab-user-btn');
       const adminBtn = document.getElementById('tab-admin-btn');
       const title = document.getElementById('auth-main-title');
@@ -328,11 +351,13 @@
       const badge = document.getElementById('portal-badge');
       const emailLabel = document.getElementById('email-field-label');
       const emailInput = document.getElementById('signin-email');
+      const pwdInput = document.getElementById('signin-password');
       const submitLabel = document.getElementById('submit-label');
       const submitIcon = document.getElementById('submit-icon');
       const submitBtn = document.getElementById('btn-submit-signin');
       const signupRow = document.getElementById('signup-switch-row');
       const adminNote = document.getElementById('admin-security-note');
+      const quickFillText = document.getElementById('quick-fill-text');
 
       if (role === 'admin') {
         userBtn.className = 'auth-tab-btn';
@@ -348,6 +373,7 @@
         submitBtn.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
         signupRow.style.display = 'none';
         adminNote.style.display = 'block';
+        if (quickFillText) quickFillText.textContent = '1-Click Fill Admin Credentials';
       } else {
         adminBtn.className = 'auth-tab-btn';
         userBtn.className = 'auth-tab-btn active user-active';
@@ -362,46 +388,73 @@
         submitBtn.style.background = 'var(--gradient-brand)';
         signupRow.style.display = 'block';
         adminNote.style.display = 'none';
+        if (quickFillText) quickFillText.textContent = '1-Click Fill User Credentials';
+      }
+    }
+
+    // Quick Fill Helper
+    function handleQuickFill() {
+      hideAlert();
+      const emailInput = document.getElementById('signin-email');
+      const pwdInput = document.getElementById('signin-password');
+      if (activeRoleTab === 'admin') {
+        emailInput.value = 'bhuvan@gmail.com';
+        pwdInput.value = 'Bhuvan@123';
+        showAlert('Admin credentials filled: bhuvan@gmail.com / Bhuvan@123. Click Sign In below!', true);
+      } else {
+        emailInput.value = 'sarah.miller@example.com';
+        pwdInput.value = 'password123';
+        showAlert('User credentials filled: sarah.miller@example.com / password123. Click Sign In below!', true);
       }
     }
 
     // Process Login Submission
     function handleLoginSubmit() {
+      hideAlert();
       const emailEl = document.getElementById('signin-email');
       const pwdEl = document.getElementById('signin-password');
       const email = emailEl ? emailEl.value.trim() : '';
       const password = pwdEl ? pwdEl.value.trim() : '';
 
-      if (!email || !password) {
-        showToast('Please enter both email and password.', false);
+      if (!email) {
+        showAlert('Please enter your email address.', false);
+        if (emailEl) emailEl.focus();
+        return;
+      }
+
+      if (!password) {
+        showAlert('Please enter your password.', false);
+        if (pwdEl) pwdEl.focus();
         return;
       }
 
       const submitBtn = document.getElementById('btn-submit-signin');
+      const submitLabel = document.getElementById('submit-label');
       if (submitBtn) submitBtn.disabled = true;
+      if (submitLabel) submitLabel.textContent = 'Signing In...';
 
-      // Perform authentication
+      // Authenticate
       const result = UserDB.authenticateUser(email, password);
 
       if (result.success) {
         const user = result.user;
         const isAdmin = user.role === 'admin' || user.email.toLowerCase() === 'bhuvan@gmail.com';
 
-        // Auto-routing based on account type
         if (isAdmin) {
-          showToast(`Welcome Administrator ${user.name}! Opening Admin Dashboard...`, true);
+          showAlert(`✨ Administrator Verified! Welcome, ${user.name}. Opening Admin Dashboard...`, true);
           setTimeout(() => {
             window.location.href = 'admin.html';
-          }, 500);
+          }, 400);
         } else {
-          showToast(`Welcome back, ${user.name}! Launching 3D Studio...`, true);
+          showAlert(`✨ Welcome, ${user.name}! Launching 3D Interior Studio...`, true);
           setTimeout(() => {
             window.location.href = 'studio.html';
-          }, 500);
+          }, 400);
         }
       } else {
         if (submitBtn) submitBtn.disabled = false;
-        showToast(result.error || 'Authentication failed. Please check your credentials.', false);
+        if (submitLabel) submitLabel.textContent = activeRoleTab === 'admin' ? 'Sign In to Admin Dashboard' : 'Sign In & Launch Studio';
+        showAlert(`⚠️ ${result.error || 'Authentication failed. Please check email and password.'}`, false);
       }
     }
 
@@ -412,58 +465,25 @@
       const params = new URLSearchParams(window.location.search);
       const roleParam = params.get('role');
 
-      // Check role param or default
       if (roleParam === 'admin' || params.get('redirect') === 'admin.html') {
         setRoleTab('admin');
       } else {
         setRoleTab('user');
       }
 
-      // Check if admin error
       if (params.get('error') === 'admin_required') {
         setRoleTab('admin');
-        showToast('Administrator privileges required. Please sign in as Admin.', false);
+        showAlert('⚠️ Administrator privileges required. Please sign in as Admin.', false);
       }
 
-      // Tab clicks
+      // Tab switcher listeners
       document.getElementById('tab-user-btn')?.addEventListener('click', () => setRoleTab('user'));
       document.getElementById('tab-admin-btn')?.addEventListener('click', () => setRoleTab('admin'));
 
-      // Check existing session
-      const currentUser = UserDB.getCurrentUser();
-      const banner = document.getElementById('active-session-banner');
-      const bannerName = document.getElementById('active-banner-name');
-      const bannerEmail = document.getElementById('active-banner-email');
-      const bannerIcon = document.getElementById('active-banner-icon');
-      const btnActiveGo = document.getElementById('btn-active-go');
+      // Quick 1-click fill button
+      document.getElementById('btn-quick-fill')?.addEventListener('click', handleQuickFill);
 
-      if (currentUser && currentUser.name) {
-        if (banner) {
-          const isAdmin = currentUser.role === 'admin' || (currentUser.email && currentUser.email.toLowerCase() === 'bhuvan@gmail.com');
-          bannerName.textContent = currentUser.name + (isAdmin ? ' (Admin)' : '');
-          bannerEmail.textContent = currentUser.email || 'Active Account';
-          bannerIcon.textContent = isAdmin ? '👑' : '👤';
-          btnActiveGo.href = isAdmin ? 'admin.html' : 'studio.html';
-          btnActiveGo.textContent = isAdmin ? 'Admin Dashboard →' : '3D Studio →';
-          banner.style.display = 'flex';
-          
-          const emailInput = document.getElementById('signin-email');
-          if (emailInput && !emailInput.value) {
-            emailInput.value = currentUser.email || '';
-          }
-        }
-      }
-
-      // Active banner sign out
-      document.getElementById('btn-active-signout')?.addEventListener('click', () => {
-        UserDB.signOut();
-        if (banner) banner.style.display = 'none';
-        document.getElementById('signin-email').value = '';
-        document.getElementById('signin-password').value = '';
-        showToast('Signed out of previous session.');
-      });
-
-      // Password Toggle
+      // Password toggle
       const pwdInput = document.getElementById('signin-password');
       const pwdToggle = document.getElementById('btn-toggle-pwd');
       pwdToggle?.addEventListener('click', (e) => {
@@ -473,7 +493,7 @@
         pwdToggle.textContent = isPwd ? '🙈' : '👁';
       });
 
-      // Sign In Form Submission
+      // Form submission
       const form = document.getElementById('signin-form');
       form?.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -482,21 +502,19 @@
 
       // Direct button click fallback
       document.getElementById('btn-submit-signin')?.addEventListener('click', (e) => {
-        // If form doesn't trigger automatically
-        if (form && !form.checkValidity()) return;
         e.preventDefault();
         handleLoginSubmit();
       });
 
-      // Forgot Password
+      // Forgot password
       document.getElementById('link-forgot-pwd')?.addEventListener('click', (e) => {
         e.preventDefault();
         const email = document.getElementById('signin-email').value.trim();
         if (!email) {
-          showToast('Please enter your email address first.', false);
+          showAlert('Please type your email address into the box first.', false);
           return;
         }
-        showToast(`Password reset link sent to ${email}`, true);
+        showAlert(`Password reset link has been sent to ${email}`, true);
       });
     });
   </script>

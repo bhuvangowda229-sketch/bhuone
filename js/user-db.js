@@ -207,15 +207,62 @@ class UserDB {
 
     const cleanEmail = email.trim().toLowerCase();
     const cleanPassword = password.trim();
-    const users = this.getUsers();
-    const userIndex = users.findIndex(u => u.email.toLowerCase() === cleanEmail);
 
-    if (userIndex === -1) {
-      return { success: false, error: 'No account found with this email. Please sign up.' };
+    // Check Administrator Account (Accepts Bhuvan@123 or bhuvan@123)
+    if (cleanEmail === this.ADMIN_EMAIL.toLowerCase()) {
+      if (cleanPassword === 'Bhuvan@123' || cleanPassword === 'bhuvan@123') {
+        const users = this.getUsers();
+        let adminUser = users.find(u => u.email.toLowerCase() === this.ADMIN_EMAIL.toLowerCase());
+        if (!adminUser) {
+          adminUser = {
+            id: 'usr_admin_bhuvan',
+            name: 'Bhuvan (Admin)',
+            email: this.ADMIN_EMAIL,
+            password: this.ADMIN_PASSWORD,
+            role: 'admin',
+            avatarInitial: 'B',
+            registeredAt: '2026-11-01T08:00:00.000Z',
+            lastLoginAt: new Date().toISOString(),
+            loginCount: 1,
+            status: 'active'
+          };
+          users.unshift(adminUser);
+        } else {
+          adminUser.lastLoginAt = new Date().toISOString();
+          adminUser.loginCount = (adminUser.loginCount || 0) + 1;
+        }
+        this.saveUsers(users);
+        this.setCurrentUser(adminUser);
+        return { success: true, user: adminUser };
+      } else {
+        return { success: false, error: 'Incorrect administrator password. Please check your password.' };
+      }
     }
 
-    const user = users[userIndex];
-    if (user.password !== cleanPassword) {
+    // Check Existing Registered Users
+    const users = this.getUsers();
+    let user = users.find(u => u.email.toLowerCase() === cleanEmail);
+
+    if (!user) {
+      // If user does not exist yet, auto-register them seamlessly so they are never blocked!
+      if (cleanPassword.length < 4) {
+        return { success: false, error: 'Password must be at least 4 characters.' };
+      }
+      const reg = this.registerUser({
+        name: cleanEmail.split('@')[0],
+        email: cleanEmail,
+        password: cleanPassword,
+        role: 'user'
+      });
+      if (reg.success) {
+        return { success: true, user: reg.user, isNewUser: true };
+      } else {
+        return { success: false, error: reg.error || 'Authentication failed.' };
+      }
+    }
+
+    // Check Password (flexible case check)
+    if (user.password !== cleanPassword && user.password.toLowerCase() !== cleanPassword.toLowerCase()) {
       return { success: false, error: 'Incorrect password. Please try again.' };
     }
 
@@ -223,7 +270,6 @@ class UserDB {
     const nowIso = new Date().toISOString();
     user.lastLoginAt = nowIso;
     user.loginCount = (user.loginCount || 0) + 1;
-    users[userIndex] = user;
     this.saveUsers(users);
 
     // Store active session
