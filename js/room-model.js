@@ -472,8 +472,9 @@ export class RoomBuilder {
   // ==========================================
   // COMPLETE HOUSE ARCHITECTURAL BUILDER
   // ==========================================
-  buildCompleteHouse(wallColorHex = 0xfaf5ee, flooringType = 'wood_oak') {
+  buildCompleteHouse(wallColorHex = 0xfaf5ee, flooringType = 'wood_oak', houseType = '1bhk') {
     this.isCompleteHouse = true;
+    this.houseType = houseType || '1bhk';
     this.currentDimensions = { width: 14.0, length: 11.5, height: 2.8 };
     this.currentWallColor = wallColorHex;
     this.currentFlooring = flooringType;
@@ -563,7 +564,7 @@ export class RoomBuilder {
       mesh.position.set(posX, 0, posZ);
       mesh.receiveShadow = true;
       mesh.name = `HouseFloor_${zoneKey}`;
-      mesh.userData = { isFloor: true, roomZone: zoneKey };
+      mesh.userData = { isFloor: true, roomZone: zoneKey, zone: zoneKey };
       this.houseFloors.push(mesh);
       this.roomGroup.add(mesh);
       return mesh;
@@ -582,9 +583,13 @@ export class RoomBuilder {
     // 4. Master Bedroom Floor (Back-Left)
     makeFloorMesh(6.5, 6.0, -3.75, -2.5, flooringType, 'bedroom');
 
-    // 5. Home Office Floor (Back-Right - Elegant Hardwood)
-    const officeFlooring = (flooringType === 'wood_oak' || flooringType === 'dark_walnut') ? flooringType : 'dark_walnut';
-    makeFloorMesh(7.5, 6.0, 3.25, -2.5, officeFlooring, 'office');
+    // 5. Rear East Room (Bedroom 2 in 2BHK, Home Office in 1BHK)
+    if (this.houseType === '2bhk') {
+      makeFloorMesh(7.5, 6.0, 3.25, -2.5, flooringType, 'bedroom2');
+    } else {
+      const officeFlooring = (flooringType === 'wood_oak' || flooringType === 'dark_walnut') ? flooringType : 'dark_walnut';
+      makeFloorMesh(7.5, 6.0, 3.25, -2.5, officeFlooring, 'office');
+    }
 
     // Decorative Satin Brass Doorway Threshold Strips
     const brassMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.25 });
@@ -804,8 +809,12 @@ export class RoomBuilder {
     this.createRoomBadge('LIVING LOUNGE', '🛋️', -4.0, 3.25, 'living');
     this.createRoomBadge('DINING PAVILION', '🍽️', 1.0, 3.25, 'dining');
     this.createRoomBadge('MODULAR KITCHEN', '🍳', 5.0, 3.25, 'kitchen');
-    this.createRoomBadge('MASTER BEDROOM', '🛏️', -3.75, -2.5, 'bedroom');
-    this.createRoomBadge('HOME OFFICE & STUDY', '💼', 3.25, -2.5, 'office');
+    this.createRoomBadge(this.houseType === '2bhk' ? 'BEDROOM 1 (MASTER)' : 'MASTER BEDROOM', '🛏️', -3.75, -2.5, 'bedroom');
+    if (this.houseType === '2bhk') {
+      this.createRoomBadge('BEDROOM 2 (DOUBLE BED)', '🛏️', 3.25, -2.5, 'bedroom2');
+    } else {
+      this.createRoomBadge('HOME OFFICE & STUDY', '💼', 3.25, -2.5, 'office');
+    }
   }
 
   createRoomBadge(title, icon, x, z, roomKey) {

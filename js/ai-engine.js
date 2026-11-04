@@ -32,10 +32,17 @@ export class AIEngine {
     let spatialRationale = '';
     let lightingPlan = '';
 
-    if (roomType === 'complete_house' || roomType === 'whole_house' || roomType === 'house') {
-      concept = `COMPLETE 5-ROOM ARCHITECTURAL RESIDENCE (${style.toUpperCase()})`;
-      spatialRationale = `A unified, continuous 14m × 11.5m complete home layout where all 5 rooms are situated seamlessly adjacent to each other with shared architectural walls, open archways, and connecting corridors. The sunlit front wing combines an expansive Living Lounge with Missouri TV Entertainment Center, an interconnected Formal Dining Pavilion, and an Open-Concept Modular Kitchen. The private rear wing features a secluded Master Bedroom Suite and an Executive Home Office & Library Sanctuary.`;
-      lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips and pendant glow in kitchen, dimmable bedside luminaires in master bedroom, and focused glare-free task light in executive study.`;
+    if (roomType === 'complete_house' || roomType === 'complete_house_2bhk' || roomType === 'whole_house' || roomType === 'house') {
+      const is2BHK = (roomType === 'complete_house_2bhk' || pref.houseType === '2bhk');
+      if (is2BHK) {
+        concept = `COMPLETE DOUBLE BEDROOM RESIDENCE (2 BHK ${style.toUpperCase()})`;
+        spatialRationale = `A unified, continuous 14m × 11.5m 2-Bedroom residential floor plan with fully connected living, dining, kitchen, and two dedicated bedroom suites. The front wing houses the great-room living lounge with Missouri TV entertainment center, interconnected dining pavilion, and modular kitchen. The rear wing features the Master Bedroom Suite (Bedroom 1) and a fully appointed Second Bedroom (Bedroom 2 / Double Bed & Study Suite) with private hallway access.`;
+        lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips in kitchen, and independent dimmable bedside luminaires and split ACs in both Master Bedroom 1 and Bedroom 2.`;
+      } else {
+        concept = `COMPLETE SINGLE BEDROOM RESIDENCE (1 BHK ${style.toUpperCase()})`;
+        spatialRationale = `A unified, continuous 14m × 11.5m complete home layout where all rooms are situated seamlessly adjacent to each other with shared architectural walls, open archways, and connecting corridors. The sunlit front wing combines an expansive Living Lounge with Missouri TV Entertainment Center, an interconnected Formal Dining Pavilion, and an Open-Concept Modular Kitchen. The private rear wing features a secluded Master Bedroom Suite and an Executive Home Office & Library Sanctuary.`;
+        lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips and pendant glow in kitchen, dimmable bedside luminaires in master bedroom, and focused glare-free task light in executive study.`;
+      }
 
       const livingType = pref.livingRoomType || 1;
       const diningType = pref.diningType || 1;
@@ -459,118 +466,258 @@ export class AIEngine {
         cost: 650
       });
 
-      // ==========================================
-      // ZONE 5: HOME OFFICE & STUDY (X: -0.5 to 7.0, Z: -5.5 to 0.5)
-      // ==========================================
-      // 34. Executive Studio Desk
-      items.push({
-        id: 'house_office_desk',
-        type: 'desk',
-        name: 'Executive Studio Desk with Cable Bay',
-        position: [3.25, 0, -2.5],
-        rotation: [0, 0, 0],
-        style: style,
-        room: 'office',
-        cost: 950
-      });
+      if (is2BHK) {
+        // ==========================================
+        // ZONE 5: BEDROOM 2 / DOUBLE BED SUITE (X: -0.5 to 7.0, Z: -5.5 to 0.5)
+        // ==========================================
+        // 34. Double / Queen Platform Bed (North wall facing South)
+        items.push({
+          id: 'house_bed2_double',
+          type: 'bed',
+          name: 'Double / Queen Guest & Family Bed',
+          position: [3.25, 0, -4.3],
+          rotation: [0, 0, 0],
+          style: style,
+          color: palette.woodColor,
+          room: 'bedroom2',
+          cost: 1350
+        });
 
-      // 35. High-Back Ergonomic Mesh Office Chair
-      items.push({
-        id: 'house_office_chair',
-        type: 'office_chair',
-        name: 'Ergonomic High-Back Executive Mesh Chair',
-        position: [3.25, 0, -3.3],
-        rotation: [0, 0, 0],
-        room: 'office',
-        cost: 540
-      });
+        // 35. Bedside Nightstand Left
+        items.push({
+          id: 'house_bed2_nightstand_l',
+          type: 'nightstand',
+          name: 'Bedside Nightstand (Left)',
+          position: [1.8, 0, -4.9],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 210
+        });
 
-      // 36. Floor-to-Ceiling Library Bookshelf (North wall)
-      items.push({
-        id: 'house_office_bookshelf',
-        type: 'bookshelf',
-        name: 'Floor-to-Ceiling Architectural Bookshelf',
-        position: [3.25, 0, -5.15],
-        rotation: [0, 0, 0],
-        style: style,
-        room: 'office',
-        cost: 820
-      });
+        // 36. Bedside Nightstand Right
+        items.push({
+          id: 'house_bed2_nightstand_r',
+          type: 'nightstand',
+          name: 'Bedside Nightstand (Right)',
+          position: [4.7, 0, -4.9],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 210
+        });
 
-      // 37. Resource Storage Credenza (West wall)
-      items.push({
-        id: 'house_office_credenza',
-        type: 'credenza',
-        name: 'Executive File Storage & Resource Credenza',
-        position: [-0.1, 0, -3.5],
-        rotation: [0, Math.PI / 2, 0],
-        style: style,
-        woodColor: palette.woodColor,
-        room: 'office',
-        cost: 680
-      });
+        // 37. Bedside Table Lamp Left
+        items.push({
+          id: 'house_bed2_lamp_l',
+          type: 'table_lamp',
+          name: 'Bedside Reading Lamp (Left)',
+          position: [1.8, 0.58, -4.9],
+          rotation: [0, 0, 0],
+          color: palette.accentColor,
+          room: 'bedroom2',
+          cost: 110
+        });
 
-      // 38. Client Visitor Armchair
-      items.push({
-        id: 'house_office_visitor',
-        type: 'armchair',
-        name: 'Executive Client Armchair',
-        position: [2.3, 0, -1.6],
-        rotation: [0, Math.PI, 0],
-        style: style,
-        color: palette.accentColor,
-        room: 'office',
-        cost: 480
-      });
+        // 38. Bedside Table Lamp Right
+        items.push({
+          id: 'house_bed2_lamp_r',
+          type: 'table_lamp',
+          name: 'Bedside Reading Lamp (Right)',
+          position: [4.7, 0.58, -4.9],
+          rotation: [0, 0, 0],
+          color: palette.accentColor,
+          room: 'bedroom2',
+          cost: 110
+        });
 
-      // 39. Desk LED Task Lamp
-      items.push({
-        id: 'house_office_lamp',
-        type: 'table_lamp',
-        name: 'Architectural LED Task Lamp',
-        position: [2.3, 0.78, -2.5],
-        rotation: [0, 0, 0],
-        color: palette.accentColor,
-        room: 'office',
-        cost: 120
-      });
+        // 39. Full 2-Door Wardrobe (East wall)
+        items.push({
+          id: 'house_bed2_wardrobe',
+          type: 'wardrobe',
+          name: 'Double Bedroom 2-Door Wardrobe',
+          position: [6.4, 0, -2.5],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.wardrobeColor || 0x2b2d42,
+          room: 'bedroom2',
+          cost: 1200
+        });
 
-      // 40. Indoor Monstera Plant
-      items.push({
-        id: 'house_office_plant',
-        type: 'plant',
-        name: 'Architectural Monstera Ceramic Planter',
-        position: [6.4, 0, -5.0],
-        rotation: [0, 0, 0],
-        room: 'office',
-        cost: 150
-      });
+        // 40. Study Desk (West acoustic wall)
+        items.push({
+          id: 'house_bed2_desk',
+          type: 'desk',
+          name: 'Integrated Bedroom Study & Work Desk',
+          position: [0.4, 0, -2.5],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 650
+        });
 
-      // 41. Office Geometric Area Rug
-      items.push({
-        id: 'house_office_rug',
-        type: 'rug',
-        name: 'Office Geometric Low-Profile Rug',
-        position: [3.25, 0.005, -2.5],
-        rotation: [0, 0, 0],
-        dimensions: [3.0, 2.4],
-        style: style,
-        room: 'office',
-        cost: 340
-      });
+        // 41. Study Chair
+        items.push({
+          id: 'house_bed2_chair',
+          type: 'office_chair',
+          name: 'Ergonomic Bedroom Study Chair',
+          position: [1.1, 0, -2.5],
+          rotation: [0, -Math.PI / 2, 0],
+          room: 'bedroom2',
+          cost: 380
+        });
 
-      // 42. Framed Architectural Blueprint Art (North wall)
-      items.push({
-        id: 'house_office_art',
-        type: 'wall_art',
-        name: 'Framed Architectural Blueprint Art',
-        position: [0.8, 1.8, -5.44],
-        rotation: [0, 0, 0],
-        dimensions: [1.4, 0.9],
-        style: style,
-        room: 'office',
-        cost: 290
-      });
+        // 42. Bedroom 2 Area Rug
+        items.push({
+          id: 'house_bed2_rug',
+          type: 'rug',
+          name: 'Bedroom 2 Plush Area Rug',
+          position: [3.25, 0.005, -3.0],
+          rotation: [0, 0, 0],
+          dimensions: [3.0, 2.2],
+          style: style,
+          room: 'bedroom2',
+          cost: 320
+        });
+
+        // 43. Bedroom 2 Wall Art (North wall)
+        items.push({
+          id: 'house_bed2_art',
+          type: 'wall_art',
+          name: 'Curated Bedroom Gallery Art',
+          position: [0.8, 1.8, -5.44],
+          rotation: [0, 0, 0],
+          dimensions: [1.4, 0.9],
+          style: style,
+          room: 'bedroom2',
+          cost: 260
+        });
+
+        // 44. Bedroom 2 Inverter Split AC
+        items.push({
+          id: 'house_bed2_ac',
+          type: 'air_conditioner',
+          name: 'Bedroom 2 Inverter Split AC',
+          position: [3.25, 2.4, -5.44],
+          rotation: [0, 0, 0],
+          room: 'bedroom2',
+          cost: 650
+        });
+
+      } else {
+        // ==========================================
+        // ZONE 5: HOME OFFICE & STUDY (1BHK SINGLE BEDROOM HOUSE)
+        // ==========================================
+        // 34. Executive Studio Desk
+        items.push({
+          id: 'house_office_desk',
+          type: 'desk',
+          name: 'Executive Studio Desk with Cable Bay',
+          position: [3.25, 0, -2.5],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'office',
+          cost: 950
+        });
+
+        // 35. High-Back Ergonomic Mesh Office Chair
+        items.push({
+          id: 'house_office_chair',
+          type: 'office_chair',
+          name: 'Ergonomic High-Back Executive Mesh Chair',
+          position: [3.25, 0, -3.3],
+          rotation: [0, 0, 0],
+          room: 'office',
+          cost: 540
+        });
+
+        // 36. Floor-to-Ceiling Library Bookshelf (North wall)
+        items.push({
+          id: 'house_office_bookshelf',
+          type: 'bookshelf',
+          name: 'Floor-to-Ceiling Architectural Bookshelf',
+          position: [3.25, 0, -5.15],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'office',
+          cost: 820
+        });
+
+        // 37. Resource Storage Credenza (West wall)
+        items.push({
+          id: 'house_office_credenza',
+          type: 'credenza',
+          name: 'Executive File Storage & Resource Credenza',
+          position: [-0.1, 0, -3.5],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          woodColor: palette.woodColor,
+          room: 'office',
+          cost: 680
+        });
+
+        // 38. Client Visitor Armchair
+        items.push({
+          id: 'house_office_visitor',
+          type: 'armchair',
+          name: 'Executive Client Armchair',
+          position: [2.3, 0, -1.6],
+          rotation: [0, Math.PI, 0],
+          style: style,
+          color: palette.accentColor,
+          room: 'office',
+          cost: 480
+        });
+
+        // 39. Desk LED Task Lamp
+        items.push({
+          id: 'house_office_lamp',
+          type: 'table_lamp',
+          name: 'Architectural LED Task Lamp',
+          position: [2.3, 0.78, -2.5],
+          rotation: [0, 0, 0],
+          color: palette.accentColor,
+          room: 'office',
+          cost: 120
+        });
+
+        // 40. Indoor Monstera Plant
+        items.push({
+          id: 'house_office_plant',
+          type: 'plant',
+          name: 'Architectural Monstera Ceramic Planter',
+          position: [6.4, 0, -5.0],
+          rotation: [0, 0, 0],
+          room: 'office',
+          cost: 150
+        });
+
+        // 41. Office Geometric Area Rug
+        items.push({
+          id: 'house_office_rug',
+          type: 'rug',
+          name: 'Office Geometric Low-Profile Rug',
+          position: [3.25, 0.005, -2.5],
+          rotation: [0, 0, 0],
+          dimensions: [3.0, 2.4],
+          style: style,
+          room: 'office',
+          cost: 340
+        });
+
+        // 42. Framed Architectural Blueprint Art (North wall)
+        items.push({
+          id: 'house_office_art',
+          type: 'wall_art',
+          name: 'Framed Architectural Blueprint Art',
+          position: [0.8, 1.8, -5.44],
+          rotation: [0, 0, 0],
+          dimensions: [1.4, 0.9],
+          style: style,
+          room: 'office',
+          cost: 290
+        });
+      }
 
     } else if (roomType === 'living_room' || roomType.startsWith('living_room_')) {
       // Determine which of the 4 Living Room Design Types is selected
@@ -1097,14 +1244,108 @@ export class AIEngine {
         });
       }
     } else if (roomType === 'bedroom' || roomType.startsWith('bedroom_')) {
-      // Determine which of the 4 Master Bedroom Design Types is selected
+      // Determine which of the Bedroom Design Types is selected
       let bedType = pref.bedroomType || 1;
       if (roomType === 'bedroom_zen' || roomType === 'bedroom_type2') bedType = 2;
       else if (roomType === 'bedroom_hotel' || roomType === 'bedroom_type3') bedType = 3;
       else if (roomType === 'bedroom_scandi' || roomType === 'bedroom_type4') bedType = 4;
       else if (roomType === 'bedroom' && pref.bedroomType) bedType = parseInt(pref.bedroomType, 10) || 1;
 
-      if (bedType === 1) {
+      if (roomType === 'bedroom_single') {
+        concept = `COZY SINGLE BEDROOM & STUDY SUITE (${style.toUpperCase()})`;
+        spatialRationale = `A high-efficiency single bedroom tailored for students, guests, or compact modern living. Anchored by a comfortable single/twin platform bed against the perimeter, a dedicated ergonomic study and laptop desk, bedside nightstand with task lamp, and an integrated wardrobe.`;
+        lightingPlan = `Focused task lighting at the study desk paired with warm bedside illumination and soft ambient overhead lighting.`;
+
+        // Single Bed against back wall
+        items.push({
+          id: 'single_bed_1',
+          type: 'single_bed',
+          name: 'Comfort Single Bed',
+          position: [-W / 2 + 1.0, 0, -L / 2 + 1.25],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 750
+        });
+
+        // Nightstand
+        items.push({
+          id: 'nightstand_1',
+          type: 'nightstand',
+          name: 'Bedside Nightstand',
+          position: [-W / 2 + 2.0, 0, -L / 2 + 0.6],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 160
+        });
+
+        // Table Lamp
+        items.push({
+          id: 'table_lamp_1',
+          type: 'table_lamp',
+          name: 'Bedside Reading Lamp',
+          position: [-W / 2 + 2.0, 0.58, -L / 2 + 0.6],
+          rotation: [0, 0, 0],
+          color: palette.accentColor,
+          cost: 95
+        });
+
+        // Study Desk
+        items.push({
+          id: 'desk_1',
+          type: 'desk',
+          name: 'Compact Study Desk',
+          position: [W / 2 - 1.2, 0, -L / 2 + 1.0],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 580
+        });
+
+        // Office Chair
+        items.push({
+          id: 'office_chair_1',
+          type: 'office_chair',
+          name: 'Ergonomic Desk Chair',
+          position: [W / 2 - 1.2, 0, -L / 2 + 1.7],
+          rotation: [0, 0, 0],
+          cost: 320
+        });
+
+        // Wardrobe
+        items.push({
+          id: 'wardrobe_1',
+          type: 'wardrobe',
+          name: 'Compact 2-Door Wardrobe',
+          position: [W / 2 - 0.7, 0, L / 2 - 1.2],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.wardrobeColor || 0x2b2d42,
+          cost: 850
+        });
+
+        // Area Rug
+        items.push({
+          id: 'rug_1',
+          type: 'rug',
+          name: 'Cozy Single Bedroom Rug',
+          position: [0, 0.005, 0.2],
+          rotation: [0, 0, 0],
+          dimensions: [2.0, 1.6],
+          style: style,
+          cost: 180
+        });
+
+        // Wall Art
+        items.push({
+          id: 'art_1',
+          type: 'wall_art',
+          name: 'Inspirational Study Art',
+          position: [0, 1.8, -L / 2 + 0.06],
+          rotation: [0, 0, 0],
+          dimensions: [1.2, 0.8],
+          style: style,
+          cost: 160
+        });
+      } else if (bedType === 1) {
         // TYPE 1: LUXURY EXECUTIVE MASTER SUITE
         // King bed, mirrored double wardrobe, private lounge armchair & side table, brass floor lamp & chandelier
         concept = `TYPE 1: LUXURY EXECUTIVE MASTER SUITE (${style.toUpperCase()})`;

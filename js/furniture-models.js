@@ -1078,6 +1078,60 @@ export class FurnitureFactory {
     return group;
   }
 
+  // 6b. SINGLE / TWIN BED
+  static createSingleBed(style = 'modern', frameColor = null) {
+    const group = new THREE.Group();
+    group.name = 'SingleBed';
+    group.userData = { type: 'single_bed', name: 'Single / Twin Comfort Bed', cost: 750 };
+
+    const width = 1.15;
+    const length = 2.1;
+    const height = 0.35;
+
+    const chosenFrameColor = frameColor || (style === 'luxury' ? 0x0f172a : (style === 'traditional' ? 0x3e2723 : (style === 'minimalist' ? 0xd1d5db : 0x2b2d42)));
+
+    const frameMat = new THREE.MeshStandardMaterial({
+      color: chosenFrameColor,
+      roughness: style === 'luxury' ? 0.35 : (style === 'traditional' ? 0.5 : 0.6)
+    });
+
+    const mattressMat = new THREE.MeshStandardMaterial({ color: 0xfafafa, roughness: 0.9 });
+    const duvetMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0x1e3a8a : (style === 'minimalist' ? 0x94a3b8 : (style === 'traditional' ? 0x78350f : 0x0ea5e9)),
+      roughness: 0.85
+    });
+
+    // Bed frame base
+    const base = this.createMesh(new THREE.BoxGeometry(width, height, length), frameMat, 'Single Bed Base');
+    base.position.y = height / 2;
+    group.add(base);
+
+    // Mattress
+    const mattress = this.createMesh(new THREE.BoxGeometry(width - 0.08, 0.24, length - 0.08), mattressMat, 'Single Mattress');
+    mattress.position.set(0, height + 0.12, 0);
+    group.add(mattress);
+
+    // Duvet
+    const duvet = this.createMesh(new THREE.BoxGeometry(width - 0.06, 0.26, length * 0.72), duvetMat, 'Single Duvet');
+    duvet.position.set(0, height + 0.13, length * 0.12);
+    group.add(duvet);
+
+    // Headboard
+    const headboardH = 0.85;
+    const headboard = this.createMesh(new THREE.BoxGeometry(width + 0.08, headboardH, 0.1), frameMat, 'Single Headboard');
+    headboard.position.set(0, headboardH / 2, -length / 2 - 0.05);
+    group.add(headboard);
+
+    // Single Pillow
+    const pillowMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 });
+    const pillow = this.createMesh(new THREE.BoxGeometry(0.7, 0.14, 0.38), pillowMat, 'Single Pillow');
+    pillow.position.set(0, height + 0.28, -length / 2 + 0.35);
+    pillow.rotation.x = -0.22;
+    group.add(pillow);
+
+    return group;
+  }
+
   // 7. NIGHTSTAND
   static createNightstand(style = 'modern') {
     const group = new THREE.Group();

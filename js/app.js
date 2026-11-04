@@ -39,6 +39,7 @@ class App {
 
     // Complete House Multi-Room Navigation & State
     this.currentHouseZone = 'all';
+    this.currentHouseType = '1bhk'; // '1bhk' (Single Bedroom House) or '2bhk' (Double Bedroom House)
     this.currentHouseRoomTypes = { living: 1, dining: 1, kitchen: 1, bedroom: 1, office: 1 };
     this.cameraAnimation = null;
 
@@ -1029,13 +1030,16 @@ class App {
       });
     });
 
-    // Complete House Navigator Bar buttons (Whole House, Living, Dining, Kitchen, Bedroom, Office)
+    // Complete House Navigator Bar buttons (Whole House, Living, Dining, Kitchen, Bedroom, Bed 2 / Office)
     document.querySelectorAll('.house-nav-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const roomSelect = document.getElementById('room-type');
-        if (roomSelect && roomSelect.value !== 'complete_house') {
-          roomSelect.value = 'complete_house';
-          this.syncRoomVariantsUI('complete_house');
+        const currentVal = roomSelect ? roomSelect.value : '';
+        const isAlreadyHouse = currentVal === 'complete_house' || currentVal === 'complete_house_2bhk';
+        if (roomSelect && !isAlreadyHouse) {
+          const targetHouseVal = (this.currentHouseType === '2bhk') ? 'complete_house_2bhk' : 'complete_house';
+          roomSelect.value = targetHouseVal;
+          this.syncRoomVariantsUI(targetHouseVal);
           this.triggerAIGeneration().then(() => {
             this.focusRoom(btn.dataset.targetRoom);
           });
@@ -1049,9 +1053,12 @@ class App {
     document.querySelectorAll('.house-zone-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const roomSelect = document.getElementById('room-type');
-        if (roomSelect && roomSelect.value !== 'complete_house') {
-          roomSelect.value = 'complete_house';
-          this.syncRoomVariantsUI('complete_house');
+        const currentVal = roomSelect ? roomSelect.value : '';
+        const isAlreadyHouse = currentVal === 'complete_house' || currentVal === 'complete_house_2bhk';
+        if (roomSelect && !isAlreadyHouse) {
+          const targetHouseVal = (this.currentHouseType === '2bhk') ? 'complete_house_2bhk' : 'complete_house';
+          roomSelect.value = targetHouseVal;
+          this.syncRoomVariantsUI(targetHouseVal);
           this.triggerAIGeneration().then(() => {
             this.focusRoom(btn.dataset.zone);
           });
@@ -1061,12 +1068,28 @@ class App {
       });
     });
 
+    // Single Bedroom vs Double Bedroom House Toggle Pills
+    document.querySelectorAll('.house-type-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const hType = btn.getAttribute('data-house-type') || '1bhk';
+        this.currentHouseType = hType;
+        const targetVal = (hType === '2bhk') ? 'complete_house_2bhk' : 'complete_house';
+        const roomSelect = document.getElementById('room-type');
+        if (roomSelect) {
+          roomSelect.value = targetVal;
+        }
+        this.syncRoomVariantsUI(targetVal);
+        this.triggerAIGeneration();
+        this.showToast(hType === '2bhk' ? '🏡 Switched to Double Bedroom House (2 BHK)' : '🏠 Switched to Single Bedroom House (1 BHK)');
+      });
+    });
+
     // Master Bedroom 4 Design Types Selector Buttons
     document.querySelectorAll('.bedroom-type-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-bedroom-type');
         const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
 
         let vNum = 1;
         if (targetType === 'bedroom_zen') vNum = 2;
@@ -1076,7 +1099,7 @@ class App {
         if (isHouse) {
           this.currentHouseRoomTypes.bedroom = vNum;
           this.currentHouseZone = 'bedroom';
-          this.syncRoomVariantsUI('complete_house');
+          this.syncRoomVariantsUI(roomSelect.value);
           this.triggerAIGeneration();
           this.focusRoom('bedroom');
         } else {
@@ -1094,7 +1117,7 @@ class App {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-living-type');
         const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
 
         let vNum = 1;
         if (targetType === 'living_room_zen') vNum = 2;
@@ -1104,7 +1127,7 @@ class App {
         if (isHouse) {
           this.currentHouseRoomTypes.living = vNum;
           this.currentHouseZone = 'living';
-          this.syncRoomVariantsUI('complete_house');
+          this.syncRoomVariantsUI(roomSelect.value);
           this.triggerAIGeneration();
           this.focusRoom('living');
         } else {
@@ -1122,7 +1145,7 @@ class App {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-office-type');
         const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
 
         let vNum = 1;
         if (targetType === 'home_office_minimal') vNum = 2;
@@ -1132,7 +1155,7 @@ class App {
         if (isHouse) {
           this.currentHouseRoomTypes.office = vNum;
           this.currentHouseZone = 'office';
-          this.syncRoomVariantsUI('complete_house');
+          this.syncRoomVariantsUI(roomSelect.value);
           this.triggerAIGeneration();
           this.focusRoom('office');
         } else {
@@ -1150,7 +1173,7 @@ class App {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-dining-type');
         const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
 
         let vNum = 1;
         if (targetType === 'dining_room_minimal') vNum = 2;
@@ -1160,7 +1183,7 @@ class App {
         if (isHouse) {
           this.currentHouseRoomTypes.dining = vNum;
           this.currentHouseZone = 'dining';
-          this.syncRoomVariantsUI('complete_house');
+          this.syncRoomVariantsUI(roomSelect.value);
           this.triggerAIGeneration();
           this.focusRoom('dining');
         } else {
@@ -1178,7 +1201,7 @@ class App {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-kitchen-type');
         const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
 
         let vNum = 1;
         if (targetType === 'kitchen_lshape') vNum = 2;
@@ -1188,7 +1211,7 @@ class App {
         if (isHouse) {
           this.currentHouseRoomTypes.kitchen = vNum;
           this.currentHouseZone = 'kitchen';
-          this.syncRoomVariantsUI('complete_house');
+          this.syncRoomVariantsUI(roomSelect.value);
           this.triggerAIGeneration();
           this.focusRoom('kitchen');
         } else {
@@ -1204,6 +1227,8 @@ class App {
     // Instant Room Type Switching
     document.getElementById('room-type')?.addEventListener('change', (e) => {
       const selectedType = e.target.value;
+      if (selectedType === 'complete_house') this.currentHouseType = '1bhk';
+      else if (selectedType === 'complete_house_2bhk') this.currentHouseType = '2bhk';
       this.syncRoomVariantsUI(selectedType);
       this.triggerAIGeneration();
       const rName = e.target.options[e.target.selectedIndex]?.text || 'Space';
@@ -1924,7 +1949,11 @@ class App {
 
   // Master Bedroom & Living Room Variants UI Synchronizer
   syncRoomVariantsUI(currentRoomType) {
-    const isHouse = currentRoomType === 'complete_house';
+    const isHouse = currentRoomType === 'complete_house' || currentRoomType === 'complete_house_2bhk';
+    const is2BHK = currentRoomType === 'complete_house_2bhk' || this.currentHouseType === '2bhk';
+    if (isHouse) {
+      this.currentHouseType = is2BHK ? '2bhk' : '1bhk';
+    }
     const houseHub = document.getElementById('house-hub-wrapper');
     const houseNav = document.getElementById('house-navigator-bar');
     if (houseHub) houseHub.style.display = isHouse ? 'block' : 'none';
@@ -1934,7 +1963,7 @@ class App {
     const bedWrapper = document.getElementById('bedroom-variants-wrapper');
     const bedPill = document.getElementById('bedroom-type-pill');
     const bedButtons = document.querySelectorAll('.bedroom-type-btn');
-    const isBedroom = currentRoomType === 'bedroom' || (currentRoomType && currentRoomType.startsWith('bedroom_'));
+    const isBedroom = currentRoomType === 'bedroom' || currentRoomType === 'bedroom_single' || (currentRoomType && currentRoomType.startsWith('bedroom_'));
 
     // 2. Living Room Variants
     const livingWrapper = document.getElementById('living-variants-wrapper');
@@ -1961,8 +1990,27 @@ class App {
     const isKitchen = currentRoomType === 'kitchen' || (currentRoomType && currentRoomType.startsWith('kitchen_'));
 
     if (isHouse) {
+      document.querySelectorAll('.house-type-toggle-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-house-type') === (is2BHK ? '2bhk' : '1bhk'));
+      });
+      const housePill = document.getElementById('house-active-room-pill');
+      if (housePill) {
+        housePill.textContent = is2BHK ? '2 BHK (Double Bed) Active' : '1 BHK (Single Bed) Active';
+      }
+      const hubRearBtn = document.getElementById('hub-zone-rear');
+      if (hubRearBtn) {
+        hubRearBtn.innerHTML = is2BHK ? '🛏️ Bed 2' : '💼 Office';
+        hubRearBtn.setAttribute('data-zone', is2BHK ? 'bedroom2' : 'office');
+      }
+      const navRearBtn = document.getElementById('nav-btn-rear');
+      if (navRearBtn) {
+        navRearBtn.innerHTML = is2BHK ? '<span>🛏️</span> Bed 2' : '<span>💼</span> Office';
+        navRearBtn.setAttribute('data-target-room', is2BHK ? 'bedroom2' : 'office');
+        navRearBtn.setAttribute('title', is2BHK ? 'Focus Bedroom 2 (Double Suite)' : 'Focus Home Office & Study');
+      }
+
       const activeZone = this.currentHouseZone || 'living';
-      if (bedWrapper) bedWrapper.style.display = (activeZone === 'bedroom') ? 'block' : 'none';
+      if (bedWrapper) bedWrapper.style.display = (activeZone === 'bedroom' || activeZone === 'bedroom2') ? 'block' : 'none';
       if (livingWrapper) livingWrapper.style.display = (activeZone === 'living' || activeZone === 'all') ? 'block' : 'none';
       if (officeWrapper) officeWrapper.style.display = (activeZone === 'office') ? 'block' : 'none';
       if (diningWrapper) diningWrapper.style.display = (activeZone === 'dining') ? 'block' : 'none';
@@ -1999,7 +2047,8 @@ class App {
           btn.classList.toggle('active', type === currentRoomType);
         });
         if (bedPill) {
-          if (currentRoomType === 'bedroom_zen') bedPill.textContent = 'Type 2 Active';
+          if (currentRoomType === 'bedroom_single') bedPill.textContent = 'Single Bed Active';
+          else if (currentRoomType === 'bedroom_zen') bedPill.textContent = 'Type 2 Active';
           else if (currentRoomType === 'bedroom_hotel') bedPill.textContent = 'Type 3 Active';
           else if (currentRoomType === 'bedroom_scandi') bedPill.textContent = 'Type 4 Active';
           else bedPill.textContent = 'Type 1 Active';
@@ -2092,12 +2141,14 @@ class App {
     });
 
     const pill = document.getElementById('house-active-room-pill');
+    const is2BHK = (this.currentHouseType === '2bhk') || (document.getElementById('room-type')?.value === 'complete_house_2bhk');
     const titles = {
-      all: 'Complete House',
+      all: is2BHK ? 'Complete House (2 BHK)' : 'Complete House (1 BHK)',
       living: 'Living Lounge',
       dining: 'Dining Pavilion',
       kitchen: 'Modular Kitchen',
-      bedroom: 'Master Bedroom',
+      bedroom: is2BHK ? 'Master Bedroom (Bed 1)' : 'Master Bedroom',
+      bedroom2: 'Bedroom 2 (Double Suite)',
       office: 'Home Office & Study'
     };
     if (pill) pill.textContent = (titles[zoneKey] || 'Room') + ' Active';
@@ -2126,7 +2177,12 @@ class App {
       case 'bedroom':
         targetPos = new THREE.Vector3(-3.75, 4.2, 3.0);
         targetLook = new THREE.Vector3(-3.75, 1.2, -2.5);
-        this.showToast('📍 Viewing Master Bedroom Suite');
+        this.showToast(is2BHK ? '📍 Viewing Master Bedroom (Bed 1)' : '📍 Viewing Master Bedroom Suite');
+        break;
+      case 'bedroom2':
+        targetPos = new THREE.Vector3(3.25, 4.2, 3.0);
+        targetLook = new THREE.Vector3(3.25, 1.2, -2.5);
+        this.showToast('📍 Viewing Bedroom 2 (Double Bed Suite)');
         break;
       case 'office':
         targetPos = new THREE.Vector3(3.25, 4.2, 3.0);
@@ -2137,7 +2193,7 @@ class App {
       default:
         targetPos = new THREE.Vector3(0, 14.5, 17.5);
         targetLook = new THREE.Vector3(0, 1.0, 0.5);
-        this.showToast('🏠 Viewing Complete House (All Connected Rooms)');
+        this.showToast(is2BHK ? '🏡 Viewing Complete House (2 BHK)' : '🏠 Viewing Complete House (1 BHK)');
         break;
     }
 
@@ -2217,7 +2273,11 @@ class App {
     this.showToast('AI is optimizing spatial layout...');
 
     const currentRoomType = document.getElementById('room-type')?.value || 'complete_house';
-    const isHouse = currentRoomType === 'complete_house';
+    const isHouse = currentRoomType === 'complete_house' || currentRoomType === 'complete_house_2bhk';
+    const is2BHK = currentRoomType === 'complete_house_2bhk' || this.currentHouseType === '2bhk';
+    if (isHouse) {
+      this.currentHouseType = is2BHK ? '2bhk' : '1bhk';
+    }
 
     let bedType = isHouse ? (this.currentHouseRoomTypes.bedroom || 1) : 1;
     if (currentRoomType === 'bedroom_zen') bedType = 2;
@@ -2255,6 +2315,7 @@ class App {
 
     const pref = {
       roomType: currentRoomType,
+      houseType: this.currentHouseType || (is2BHK ? '2bhk' : '1bhk'),
       bedroomType: bedType,
       livingRoomType: livingType,
       officeType: officeType,
@@ -2277,7 +2338,7 @@ class App {
       if (rw) rw.value = '14.0';
       if (rl) rl.value = '11.5';
       if (rh) rh.value = '2.8';
-      this.roomBuilder.buildCompleteHouse(0xfaf5ee, pref.flooring);
+      this.roomBuilder.buildCompleteHouse(0xfaf5ee, pref.flooring, this.currentHouseType);
     } else {
       this.roomBuilder.buildRoom(pref.dimensions, 0xfaf5ee, pref.flooring);
     }
@@ -2384,6 +2445,9 @@ class App {
         break;
       case 'bed':
         meshGroup = FurnitureFactory.createBed(style, itemData.color);
+        break;
+      case 'single_bed':
+        meshGroup = FurnitureFactory.createSingleBed(style, itemData.color);
         break;
       case 'nightstand':
         meshGroup = FurnitureFactory.createNightstand(style);
@@ -2563,6 +2627,9 @@ class App {
     const conceptTitle = `${this.currentStyle.toUpperCase()} Interior Layout`;
     const roomType = document.getElementById('room-type')?.value || 'bedroom';
     const roomLabels = {
+      complete_house: 'Complete House (1 BHK: Master Suite + Office)',
+      complete_house_2bhk: 'Complete House (2 BHK: Master Suite + Bed 2)',
+      bedroom_single: 'Single Bedroom (Twin Platform Suite)',
       bedroom: 'Master Bedroom (Type 1: Luxury Suite)',
       bedroom_zen: 'Master Bedroom (Type 2: Minimalist Zen)',
       bedroom_hotel: 'Master Bedroom (Type 3: Hotel Chic & Vanity)',

@@ -708,8 +708,9 @@ class RoomBuilder {
   // ==========================================
   // COMPLETE HOUSE ARCHITECTURAL BUILDER
   // ==========================================
-  buildCompleteHouse(wallColorHex = 0xfaf5ee, flooringType = 'wood_oak') {
+  buildCompleteHouse(wallColorHex = 0xfaf5ee, flooringType = 'wood_oak', houseType = '1bhk') {
     this.isCompleteHouse = true;
+    this.houseType = houseType || '1bhk';
     this.currentDimensions = { width: 14.0, length: 11.5, height: 2.8 };
     this.currentWallColor = wallColorHex;
     this.currentFlooring = flooringType;
@@ -799,7 +800,7 @@ class RoomBuilder {
       mesh.position.set(posX, 0, posZ);
       mesh.receiveShadow = true;
       mesh.name = `HouseFloor_${zoneKey}`;
-      mesh.userData = { isFloor: true, roomZone: zoneKey };
+      mesh.userData = { isFloor: true, roomZone: zoneKey, zone: zoneKey };
       this.houseFloors.push(mesh);
       this.roomGroup.add(mesh);
       return mesh;
@@ -818,9 +819,13 @@ class RoomBuilder {
     // 4. Master Bedroom Floor (Back-Left)
     makeFloorMesh(6.5, 6.0, -3.75, -2.5, flooringType, 'bedroom');
 
-    // 5. Home Office Floor (Back-Right - Elegant Hardwood)
-    const officeFlooring = (flooringType === 'wood_oak' || flooringType === 'dark_walnut') ? flooringType : 'dark_walnut';
-    makeFloorMesh(7.5, 6.0, 3.25, -2.5, officeFlooring, 'office');
+    // 5. Rear East Room (Bedroom 2 in 2BHK, Home Office in 1BHK)
+    if (this.houseType === '2bhk') {
+      makeFloorMesh(7.5, 6.0, 3.25, -2.5, flooringType, 'bedroom2');
+    } else {
+      const officeFlooring = (flooringType === 'wood_oak' || flooringType === 'dark_walnut') ? flooringType : 'dark_walnut';
+      makeFloorMesh(7.5, 6.0, 3.25, -2.5, officeFlooring, 'office');
+    }
 
     // Decorative Satin Brass Doorway Threshold Strips
     const brassMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.25 });
@@ -1040,8 +1045,12 @@ class RoomBuilder {
     this.createRoomBadge('LIVING LOUNGE', '🛋️', -4.0, 3.25, 'living');
     this.createRoomBadge('DINING PAVILION', '🍽️', 1.0, 3.25, 'dining');
     this.createRoomBadge('MODULAR KITCHEN', '🍳', 5.0, 3.25, 'kitchen');
-    this.createRoomBadge('MASTER BEDROOM', '🛏️', -3.75, -2.5, 'bedroom');
-    this.createRoomBadge('HOME OFFICE & STUDY', '💼', 3.25, -2.5, 'office');
+    this.createRoomBadge(this.houseType === '2bhk' ? 'BEDROOM 1 (MASTER)' : 'MASTER BEDROOM', '🛏️', -3.75, -2.5, 'bedroom');
+    if (this.houseType === '2bhk') {
+      this.createRoomBadge('BEDROOM 2 (DOUBLE BED)', '🛏️', 3.25, -2.5, 'bedroom2');
+    } else {
+      this.createRoomBadge('HOME OFFICE & STUDY', '💼', 3.25, -2.5, 'office');
+    }
   }
 
   createRoomBadge(title, icon, x, z, roomKey) {
@@ -2174,6 +2183,60 @@ class FurnitureFactory {
       p1.rotation.x = -0.25;
       group.add(p1);
     });
+
+    return group;
+  }
+
+  // 6b. SINGLE / TWIN BED
+  static createSingleBed(style = 'modern', frameColor = null) {
+    const group = new THREE.Group();
+    group.name = 'SingleBed';
+    group.userData = { type: 'single_bed', name: 'Single / Twin Comfort Bed', cost: 750 };
+
+    const width = 1.15;
+    const length = 2.1;
+    const height = 0.35;
+
+    const chosenFrameColor = frameColor || (style === 'luxury' ? 0x0f172a : (style === 'traditional' ? 0x3e2723 : (style === 'minimalist' ? 0xd1d5db : 0x2b2d42)));
+
+    const frameMat = new THREE.MeshStandardMaterial({
+      color: chosenFrameColor,
+      roughness: style === 'luxury' ? 0.35 : (style === 'traditional' ? 0.5 : 0.6)
+    });
+
+    const mattressMat = new THREE.MeshStandardMaterial({ color: 0xfafafa, roughness: 0.9 });
+    const duvetMat = new THREE.MeshStandardMaterial({
+      color: style === 'luxury' ? 0x1e3a8a : (style === 'minimalist' ? 0x94a3b8 : (style === 'traditional' ? 0x78350f : 0x0ea5e9)),
+      roughness: 0.85
+    });
+
+    // Bed frame base
+    const base = this.createMesh(new THREE.BoxGeometry(width, height, length), frameMat, 'Single Bed Base');
+    base.position.y = height / 2;
+    group.add(base);
+
+    // Mattress
+    const mattress = this.createMesh(new THREE.BoxGeometry(width - 0.08, 0.24, length - 0.08), mattressMat, 'Single Mattress');
+    mattress.position.set(0, height + 0.12, 0);
+    group.add(mattress);
+
+    // Duvet
+    const duvet = this.createMesh(new THREE.BoxGeometry(width - 0.06, 0.26, length * 0.72), duvetMat, 'Single Duvet');
+    duvet.position.set(0, height + 0.13, length * 0.12);
+    group.add(duvet);
+
+    // Headboard
+    const headboardH = 0.85;
+    const headboard = this.createMesh(new THREE.BoxGeometry(width + 0.08, headboardH, 0.1), frameMat, 'Single Headboard');
+    headboard.position.set(0, headboardH / 2, -length / 2 - 0.05);
+    group.add(headboard);
+
+    // Single Pillow
+    const pillowMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 });
+    const pillow = this.createMesh(new THREE.BoxGeometry(0.7, 0.14, 0.38), pillowMat, 'Single Pillow');
+    pillow.position.set(0, height + 0.28, -length / 2 + 0.35);
+    pillow.rotation.x = -0.22;
+    group.add(pillow);
 
     return group;
   }
@@ -4441,10 +4504,17 @@ class AIEngine {
     let spatialRationale = '';
     let lightingPlan = '';
 
-    if (roomType === 'complete_house' || roomType === 'whole_house' || roomType === 'house') {
-      concept = `COMPLETE 5-ROOM ARCHITECTURAL RESIDENCE (${style.toUpperCase()})`;
-      spatialRationale = `A unified, continuous 14m × 11.5m complete home layout where all 5 rooms are situated seamlessly adjacent to each other with shared architectural walls, open archways, and connecting corridors. The sunlit front wing combines an expansive Living Lounge with Missouri TV Entertainment Center, an interconnected Formal Dining Pavilion, and an Open-Concept Modular Kitchen. The private rear wing features a secluded Master Bedroom Suite and an Executive Home Office & Library Sanctuary.`;
-      lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips and pendant glow in kitchen, dimmable bedside luminaires in master bedroom, and focused glare-free task light in executive study.`;
+    if (roomType === 'complete_house' || roomType === 'complete_house_2bhk' || roomType === 'whole_house' || roomType === 'house') {
+      const is2BHK = (roomType === 'complete_house_2bhk' || pref.houseType === '2bhk');
+      if (is2BHK) {
+        concept = `COMPLETE DOUBLE BEDROOM RESIDENCE (2 BHK ${style.toUpperCase()})`;
+        spatialRationale = `A unified, continuous 14m × 11.5m 2-Bedroom residential floor plan with fully connected living, dining, kitchen, and two dedicated bedroom suites. The front wing houses the great-room living lounge with Missouri TV entertainment center, interconnected dining pavilion, and modular kitchen. The rear wing features the Master Bedroom Suite (Bedroom 1) and a fully appointed Second Bedroom (Bedroom 2 / Double Bed & Study Suite) with private hallway access.`;
+        lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips in kitchen, and independent dimmable bedside luminaires and split ACs in both Master Bedroom 1 and Bedroom 2.`;
+      } else {
+        concept = `COMPLETE SINGLE BEDROOM RESIDENCE (1 BHK ${style.toUpperCase()})`;
+        spatialRationale = `A unified, continuous 14m × 11.5m complete home layout where all rooms are situated seamlessly adjacent to each other with shared architectural walls, open archways, and connecting corridors. The sunlit front wing combines an expansive Living Lounge with Missouri TV Entertainment Center, an interconnected Formal Dining Pavilion, and an Open-Concept Modular Kitchen. The private rear wing features a secluded Master Bedroom Suite and an Executive Home Office & Library Sanctuary.`;
+        lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips and pendant glow in kitchen, dimmable bedside luminaires in master bedroom, and focused glare-free task light in executive study.`;
+      }
 
       const livingType = pref.livingRoomType || 1;
       const diningType = pref.diningType || 1;
@@ -4868,118 +4938,258 @@ class AIEngine {
         cost: 650
       });
 
-      // ==========================================
-      // ZONE 5: HOME OFFICE & STUDY (X: -0.5 to 7.0, Z: -5.5 to 0.5)
-      // ==========================================
-      // 34. Executive Studio Desk
-      items.push({
-        id: 'house_office_desk',
-        type: 'desk',
-        name: 'Executive Studio Desk with Cable Bay',
-        position: [3.25, 0, -2.5],
-        rotation: [0, 0, 0],
-        style: style,
-        room: 'office',
-        cost: 950
-      });
+      if (is2BHK) {
+        // ==========================================
+        // ZONE 5: BEDROOM 2 / DOUBLE BED SUITE (X: -0.5 to 7.0, Z: -5.5 to 0.5)
+        // ==========================================
+        // 34. Double / Queen Platform Bed (North wall facing South)
+        items.push({
+          id: 'house_bed2_double',
+          type: 'bed',
+          name: 'Double / Queen Guest & Family Bed',
+          position: [3.25, 0, -4.3],
+          rotation: [0, 0, 0],
+          style: style,
+          color: palette.woodColor,
+          room: 'bedroom2',
+          cost: 1350
+        });
 
-      // 35. High-Back Ergonomic Mesh Office Chair
-      items.push({
-        id: 'house_office_chair',
-        type: 'office_chair',
-        name: 'Ergonomic High-Back Executive Mesh Chair',
-        position: [3.25, 0, -3.3],
-        rotation: [0, 0, 0],
-        room: 'office',
-        cost: 540
-      });
+        // 35. Bedside Nightstand Left
+        items.push({
+          id: 'house_bed2_nightstand_l',
+          type: 'nightstand',
+          name: 'Bedside Nightstand (Left)',
+          position: [1.8, 0, -4.9],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 210
+        });
 
-      // 36. Floor-to-Ceiling Library Bookshelf (North wall)
-      items.push({
-        id: 'house_office_bookshelf',
-        type: 'bookshelf',
-        name: 'Floor-to-Ceiling Architectural Bookshelf',
-        position: [3.25, 0, -5.15],
-        rotation: [0, 0, 0],
-        style: style,
-        room: 'office',
-        cost: 820
-      });
+        // 36. Bedside Nightstand Right
+        items.push({
+          id: 'house_bed2_nightstand_r',
+          type: 'nightstand',
+          name: 'Bedside Nightstand (Right)',
+          position: [4.7, 0, -4.9],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 210
+        });
 
-      // 37. Resource Storage Credenza (West wall)
-      items.push({
-        id: 'house_office_credenza',
-        type: 'credenza',
-        name: 'Executive File Storage & Resource Credenza',
-        position: [-0.1, 0, -3.5],
-        rotation: [0, Math.PI / 2, 0],
-        style: style,
-        woodColor: palette.woodColor,
-        room: 'office',
-        cost: 680
-      });
+        // 37. Bedside Table Lamp Left
+        items.push({
+          id: 'house_bed2_lamp_l',
+          type: 'table_lamp',
+          name: 'Bedside Reading Lamp (Left)',
+          position: [1.8, 0.58, -4.9],
+          rotation: [0, 0, 0],
+          color: palette.accentColor,
+          room: 'bedroom2',
+          cost: 110
+        });
 
-      // 38. Client Visitor Armchair
-      items.push({
-        id: 'house_office_visitor',
-        type: 'armchair',
-        name: 'Executive Client Armchair',
-        position: [2.3, 0, -1.6],
-        rotation: [0, Math.PI, 0],
-        style: style,
-        color: palette.accentColor,
-        room: 'office',
-        cost: 480
-      });
+        // 38. Bedside Table Lamp Right
+        items.push({
+          id: 'house_bed2_lamp_r',
+          type: 'table_lamp',
+          name: 'Bedside Reading Lamp (Right)',
+          position: [4.7, 0.58, -4.9],
+          rotation: [0, 0, 0],
+          color: palette.accentColor,
+          room: 'bedroom2',
+          cost: 110
+        });
 
-      // 39. Desk LED Task Lamp
-      items.push({
-        id: 'house_office_lamp',
-        type: 'table_lamp',
-        name: 'Architectural LED Task Lamp',
-        position: [2.3, 0.78, -2.5],
-        rotation: [0, 0, 0],
-        color: palette.accentColor,
-        room: 'office',
-        cost: 120
-      });
+        // 39. Full 2-Door Wardrobe (East wall)
+        items.push({
+          id: 'house_bed2_wardrobe',
+          type: 'wardrobe',
+          name: 'Double Bedroom 2-Door Wardrobe',
+          position: [6.4, 0, -2.5],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.wardrobeColor || 0x2b2d42,
+          room: 'bedroom2',
+          cost: 1200
+        });
 
-      // 40. Indoor Monstera Plant
-      items.push({
-        id: 'house_office_plant',
-        type: 'plant',
-        name: 'Architectural Monstera Ceramic Planter',
-        position: [6.4, 0, -5.0],
-        rotation: [0, 0, 0],
-        room: 'office',
-        cost: 150
-      });
+        // 40. Study Desk (West acoustic wall)
+        items.push({
+          id: 'house_bed2_desk',
+          type: 'desk',
+          name: 'Integrated Bedroom Study & Work Desk',
+          position: [0.4, 0, -2.5],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 650
+        });
 
-      // 41. Office Geometric Area Rug
-      items.push({
-        id: 'house_office_rug',
-        type: 'rug',
-        name: 'Office Geometric Low-Profile Rug',
-        position: [3.25, 0.005, -2.5],
-        rotation: [0, 0, 0],
-        dimensions: [3.0, 2.4],
-        style: style,
-        room: 'office',
-        cost: 340
-      });
+        // 41. Study Chair
+        items.push({
+          id: 'house_bed2_chair',
+          type: 'office_chair',
+          name: 'Ergonomic Bedroom Study Chair',
+          position: [1.1, 0, -2.5],
+          rotation: [0, -Math.PI / 2, 0],
+          room: 'bedroom2',
+          cost: 380
+        });
 
-      // 42. Framed Architectural Blueprint Art (North wall)
-      items.push({
-        id: 'house_office_art',
-        type: 'wall_art',
-        name: 'Framed Architectural Blueprint Art',
-        position: [0.8, 1.8, -5.44],
-        rotation: [0, 0, 0],
-        dimensions: [1.4, 0.9],
-        style: style,
-        room: 'office',
-        cost: 290
-      });
+        // 42. Bedroom 2 Area Rug
+        items.push({
+          id: 'house_bed2_rug',
+          type: 'rug',
+          name: 'Bedroom 2 Plush Area Rug',
+          position: [3.25, 0.005, -3.0],
+          rotation: [0, 0, 0],
+          dimensions: [3.0, 2.2],
+          style: style,
+          room: 'bedroom2',
+          cost: 320
+        });
+
+        // 43. Bedroom 2 Wall Art (North wall)
+        items.push({
+          id: 'house_bed2_art',
+          type: 'wall_art',
+          name: 'Curated Bedroom Gallery Art',
+          position: [0.8, 1.8, -5.44],
+          rotation: [0, 0, 0],
+          dimensions: [1.4, 0.9],
+          style: style,
+          room: 'bedroom2',
+          cost: 260
+        });
+
+        // 44. Bedroom 2 Inverter Split AC
+        items.push({
+          id: 'house_bed2_ac',
+          type: 'air_conditioner',
+          name: 'Bedroom 2 Inverter Split AC',
+          position: [3.25, 2.4, -5.44],
+          rotation: [0, 0, 0],
+          room: 'bedroom2',
+          cost: 650
+        });
+
+      } else {
+        // ==========================================
+        // ZONE 5: HOME OFFICE & STUDY (1BHK SINGLE BEDROOM HOUSE)
+        // ==========================================
+        // 34. Executive Studio Desk
+        items.push({
+          id: 'house_office_desk',
+          type: 'desk',
+          name: 'Executive Studio Desk with Cable Bay',
+          position: [3.25, 0, -2.5],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'office',
+          cost: 950
+        });
+
+        // 35. High-Back Ergonomic Mesh Office Chair
+        items.push({
+          id: 'house_office_chair',
+          type: 'office_chair',
+          name: 'Ergonomic High-Back Executive Mesh Chair',
+          position: [3.25, 0, -3.3],
+          rotation: [0, 0, 0],
+          room: 'office',
+          cost: 540
+        });
+
+        // 36. Floor-to-Ceiling Library Bookshelf (North wall)
+        items.push({
+          id: 'house_office_bookshelf',
+          type: 'bookshelf',
+          name: 'Floor-to-Ceiling Architectural Bookshelf',
+          position: [3.25, 0, -5.15],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'office',
+          cost: 820
+        });
+
+        // 37. Resource Storage Credenza (West wall)
+        items.push({
+          id: 'house_office_credenza',
+          type: 'credenza',
+          name: 'Executive File Storage & Resource Credenza',
+          position: [-0.1, 0, -3.5],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          woodColor: palette.woodColor,
+          room: 'office',
+          cost: 680
+        });
+
+        // 38. Client Visitor Armchair
+        items.push({
+          id: 'house_office_visitor',
+          type: 'armchair',
+          name: 'Executive Client Armchair',
+          position: [2.3, 0, -1.6],
+          rotation: [0, Math.PI, 0],
+          style: style,
+          color: palette.accentColor,
+          room: 'office',
+          cost: 480
+        });
+
+        // 39. Desk LED Task Lamp
+        items.push({
+          id: 'house_office_lamp',
+          type: 'table_lamp',
+          name: 'Architectural LED Task Lamp',
+          position: [2.3, 0.78, -2.5],
+          rotation: [0, 0, 0],
+          color: palette.accentColor,
+          room: 'office',
+          cost: 120
+        });
+
+        // 40. Indoor Monstera Plant
+        items.push({
+          id: 'house_office_plant',
+          type: 'plant',
+          name: 'Architectural Monstera Ceramic Planter',
+          position: [6.4, 0, -5.0],
+          rotation: [0, 0, 0],
+          room: 'office',
+          cost: 150
+        });
+
+        // 41. Office Geometric Area Rug
+        items.push({
+          id: 'house_office_rug',
+          type: 'rug',
+          name: 'Office Geometric Low-Profile Rug',
+          position: [3.25, 0.005, -2.5],
+          rotation: [0, 0, 0],
+          dimensions: [3.0, 2.4],
+          style: style,
+          room: 'office',
+          cost: 340
+        });
+
+        // 42. Framed Architectural Blueprint Art (North wall)
+        items.push({
+          id: 'house_office_art',
+          type: 'wall_art',
+          name: 'Framed Architectural Blueprint Art',
+          position: [0.8, 1.8, -5.44],
+          rotation: [0, 0, 0],
+          dimensions: [1.4, 0.9],
+          style: style,
+          room: 'office',
+          cost: 290
+        });
+      }
 
     } else if (roomType === 'living_room' || roomType.startsWith('living_room_')) {
       // Determine which of the 4 Living Room Design Types is selected
@@ -5506,14 +5716,108 @@ class AIEngine {
         });
       }
     } else if (roomType === 'bedroom' || roomType.startsWith('bedroom_')) {
-      // Determine which of the 4 Master Bedroom Design Types is selected
+      // Determine which of the Bedroom Design Types is selected
       let bedType = pref.bedroomType || 1;
       if (roomType === 'bedroom_zen' || roomType === 'bedroom_type2') bedType = 2;
       else if (roomType === 'bedroom_hotel' || roomType === 'bedroom_type3') bedType = 3;
       else if (roomType === 'bedroom_scandi' || roomType === 'bedroom_type4') bedType = 4;
       else if (roomType === 'bedroom' && pref.bedroomType) bedType = parseInt(pref.bedroomType, 10) || 1;
 
-      if (bedType === 1) {
+      if (roomType === 'bedroom_single') {
+        concept = `COZY SINGLE BEDROOM & STUDY SUITE (${style.toUpperCase()})`;
+        spatialRationale = `A high-efficiency single bedroom tailored for students, guests, or compact modern living. Anchored by a comfortable single/twin platform bed against the perimeter, a dedicated ergonomic study and laptop desk, bedside nightstand with task lamp, and an integrated wardrobe.`;
+        lightingPlan = `Focused task lighting at the study desk paired with warm bedside illumination and soft ambient overhead lighting.`;
+
+        // Single Bed against back wall
+        items.push({
+          id: 'single_bed_1',
+          type: 'single_bed',
+          name: 'Comfort Single Bed',
+          position: [-W / 2 + 1.0, 0, -L / 2 + 1.25],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 750
+        });
+
+        // Nightstand
+        items.push({
+          id: 'nightstand_1',
+          type: 'nightstand',
+          name: 'Bedside Nightstand',
+          position: [-W / 2 + 2.0, 0, -L / 2 + 0.6],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 160
+        });
+
+        // Table Lamp
+        items.push({
+          id: 'table_lamp_1',
+          type: 'table_lamp',
+          name: 'Bedside Reading Lamp',
+          position: [-W / 2 + 2.0, 0.58, -L / 2 + 0.6],
+          rotation: [0, 0, 0],
+          color: palette.accentColor,
+          cost: 95
+        });
+
+        // Study Desk
+        items.push({
+          id: 'desk_1',
+          type: 'desk',
+          name: 'Compact Study Desk',
+          position: [W / 2 - 1.2, 0, -L / 2 + 1.0],
+          rotation: [0, 0, 0],
+          style: style,
+          cost: 580
+        });
+
+        // Office Chair
+        items.push({
+          id: 'office_chair_1',
+          type: 'office_chair',
+          name: 'Ergonomic Desk Chair',
+          position: [W / 2 - 1.2, 0, -L / 2 + 1.7],
+          rotation: [0, 0, 0],
+          cost: 320
+        });
+
+        // Wardrobe
+        items.push({
+          id: 'wardrobe_1',
+          type: 'wardrobe',
+          name: 'Compact 2-Door Wardrobe',
+          position: [W / 2 - 0.7, 0, L / 2 - 1.2],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.wardrobeColor || 0x2b2d42,
+          cost: 850
+        });
+
+        // Area Rug
+        items.push({
+          id: 'rug_1',
+          type: 'rug',
+          name: 'Cozy Single Bedroom Rug',
+          position: [0, 0.005, 0.2],
+          rotation: [0, 0, 0],
+          dimensions: [2.0, 1.6],
+          style: style,
+          cost: 180
+        });
+
+        // Wall Art
+        items.push({
+          id: 'art_1',
+          type: 'wall_art',
+          name: 'Inspirational Study Art',
+          position: [0, 1.8, -L / 2 + 0.06],
+          rotation: [0, 0, 0],
+          dimensions: [1.2, 0.8],
+          style: style,
+          cost: 160
+        });
+      } else if (bedType === 1) {
         // TYPE 1: LUXURY EXECUTIVE MASTER SUITE
         // King bed, mirrored double wardrobe, private lounge armchair & side table, brass floor lamp & chandelier
         concept = `TYPE 1: LUXURY EXECUTIVE MASTER SUITE (${style.toUpperCase()})`;
@@ -7735,6 +8039,7 @@ class App {
 
     // Complete House Multi-Room Navigation & State
     this.currentHouseZone = 'all';
+    this.currentHouseType = '1bhk'; // '1bhk' (Single Bedroom House) or '2bhk' (Double Bedroom House)
     this.currentHouseRoomTypes = { living: 1, dining: 1, kitchen: 1, bedroom: 1, office: 1 };
     this.cameraAnimation = null;
 
@@ -8725,13 +9030,16 @@ class App {
       });
     });
 
-    // Complete House Navigator Bar buttons (Whole House, Living, Dining, Kitchen, Bedroom, Office)
+    // Complete House Navigator Bar buttons (Whole House, Living, Dining, Kitchen, Bedroom, Bed 2 / Office)
     document.querySelectorAll('.house-nav-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const roomSelect = document.getElementById('room-type');
-        if (roomSelect && roomSelect.value !== 'complete_house') {
-          roomSelect.value = 'complete_house';
-          this.syncRoomVariantsUI('complete_house');
+        const currentVal = roomSelect ? roomSelect.value : '';
+        const isAlreadyHouse = currentVal === 'complete_house' || currentVal === 'complete_house_2bhk';
+        if (roomSelect && !isAlreadyHouse) {
+          const targetHouseVal = (this.currentHouseType === '2bhk') ? 'complete_house_2bhk' : 'complete_house';
+          roomSelect.value = targetHouseVal;
+          this.syncRoomVariantsUI(targetHouseVal);
           this.triggerAIGeneration().then(() => {
             this.focusRoom(btn.dataset.targetRoom);
           });
@@ -8745,9 +9053,12 @@ class App {
     document.querySelectorAll('.house-zone-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const roomSelect = document.getElementById('room-type');
-        if (roomSelect && roomSelect.value !== 'complete_house') {
-          roomSelect.value = 'complete_house';
-          this.syncRoomVariantsUI('complete_house');
+        const currentVal = roomSelect ? roomSelect.value : '';
+        const isAlreadyHouse = currentVal === 'complete_house' || currentVal === 'complete_house_2bhk';
+        if (roomSelect && !isAlreadyHouse) {
+          const targetHouseVal = (this.currentHouseType === '2bhk') ? 'complete_house_2bhk' : 'complete_house';
+          roomSelect.value = targetHouseVal;
+          this.syncRoomVariantsUI(targetHouseVal);
           this.triggerAIGeneration().then(() => {
             this.focusRoom(btn.dataset.zone);
           });
@@ -8757,12 +9068,28 @@ class App {
       });
     });
 
+    // Single Bedroom vs Double Bedroom House Toggle Pills
+    document.querySelectorAll('.house-type-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const hType = btn.getAttribute('data-house-type') || '1bhk';
+        this.currentHouseType = hType;
+        const targetVal = (hType === '2bhk') ? 'complete_house_2bhk' : 'complete_house';
+        const roomSelect = document.getElementById('room-type');
+        if (roomSelect) {
+          roomSelect.value = targetVal;
+        }
+        this.syncRoomVariantsUI(targetVal);
+        this.triggerAIGeneration();
+        this.showToast(hType === '2bhk' ? '🏡 Switched to Double Bedroom House (2 BHK)' : '🏠 Switched to Single Bedroom House (1 BHK)');
+      });
+    });
+
     // Master Bedroom 4 Design Types Selector Buttons
     document.querySelectorAll('.bedroom-type-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-bedroom-type');
         const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
 
         let vNum = 1;
         if (targetType === 'bedroom_zen') vNum = 2;
@@ -8772,7 +9099,7 @@ class App {
         if (isHouse) {
           this.currentHouseRoomTypes.bedroom = vNum;
           this.currentHouseZone = 'bedroom';
-          this.syncRoomVariantsUI('complete_house');
+          this.syncRoomVariantsUI(roomSelect.value);
           this.triggerAIGeneration();
           this.focusRoom('bedroom');
         } else {
@@ -8790,7 +9117,7 @@ class App {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-living-type');
         const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
 
         let vNum = 1;
         if (targetType === 'living_room_zen') vNum = 2;
@@ -8800,7 +9127,7 @@ class App {
         if (isHouse) {
           this.currentHouseRoomTypes.living = vNum;
           this.currentHouseZone = 'living';
-          this.syncRoomVariantsUI('complete_house');
+          this.syncRoomVariantsUI(roomSelect.value);
           this.triggerAIGeneration();
           this.focusRoom('living');
         } else {
@@ -8818,7 +9145,7 @@ class App {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-office-type');
         const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
 
         let vNum = 1;
         if (targetType === 'home_office_minimal') vNum = 2;
@@ -8828,7 +9155,7 @@ class App {
         if (isHouse) {
           this.currentHouseRoomTypes.office = vNum;
           this.currentHouseZone = 'office';
-          this.syncRoomVariantsUI('complete_house');
+          this.syncRoomVariantsUI(roomSelect.value);
           this.triggerAIGeneration();
           this.focusRoom('office');
         } else {
@@ -8846,7 +9173,7 @@ class App {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-dining-type');
         const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
 
         let vNum = 1;
         if (targetType === 'dining_room_minimal') vNum = 2;
@@ -8856,7 +9183,7 @@ class App {
         if (isHouse) {
           this.currentHouseRoomTypes.dining = vNum;
           this.currentHouseZone = 'dining';
-          this.syncRoomVariantsUI('complete_house');
+          this.syncRoomVariantsUI(roomSelect.value);
           this.triggerAIGeneration();
           this.focusRoom('dining');
         } else {
@@ -8874,7 +9201,7 @@ class App {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-kitchen-type');
         const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
 
         let vNum = 1;
         if (targetType === 'kitchen_lshape') vNum = 2;
@@ -8884,7 +9211,7 @@ class App {
         if (isHouse) {
           this.currentHouseRoomTypes.kitchen = vNum;
           this.currentHouseZone = 'kitchen';
-          this.syncRoomVariantsUI('complete_house');
+          this.syncRoomVariantsUI(roomSelect.value);
           this.triggerAIGeneration();
           this.focusRoom('kitchen');
         } else {
@@ -8900,6 +9227,8 @@ class App {
     // Instant Room Type Switching
     document.getElementById('room-type')?.addEventListener('change', (e) => {
       const selectedType = e.target.value;
+      if (selectedType === 'complete_house') this.currentHouseType = '1bhk';
+      else if (selectedType === 'complete_house_2bhk') this.currentHouseType = '2bhk';
       this.syncRoomVariantsUI(selectedType);
       this.triggerAIGeneration();
       const rName = e.target.options[e.target.selectedIndex]?.text || 'Space';
@@ -9620,7 +9949,11 @@ class App {
 
   // Master Bedroom & Living Room Variants UI Synchronizer
   syncRoomVariantsUI(currentRoomType) {
-    const isHouse = currentRoomType === 'complete_house';
+    const isHouse = currentRoomType === 'complete_house' || currentRoomType === 'complete_house_2bhk';
+    const is2BHK = currentRoomType === 'complete_house_2bhk' || this.currentHouseType === '2bhk';
+    if (isHouse) {
+      this.currentHouseType = is2BHK ? '2bhk' : '1bhk';
+    }
     const houseHub = document.getElementById('house-hub-wrapper');
     const houseNav = document.getElementById('house-navigator-bar');
     if (houseHub) houseHub.style.display = isHouse ? 'block' : 'none';
@@ -9630,7 +9963,7 @@ class App {
     const bedWrapper = document.getElementById('bedroom-variants-wrapper');
     const bedPill = document.getElementById('bedroom-type-pill');
     const bedButtons = document.querySelectorAll('.bedroom-type-btn');
-    const isBedroom = currentRoomType === 'bedroom' || (currentRoomType && currentRoomType.startsWith('bedroom_'));
+    const isBedroom = currentRoomType === 'bedroom' || currentRoomType === 'bedroom_single' || (currentRoomType && currentRoomType.startsWith('bedroom_'));
 
     // 2. Living Room Variants
     const livingWrapper = document.getElementById('living-variants-wrapper');
@@ -9657,8 +9990,27 @@ class App {
     const isKitchen = currentRoomType === 'kitchen' || (currentRoomType && currentRoomType.startsWith('kitchen_'));
 
     if (isHouse) {
+      document.querySelectorAll('.house-type-toggle-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-house-type') === (is2BHK ? '2bhk' : '1bhk'));
+      });
+      const housePill = document.getElementById('house-active-room-pill');
+      if (housePill) {
+        housePill.textContent = is2BHK ? '2 BHK (Double Bed) Active' : '1 BHK (Single Bed) Active';
+      }
+      const hubRearBtn = document.getElementById('hub-zone-rear');
+      if (hubRearBtn) {
+        hubRearBtn.innerHTML = is2BHK ? '🛏️ Bed 2' : '💼 Office';
+        hubRearBtn.setAttribute('data-zone', is2BHK ? 'bedroom2' : 'office');
+      }
+      const navRearBtn = document.getElementById('nav-btn-rear');
+      if (navRearBtn) {
+        navRearBtn.innerHTML = is2BHK ? '<span>🛏️</span> Bed 2' : '<span>💼</span> Office';
+        navRearBtn.setAttribute('data-target-room', is2BHK ? 'bedroom2' : 'office');
+        navRearBtn.setAttribute('title', is2BHK ? 'Focus Bedroom 2 (Double Suite)' : 'Focus Home Office & Study');
+      }
+
       const activeZone = this.currentHouseZone || 'living';
-      if (bedWrapper) bedWrapper.style.display = (activeZone === 'bedroom') ? 'block' : 'none';
+      if (bedWrapper) bedWrapper.style.display = (activeZone === 'bedroom' || activeZone === 'bedroom2') ? 'block' : 'none';
       if (livingWrapper) livingWrapper.style.display = (activeZone === 'living' || activeZone === 'all') ? 'block' : 'none';
       if (officeWrapper) officeWrapper.style.display = (activeZone === 'office') ? 'block' : 'none';
       if (diningWrapper) diningWrapper.style.display = (activeZone === 'dining') ? 'block' : 'none';
@@ -9695,7 +10047,8 @@ class App {
           btn.classList.toggle('active', type === currentRoomType);
         });
         if (bedPill) {
-          if (currentRoomType === 'bedroom_zen') bedPill.textContent = 'Type 2 Active';
+          if (currentRoomType === 'bedroom_single') bedPill.textContent = 'Single Bed Active';
+          else if (currentRoomType === 'bedroom_zen') bedPill.textContent = 'Type 2 Active';
           else if (currentRoomType === 'bedroom_hotel') bedPill.textContent = 'Type 3 Active';
           else if (currentRoomType === 'bedroom_scandi') bedPill.textContent = 'Type 4 Active';
           else bedPill.textContent = 'Type 1 Active';
@@ -9788,12 +10141,14 @@ class App {
     });
 
     const pill = document.getElementById('house-active-room-pill');
+    const is2BHK = (this.currentHouseType === '2bhk') || (document.getElementById('room-type')?.value === 'complete_house_2bhk');
     const titles = {
-      all: 'Complete House',
+      all: is2BHK ? 'Complete House (2 BHK)' : 'Complete House (1 BHK)',
       living: 'Living Lounge',
       dining: 'Dining Pavilion',
       kitchen: 'Modular Kitchen',
-      bedroom: 'Master Bedroom',
+      bedroom: is2BHK ? 'Master Bedroom (Bed 1)' : 'Master Bedroom',
+      bedroom2: 'Bedroom 2 (Double Suite)',
       office: 'Home Office & Study'
     };
     if (pill) pill.textContent = (titles[zoneKey] || 'Room') + ' Active';
@@ -9822,7 +10177,12 @@ class App {
       case 'bedroom':
         targetPos = new THREE.Vector3(-3.75, 4.2, 3.0);
         targetLook = new THREE.Vector3(-3.75, 1.2, -2.5);
-        this.showToast('📍 Viewing Master Bedroom Suite');
+        this.showToast(is2BHK ? '📍 Viewing Master Bedroom (Bed 1)' : '📍 Viewing Master Bedroom Suite');
+        break;
+      case 'bedroom2':
+        targetPos = new THREE.Vector3(3.25, 4.2, 3.0);
+        targetLook = new THREE.Vector3(3.25, 1.2, -2.5);
+        this.showToast('📍 Viewing Bedroom 2 (Double Bed Suite)');
         break;
       case 'office':
         targetPos = new THREE.Vector3(3.25, 4.2, 3.0);
@@ -9833,7 +10193,7 @@ class App {
       default:
         targetPos = new THREE.Vector3(0, 14.5, 17.5);
         targetLook = new THREE.Vector3(0, 1.0, 0.5);
-        this.showToast('🏠 Viewing Complete House (All Connected Rooms)');
+        this.showToast(is2BHK ? '🏡 Viewing Complete House (2 BHK)' : '🏠 Viewing Complete House (1 BHK)');
         break;
     }
 
@@ -9913,7 +10273,11 @@ class App {
     this.showToast('AI is optimizing spatial layout...');
 
     const currentRoomType = document.getElementById('room-type')?.value || 'complete_house';
-    const isHouse = currentRoomType === 'complete_house';
+    const isHouse = currentRoomType === 'complete_house' || currentRoomType === 'complete_house_2bhk';
+    const is2BHK = currentRoomType === 'complete_house_2bhk' || this.currentHouseType === '2bhk';
+    if (isHouse) {
+      this.currentHouseType = is2BHK ? '2bhk' : '1bhk';
+    }
 
     let bedType = isHouse ? (this.currentHouseRoomTypes.bedroom || 1) : 1;
     if (currentRoomType === 'bedroom_zen') bedType = 2;
@@ -9951,6 +10315,7 @@ class App {
 
     const pref = {
       roomType: currentRoomType,
+      houseType: this.currentHouseType || (is2BHK ? '2bhk' : '1bhk'),
       bedroomType: bedType,
       livingRoomType: livingType,
       officeType: officeType,
@@ -9973,7 +10338,7 @@ class App {
       if (rw) rw.value = '14.0';
       if (rl) rl.value = '11.5';
       if (rh) rh.value = '2.8';
-      this.roomBuilder.buildCompleteHouse(0xfaf5ee, pref.flooring);
+      this.roomBuilder.buildCompleteHouse(0xfaf5ee, pref.flooring, this.currentHouseType);
     } else {
       this.roomBuilder.buildRoom(pref.dimensions, 0xfaf5ee, pref.flooring);
     }
@@ -10080,6 +10445,9 @@ class App {
         break;
       case 'bed':
         meshGroup = FurnitureFactory.createBed(style, itemData.color);
+        break;
+      case 'single_bed':
+        meshGroup = FurnitureFactory.createSingleBed(style, itemData.color);
         break;
       case 'nightstand':
         meshGroup = FurnitureFactory.createNightstand(style);
@@ -10259,6 +10627,9 @@ class App {
     const conceptTitle = `${this.currentStyle.toUpperCase()} Interior Layout`;
     const roomType = document.getElementById('room-type')?.value || 'bedroom';
     const roomLabels = {
+      complete_house: 'Complete House (1 BHK: Master Suite + Office)',
+      complete_house_2bhk: 'Complete House (2 BHK: Master Suite + Bed 2)',
+      bedroom_single: 'Single Bedroom (Twin Platform Suite)',
       bedroom: 'Master Bedroom (Type 1: Luxury Suite)',
       bedroom_zen: 'Master Bedroom (Type 2: Minimalist Zen)',
       bedroom_hotel: 'Master Bedroom (Type 3: Hotel Chic & Vanity)',
