@@ -1068,19 +1068,28 @@ class App {
       });
     });
 
-    // Single Bedroom vs Double Bedroom House Toggle Pills
+    // Apartment vs Single Bedroom vs Double Bedroom House Toggle Pills
     document.querySelectorAll('.house-type-toggle-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const hType = btn.getAttribute('data-house-type') || '1bhk';
+        const hType = btn.getAttribute('data-house-type') || 'apartment';
         this.currentHouseType = hType;
-        const targetVal = (hType === '2bhk') ? 'complete_house_2bhk' : 'complete_house';
+        let targetVal = 'modern_apartment';
+        if (hType === '2bhk') targetVal = 'complete_house_2bhk';
+        else if (hType === '1bhk') targetVal = 'complete_house';
+
         const roomSelect = document.getElementById('room-type');
         if (roomSelect) {
           roomSelect.value = targetVal;
         }
         this.syncRoomVariantsUI(targetVal);
         this.triggerAIGeneration();
-        this.showToast(hType === '2bhk' ? '🏡 Switched to Double Bedroom House (2 BHK)' : '🏠 Switched to Single Bedroom House (1 BHK)');
+        if (hType === 'apartment') {
+          this.showToast('🏙️ Switched to Modern Apartment Suite (Open Living-Dining, Straight Kitchen & Rear Master)');
+        } else if (hType === '2bhk') {
+          this.showToast('🏡 Switched to Contemporary Villa (2 BHK Estate)');
+        } else {
+          this.showToast('🏠 Switched to Single Bedroom House (1 BHK)');
+        }
       });
     });
 
@@ -1229,6 +1238,7 @@ class App {
       const selectedType = e.target.value;
       if (selectedType === 'complete_house') this.currentHouseType = '1bhk';
       else if (selectedType === 'complete_house_2bhk') this.currentHouseType = '2bhk';
+      else if (selectedType === 'modern_apartment') this.currentHouseType = 'apartment';
       this.syncRoomVariantsUI(selectedType);
       this.triggerAIGeneration();
       const rName = e.target.options[e.target.selectedIndex]?.text || 'Space';
@@ -1272,27 +1282,35 @@ class App {
       this.showToast(isCutaway ? 'Cutaway front wall active' : 'Full walls visible');
     });
 
-    // Daylight / Night Toggle
-    const daylightBtn = document.getElementById('btn-toggle-daylight');
-    daylightBtn.addEventListener('click', () => {
-      this.isDaylight = !this.isDaylight;
-      daylightBtn.classList.toggle('active', this.isDaylight);
-      daylightBtn.innerHTML = this.isDaylight ? '☀️ Day' : '🌙 Night';
+    // Daylight & Warm 3000K Lighting Mode Cycle
+    this.lightingModeIndex = 0;
+    const lightingModes = [
+      { id: 'morning_3000k', label: '☀️ 3000K Morning', toast: 'Warm 3000K interior lighting & natural morning daylight enabled', bg: 0x0a0e17, ambColor: 0xfff3e3, ambInt: 0.62, sunColor: 0xffebd2, sunInt: 1.30, sunPos: [-9, 6.2, 5.2], ceilColor: 0xffdfba, ceilInt: 0.70 },
+      { id: 'midday_day', label: '🌤️ Midday Daylight', toast: 'Bright midday daylight simulation enabled', bg: 0x0f172a, ambColor: 0xffffff, ambInt: 0.55, sunColor: 0xfffaed, sunInt: 1.20, sunPos: [-8, 9.0, 4.0], ceilColor: 0xfff7ed, ceilInt: 0.55 },
+      { id: 'evening_moody', label: '🌙 Evening Warm', toast: 'Moody evening lighting & warm LEDs enabled', bg: 0x020408, ambColor: 0xffe2c4, ambInt: 0.18, sunColor: 0xff8c42, sunInt: 0.08, sunPos: [-10, 3.0, 6.0], ceilColor: 0xffb770, ceilInt: 1.35 }
+    ];
 
-      if (this.isDaylight) {
-        this.scene.background.set(0x0a0e17);
-        this.ambientLight.intensity = 0.55;
-        this.sunLight.intensity = 1.2;
-        this.ceilingLight.intensity = 0.6;
-        this.showToast('Daylight simulation enabled');
-      } else {
-        this.scene.background.set(0x020408);
-        this.ambientLight.intensity = 0.15;
-        this.sunLight.intensity = 0.05;
-        this.ceilingLight.intensity = 1.3;
-        this.showToast('Moody evening lighting enabled');
-      }
-    });
+    const daylightBtn = document.getElementById('btn-toggle-daylight');
+    if (daylightBtn) {
+      daylightBtn.innerHTML = '☀️ 3000K Morning';
+      daylightBtn.addEventListener('click', () => {
+        this.lightingModeIndex = (this.lightingModeIndex + 1) % lightingModes.length;
+        const mode = lightingModes[this.lightingModeIndex];
+        daylightBtn.innerHTML = mode.label;
+        daylightBtn.classList.toggle('active', mode.id !== 'evening_moody');
+
+        this.scene.background.set(mode.bg);
+        this.ambientLight.color.setHex(mode.ambColor);
+        this.ambientLight.intensity = mode.ambInt;
+        this.sunLight.color.setHex(mode.sunColor);
+        this.sunLight.intensity = mode.sunInt;
+        this.sunLight.position.set(mode.sunPos[0], mode.sunPos[1], mode.sunPos[2]);
+        this.ceilingLight.color.setHex(mode.ceilColor);
+        this.ceilingLight.intensity = mode.ceilInt;
+
+        this.showToast(mode.toast);
+      });
+    }
 
     // Measurement Grid Toggle
     const gridBtn = document.getElementById('btn-toggle-grid');
@@ -1558,6 +1576,49 @@ class App {
 
     document.getElementById('btn-close-report')?.addEventListener('click', () => {
       reportModal?.classList.remove('open');
+    });
+
+    // Architectural 3D Renders Modal Handlers
+    const rendersModal = document.getElementById('renders-modal');
+    document.getElementById('btn-view-renders')?.addEventListener('click', () => {
+      if (rendersModal) rendersModal.classList.add('open');
+    });
+
+    document.getElementById('btn-close-renders')?.addEventListener('click', () => {
+      if (rendersModal) rendersModal.classList.remove('open');
+    });
+
+    const tabCutaway = document.getElementById('tab-render-cutaway');
+    const tabEyelevel = document.getElementById('tab-render-eyelevel');
+    const viewCutaway = document.getElementById('view-render-cutaway');
+    const viewEyelevel = document.getElementById('view-render-eyelevel');
+
+    tabCutaway?.addEventListener('click', () => {
+      tabCutaway.classList.add('active');
+      tabEyelevel?.classList.remove('active');
+      if (viewCutaway) viewCutaway.style.display = 'block';
+      if (viewEyelevel) viewEyelevel.style.display = 'none';
+    });
+
+    tabEyelevel?.addEventListener('click', () => {
+      tabEyelevel.classList.add('active');
+      tabCutaway?.classList.remove('active');
+      if (viewEyelevel) viewEyelevel.style.display = 'block';
+      if (viewCutaway) viewCutaway.style.display = 'none';
+    });
+
+    // 1-Click Load Preset from Renders Modal
+    document.getElementById('btn-apply-apartment-preset')?.addEventListener('click', () => {
+      if (rendersModal) rendersModal.classList.remove('open');
+      const roomSelect = document.getElementById('room-type');
+      if (roomSelect) roomSelect.value = 'modern_apartment';
+      const floorSelect = document.getElementById('flooring-select');
+      if (floorSelect) floorSelect.value = 'porcelain_tile';
+      this.currentHouseType = 'apartment';
+      this.syncRoomVariantsUI('modern_apartment');
+      this.triggerAIGeneration();
+      this.setCameraPreset('3d');
+      this.showToast('✨ Loaded Modern Apartment Suite: Open Living-Dining, Straight Kitchen & Rear Master Suite');
     });
 
     // Studio Sign Out button
@@ -2241,6 +2302,15 @@ class App {
 
   // 6. CAMERA PRESETS & WALKTHROUGH
   setCameraPreset(mode) {
+    if (mode === 'flow') {
+      this.startRealTimeRoomFlowTour();
+      return;
+    }
+
+    if (this.isTouring) {
+      this.stopRealTimeRoomFlowTour();
+    }
+
     const hud = document.getElementById('walkthrough-hud');
     if (mode === 'walk') {
       this.isWalkthrough = true;
@@ -2298,15 +2368,78 @@ class App {
     this.controls.update();
   }
 
+  // REAL-TIME ROOM FLOW ANIMATED WALKTHROUGH TOUR
+  startRealTimeRoomFlowTour() {
+    this.isTouring = true;
+    this.isWalkthrough = true;
+    const hud = document.getElementById('walkthrough-hud');
+    if (hud) {
+      hud.style.display = 'block';
+      const pill = hud.querySelector('.hud-pill span');
+      if (pill) {
+        pill.innerHTML = '🌊 <strong>Room Flow Tour Active</strong>: Living → Dining → Straight Kitchen → Rear Master Suite';
+      }
+    }
+    this.showToast('🌊 Real-time room flow tour started: Living → Dining → Straight Kitchen → Rear Master Suite');
+
+    const waypoints = [
+      { pos: new THREE.Vector3(-4.5, 1.55, 4.8), target: new THREE.Vector3(-4.5, 1.35, 1.8), duration: 4500, desc: '🛋️ Living Room Lounge with Missouri TV Entertainment' },
+      { pos: new THREE.Vector3(0.8, 1.55, 3.8), target: new THREE.Vector3(1.0, 1.35, 2.8), duration: 4500, desc: '🍽️ Seamless transition to Central Dining Pavilion' },
+      { pos: new THREE.Vector3(3.8, 1.55, 3.4), target: new THREE.Vector3(6.6, 1.35, 3.4), duration: 5000, desc: '🍳 Single-Wall Straight Modular Kitchen on Right Wall' },
+      { pos: new THREE.Vector3(0.0, 1.55, 1.4), target: new THREE.Vector3(-1.85, 1.35, -1.0), duration: 4000, desc: '🚪 Transition corridor to Private Rear Wing' },
+      { pos: new THREE.Vector3(-3.0, 1.55, -1.8), target: new THREE.Vector3(-4.0, 1.35, -3.8), duration: 5500, desc: '👑 Rear Private Master Bedroom Suite with Herringbone Wood Flooring' }
+    ];
+
+    let currentWaypointIdx = 0;
+    let startTime = performance.now();
+    let startPos = this.camera.position.clone();
+    let startTarget = this.controls.target.clone();
+
+    if (this.tourAnimId) cancelAnimationFrame(this.tourAnimId);
+
+    const step = (now) => {
+      if (!this.isTouring) return;
+
+      const wp = waypoints[currentWaypointIdx];
+      const elapsed = now - startTime;
+      const progress = Math.min(1.0, elapsed / wp.duration);
+      const ease = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+      this.camera.position.lerpVectors(startPos, wp.pos, ease);
+      this.controls.target.lerpVectors(startTarget, wp.target, ease);
+      this.camera.lookAt(this.controls.target);
+
+      if (progress >= 1.0) {
+        currentWaypointIdx = (currentWaypointIdx + 1) % waypoints.length;
+        startTime = performance.now();
+        startPos = this.camera.position.clone();
+        startTarget = this.controls.target.clone();
+        this.showToast(waypoints[currentWaypointIdx].desc);
+      }
+
+      this.tourAnimId = requestAnimationFrame(step);
+    };
+
+    this.tourAnimId = requestAnimationFrame(step);
+  }
+
+  stopRealTimeRoomFlowTour() {
+    this.isTouring = false;
+    if (this.tourAnimId) cancelAnimationFrame(this.tourAnimId);
+    const hud = document.getElementById('walkthrough-hud');
+    if (hud) hud.style.display = 'none';
+  }
+
   // 7. AI DESIGN GENERATION
   async triggerAIGeneration() {
     this.showToast('AI is optimizing spatial layout...');
 
-    const currentRoomType = document.getElementById('room-type')?.value || 'complete_house';
-    const isHouse = currentRoomType === 'complete_house' || currentRoomType === 'complete_house_2bhk';
-    const is2BHK = currentRoomType === 'complete_house_2bhk' || this.currentHouseType === '2bhk';
+    const currentRoomType = document.getElementById('room-type')?.value || 'modern_apartment';
+    const isApartment = (currentRoomType === 'modern_apartment' || currentRoomType === 'apartment' || this.currentHouseType === 'apartment');
+    const is2BHK = (currentRoomType === 'complete_house_2bhk' || this.currentHouseType === '2bhk');
+    const isHouse = (currentRoomType === 'complete_house' || is2BHK || isApartment);
     if (isHouse) {
-      this.currentHouseType = is2BHK ? '2bhk' : '1bhk';
+      this.currentHouseType = isApartment ? 'apartment' : (is2BHK ? '2bhk' : '1bhk');
     }
 
     let bedType = isHouse ? (this.currentHouseRoomTypes.bedroom || 1) : 1;
@@ -2563,6 +2696,10 @@ class App {
         break;
       case 'kitchen_cabinets':
         meshGroup = FurnitureFactory.createKitchenCabinets(style, itemData.color);
+        break;
+      case 'straight_kitchen':
+      case 'single_wall_kitchen':
+        meshGroup = FurnitureFactory.createStraightModularKitchen(style, itemData.color);
         break;
       case 'kitchen_island':
         meshGroup = FurnitureFactory.createKitchenIsland(style, itemData.color);

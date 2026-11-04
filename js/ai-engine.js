@@ -32,13 +32,18 @@ export class AIEngine {
     let spatialRationale = '';
     let lightingPlan = '';
 
-    if (roomType === 'complete_house' || roomType === 'complete_house_2bhk' || roomType === 'villa_2bhk' || roomType === 'whole_house' || roomType === 'house') {
+    if (roomType === 'complete_house' || roomType === 'complete_house_2bhk' || roomType === 'villa_2bhk' || roomType === 'modern_apartment' || roomType === 'apartment' || roomType === 'whole_house' || roomType === 'house') {
       const isVilla = (roomType === 'villa_2bhk' || pref.houseType === 'villa_2bhk' || pref.houseType === 'villa');
       const is2BHK = (roomType === 'complete_house_2bhk' || pref.houseType === '2bhk' || isVilla);
+      const isApartment = (roomType === 'modern_apartment' || roomType === 'apartment' || pref.houseType === 'apartment' || pref.houseType === 'modern_apartment');
       if (isVilla) {
         concept = `CONTEMPORARY LUXURY VILLA (2 BHK ESTATE ${style.toUpperCase()})`;
         spatialRationale = `A master-crafted 16m × 18.5m contemporary villa estate with perimeter boundary garden, front driveway & porch, entrance foyer with pivot door & console, sunken living lounge with cognac leather sectional & Missouri TV unit, open dining area, U-shaped modular kitchen, terracotta second bedroom suite with twin beds & study, walk-in closet, common & master en-suite designer bathrooms, and private backyard garden.`;
         lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips in kitchen, illuminated LED mirrors in bathrooms, and independent dimmable bedside luminaires in both bedrooms.`;
+      } else if (isApartment) {
+        concept = `MODERN APARTMENT SUITE (REAL-TIME FLOW ${style.toUpperCase()})`;
+        spatialRationale = `A full modern apartment floor plan engineered with real-time room flow. An open-concept living room transitions fluidly to a central dining area and a streamlined single-wall straight modular kitchen mounted flush along the right wall. The private master bedroom suite is peacefully situated in the rear wing. Continuous light porcelain floor tiles run throughout the open living, dining, and kitchen zones, transitioning via a satin brass threshold to rich herringbone wood flooring in the master suite.`;
+        lightingPlan = `Warm 3000K interior illumination with natural morning daylight. Warm 3000K LED under-cabinet kitchen task lighting, overhead linear brass dining chandelier, recessed living cove glows, and natural morning sunlight streaming through wide balcony glazing with soft morning shadows.`;
       } else if (is2BHK) {
         concept = `COMPLETE DOUBLE BEDROOM RESIDENCE (2 BHK ${style.toUpperCase()})`;
         spatialRationale = `A unified, continuous 14m × 11.5m 2-Bedroom residential floor plan with fully connected living, dining, kitchen, and two dedicated bedroom suites. The front wing houses the great-room living lounge with Missouri TV entertainment center, interconnected dining pavilion, and modular kitchen. The rear wing features the Master Bedroom Suite (Bedroom 1) and a fully appointed Second Bedroom (Bedroom 2 / Double Bed & Study Suite) with private hallway access.`;
@@ -238,112 +243,172 @@ export class AIEngine {
       // ==========================================
       // ZONE 3: MODULAR KITCHEN (X: 3.0 to 7.0, Z: 0.5 to 6.0)
       // ==========================================
-      // 15. Modular Kitchen Cabinets with Dual Sink (North wall)
-      items.push({
-        id: 'house_kitchen_cabinets',
-        type: 'kitchen_cabinets',
-        name: 'Modular Shaker Cabinets with Double Sink',
-        position: [5.0, 0, 0.95],
-        rotation: [0, 0, 0],
-        style: style,
-        color: palette.kitchenColor || 0x2c3e50,
-        room: 'kitchen',
-        cost: 2600
-      });
+      if (isApartment) {
+        // SINGLE-WALL STRAIGHT MODULAR KITCHEN ON THE RIGHT WALL (EAST WALL, X: 6.65)
+        // Leaving the center completely open for seamless real-time room flow to dining and living space!
+        items.push({
+          id: 'house_kitchen_straight',
+          type: 'straight_kitchen',
+          name: 'Single-Wall Straight Modular Kitchen (Right Wall Run)',
+          position: [6.62, 0, 3.4],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.kitchenColor || 0x2c3e50,
+          room: 'kitchen',
+          cost: 4200
+        });
 
-      // 16. Quartz Waterfall Prep Island with Breakfast Bar
-      items.push({
-        id: 'house_kitchen_island',
-        type: 'kitchen_island',
-        name: 'Quartz Waterfall Prep Island & Breakfast Bar',
-        position: [4.8, 0, 3.25],
-        rotation: [0, 0, 0],
-        style: style,
-        color: palette.kitchenIslandColor || 0x334155,
-        room: 'kitchen',
-        cost: 1450
-      });
+        // Stainless Steel French-Door Refrigerator (Flushed into Corner of Right Wall)
+        items.push({
+          id: 'house_kitchen_fridge',
+          type: 'refrigerator',
+          name: 'Stainless Steel French-Door Refrigerator',
+          position: [6.52, 0, 0.95],
+          rotation: [0, -Math.PI / 2, 0],
+          room: 'kitchen',
+          cost: 1600
+        });
 
-      // 17. Bar Stool 1
-      items.push({
-        id: 'house_kitchen_stool_1',
-        type: 'bar_stool',
-        name: 'Designer Swivel Bar Stool #1',
-        position: [3.9, 0, 2.9],
-        rotation: [0, -Math.PI / 2, 0],
-        style: style,
-        color: palette.accentColor,
-        room: 'kitchen',
-        cost: 180
-      });
+        // Artisan Espresso Coffee Machine
+        items.push({
+          id: 'house_kitchen_coffee',
+          type: 'coffee_machine',
+          name: 'Artisan Espresso Coffee Machine',
+          position: [6.58, 0.92, 4.8],
+          rotation: [0, -Math.PI / 2, 0],
+          room: 'kitchen',
+          cost: 350
+        });
 
-      // 18. Bar Stool 2
-      items.push({
-        id: 'house_kitchen_stool_2',
-        type: 'bar_stool',
-        name: 'Designer Swivel Bar Stool #2',
-        position: [3.9, 0, 3.6],
-        rotation: [0, -Math.PI / 2, 0],
-        style: style,
-        color: palette.accentColor,
-        room: 'kitchen',
-        cost: 180
-      });
+        // Alkaline Water Purifier
+        items.push({
+          id: 'house_kitchen_purifier',
+          type: 'water_purifier',
+          name: 'RO UV Alkaline Water Purifier',
+          position: [6.88, 1.5, 2.2],
+          rotation: [0, -Math.PI / 2, 0],
+          room: 'kitchen',
+          cost: 290
+        });
 
-      // 19. French Door Refrigerator
-      items.push({
-        id: 'house_kitchen_fridge',
-        type: 'refrigerator',
-        name: 'Stainless Steel French-Door Refrigerator',
-        position: [6.4, 0, 1.05],
-        rotation: [0, 0, 0],
-        room: 'kitchen',
-        cost: 1600
-      });
+        // Stainless Step Pedal Trash Bin
+        items.push({
+          id: 'house_kitchen_trash',
+          type: 'trash_bin',
+          name: 'Stainless Step Trash Bin',
+          position: [6.6, 0, 5.5],
+          rotation: [0, 0, 0],
+          room: 'kitchen',
+          cost: 95
+        });
+      } else {
+        // 15. Modular Kitchen Cabinets with Dual Sink (North wall)
+        items.push({
+          id: 'house_kitchen_cabinets',
+          type: 'kitchen_cabinets',
+          name: 'Modular Shaker Cabinets with Double Sink',
+          position: [5.0, 0, 0.95],
+          rotation: [0, 0, 0],
+          style: style,
+          color: palette.kitchenColor || 0x2c3e50,
+          room: 'kitchen',
+          cost: 2600
+        });
 
-      // 20. Induction Range & Vent Hood (East wall)
-      items.push({
-        id: 'house_kitchen_range',
-        type: 'kitchen_range',
-        name: 'Induction Cooktop Range with Ducted Hood',
-        position: [6.6, 0, 3.25],
-        rotation: [0, -Math.PI / 2, 0],
-        room: 'kitchen',
-        cost: 1250
-      });
+        // 16. Quartz Waterfall Prep Island with Breakfast Bar
+        items.push({
+          id: 'house_kitchen_island',
+          type: 'kitchen_island',
+          name: 'Quartz Waterfall Prep Island & Breakfast Bar',
+          position: [4.8, 0, 3.25],
+          rotation: [0, 0, 0],
+          style: style,
+          color: palette.kitchenIslandColor || 0x334155,
+          room: 'kitchen',
+          cost: 1450
+        });
 
-      // 21. Espresso Coffee Machine
-      items.push({
-        id: 'house_kitchen_coffee',
-        type: 'coffee_machine',
-        name: 'Artisan Espresso Coffee Machine',
-        position: [3.5, 0.92, 0.95],
-        rotation: [0, 0, 0],
-        room: 'kitchen',
-        cost: 350
-      });
+        // 17. Bar Stool 1
+        items.push({
+          id: 'house_kitchen_stool_1',
+          type: 'bar_stool',
+          name: 'Designer Swivel Bar Stool #1',
+          position: [3.9, 0, 2.9],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.accentColor,
+          room: 'kitchen',
+          cost: 180
+        });
 
-      // 22. Alkaline Water Purifier
-      items.push({
-        id: 'house_kitchen_purifier',
-        type: 'water_purifier',
-        name: 'RO UV Alkaline Water Purifier',
-        position: [6.35, 1.5, 2.1],
-        rotation: [0, 0, 0],
-        room: 'kitchen',
-        cost: 290
-      });
+        // 18. Bar Stool 2
+        items.push({
+          id: 'house_kitchen_stool_2',
+          type: 'bar_stool',
+          name: 'Designer Swivel Bar Stool #2',
+          position: [3.9, 0, 3.6],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.accentColor,
+          room: 'kitchen',
+          cost: 180
+        });
 
-      // 23. Pedal Trash Bin
-      items.push({
-        id: 'house_kitchen_trash',
-        type: 'trash_bin',
-        name: 'Stainless Step Trash Bin',
-        position: [6.6, 0, 5.4],
-        rotation: [0, 0, 0],
-        room: 'kitchen',
-        cost: 95
-      });
+        // 19. French Door Refrigerator
+        items.push({
+          id: 'house_kitchen_fridge',
+          type: 'refrigerator',
+          name: 'Stainless Steel French-Door Refrigerator',
+          position: [6.4, 0, 1.05],
+          rotation: [0, 0, 0],
+          room: 'kitchen',
+          cost: 1600
+        });
+
+        // 20. Induction Range & Vent Hood (East wall)
+        items.push({
+          id: 'house_kitchen_range',
+          type: 'kitchen_range',
+          name: 'Induction Cooktop Range with Ducted Hood',
+          position: [6.6, 0, 3.25],
+          rotation: [0, -Math.PI / 2, 0],
+          room: 'kitchen',
+          cost: 1250
+        });
+
+        // 21. Espresso Coffee Machine
+        items.push({
+          id: 'house_kitchen_coffee',
+          type: 'coffee_machine',
+          name: 'Artisan Espresso Coffee Machine',
+          position: [3.5, 0.92, 0.95],
+          rotation: [0, 0, 0],
+          room: 'kitchen',
+          cost: 350
+        });
+
+        // 22. Alkaline Water Purifier
+        items.push({
+          id: 'house_kitchen_purifier',
+          type: 'water_purifier',
+          name: 'RO UV Alkaline Water Purifier',
+          position: [6.35, 1.5, 2.1],
+          rotation: [0, 0, 0],
+          room: 'kitchen',
+          cost: 290
+        });
+
+        // 23. Pedal Trash Bin
+        items.push({
+          id: 'house_kitchen_trash',
+          type: 'trash_bin',
+          name: 'Stainless Step Trash Bin',
+          position: [6.6, 0, 5.4],
+          rotation: [0, 0, 0],
+          room: 'kitchen',
+          cost: 95
+        });
+      }
 
       // ==========================================
       // ZONE 4: MASTER BEDROOM (X: -7.0 to -0.5, Z: -5.5 to 0.5)

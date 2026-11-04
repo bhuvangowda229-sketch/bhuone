@@ -62,6 +62,150 @@ class TextureGenerator {
     return texture;
   }
 
+  // Large Format Continuous Light Porcelain Tile Texture
+  static createPorcelainTileTexture(colorHex = 0xf8f9fa, groutHex = 0xd5d9dc) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+
+    // Base light porcelain tone
+    ctx.fillStyle = '#' + colorHex.toString(16).padStart(6, '0');
+    ctx.fillRect(0, 0, 512, 512);
+
+    // Subtle stone micro-clouding and natural porcelain mottling
+    for (let i = 0; i < 24; i++) {
+      const cx = Math.random() * 512;
+      const cy = Math.random() * 512;
+      const grad = ctx.createRadialGradient(cx, cy, 10, cx, cy, 60 + Math.random() * 80);
+      const isLighter = Math.random() > 0.5;
+      grad.addColorStop(0, isLighter ? 'rgba(255, 255, 255, 0.28)' : 'rgba(215, 220, 225, 0.22)');
+      grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 140, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Large-format rectangular slabs (e.g., 256x128px representing 120cm x 60cm porcelain slabs)
+    const slabW = 256;
+    const slabH = 128;
+    ctx.strokeStyle = '#' + groutHex.toString(16).padStart(6, '0');
+    ctx.lineWidth = 1.5;
+
+    for (let y = 0; y <= 512; y += slabH) {
+      const offset = ((y / slabH) % 2 === 0) ? 0 : slabW / 2;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(512, y);
+      ctx.stroke();
+
+      for (let x = -slabW; x <= 512 + slabW; x += slabW) {
+        ctx.beginPath();
+        ctx.moveTo(x + offset, y);
+        ctx.lineTo(x + offset, y + slabH);
+        ctx.stroke();
+      }
+    }
+
+    // Very faint fine mineral veins (ultra-subtle Carrara/Calacatta porcelain glaze)
+    ctx.strokeStyle = 'rgba(160, 165, 175, 0.12)';
+    ctx.lineWidth = 0.8;
+    for (let v = 0; v < 3; v++) {
+      ctx.beginPath();
+      let vx = Math.random() * 512;
+      let vy = 0;
+      ctx.moveTo(vx, vy);
+      while (vy < 512) {
+        vx += (Math.random() - 0.48) * 35;
+        vy += 25 + Math.random() * 30;
+        ctx.lineTo(vx, vy);
+      }
+      ctx.stroke();
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+  }
+
+  // Authentic Herringbone Parquet Wood Flooring Texture
+  static createHerringboneWoodTexture(baseWoodHex = 0xb8824f, darkGrainHex = 0x6e4321) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+
+    // Base background
+    ctx.fillStyle = '#' + darkGrainHex.toString(16).padStart(6, '0');
+    ctx.fillRect(0, 0, 512, 512);
+
+    const pw = 28;
+    const pl = 112;
+
+    const oakTones = [
+      '#c28f5b', '#b98552', '#a87343', '#c99763', '#9e6a3a', '#b37d4a', '#caa06d'
+    ];
+
+    ctx.save();
+    for (let by = -pl; by <= 512 + pl; by += 56) {
+      for (let bx = -pl; bx <= 512 + pl; bx += 56) {
+        // Plank A (45 degrees)
+        ctx.save();
+        ctx.translate(bx, by);
+        ctx.rotate(Math.PI / 4);
+
+        const colorA = oakTones[Math.abs(Math.floor(bx * 7 + by * 13)) % oakTones.length];
+        ctx.fillStyle = colorA;
+        ctx.fillRect(0, 0, pl, pw);
+
+        ctx.strokeStyle = 'rgba(70, 35, 12, 0.14)';
+        for (let g = 3; g < pw - 3; g += 5) {
+          ctx.lineWidth = 0.8 + Math.random() * 0.8;
+          ctx.beginPath();
+          ctx.moveTo(0, g);
+          ctx.lineTo(pl, g + (Math.random() - 0.5) * 4);
+          ctx.stroke();
+        }
+
+        ctx.strokeStyle = 'rgba(35, 18, 6, 0.45)';
+        ctx.lineWidth = 1.2;
+        ctx.strokeRect(0, 0, pl, pw);
+        ctx.restore();
+
+        // Plank B (-45 degrees)
+        ctx.save();
+        ctx.translate(bx + 40, by);
+        ctx.rotate(-Math.PI / 4);
+
+        const colorB = oakTones[Math.abs(Math.floor(bx * 11 + by * 17 + 5)) % oakTones.length];
+        ctx.fillStyle = colorB;
+        ctx.fillRect(0, 0, pl, pw);
+
+        ctx.strokeStyle = 'rgba(70, 35, 12, 0.14)';
+        for (let g = 3; g < pw - 3; g += 5) {
+          ctx.lineWidth = 0.8 + Math.random() * 0.8;
+          ctx.beginPath();
+          ctx.moveTo(0, g);
+          ctx.lineTo(pl, g + (Math.random() - 0.5) * 4);
+          ctx.stroke();
+        }
+
+        ctx.strokeStyle = 'rgba(35, 18, 6, 0.45)';
+        ctx.lineWidth = 1.2;
+        ctx.strokeRect(0, 0, pl, pw);
+        ctx.restore();
+      }
+    }
+    ctx.restore();
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+  }
+
   // Polished Marble tile texture
   static createMarbleTexture(baseHex = 0xf0efe9, veinHex = 0x858079) {
     const canvas = document.createElement('canvas');
@@ -406,6 +550,18 @@ class RoomBuilder {
     let metalness = 0.05;
 
     switch (flooringType) {
+      case 'porcelain_tile':
+      case 'porcelain':
+        floorTexture = TextureGenerator.createPorcelainTileTexture(0xf8f9fa, 0xd1d5db);
+        roughness = 0.16;
+        metalness = 0.08;
+        break;
+      case 'herringbone_wood':
+      case 'herringbone':
+        floorTexture = TextureGenerator.createHerringboneWoodTexture(0xb8824f, 0x6e4321);
+        roughness = 0.42;
+        metalness = 0.04;
+        break;
       case 'dark_walnut':
         floorTexture = TextureGenerator.createWoodTexture(0x4a2e18);
         roughness = 0.5;
@@ -839,6 +995,18 @@ class RoomBuilder {
       let metalness = 0.05;
 
       switch (floorType) {
+        case 'porcelain_tile':
+        case 'porcelain':
+          floorTexture = TextureGenerator.createPorcelainTileTexture(0xf8f9fa, 0xd1d5db);
+          roughness = 0.16;
+          metalness = 0.08;
+          break;
+        case 'herringbone_wood':
+        case 'herringbone':
+          floorTexture = TextureGenerator.createHerringboneWoodTexture(0xb8824f, 0x6e4321);
+          roughness = 0.42;
+          metalness = 0.04;
+          break;
         case 'blue_tile':
           floorTexture = TextureGenerator.createBlueTileTexture(0x38bdf8, 0x0284c7);
           roughness = 0.2;
@@ -899,22 +1067,29 @@ class RoomBuilder {
       return mesh;
     };
 
-    // 1. Living Room Floor (Front-Left)
-    makeFloorMesh(6.0, 5.5, -4.0, 3.25, flooringType, 'living');
+    const isApartment = (this.houseType === 'apartment' || this.houseType === 'modern_apartment' || flooringType === 'apartment_mix');
+    const livingFlooring = isApartment ? 'porcelain_tile' : flooringType;
+    const diningFlooring = isApartment ? 'porcelain_tile' : flooringType;
+    const kitchenFlooring = isApartment ? 'porcelain_tile' : ((flooringType === 'marble') ? 'marble' : 'tile');
+    const bedroomFlooring = isApartment ? 'herringbone_wood' : flooringType;
 
-    // 2. Dining Room Floor (Front-Center)
-    makeFloorMesh(4.0, 5.5, 1.0, 3.25, flooringType, 'dining');
+    // 1. Living Room Floor (Front-Left: Continuous Light Porcelain Tile in Apartment)
+    makeFloorMesh(6.0, 5.5, -4.0, 3.25, livingFlooring, 'living');
 
-    // 3. Modular Kitchen Floor (Front-Right - Polished Porcelain Tile)
-    const kitchenFlooring = (flooringType === 'marble') ? 'marble' : 'tile';
+    // 2. Dining Room Floor (Front-Center: Continuous Light Porcelain Tile in Apartment)
+    makeFloorMesh(4.0, 5.5, 1.0, 3.25, diningFlooring, 'dining');
+
+    // 3. Modular Kitchen Floor (Front-Right: Continuous Light Porcelain Tile in Apartment)
     makeFloorMesh(4.0, 5.5, 5.0, 3.25, kitchenFlooring, 'kitchen');
 
-    // 4. Master Bedroom Floor (Back-Left)
-    makeFloorMesh(6.5, 6.0, -3.75, -2.5, flooringType, 'bedroom');
+    // 4. Master Bedroom Floor (Back-Left: Herringbone Wood Flooring in Apartment)
+    makeFloorMesh(6.5, 6.0, -3.75, -2.5, bedroomFlooring, 'bedroom');
 
-    // 5. Rear East Room (Bedroom 2 in 2BHK, Home Office in 1BHK)
+    // 5. Rear East Room (Bedroom 2 in 2BHK, Home Office in 1BHK, or Suite Retreat in Apartment)
     if (this.houseType === '2bhk') {
-      makeFloorMesh(7.5, 6.0, 3.25, -2.5, flooringType, 'bedroom2');
+      makeFloorMesh(7.5, 6.0, 3.25, -2.5, bedroomFlooring, 'bedroom2');
+    } else if (isApartment) {
+      makeFloorMesh(7.5, 6.0, 3.25, -2.5, 'herringbone_wood', 'office');
     } else {
       const officeFlooring = (flooringType === 'wood_oak' || flooringType === 'dark_walnut') ? flooringType : 'dark_walnut';
       makeFloorMesh(7.5, 6.0, 3.25, -2.5, officeFlooring, 'office');
@@ -1135,12 +1310,15 @@ class RoomBuilder {
   }
 
   buildHouseRoomBadges() {
-    this.createRoomBadge('LIVING LOUNGE', '🛋️', -4.0, 3.25, 'living');
-    this.createRoomBadge('DINING PAVILION', '🍽️', 1.0, 3.25, 'dining');
-    this.createRoomBadge('MODULAR KITCHEN', '🍳', 5.0, 3.25, 'kitchen');
-    this.createRoomBadge(this.houseType === '2bhk' ? 'BEDROOM 1 (MASTER)' : 'MASTER BEDROOM', '🛏️', -3.75, -2.5, 'bedroom');
+    const isApartment = (this.houseType === 'apartment' || this.houseType === 'modern_apartment');
+    this.createRoomBadge(isApartment ? 'OPEN-CONCEPT LIVING' : 'LIVING LOUNGE', '🛋️', -4.0, 3.25, 'living');
+    this.createRoomBadge(isApartment ? 'CENTRAL DINING AREA' : 'DINING PAVILION', '🍽️', 1.0, 3.25, 'dining');
+    this.createRoomBadge(isApartment ? 'STRAIGHT MODULAR KITCHEN' : 'MODULAR KITCHEN', '🍳', 5.0, 3.25, 'kitchen');
+    this.createRoomBadge(isApartment ? 'PRIVATE MASTER SUITE' : (this.houseType === '2bhk' ? 'BEDROOM 1 (MASTER)' : 'MASTER BEDROOM'), '👑', -3.75, -2.5, 'bedroom');
     if (this.houseType === '2bhk') {
       this.createRoomBadge('BEDROOM 2 (DOUBLE BED)', '🛏️', 3.25, -2.5, 'bedroom2');
+    } else if (isApartment) {
+      this.createRoomBadge('MASTER WALK-IN CLOSET & STUDY', '💼', 3.25, -2.5, 'office');
     } else {
       this.createRoomBadge('HOME OFFICE & STUDY', '💼', 3.25, -2.5, 'office');
     }
@@ -5311,6 +5489,163 @@ class FurnitureFactory {
     }
     return group;
   }
+
+  // 48. SINGLE-WALL STRAIGHT MODULAR KITCHEN (RIGHT WALL ARCHITECTURAL RUN)
+  static createStraightModularKitchen(style = 'modern', color = 0x2c3e50) {
+    const group = new THREE.Group();
+    group.name = 'Single-Wall Straight Modular Kitchen';
+    group.userData = {
+      type: 'straight_kitchen',
+      name: 'Single-Wall Straight Modular Kitchen',
+      cost: 4200,
+      color: color
+    };
+
+    const totalW = 4.4;
+    const baseH = 0.86;
+    const counterH = 0.91;
+    const counterD = 0.68;
+    const splashH = 0.70;
+    const upperH = 0.82;
+    const upperD = 0.38;
+
+    const cabinetMat = new THREE.MeshStandardMaterial({
+      color: color || 0x2c3e50,
+      roughness: 0.55,
+      metalness: 0.08
+    });
+
+    const counterMat = new THREE.MeshStandardMaterial({
+      color: 0xfcfcfc,
+      roughness: 0.12,
+      metalness: 0.06
+    });
+
+    const backsplashMat = new THREE.MeshStandardMaterial({
+      color: 0xf1f5f9,
+      roughness: 0.25,
+      metalness: 0.02
+    });
+
+    const stainlessMat = new THREE.MeshStandardMaterial({
+      color: 0x94a3b8,
+      metalness: 0.9,
+      roughness: 0.2
+    });
+
+    const cooktopMat = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      roughness: 0.1,
+      metalness: 0.65
+    });
+
+    const warmLedMat = new THREE.MeshBasicMaterial({
+      color: 0xffedd5
+    });
+
+    // 1. Dark Recessed Toe-Kick along full run
+    const toeKick = this.createMesh(new THREE.BoxGeometry(totalW, 0.1, 0.08), new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 }), 'Toe Kick');
+    toeKick.position.set(0, 0.05, counterD / 2 - 0.05);
+    group.add(toeKick);
+
+    // 2. Base Cabinets Body
+    const baseBox = this.createMesh(new THREE.BoxGeometry(totalW, baseH - 0.1, counterD - 0.04), cabinetMat, 'Base Cabinets');
+    baseBox.position.set(0, 0.1 + (baseH - 0.1) / 2, 0);
+    group.add(baseBox);
+
+    // 3. Polished Engineered Quartz Countertop Slab
+    const top = this.createMesh(new THREE.BoxGeometry(totalW + 0.02, 0.05, counterD + 0.02), counterMat, 'Quartz Countertop');
+    top.position.set(0, counterH - 0.025, 0.01);
+    group.add(top);
+
+    // 4. Undermount Dual-Basin Deep Stainless Steel Sink (Positioned at X = -0.7)
+    const sinkSinkLeft = this.createMesh(new THREE.BoxGeometry(0.42, 0.01, 0.42), stainlessMat, 'Sink Basin Left');
+    sinkSinkLeft.position.set(-0.95, counterH + 0.002, 0);
+    group.add(sinkSinkLeft);
+
+    const sinkSinkRight = this.createMesh(new THREE.BoxGeometry(0.38, 0.01, 0.42), stainlessMat, 'Sink Basin Right');
+    sinkSinkRight.position.set(-0.50, counterH + 0.002, 0);
+    group.add(sinkSinkRight);
+
+    // Rim
+    const sinkRim = this.createMesh(new THREE.BoxGeometry(0.96, 0.015, 0.48), stainlessMat, 'Sink Rim');
+    sinkRim.position.set(-0.725, counterH + 0.008, 0);
+    group.add(sinkRim);
+
+    // Architectural Gooseneck Pull-Down Faucet
+    const faucetBase = this.createMesh(new THREE.CylinderGeometry(0.022, 0.026, 0.06, 16), stainlessMat, 'Faucet Base');
+    faucetBase.position.set(-0.725, counterH + 0.03, -0.20);
+    group.add(faucetBase);
+
+    const faucetSpout = this.createMesh(new THREE.CylinderGeometry(0.013, 0.013, 0.35, 16), stainlessMat, 'Faucet Spout');
+    faucetSpout.position.set(-0.725, counterH + 0.20, -0.18);
+    faucetSpout.rotation.x = -0.12;
+    group.add(faucetSpout);
+
+    const faucetArch = this.createMesh(new THREE.TorusGeometry(0.08, 0.013, 12, 24, Math.PI), stainlessMat, 'Faucet Arch');
+    faucetArch.position.set(-0.725, counterH + 0.35, -0.12);
+    faucetArch.rotation.z = Math.PI;
+    group.add(faucetArch);
+
+    // 5. 4-Zone Induction Glass Cooktop (Positioned at X = 0.95)
+    const cooktop = this.createMesh(new THREE.BoxGeometry(0.82, 0.01, 0.52), cooktopMat, 'Induction Cooktop');
+    cooktop.position.set(0.95, counterH + 0.006, 0);
+    group.add(cooktop);
+
+    // Cooktop Burner Rings
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x94a3b8 });
+    [[-0.22, -0.12], [0.22, -0.12], [-0.22, 0.12], [0.22, 0.12]].forEach(([rx, rz]) => {
+      const ring = new THREE.Mesh(new THREE.RingGeometry(0.065, 0.08, 24), ringMat);
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.set(0.95 + rx, counterH + 0.012, rz);
+      group.add(ring);
+    });
+
+    // 6. Stainless Steel Chimney Range Hood (Above Cooktop)
+    const hoodChimney = this.createMesh(new THREE.BoxGeometry(0.36, 0.72, 0.28), stainlessMat, 'Range Hood Flue');
+    hoodChimney.position.set(0.95, counterH + splashH + upperH - 0.36, -counterD / 2 + 0.16);
+    group.add(hoodChimney);
+
+    const hoodCanopy = this.createMesh(new THREE.BoxGeometry(0.90, 0.10, 0.54), stainlessMat, 'Range Hood Canopy');
+    hoodCanopy.position.set(0.95, counterH + splashH + 0.12, -counterD / 2 + 0.28);
+    group.add(hoodCanopy);
+
+    // 7. Full-Height Backsplash Wall Panel
+    const backsplash = this.createMesh(new THREE.BoxGeometry(totalW, splashH, 0.03), backsplashMat, 'Porcelain Backsplash');
+    backsplash.position.set(0, counterH + splashH / 2, -counterD / 2 + 0.015);
+    group.add(backsplash);
+
+    // 8. Overhead Upper Cabinets (excluding range hood center)
+    const leftUpperW = 2.4;
+    const leftUpper = this.createMesh(new THREE.BoxGeometry(leftUpperW, upperH, upperD), cabinetMat, 'Left Upper Cabinets');
+    leftUpper.position.set(-totalW / 2 + leftUpperW / 2, counterH + splashH + upperH / 2, -counterD / 2 + upperD / 2);
+    group.add(leftUpper);
+
+    const rightUpperW = 1.0;
+    const rightUpper = this.createMesh(new THREE.BoxGeometry(rightUpperW, upperH, upperD), cabinetMat, 'Right Upper Cabinets');
+    rightUpper.position.set(totalW / 2 - rightUpperW / 2, counterH + splashH + upperH / 2, -counterD / 2 + upperD / 2);
+    group.add(rightUpper);
+
+    // 9. Continuous 3000K Warm Under-Cabinet LED Lighting Strip
+    const underLed = new THREE.Mesh(new THREE.BoxGeometry(totalW - 0.2, 0.012, 0.04), warmLedMat);
+    underLed.position.set(0, counterH + splashH + 0.006, -counterD / 2 + upperD / 2);
+    group.add(underLed);
+
+    // 10. Warm 3000K Local Spot/Point Light
+    const warmTaskLight = new THREE.PointLight(0xffecd2, 0.85, 4.0, 2);
+    warmTaskLight.position.set(0, counterH + splashH - 0.05, 0.1);
+    group.add(warmTaskLight);
+
+    // 11. Minimalist Brushed Brass / Satin Nickel Handle Edge Pulls
+    const handleMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.25 });
+    for (let x = -totalW / 2 + 0.35; x <= totalW / 2 - 0.35; x += 0.65) {
+      const h1 = this.createMesh(new THREE.BoxGeometry(0.18, 0.02, 0.025), handleMat, 'Cabinet Handle');
+      h1.position.set(x, counterH - 0.18, counterD / 2);
+      group.add(h1);
+    }
+
+    return group;
+  }
 }
 
   window.FurnitureFactory = FurnitureFactory;
@@ -5349,13 +5684,18 @@ class AIEngine {
     let spatialRationale = '';
     let lightingPlan = '';
 
-    if (roomType === 'complete_house' || roomType === 'complete_house_2bhk' || roomType === 'villa_2bhk' || roomType === 'whole_house' || roomType === 'house') {
+    if (roomType === 'complete_house' || roomType === 'complete_house_2bhk' || roomType === 'villa_2bhk' || roomType === 'modern_apartment' || roomType === 'apartment' || roomType === 'whole_house' || roomType === 'house') {
       const isVilla = (roomType === 'villa_2bhk' || pref.houseType === 'villa_2bhk' || pref.houseType === 'villa');
       const is2BHK = (roomType === 'complete_house_2bhk' || pref.houseType === '2bhk' || isVilla);
+      const isApartment = (roomType === 'modern_apartment' || roomType === 'apartment' || pref.houseType === 'apartment' || pref.houseType === 'modern_apartment');
       if (isVilla) {
         concept = `CONTEMPORARY LUXURY VILLA (2 BHK ESTATE ${style.toUpperCase()})`;
         spatialRationale = `A master-crafted 16m × 18.5m contemporary villa estate with perimeter boundary garden, front driveway & porch, entrance foyer with pivot door & console, sunken living lounge with cognac leather sectional & Missouri TV unit, open dining area, U-shaped modular kitchen, terracotta second bedroom suite with twin beds & study, walk-in closet, common & master en-suite designer bathrooms, and private backyard garden.`;
         lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips in kitchen, illuminated LED mirrors in bathrooms, and independent dimmable bedside luminaires in both bedrooms.`;
+      } else if (isApartment) {
+        concept = `MODERN APARTMENT SUITE (REAL-TIME FLOW ${style.toUpperCase()})`;
+        spatialRationale = `A full modern apartment floor plan engineered with real-time room flow. An open-concept living room transitions fluidly to a central dining area and a streamlined single-wall straight modular kitchen mounted flush along the right wall. The private master bedroom suite is peacefully situated in the rear wing. Continuous light porcelain floor tiles run throughout the open living, dining, and kitchen zones, transitioning via a satin brass threshold to rich herringbone wood flooring in the master suite.`;
+        lightingPlan = `Warm 3000K interior illumination with natural morning daylight. Warm 3000K LED under-cabinet kitchen task lighting, overhead linear brass dining chandelier, recessed living cove glows, and natural morning sunlight streaming through wide balcony glazing with soft morning shadows.`;
       } else if (is2BHK) {
         concept = `COMPLETE DOUBLE BEDROOM RESIDENCE (2 BHK ${style.toUpperCase()})`;
         spatialRationale = `A unified, continuous 14m × 11.5m 2-Bedroom residential floor plan with fully connected living, dining, kitchen, and two dedicated bedroom suites. The front wing houses the great-room living lounge with Missouri TV entertainment center, interconnected dining pavilion, and modular kitchen. The rear wing features the Master Bedroom Suite (Bedroom 1) and a fully appointed Second Bedroom (Bedroom 2 / Double Bed & Study Suite) with private hallway access.`;
@@ -5555,112 +5895,172 @@ class AIEngine {
       // ==========================================
       // ZONE 3: MODULAR KITCHEN (X: 3.0 to 7.0, Z: 0.5 to 6.0)
       // ==========================================
-      // 15. Modular Kitchen Cabinets with Dual Sink (North wall)
-      items.push({
-        id: 'house_kitchen_cabinets',
-        type: 'kitchen_cabinets',
-        name: 'Modular Shaker Cabinets with Double Sink',
-        position: [5.0, 0, 0.95],
-        rotation: [0, 0, 0],
-        style: style,
-        color: palette.kitchenColor || 0x2c3e50,
-        room: 'kitchen',
-        cost: 2600
-      });
+      if (isApartment) {
+        // SINGLE-WALL STRAIGHT MODULAR KITCHEN ON THE RIGHT WALL (EAST WALL, X: 6.65)
+        // Leaving the center completely open for seamless real-time room flow to dining and living space!
+        items.push({
+          id: 'house_kitchen_straight',
+          type: 'straight_kitchen',
+          name: 'Single-Wall Straight Modular Kitchen (Right Wall Run)',
+          position: [6.62, 0, 3.4],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.kitchenColor || 0x2c3e50,
+          room: 'kitchen',
+          cost: 4200
+        });
 
-      // 16. Quartz Waterfall Prep Island with Breakfast Bar
-      items.push({
-        id: 'house_kitchen_island',
-        type: 'kitchen_island',
-        name: 'Quartz Waterfall Prep Island & Breakfast Bar',
-        position: [4.8, 0, 3.25],
-        rotation: [0, 0, 0],
-        style: style,
-        color: palette.kitchenIslandColor || 0x334155,
-        room: 'kitchen',
-        cost: 1450
-      });
+        // Stainless Steel French-Door Refrigerator (Flushed into Corner of Right Wall)
+        items.push({
+          id: 'house_kitchen_fridge',
+          type: 'refrigerator',
+          name: 'Stainless Steel French-Door Refrigerator',
+          position: [6.52, 0, 0.95],
+          rotation: [0, -Math.PI / 2, 0],
+          room: 'kitchen',
+          cost: 1600
+        });
 
-      // 17. Bar Stool 1
-      items.push({
-        id: 'house_kitchen_stool_1',
-        type: 'bar_stool',
-        name: 'Designer Swivel Bar Stool #1',
-        position: [3.9, 0, 2.9],
-        rotation: [0, -Math.PI / 2, 0],
-        style: style,
-        color: palette.accentColor,
-        room: 'kitchen',
-        cost: 180
-      });
+        // Artisan Espresso Coffee Machine
+        items.push({
+          id: 'house_kitchen_coffee',
+          type: 'coffee_machine',
+          name: 'Artisan Espresso Coffee Machine',
+          position: [6.58, 0.92, 4.8],
+          rotation: [0, -Math.PI / 2, 0],
+          room: 'kitchen',
+          cost: 350
+        });
 
-      // 18. Bar Stool 2
-      items.push({
-        id: 'house_kitchen_stool_2',
-        type: 'bar_stool',
-        name: 'Designer Swivel Bar Stool #2',
-        position: [3.9, 0, 3.6],
-        rotation: [0, -Math.PI / 2, 0],
-        style: style,
-        color: palette.accentColor,
-        room: 'kitchen',
-        cost: 180
-      });
+        // Alkaline Water Purifier
+        items.push({
+          id: 'house_kitchen_purifier',
+          type: 'water_purifier',
+          name: 'RO UV Alkaline Water Purifier',
+          position: [6.88, 1.5, 2.2],
+          rotation: [0, -Math.PI / 2, 0],
+          room: 'kitchen',
+          cost: 290
+        });
 
-      // 19. French Door Refrigerator
-      items.push({
-        id: 'house_kitchen_fridge',
-        type: 'refrigerator',
-        name: 'Stainless Steel French-Door Refrigerator',
-        position: [6.4, 0, 1.05],
-        rotation: [0, 0, 0],
-        room: 'kitchen',
-        cost: 1600
-      });
+        // Stainless Step Pedal Trash Bin
+        items.push({
+          id: 'house_kitchen_trash',
+          type: 'trash_bin',
+          name: 'Stainless Step Trash Bin',
+          position: [6.6, 0, 5.5],
+          rotation: [0, 0, 0],
+          room: 'kitchen',
+          cost: 95
+        });
+      } else {
+        // 15. Modular Kitchen Cabinets with Dual Sink (North wall)
+        items.push({
+          id: 'house_kitchen_cabinets',
+          type: 'kitchen_cabinets',
+          name: 'Modular Shaker Cabinets with Double Sink',
+          position: [5.0, 0, 0.95],
+          rotation: [0, 0, 0],
+          style: style,
+          color: palette.kitchenColor || 0x2c3e50,
+          room: 'kitchen',
+          cost: 2600
+        });
 
-      // 20. Induction Range & Vent Hood (East wall)
-      items.push({
-        id: 'house_kitchen_range',
-        type: 'kitchen_range',
-        name: 'Induction Cooktop Range with Ducted Hood',
-        position: [6.6, 0, 3.25],
-        rotation: [0, -Math.PI / 2, 0],
-        room: 'kitchen',
-        cost: 1250
-      });
+        // 16. Quartz Waterfall Prep Island with Breakfast Bar
+        items.push({
+          id: 'house_kitchen_island',
+          type: 'kitchen_island',
+          name: 'Quartz Waterfall Prep Island & Breakfast Bar',
+          position: [4.8, 0, 3.25],
+          rotation: [0, 0, 0],
+          style: style,
+          color: palette.kitchenIslandColor || 0x334155,
+          room: 'kitchen',
+          cost: 1450
+        });
 
-      // 21. Espresso Coffee Machine
-      items.push({
-        id: 'house_kitchen_coffee',
-        type: 'coffee_machine',
-        name: 'Artisan Espresso Coffee Machine',
-        position: [3.5, 0.92, 0.95],
-        rotation: [0, 0, 0],
-        room: 'kitchen',
-        cost: 350
-      });
+        // 17. Bar Stool 1
+        items.push({
+          id: 'house_kitchen_stool_1',
+          type: 'bar_stool',
+          name: 'Designer Swivel Bar Stool #1',
+          position: [3.9, 0, 2.9],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.accentColor,
+          room: 'kitchen',
+          cost: 180
+        });
 
-      // 22. Alkaline Water Purifier
-      items.push({
-        id: 'house_kitchen_purifier',
-        type: 'water_purifier',
-        name: 'RO UV Alkaline Water Purifier',
-        position: [6.35, 1.5, 2.1],
-        rotation: [0, 0, 0],
-        room: 'kitchen',
-        cost: 290
-      });
+        // 18. Bar Stool 2
+        items.push({
+          id: 'house_kitchen_stool_2',
+          type: 'bar_stool',
+          name: 'Designer Swivel Bar Stool #2',
+          position: [3.9, 0, 3.6],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.accentColor,
+          room: 'kitchen',
+          cost: 180
+        });
 
-      // 23. Pedal Trash Bin
-      items.push({
-        id: 'house_kitchen_trash',
-        type: 'trash_bin',
-        name: 'Stainless Step Trash Bin',
-        position: [6.6, 0, 5.4],
-        rotation: [0, 0, 0],
-        room: 'kitchen',
-        cost: 95
-      });
+        // 19. French Door Refrigerator
+        items.push({
+          id: 'house_kitchen_fridge',
+          type: 'refrigerator',
+          name: 'Stainless Steel French-Door Refrigerator',
+          position: [6.4, 0, 1.05],
+          rotation: [0, 0, 0],
+          room: 'kitchen',
+          cost: 1600
+        });
+
+        // 20. Induction Range & Vent Hood (East wall)
+        items.push({
+          id: 'house_kitchen_range',
+          type: 'kitchen_range',
+          name: 'Induction Cooktop Range with Ducted Hood',
+          position: [6.6, 0, 3.25],
+          rotation: [0, -Math.PI / 2, 0],
+          room: 'kitchen',
+          cost: 1250
+        });
+
+        // 21. Espresso Coffee Machine
+        items.push({
+          id: 'house_kitchen_coffee',
+          type: 'coffee_machine',
+          name: 'Artisan Espresso Coffee Machine',
+          position: [3.5, 0.92, 0.95],
+          rotation: [0, 0, 0],
+          room: 'kitchen',
+          cost: 350
+        });
+
+        // 22. Alkaline Water Purifier
+        items.push({
+          id: 'house_kitchen_purifier',
+          type: 'water_purifier',
+          name: 'RO UV Alkaline Water Purifier',
+          position: [6.35, 1.5, 2.1],
+          rotation: [0, 0, 0],
+          room: 'kitchen',
+          cost: 290
+        });
+
+        // 23. Pedal Trash Bin
+        items.push({
+          id: 'house_kitchen_trash',
+          type: 'trash_bin',
+          name: 'Stainless Step Trash Bin',
+          position: [6.6, 0, 5.4],
+          rotation: [0, 0, 0],
+          room: 'kitchen',
+          cost: 95
+        });
+      }
 
       // ==========================================
       // ZONE 4: MASTER BEDROOM (X: -7.0 to -0.5, Z: -5.5 to 0.5)
@@ -10077,19 +10477,28 @@ class App {
       });
     });
 
-    // Single Bedroom vs Double Bedroom House Toggle Pills
+    // Apartment vs Single Bedroom vs Double Bedroom House Toggle Pills
     document.querySelectorAll('.house-type-toggle-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const hType = btn.getAttribute('data-house-type') || '1bhk';
+        const hType = btn.getAttribute('data-house-type') || 'apartment';
         this.currentHouseType = hType;
-        const targetVal = (hType === '2bhk') ? 'complete_house_2bhk' : 'complete_house';
+        let targetVal = 'modern_apartment';
+        if (hType === '2bhk') targetVal = 'complete_house_2bhk';
+        else if (hType === '1bhk') targetVal = 'complete_house';
+
         const roomSelect = document.getElementById('room-type');
         if (roomSelect) {
           roomSelect.value = targetVal;
         }
         this.syncRoomVariantsUI(targetVal);
         this.triggerAIGeneration();
-        this.showToast(hType === '2bhk' ? '🏡 Switched to Double Bedroom House (2 BHK)' : '🏠 Switched to Single Bedroom House (1 BHK)');
+        if (hType === 'apartment') {
+          this.showToast('🏙️ Switched to Modern Apartment Suite (Open Living-Dining, Straight Kitchen & Rear Master)');
+        } else if (hType === '2bhk') {
+          this.showToast('🏡 Switched to Contemporary Villa (2 BHK Estate)');
+        } else {
+          this.showToast('🏠 Switched to Single Bedroom House (1 BHK)');
+        }
       });
     });
 
@@ -10238,6 +10647,7 @@ class App {
       const selectedType = e.target.value;
       if (selectedType === 'complete_house') this.currentHouseType = '1bhk';
       else if (selectedType === 'complete_house_2bhk') this.currentHouseType = '2bhk';
+      else if (selectedType === 'modern_apartment') this.currentHouseType = 'apartment';
       this.syncRoomVariantsUI(selectedType);
       this.triggerAIGeneration();
       const rName = e.target.options[e.target.selectedIndex]?.text || 'Space';
@@ -10281,27 +10691,35 @@ class App {
       this.showToast(isCutaway ? 'Cutaway front wall active' : 'Full walls visible');
     });
 
-    // Daylight / Night Toggle
-    const daylightBtn = document.getElementById('btn-toggle-daylight');
-    daylightBtn.addEventListener('click', () => {
-      this.isDaylight = !this.isDaylight;
-      daylightBtn.classList.toggle('active', this.isDaylight);
-      daylightBtn.innerHTML = this.isDaylight ? '☀️ Day' : '🌙 Night';
+    // Daylight & Warm 3000K Lighting Mode Cycle
+    this.lightingModeIndex = 0;
+    const lightingModes = [
+      { id: 'morning_3000k', label: '☀️ 3000K Morning', toast: 'Warm 3000K interior lighting & natural morning daylight enabled', bg: 0x0a0e17, ambColor: 0xfff3e3, ambInt: 0.62, sunColor: 0xffebd2, sunInt: 1.30, sunPos: [-9, 6.2, 5.2], ceilColor: 0xffdfba, ceilInt: 0.70 },
+      { id: 'midday_day', label: '🌤️ Midday Daylight', toast: 'Bright midday daylight simulation enabled', bg: 0x0f172a, ambColor: 0xffffff, ambInt: 0.55, sunColor: 0xfffaed, sunInt: 1.20, sunPos: [-8, 9.0, 4.0], ceilColor: 0xfff7ed, ceilInt: 0.55 },
+      { id: 'evening_moody', label: '🌙 Evening Warm', toast: 'Moody evening lighting & warm LEDs enabled', bg: 0x020408, ambColor: 0xffe2c4, ambInt: 0.18, sunColor: 0xff8c42, sunInt: 0.08, sunPos: [-10, 3.0, 6.0], ceilColor: 0xffb770, ceilInt: 1.35 }
+    ];
 
-      if (this.isDaylight) {
-        this.scene.background.set(0x0a0e17);
-        this.ambientLight.intensity = 0.55;
-        this.sunLight.intensity = 1.2;
-        this.ceilingLight.intensity = 0.6;
-        this.showToast('Daylight simulation enabled');
-      } else {
-        this.scene.background.set(0x020408);
-        this.ambientLight.intensity = 0.15;
-        this.sunLight.intensity = 0.05;
-        this.ceilingLight.intensity = 1.3;
-        this.showToast('Moody evening lighting enabled');
-      }
-    });
+    const daylightBtn = document.getElementById('btn-toggle-daylight');
+    if (daylightBtn) {
+      daylightBtn.innerHTML = '☀️ 3000K Morning';
+      daylightBtn.addEventListener('click', () => {
+        this.lightingModeIndex = (this.lightingModeIndex + 1) % lightingModes.length;
+        const mode = lightingModes[this.lightingModeIndex];
+        daylightBtn.innerHTML = mode.label;
+        daylightBtn.classList.toggle('active', mode.id !== 'evening_moody');
+
+        this.scene.background.set(mode.bg);
+        this.ambientLight.color.setHex(mode.ambColor);
+        this.ambientLight.intensity = mode.ambInt;
+        this.sunLight.color.setHex(mode.sunColor);
+        this.sunLight.intensity = mode.sunInt;
+        this.sunLight.position.set(mode.sunPos[0], mode.sunPos[1], mode.sunPos[2]);
+        this.ceilingLight.color.setHex(mode.ceilColor);
+        this.ceilingLight.intensity = mode.ceilInt;
+
+        this.showToast(mode.toast);
+      });
+    }
 
     // Measurement Grid Toggle
     const gridBtn = document.getElementById('btn-toggle-grid');
@@ -10567,6 +10985,49 @@ class App {
 
     document.getElementById('btn-close-report')?.addEventListener('click', () => {
       reportModal?.classList.remove('open');
+    });
+
+    // Architectural 3D Renders Modal Handlers
+    const rendersModal = document.getElementById('renders-modal');
+    document.getElementById('btn-view-renders')?.addEventListener('click', () => {
+      if (rendersModal) rendersModal.classList.add('open');
+    });
+
+    document.getElementById('btn-close-renders')?.addEventListener('click', () => {
+      if (rendersModal) rendersModal.classList.remove('open');
+    });
+
+    const tabCutaway = document.getElementById('tab-render-cutaway');
+    const tabEyelevel = document.getElementById('tab-render-eyelevel');
+    const viewCutaway = document.getElementById('view-render-cutaway');
+    const viewEyelevel = document.getElementById('view-render-eyelevel');
+
+    tabCutaway?.addEventListener('click', () => {
+      tabCutaway.classList.add('active');
+      tabEyelevel?.classList.remove('active');
+      if (viewCutaway) viewCutaway.style.display = 'block';
+      if (viewEyelevel) viewEyelevel.style.display = 'none';
+    });
+
+    tabEyelevel?.addEventListener('click', () => {
+      tabEyelevel.classList.add('active');
+      tabCutaway?.classList.remove('active');
+      if (viewEyelevel) viewEyelevel.style.display = 'block';
+      if (viewCutaway) viewCutaway.style.display = 'none';
+    });
+
+    // 1-Click Load Preset from Renders Modal
+    document.getElementById('btn-apply-apartment-preset')?.addEventListener('click', () => {
+      if (rendersModal) rendersModal.classList.remove('open');
+      const roomSelect = document.getElementById('room-type');
+      if (roomSelect) roomSelect.value = 'modern_apartment';
+      const floorSelect = document.getElementById('flooring-select');
+      if (floorSelect) floorSelect.value = 'porcelain_tile';
+      this.currentHouseType = 'apartment';
+      this.syncRoomVariantsUI('modern_apartment');
+      this.triggerAIGeneration();
+      this.setCameraPreset('3d');
+      this.showToast('✨ Loaded Modern Apartment Suite: Open Living-Dining, Straight Kitchen & Rear Master Suite');
     });
 
     // Studio Sign Out button
@@ -11250,6 +11711,15 @@ class App {
 
   // 6. CAMERA PRESETS & WALKTHROUGH
   setCameraPreset(mode) {
+    if (mode === 'flow') {
+      this.startRealTimeRoomFlowTour();
+      return;
+    }
+
+    if (this.isTouring) {
+      this.stopRealTimeRoomFlowTour();
+    }
+
     const hud = document.getElementById('walkthrough-hud');
     if (mode === 'walk') {
       this.isWalkthrough = true;
@@ -11307,15 +11777,78 @@ class App {
     this.controls.update();
   }
 
+  // REAL-TIME ROOM FLOW ANIMATED WALKTHROUGH TOUR
+  startRealTimeRoomFlowTour() {
+    this.isTouring = true;
+    this.isWalkthrough = true;
+    const hud = document.getElementById('walkthrough-hud');
+    if (hud) {
+      hud.style.display = 'block';
+      const pill = hud.querySelector('.hud-pill span');
+      if (pill) {
+        pill.innerHTML = '🌊 <strong>Room Flow Tour Active</strong>: Living → Dining → Straight Kitchen → Rear Master Suite';
+      }
+    }
+    this.showToast('🌊 Real-time room flow tour started: Living → Dining → Straight Kitchen → Rear Master Suite');
+
+    const waypoints = [
+      { pos: new THREE.Vector3(-4.5, 1.55, 4.8), target: new THREE.Vector3(-4.5, 1.35, 1.8), duration: 4500, desc: '🛋️ Living Room Lounge with Missouri TV Entertainment' },
+      { pos: new THREE.Vector3(0.8, 1.55, 3.8), target: new THREE.Vector3(1.0, 1.35, 2.8), duration: 4500, desc: '🍽️ Seamless transition to Central Dining Pavilion' },
+      { pos: new THREE.Vector3(3.8, 1.55, 3.4), target: new THREE.Vector3(6.6, 1.35, 3.4), duration: 5000, desc: '🍳 Single-Wall Straight Modular Kitchen on Right Wall' },
+      { pos: new THREE.Vector3(0.0, 1.55, 1.4), target: new THREE.Vector3(-1.85, 1.35, -1.0), duration: 4000, desc: '🚪 Transition corridor to Private Rear Wing' },
+      { pos: new THREE.Vector3(-3.0, 1.55, -1.8), target: new THREE.Vector3(-4.0, 1.35, -3.8), duration: 5500, desc: '👑 Rear Private Master Bedroom Suite with Herringbone Wood Flooring' }
+    ];
+
+    let currentWaypointIdx = 0;
+    let startTime = performance.now();
+    let startPos = this.camera.position.clone();
+    let startTarget = this.controls.target.clone();
+
+    if (this.tourAnimId) cancelAnimationFrame(this.tourAnimId);
+
+    const step = (now) => {
+      if (!this.isTouring) return;
+
+      const wp = waypoints[currentWaypointIdx];
+      const elapsed = now - startTime;
+      const progress = Math.min(1.0, elapsed / wp.duration);
+      const ease = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+      this.camera.position.lerpVectors(startPos, wp.pos, ease);
+      this.controls.target.lerpVectors(startTarget, wp.target, ease);
+      this.camera.lookAt(this.controls.target);
+
+      if (progress >= 1.0) {
+        currentWaypointIdx = (currentWaypointIdx + 1) % waypoints.length;
+        startTime = performance.now();
+        startPos = this.camera.position.clone();
+        startTarget = this.controls.target.clone();
+        this.showToast(waypoints[currentWaypointIdx].desc);
+      }
+
+      this.tourAnimId = requestAnimationFrame(step);
+    };
+
+    this.tourAnimId = requestAnimationFrame(step);
+  }
+
+  stopRealTimeRoomFlowTour() {
+    this.isTouring = false;
+    if (this.tourAnimId) cancelAnimationFrame(this.tourAnimId);
+    const hud = document.getElementById('walkthrough-hud');
+    if (hud) hud.style.display = 'none';
+  }
+
   // 7. AI DESIGN GENERATION
   async triggerAIGeneration() {
     this.showToast('AI is optimizing spatial layout...');
 
-    const currentRoomType = document.getElementById('room-type')?.value || 'complete_house';
-    const isHouse = currentRoomType === 'complete_house' || currentRoomType === 'complete_house_2bhk';
-    const is2BHK = currentRoomType === 'complete_house_2bhk' || this.currentHouseType === '2bhk';
+    const currentRoomType = document.getElementById('room-type')?.value || 'modern_apartment';
+    const isApartment = (currentRoomType === 'modern_apartment' || currentRoomType === 'apartment' || this.currentHouseType === 'apartment');
+    const is2BHK = (currentRoomType === 'complete_house_2bhk' || this.currentHouseType === '2bhk');
+    const isHouse = (currentRoomType === 'complete_house' || is2BHK || isApartment);
     if (isHouse) {
-      this.currentHouseType = is2BHK ? '2bhk' : '1bhk';
+      this.currentHouseType = isApartment ? 'apartment' : (is2BHK ? '2bhk' : '1bhk');
     }
 
     let bedType = isHouse ? (this.currentHouseRoomTypes.bedroom || 1) : 1;
@@ -11572,6 +12105,10 @@ class App {
         break;
       case 'kitchen_cabinets':
         meshGroup = FurnitureFactory.createKitchenCabinets(style, itemData.color);
+        break;
+      case 'straight_kitchen':
+      case 'single_wall_kitchen':
+        meshGroup = FurnitureFactory.createStraightModularKitchen(style, itemData.color);
         break;
       case 'kitchen_island':
         meshGroup = FurnitureFactory.createKitchenIsland(style, itemData.color);

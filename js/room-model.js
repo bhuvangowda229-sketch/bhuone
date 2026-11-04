@@ -92,6 +92,18 @@ export class RoomBuilder {
     let metalness = 0.05;
 
     switch (flooringType) {
+      case 'porcelain_tile':
+      case 'porcelain':
+        floorTexture = TextureGenerator.createPorcelainTileTexture(0xf8f9fa, 0xd1d5db);
+        roughness = 0.16;
+        metalness = 0.08;
+        break;
+      case 'herringbone_wood':
+      case 'herringbone':
+        floorTexture = TextureGenerator.createHerringboneWoodTexture(0xb8824f, 0x6e4321);
+        roughness = 0.42;
+        metalness = 0.04;
+        break;
       case 'dark_walnut':
         floorTexture = TextureGenerator.createWoodTexture(0x4a2e18);
         roughness = 0.5;
@@ -525,6 +537,18 @@ export class RoomBuilder {
       let metalness = 0.05;
 
       switch (floorType) {
+        case 'porcelain_tile':
+        case 'porcelain':
+          floorTexture = TextureGenerator.createPorcelainTileTexture(0xf8f9fa, 0xd1d5db);
+          roughness = 0.16;
+          metalness = 0.08;
+          break;
+        case 'herringbone_wood':
+        case 'herringbone':
+          floorTexture = TextureGenerator.createHerringboneWoodTexture(0xb8824f, 0x6e4321);
+          roughness = 0.42;
+          metalness = 0.04;
+          break;
         case 'blue_tile':
           floorTexture = TextureGenerator.createBlueTileTexture(0x38bdf8, 0x0284c7);
           roughness = 0.2;
@@ -585,22 +609,29 @@ export class RoomBuilder {
       return mesh;
     };
 
-    // 1. Living Room Floor (Front-Left)
-    makeFloorMesh(6.0, 5.5, -4.0, 3.25, flooringType, 'living');
+    const isApartment = (this.houseType === 'apartment' || this.houseType === 'modern_apartment' || flooringType === 'apartment_mix');
+    const livingFlooring = isApartment ? 'porcelain_tile' : flooringType;
+    const diningFlooring = isApartment ? 'porcelain_tile' : flooringType;
+    const kitchenFlooring = isApartment ? 'porcelain_tile' : ((flooringType === 'marble') ? 'marble' : 'tile');
+    const bedroomFlooring = isApartment ? 'herringbone_wood' : flooringType;
 
-    // 2. Dining Room Floor (Front-Center)
-    makeFloorMesh(4.0, 5.5, 1.0, 3.25, flooringType, 'dining');
+    // 1. Living Room Floor (Front-Left: Continuous Light Porcelain Tile in Apartment)
+    makeFloorMesh(6.0, 5.5, -4.0, 3.25, livingFlooring, 'living');
 
-    // 3. Modular Kitchen Floor (Front-Right - Polished Porcelain Tile)
-    const kitchenFlooring = (flooringType === 'marble') ? 'marble' : 'tile';
+    // 2. Dining Room Floor (Front-Center: Continuous Light Porcelain Tile in Apartment)
+    makeFloorMesh(4.0, 5.5, 1.0, 3.25, diningFlooring, 'dining');
+
+    // 3. Modular Kitchen Floor (Front-Right: Continuous Light Porcelain Tile in Apartment)
     makeFloorMesh(4.0, 5.5, 5.0, 3.25, kitchenFlooring, 'kitchen');
 
-    // 4. Master Bedroom Floor (Back-Left)
-    makeFloorMesh(6.5, 6.0, -3.75, -2.5, flooringType, 'bedroom');
+    // 4. Master Bedroom Floor (Back-Left: Herringbone Wood Flooring in Apartment)
+    makeFloorMesh(6.5, 6.0, -3.75, -2.5, bedroomFlooring, 'bedroom');
 
-    // 5. Rear East Room (Bedroom 2 in 2BHK, Home Office in 1BHK)
+    // 5. Rear East Room (Bedroom 2 in 2BHK, Home Office in 1BHK, or Suite Retreat in Apartment)
     if (this.houseType === '2bhk') {
-      makeFloorMesh(7.5, 6.0, 3.25, -2.5, flooringType, 'bedroom2');
+      makeFloorMesh(7.5, 6.0, 3.25, -2.5, bedroomFlooring, 'bedroom2');
+    } else if (isApartment) {
+      makeFloorMesh(7.5, 6.0, 3.25, -2.5, 'herringbone_wood', 'office');
     } else {
       const officeFlooring = (flooringType === 'wood_oak' || flooringType === 'dark_walnut') ? flooringType : 'dark_walnut';
       makeFloorMesh(7.5, 6.0, 3.25, -2.5, officeFlooring, 'office');
@@ -821,12 +852,15 @@ export class RoomBuilder {
   }
 
   buildHouseRoomBadges() {
-    this.createRoomBadge('LIVING LOUNGE', '🛋️', -4.0, 3.25, 'living');
-    this.createRoomBadge('DINING PAVILION', '🍽️', 1.0, 3.25, 'dining');
-    this.createRoomBadge('MODULAR KITCHEN', '🍳', 5.0, 3.25, 'kitchen');
-    this.createRoomBadge(this.houseType === '2bhk' ? 'BEDROOM 1 (MASTER)' : 'MASTER BEDROOM', '🛏️', -3.75, -2.5, 'bedroom');
+    const isApartment = (this.houseType === 'apartment' || this.houseType === 'modern_apartment');
+    this.createRoomBadge(isApartment ? 'OPEN-CONCEPT LIVING' : 'LIVING LOUNGE', '🛋️', -4.0, 3.25, 'living');
+    this.createRoomBadge(isApartment ? 'CENTRAL DINING AREA' : 'DINING PAVILION', '🍽️', 1.0, 3.25, 'dining');
+    this.createRoomBadge(isApartment ? 'STRAIGHT MODULAR KITCHEN' : 'MODULAR KITCHEN', '🍳', 5.0, 3.25, 'kitchen');
+    this.createRoomBadge(isApartment ? 'PRIVATE MASTER SUITE' : (this.houseType === '2bhk' ? 'BEDROOM 1 (MASTER)' : 'MASTER BEDROOM'), '👑', -3.75, -2.5, 'bedroom');
     if (this.houseType === '2bhk') {
       this.createRoomBadge('BEDROOM 2 (DOUBLE BED)', '🛏️', 3.25, -2.5, 'bedroom2');
+    } else if (isApartment) {
+      this.createRoomBadge('MASTER WALK-IN CLOSET & STUDY', '💼', 3.25, -2.5, 'office');
     } else {
       this.createRoomBadge('HOME OFFICE & STUDY', '💼', 3.25, -2.5, 'office');
     }

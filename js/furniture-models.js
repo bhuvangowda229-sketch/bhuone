@@ -3805,4 +3805,161 @@ export class FurnitureFactory {
     }
     return group;
   }
+
+  // 48. SINGLE-WALL STRAIGHT MODULAR KITCHEN (RIGHT WALL ARCHITECTURAL RUN)
+  static createStraightModularKitchen(style = 'modern', color = 0x2c3e50) {
+    const group = new THREE.Group();
+    group.name = 'Single-Wall Straight Modular Kitchen';
+    group.userData = {
+      type: 'straight_kitchen',
+      name: 'Single-Wall Straight Modular Kitchen',
+      cost: 4200,
+      color: color
+    };
+
+    const totalW = 4.4;
+    const baseH = 0.86;
+    const counterH = 0.91;
+    const counterD = 0.68;
+    const splashH = 0.70;
+    const upperH = 0.82;
+    const upperD = 0.38;
+
+    const cabinetMat = new THREE.MeshStandardMaterial({
+      color: color || 0x2c3e50,
+      roughness: 0.55,
+      metalness: 0.08
+    });
+
+    const counterMat = new THREE.MeshStandardMaterial({
+      color: 0xfcfcfc,
+      roughness: 0.12,
+      metalness: 0.06
+    });
+
+    const backsplashMat = new THREE.MeshStandardMaterial({
+      color: 0xf1f5f9,
+      roughness: 0.25,
+      metalness: 0.02
+    });
+
+    const stainlessMat = new THREE.MeshStandardMaterial({
+      color: 0x94a3b8,
+      metalness: 0.9,
+      roughness: 0.2
+    });
+
+    const cooktopMat = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      roughness: 0.1,
+      metalness: 0.65
+    });
+
+    const warmLedMat = new THREE.MeshBasicMaterial({
+      color: 0xffedd5
+    });
+
+    // 1. Dark Recessed Toe-Kick along full run
+    const toeKick = this.createMesh(new THREE.BoxGeometry(totalW, 0.1, 0.08), new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 }), 'Toe Kick');
+    toeKick.position.set(0, 0.05, counterD / 2 - 0.05);
+    group.add(toeKick);
+
+    // 2. Base Cabinets Body
+    const baseBox = this.createMesh(new THREE.BoxGeometry(totalW, baseH - 0.1, counterD - 0.04), cabinetMat, 'Base Cabinets');
+    baseBox.position.set(0, 0.1 + (baseH - 0.1) / 2, 0);
+    group.add(baseBox);
+
+    // 3. Polished Engineered Quartz Countertop Slab
+    const top = this.createMesh(new THREE.BoxGeometry(totalW + 0.02, 0.05, counterD + 0.02), counterMat, 'Quartz Countertop');
+    top.position.set(0, counterH - 0.025, 0.01);
+    group.add(top);
+
+    // 4. Undermount Dual-Basin Deep Stainless Steel Sink (Positioned at X = -0.7)
+    const sinkSinkLeft = this.createMesh(new THREE.BoxGeometry(0.42, 0.01, 0.42), stainlessMat, 'Sink Basin Left');
+    sinkSinkLeft.position.set(-0.95, counterH + 0.002, 0);
+    group.add(sinkSinkLeft);
+
+    const sinkSinkRight = this.createMesh(new THREE.BoxGeometry(0.38, 0.01, 0.42), stainlessMat, 'Sink Basin Right');
+    sinkSinkRight.position.set(-0.50, counterH + 0.002, 0);
+    group.add(sinkSinkRight);
+
+    // Rim
+    const sinkRim = this.createMesh(new THREE.BoxGeometry(0.96, 0.015, 0.48), stainlessMat, 'Sink Rim');
+    sinkRim.position.set(-0.725, counterH + 0.008, 0);
+    group.add(sinkRim);
+
+    // Architectural Gooseneck Pull-Down Faucet
+    const faucetBase = this.createMesh(new THREE.CylinderGeometry(0.022, 0.026, 0.06, 16), stainlessMat, 'Faucet Base');
+    faucetBase.position.set(-0.725, counterH + 0.03, -0.20);
+    group.add(faucetBase);
+
+    const faucetSpout = this.createMesh(new THREE.CylinderGeometry(0.013, 0.013, 0.35, 16), stainlessMat, 'Faucet Spout');
+    faucetSpout.position.set(-0.725, counterH + 0.20, -0.18);
+    faucetSpout.rotation.x = -0.12;
+    group.add(faucetSpout);
+
+    const faucetArch = this.createMesh(new THREE.TorusGeometry(0.08, 0.013, 12, 24, Math.PI), stainlessMat, 'Faucet Arch');
+    faucetArch.position.set(-0.725, counterH + 0.35, -0.12);
+    faucetArch.rotation.z = Math.PI;
+    group.add(faucetArch);
+
+    // 5. 4-Zone Induction Glass Cooktop (Positioned at X = 0.95)
+    const cooktop = this.createMesh(new THREE.BoxGeometry(0.82, 0.01, 0.52), cooktopMat, 'Induction Cooktop');
+    cooktop.position.set(0.95, counterH + 0.006, 0);
+    group.add(cooktop);
+
+    // Cooktop Burner Rings
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x94a3b8 });
+    [[-0.22, -0.12], [0.22, -0.12], [-0.22, 0.12], [0.22, 0.12]].forEach(([rx, rz]) => {
+      const ring = new THREE.Mesh(new THREE.RingGeometry(0.065, 0.08, 24), ringMat);
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.set(0.95 + rx, counterH + 0.012, rz);
+      group.add(ring);
+    });
+
+    // 6. Stainless Steel Chimney Range Hood (Above Cooktop)
+    const hoodChimney = this.createMesh(new THREE.BoxGeometry(0.36, 0.72, 0.28), stainlessMat, 'Range Hood Flue');
+    hoodChimney.position.set(0.95, counterH + splashH + upperH - 0.36, -counterD / 2 + 0.16);
+    group.add(hoodChimney);
+
+    const hoodCanopy = this.createMesh(new THREE.BoxGeometry(0.90, 0.10, 0.54), stainlessMat, 'Range Hood Canopy');
+    hoodCanopy.position.set(0.95, counterH + splashH + 0.12, -counterD / 2 + 0.28);
+    group.add(hoodCanopy);
+
+    // 7. Full-Height Backsplash Wall Panel
+    const backsplash = this.createMesh(new THREE.BoxGeometry(totalW, splashH, 0.03), backsplashMat, 'Porcelain Backsplash');
+    backsplash.position.set(0, counterH + splashH / 2, -counterD / 2 + 0.015);
+    group.add(backsplash);
+
+    // 8. Overhead Upper Cabinets (excluding range hood center)
+    const leftUpperW = 2.4;
+    const leftUpper = this.createMesh(new THREE.BoxGeometry(leftUpperW, upperH, upperD), cabinetMat, 'Left Upper Cabinets');
+    leftUpper.position.set(-totalW / 2 + leftUpperW / 2, counterH + splashH + upperH / 2, -counterD / 2 + upperD / 2);
+    group.add(leftUpper);
+
+    const rightUpperW = 1.0;
+    const rightUpper = this.createMesh(new THREE.BoxGeometry(rightUpperW, upperH, upperD), cabinetMat, 'Right Upper Cabinets');
+    rightUpper.position.set(totalW / 2 - rightUpperW / 2, counterH + splashH + upperH / 2, -counterD / 2 + upperD / 2);
+    group.add(rightUpper);
+
+    // 9. Continuous 3000K Warm Under-Cabinet LED Lighting Strip
+    const underLed = new THREE.Mesh(new THREE.BoxGeometry(totalW - 0.2, 0.012, 0.04), warmLedMat);
+    underLed.position.set(0, counterH + splashH + 0.006, -counterD / 2 + upperD / 2);
+    group.add(underLed);
+
+    // 10. Warm 3000K Local Spot/Point Light
+    const warmTaskLight = new THREE.PointLight(0xffecd2, 0.85, 4.0, 2);
+    warmTaskLight.position.set(0, counterH + splashH - 0.05, 0.1);
+    group.add(warmTaskLight);
+
+    // 11. Minimalist Brushed Brass / Satin Nickel Handle Edge Pulls
+    const handleMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.25 });
+    for (let x = -totalW / 2 + 0.35; x <= totalW / 2 - 0.35; x += 0.65) {
+      const h1 = this.createMesh(new THREE.BoxGeometry(0.18, 0.02, 0.025), handleMat, 'Cabinet Handle');
+      h1.position.set(x, counterH - 0.18, counterD / 2);
+      group.add(h1);
+    }
+
+    return group;
+  }
 }

@@ -58,6 +58,150 @@ export class TextureGenerator {
     return texture;
   }
 
+  // Large Format Continuous Light Porcelain Tile Texture
+  static createPorcelainTileTexture(colorHex = 0xf8f9fa, groutHex = 0xd5d9dc) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+
+    // Base light porcelain tone
+    ctx.fillStyle = '#' + colorHex.toString(16).padStart(6, '0');
+    ctx.fillRect(0, 0, 512, 512);
+
+    // Subtle stone micro-clouding and natural porcelain mottling
+    for (let i = 0; i < 24; i++) {
+      const cx = Math.random() * 512;
+      const cy = Math.random() * 512;
+      const grad = ctx.createRadialGradient(cx, cy, 10, cx, cy, 60 + Math.random() * 80);
+      const isLighter = Math.random() > 0.5;
+      grad.addColorStop(0, isLighter ? 'rgba(255, 255, 255, 0.28)' : 'rgba(215, 220, 225, 0.22)');
+      grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 140, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Large-format rectangular slabs (e.g., 256x128px representing 120cm x 60cm porcelain slabs)
+    const slabW = 256;
+    const slabH = 128;
+    ctx.strokeStyle = '#' + groutHex.toString(16).padStart(6, '0');
+    ctx.lineWidth = 1.5;
+
+    for (let y = 0; y <= 512; y += slabH) {
+      const offset = ((y / slabH) % 2 === 0) ? 0 : slabW / 2;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(512, y);
+      ctx.stroke();
+
+      for (let x = -slabW; x <= 512 + slabW; x += slabW) {
+        ctx.beginPath();
+        ctx.moveTo(x + offset, y);
+        ctx.lineTo(x + offset, y + slabH);
+        ctx.stroke();
+      }
+    }
+
+    // Very faint fine mineral veins (ultra-subtle Carrara/Calacatta porcelain glaze)
+    ctx.strokeStyle = 'rgba(160, 165, 175, 0.12)';
+    ctx.lineWidth = 0.8;
+    for (let v = 0; v < 3; v++) {
+      ctx.beginPath();
+      let vx = Math.random() * 512;
+      let vy = 0;
+      ctx.moveTo(vx, vy);
+      while (vy < 512) {
+        vx += (Math.random() - 0.48) * 35;
+        vy += 25 + Math.random() * 30;
+        ctx.lineTo(vx, vy);
+      }
+      ctx.stroke();
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+  }
+
+  // Authentic Herringbone Parquet Wood Flooring Texture
+  static createHerringboneWoodTexture(baseWoodHex = 0xb8824f, darkGrainHex = 0x6e4321) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+
+    // Base background
+    ctx.fillStyle = '#' + darkGrainHex.toString(16).padStart(6, '0');
+    ctx.fillRect(0, 0, 512, 512);
+
+    const pw = 28;
+    const pl = 112;
+
+    const oakTones = [
+      '#c28f5b', '#b98552', '#a87343', '#c99763', '#9e6a3a', '#b37d4a', '#caa06d'
+    ];
+
+    ctx.save();
+    for (let by = -pl; by <= 512 + pl; by += 56) {
+      for (let bx = -pl; bx <= 512 + pl; bx += 56) {
+        // Plank A (45 degrees)
+        ctx.save();
+        ctx.translate(bx, by);
+        ctx.rotate(Math.PI / 4);
+
+        const colorA = oakTones[Math.abs(Math.floor(bx * 7 + by * 13)) % oakTones.length];
+        ctx.fillStyle = colorA;
+        ctx.fillRect(0, 0, pl, pw);
+
+        ctx.strokeStyle = 'rgba(70, 35, 12, 0.14)';
+        for (let g = 3; g < pw - 3; g += 5) {
+          ctx.lineWidth = 0.8 + Math.random() * 0.8;
+          ctx.beginPath();
+          ctx.moveTo(0, g);
+          ctx.lineTo(pl, g + (Math.random() - 0.5) * 4);
+          ctx.stroke();
+        }
+
+        ctx.strokeStyle = 'rgba(35, 18, 6, 0.45)';
+        ctx.lineWidth = 1.2;
+        ctx.strokeRect(0, 0, pl, pw);
+        ctx.restore();
+
+        // Plank B (-45 degrees)
+        ctx.save();
+        ctx.translate(bx + 40, by);
+        ctx.rotate(-Math.PI / 4);
+
+        const colorB = oakTones[Math.abs(Math.floor(bx * 11 + by * 17 + 5)) % oakTones.length];
+        ctx.fillStyle = colorB;
+        ctx.fillRect(0, 0, pl, pw);
+
+        ctx.strokeStyle = 'rgba(70, 35, 12, 0.14)';
+        for (let g = 3; g < pw - 3; g += 5) {
+          ctx.lineWidth = 0.8 + Math.random() * 0.8;
+          ctx.beginPath();
+          ctx.moveTo(0, g);
+          ctx.lineTo(pl, g + (Math.random() - 0.5) * 4);
+          ctx.stroke();
+        }
+
+        ctx.strokeStyle = 'rgba(35, 18, 6, 0.45)';
+        ctx.lineWidth = 1.2;
+        ctx.strokeRect(0, 0, pl, pw);
+        ctx.restore();
+      }
+    }
+    ctx.restore();
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+  }
+
   // Polished Marble tile texture
   static createMarbleTexture(baseHex = 0xf0efe9, veinHex = 0x858079) {
     const canvas = document.createElement('canvas');

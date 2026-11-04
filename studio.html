@@ -43,6 +43,9 @@
       <a href="admin.html" id="btn-studio-admin" class="btn btn-sm" style="display: none; text-decoration: none; color: #a5b4fc; border-color: rgba(99, 102, 241, 0.4);" title="Open Admin User Registry">
         <span>👑</span> Admin
       </a>
+      <button class="btn btn-sm" id="btn-view-renders" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(234, 88, 12, 0.25)); border-color: rgba(245, 158, 11, 0.6); color: #fde68a;" title="View Photorealistic Architectural 3D Renders">
+        <span>🖼️</span> 3D Renders
+      </button>
       <button class="btn btn-sm" id="btn-export-report" title="Generate printable Interior Design Specification Report">
         <span>📄</span> Design Report
       </button>
@@ -86,7 +89,8 @@
               <label for="room-type">Room Type & Architecture</label>
               <select id="room-type" class="form-select">
                 <optgroup label="Complete Residence (All Connected Rooms)">
-                  <option value="complete_house" selected>🏠 Single Bedroom House (1 BHK - 5 Connected Rooms)</option>
+                  <option value="modern_apartment" selected>🏙️ Modern Apartment Suite (Open Living-Dining, Straight Kitchen & Rear Master)</option>
+                  <option value="complete_house">🏠 Single Bedroom House (1 BHK - 5 Connected Rooms)</option>
                   <option value="complete_house_2bhk">🏡 Contemporary Villa (2 BHK Estate - Garden & Patio)</option>
                 </optgroup>
                 <optgroup label="Double Bedroom / Master Suite (4 Designs)">
@@ -134,13 +138,16 @@
                 <span id="house-active-room-pill" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.3);">1 BHK Active</span>
               </div>
 
-              <!-- 2 OPTIONS: SINGLE BEDROOM (1BHK) vs DOUBLE BEDROOM (2BHK) -->
-              <div class="house-option-toggle" style="display: flex; gap: 6px; margin-bottom: 10px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px;">
-                <button type="button" class="btn btn-sm house-type-toggle-btn active" data-house-type="1bhk" style="flex: 1; padding: 6px 4px; font-size: 11px; justify-content: center;">
-                  🏠 Single Bed (1BHK)
+              <!-- 3 OPTIONS: MODERN APARTMENT vs SINGLE BEDROOM (1BHK) vs DOUBLE BEDROOM (2BHK) -->
+              <div class="house-option-toggle" style="display: flex; gap: 4px; margin-bottom: 10px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px;">
+                <button type="button" class="btn btn-sm house-type-toggle-btn active" data-house-type="apartment" style="flex: 1; padding: 6px 3px; font-size: 10.5px; justify-content: center;">
+                  🏙️ Apartment
                 </button>
-                <button type="button" class="btn btn-sm house-type-toggle-btn" data-house-type="2bhk" style="flex: 1; padding: 6px 4px; font-size: 11px; justify-content: center;">
-                  🏡 2 BHK Villa Estate
+                <button type="button" class="btn btn-sm house-type-toggle-btn" data-house-type="1bhk" style="flex: 1; padding: 6px 3px; font-size: 10.5px; justify-content: center;">
+                  🏠 1 BHK
+                </button>
+                <button type="button" class="btn btn-sm house-type-toggle-btn" data-house-type="2bhk" style="flex: 1; padding: 6px 3px; font-size: 10.5px; justify-content: center;">
+                  🏡 2 BHK Villa
                 </button>
               </div>
 
@@ -412,7 +419,10 @@
             <div class="form-group">
               <label for="flooring-select">Flooring</label>
               <select id="flooring-select" class="form-select">
-                <option value="wood_oak" selected>Light Oak Wood</option>
+                <option value="porcelain_tile" selected>Continuous Light Porcelain Tile</option>
+                <option value="herringbone_wood">Herringbone Wood Parquet</option>
+                <option value="apartment_mix">Apartment Suite Mix (Porcelain + Herringbone)</option>
+                <option value="wood_oak">Light Oak Wood</option>
                 <option value="dark_walnut">Dark Walnut Wood</option>
                 <option value="marble">Polished Marble</option>
                 <option value="tile">Ceramic Modern Tile</option>
@@ -797,6 +807,9 @@
             <div class="form-group">
               <label for="catalog-flooring">Flooring Type</label>
               <select id="catalog-flooring" class="form-select">
+                <option value="porcelain_tile" selected>Continuous Light Porcelain Tile</option>
+                <option value="herringbone_wood">Herringbone Wood Parquet</option>
+                <option value="apartment_mix">Apartment Suite Mix (Porcelain + Herringbone)</option>
                 <option value="wood_oak">Light Oak Wood</option>
                 <option value="dark_walnut">Dark Walnut Wood</option>
                 <option value="marble">Polished Marble</option>
@@ -829,6 +842,7 @@
           <button class="tool-btn" data-view="top" title="Top-Down Floor Plan">🗺️ Floor Plan</button>
           <button class="tool-btn" data-view="front" title="Front Elevation View">🏛️ Front</button>
           <button class="tool-btn" data-view="walk" title="Eye-level Walk-in View">🚶 Eye-Level</button>
+          <button class="tool-btn" data-view="flow" id="btn-room-flow" title="Real-Time Room Flow Walkthrough (Living → Dining → Kitchen → Rear Master Suite)" style="border-color: rgba(245, 158, 11, 0.5); color: #fde68a;">🌊 Room Flow</button>
         </div>
 
         <!-- COMPLETE HOUSE ROOM NAVIGATOR (ADJACENT ROOMS) -->
@@ -1137,6 +1151,94 @@
 
       <div class="report-body" id="report-body-content">
         <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- PHOTOREALISTIC ARCHITECTURAL 3D RENDERS GALLERY MODAL -->
+  <div class="modal-backdrop" id="renders-modal" style="z-index: 1050;">
+    <div class="modal-content renders-modal-content" style="max-width: 960px; width: 95%; max-height: 90vh; overflow-y: auto; background: #0b1120; border: 1px solid rgba(245, 158, 11, 0.4); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(245, 158, 11, 0.2); padding: 22px;">
+      <div class="report-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 14px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h2 style="font-size: 20px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+            <span style="color: #f59e0b;">🏛️</span> Architectural 3D Renders & Floor Plan
+          </h2>
+          <p style="font-size: 12.5px; color: #94a3b8; margin-top: 4px;">
+            Ultra-detailed photorealistic renders with warm 3000K lighting, continuous light porcelain floor tiles & herringbone wood master suite.
+          </p>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button class="btn btn-sm btn-primary" id="btn-apply-apartment-preset" style="background: linear-gradient(135deg, #f59e0b, #d97706); border: none; font-weight: 600;">
+            <span>✨</span> Load Layout in 3D Studio
+          </button>
+          <button class="btn btn-sm" id="btn-close-renders" style="font-size: 18px; line-height: 1; padding: 4px 10px;">&times;</button>
+        </div>
+      </div>
+
+      <!-- Render Tabs / Toggle -->
+      <div style="display: flex; gap: 8px; margin-bottom: 16px; background: rgba(0, 0, 0, 0.4); padding: 5px; border-radius: 8px;">
+        <button type="button" class="btn btn-sm render-tab-btn active" id="tab-render-cutaway" style="flex: 1; justify-content: center; font-weight: 600; padding: 8px 12px;">
+          📐 3D Cutaway Floor Plan Render
+        </button>
+        <button type="button" class="btn btn-sm render-tab-btn" id="tab-render-eyelevel" style="flex: 1; justify-content: center; font-weight: 600; padding: 8px 12px;">
+          👁️ Eye-Level Interior Flow Render
+        </button>
+      </div>
+
+      <!-- VIEW 1: 3D Cutaway Floor Plan -->
+      <div id="view-render-cutaway" class="render-view-pane">
+        <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.12); background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <img src="renders/apartment_3d_cutaway_render.jpg" alt="Architectural 3D Cutaway Render of Modern Apartment Floor Plan" style="width: 100%; height: auto; display: block; object-fit: contain;">
+          <div style="position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4);">
+            ✦ Architectural 3D Cutaway Isometric Perspective
+          </div>
+          <a href="renders/apartment_3d_cutaway_render.jpg" download="apartment_3d_cutaway_render.jpg" class="btn btn-sm" style="position: absolute; bottom: 12px; right: 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); color: #fff; text-decoration: none;">
+            <span>⬇️</span> Download Cutaway Render (HD)
+          </a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px;">
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 12px;">
+            <div style="font-size: 11px; color: #f59e0b; font-weight: 700; text-transform: uppercase;">Open Living & Dining Flow</div>
+            <div style="font-size: 12px; color: #e2e8f0; margin-top: 4px; line-height: 1.4;">Unobstructed living lounge transitioning to central dining table anchored by linear brass chandelier.</div>
+          </div>
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 12px;">
+            <div style="font-size: 11px; color: #f59e0b; font-weight: 700; text-transform: uppercase;">Right-Wall Straight Kitchen</div>
+            <div style="font-size: 12px; color: #e2e8f0; margin-top: 4px; line-height: 1.4;">Single-wall modular run with induction cooktop, dual sink, under-cabinet 3000K LED, and fridge.</div>
+          </div>
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 12px;">
+            <div style="font-size: 11px; color: #f59e0b; font-weight: 700; text-transform: uppercase;">Dual Flooring Transition</div>
+            <div style="font-size: 12px; color: #e2e8f0; margin-top: 4px; line-height: 1.4;">Continuous light porcelain tiles in living spaces; rich herringbone hardwood in rear master suite.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 2: Eye-Level Interior Flow -->
+      <div id="view-render-eyelevel" class="render-view-pane" style="display: none;">
+        <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.12); background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <img src="renders/apartment_eye_level_interior_render.jpg" alt="Photorealistic Eye-Level Interior Render of Apartment" style="width: 100%; height: auto; display: block; object-fit: contain;">
+          <div style="position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4);">
+            ✦ Eye-Level Walkthrough Interior Perspective
+          </div>
+          <a href="renders/apartment_eye_level_interior_render.jpg" download="apartment_eye_level_interior_render.jpg" class="btn btn-sm" style="position: absolute; bottom: 12px; right: 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); color: #fff; text-decoration: none;">
+            <span>⬇️</span> Download Eye-Level Render (HD)
+          </a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px;">
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 12px;">
+            <div style="font-size: 11px; color: #f59e0b; font-weight: 700; text-transform: uppercase;">Natural Morning Daylight</div>
+            <div style="font-size: 12px; color: #e2e8f0; margin-top: 4px; line-height: 1.4;">Soft angled morning sunbeams entering through expansive floor-to-ceiling balcony glazing.</div>
+          </div>
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 12px;">
+            <div style="font-size: 11px; color: #f59e0b; font-weight: 700; text-transform: uppercase;">Warm 3000K Lighting</div>
+            <div style="font-size: 12px; color: #e2e8f0; margin-top: 4px; line-height: 1.4;">Golden 3000K architectural ambient ceiling cove light, linear pendant, and under-cabinet strip.</div>
+          </div>
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 12px;">
+            <div style="font-size: 11px; color: #f59e0b; font-weight: 700; text-transform: uppercase;">Rear Master Suite View</div>
+            <div style="font-size: 12px; color: #e2e8f0; margin-top: 4px; line-height: 1.4;">Direct sightline past the dining area toward the private rear master suite doorway.</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
