@@ -83,10 +83,13 @@
             </div>
 
             <div class="form-group">
-              <label for="room-type">Room Type</label>
+              <label for="room-type">Room Type & Architecture</label>
               <select id="room-type" class="form-select">
+                <optgroup label="Complete Residence (All Connected Rooms)">
+                  <option value="complete_house" selected>🏠 Complete House - 5 Connected Rooms</option>
+                </optgroup>
                 <optgroup label="Master Bedroom (4 Designs)">
-                  <option value="bedroom" selected>Master Bedroom - Type 1: Luxury Suite</option>
+                  <option value="bedroom">Master Bedroom - Type 1: Luxury Suite</option>
                   <option value="bedroom_zen">Master Bedroom - Type 2: Minimalist Zen</option>
                   <option value="bedroom_hotel">Master Bedroom - Type 3: Hotel Chic & Vanity</option>
                   <option value="bedroom_scandi">Master Bedroom - Type 4: Scandinavian Haven</option>
@@ -116,6 +119,24 @@
                   <option value="kitchen_ushape">Modular Kitchen - Type 4: U-Shaped Luxury Peninsula</option>
                 </optgroup>
               </select>
+            </div>
+
+            <!-- COMPLETE HOUSE MULTI-ROOM ACTIVE ROOM SELECTOR HUB -->
+            <div class="form-group" id="house-hub-wrapper" style="margin-top: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-primary); display: flex; align-items: center; gap: 4px; margin-bottom: 0;">
+                  <span>🏠</span> Complete House: Active Room
+                </label>
+                <span id="house-active-room-pill" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.3);">Living Lounge Active</span>
+              </div>
+              <div class="house-zone-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;">
+                <button type="button" class="btn btn-sm house-zone-btn active" data-zone="living" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🛋️ Living</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="dining" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🍽️ Dining</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="kitchen" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🍳 Kitchen</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="bedroom" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🛏️ Bedroom</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="office" style="font-size: 11px; padding: 6px 4px; justify-content: center;">💼 Office</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="all" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🌐 Whole House</button>
+              </div>
             </div>
 
             <!-- MASTER BEDROOM 4 DESIGN TYPES SELECTOR -->
@@ -773,6 +794,28 @@
           <button class="tool-btn" data-view="top" title="Top-Down Floor Plan">🗺️ Floor Plan</button>
           <button class="tool-btn" data-view="front" title="Front Elevation View">🏛️ Front</button>
           <button class="tool-btn" data-view="walk" title="Eye-level Walk-in View">🚶 Eye-Level</button>
+        </div>
+
+        <!-- COMPLETE HOUSE ROOM NAVIGATOR (5 ADJACENT ROOMS) -->
+        <div class="overlay-group house-nav-group" id="house-navigator-bar">
+          <button type="button" class="tool-btn house-nav-btn active" data-target-room="all" title="Dollhouse 3D Overview of All Connected Rooms">
+            <span>🏠</span> Whole House
+          </button>
+          <button type="button" class="tool-btn house-nav-btn" data-target-room="living" title="Focus Living Room Lounge">
+            <span>🛋️</span> Living
+          </button>
+          <button type="button" class="tool-btn house-nav-btn" data-target-room="dining" title="Focus Dining Pavilion">
+            <span>🍽️</span> Dining
+          </button>
+          <button type="button" class="tool-btn house-nav-btn" data-target-room="kitchen" title="Focus Modular Kitchen">
+            <span>🍳</span> Kitchen
+          </button>
+          <button type="button" class="tool-btn house-nav-btn" data-target-room="bedroom" title="Focus Master Bedroom Suite">
+            <span>🛏️</span> Bedroom
+          </button>
+          <button type="button" class="tool-btn house-nav-btn" data-target-room="office" title="Focus Home Office & Study">
+            <span>💼</span> Office
+          </button>
         </div>
 
         <!-- Room & Environment Toggles -->

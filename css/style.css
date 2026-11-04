@@ -435,6 +435,42 @@ input[type="range"]::-webkit-slider-thumb:hover {
   box-shadow: 0 0 10px var(--accent-glow);
 }
 
+/* COMPLETE HOUSE MULTI-ROOM NAVIGATOR & ZONE CONTROLS */
+.house-nav-group {
+  border-color: rgba(99, 102, 241, 0.4);
+  background: rgba(15, 23, 42, 0.92);
+}
+
+.house-nav-btn {
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.house-nav-btn.active {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
+}
+
+.house-zone-btn {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.house-zone-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.house-zone-btn.active {
+  background: rgba(99, 102, 241, 0.25);
+  color: #818cf8;
+  border-color: rgba(99, 102, 241, 0.6);
+  font-weight: 700;
+}
+
 /* FLOATING OBJECT & PART INSPECTOR */
 .inspector-popup {
   position: absolute;

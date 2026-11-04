@@ -32,7 +32,547 @@ export class AIEngine {
     let spatialRationale = '';
     let lightingPlan = '';
 
-    if (roomType === 'living_room' || roomType.startsWith('living_room_')) {
+    if (roomType === 'complete_house' || roomType === 'whole_house' || roomType === 'house') {
+      concept = `COMPLETE 5-ROOM ARCHITECTURAL RESIDENCE (${style.toUpperCase()})`;
+      spatialRationale = `A unified, continuous 14m × 11.5m complete home layout where all 5 rooms are situated seamlessly adjacent to each other with shared architectural walls, open archways, and connecting corridors. The sunlit front wing combines an expansive Living Lounge with Missouri TV Entertainment Center, an interconnected Formal Dining Pavilion, and an Open-Concept Modular Kitchen. The private rear wing features a secluded Master Bedroom Suite and an Executive Home Office & Library Sanctuary.`;
+      lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips and pendant glow in kitchen, dimmable bedside luminaires in master bedroom, and focused glare-free task light in executive study.`;
+
+      const livingType = pref.livingRoomType || 1;
+      const diningType = pref.diningType || 1;
+      const kitchenType = pref.kitchenType || 1;
+      const bedType = pref.bedroomType || 1;
+      const officeType = pref.officeType || 1;
+
+      // ==========================================
+      // ZONE 1: LIVING ROOM (X: -7.0 to -1.0, Z: 0.5 to 6.0)
+      // ==========================================
+      // 1. Missouri TV Entertainment Center (North dividing wall, facing South)
+      items.push({
+        id: 'house_living_tv_unit',
+        type: 'missouri_tv_unit',
+        name: `Missouri Engineered Wood TV Unit (Design ${livingType})`,
+        position: [-4.5, 0, 0.85],
+        rotation: [0, 0, 0],
+        style: style,
+        design: livingType,
+        room: 'living',
+        cost: 1350
+      });
+
+      // 2. Main 3-Seater Living Room Sofa (facing North toward TV)
+      items.push({
+        id: 'house_living_sofa',
+        type: 'sofa',
+        name: 'Plush Ergonomic Living Lounge Sofa',
+        position: [-4.5, 0, 4.0],
+        rotation: [0, Math.PI, 0],
+        style: style,
+        color: palette.sofaColor,
+        room: 'living',
+        cost: 1400
+      });
+
+      // 3. Central Coffee Table
+      items.push({
+        id: 'house_living_coffee_table',
+        type: 'coffee_table',
+        name: 'Architectural Wood & Glass Coffee Table',
+        position: [-4.5, 0, 2.5],
+        rotation: [0, 0, 0],
+        style: style,
+        woodColor: palette.woodColor,
+        room: 'living',
+        cost: 420
+      });
+
+      // 4. Accent Armchair (Angled inward for social conversation)
+      items.push({
+        id: 'house_living_armchair',
+        type: 'armchair',
+        name: 'Designer Lounge Accent Chair',
+        position: [-2.4, 0, 3.2],
+        rotation: [0, -Math.PI / 2 - 0.35, 0],
+        style: style,
+        color: palette.accentColor,
+        room: 'living',
+        cost: 580
+      });
+
+      // 5. Living Room Area Rug
+      items.push({
+        id: 'house_living_rug',
+        type: 'rug',
+        name: 'Living Room Plush Wool Rug',
+        position: [-4.3, 0.005, 3.1],
+        rotation: [0, 0, 0],
+        dimensions: [3.2, 2.4],
+        style: style,
+        room: 'living',
+        cost: 380
+      });
+
+      // 6. Arc Floor Lamp
+      items.push({
+        id: 'house_living_lamp',
+        type: 'floor_lamp',
+        name: 'Sculptural Brass Arc Floor Lamp',
+        position: [-6.4, 0, 4.8],
+        rotation: [0, 0, 0],
+        style: style,
+        room: 'living',
+        cost: 290
+      });
+
+      // 7. Indoor Fiddle Leaf Fig Plant
+      items.push({
+        id: 'house_living_plant',
+        type: 'plant',
+        name: 'Fiddle Leaf Fig Ceramic Planter',
+        position: [-6.4, 0, 1.0],
+        rotation: [0, 0, 0],
+        room: 'living',
+        cost: 140
+      });
+
+      // 8. Gallery Wall Canvas (West exterior wall)
+      items.push({
+        id: 'house_living_art',
+        type: 'wall_art',
+        name: 'Curated Gallery Wall Art',
+        position: [-6.94, 1.8, 3.8],
+        rotation: [0, Math.PI / 2, 0],
+        dimensions: [1.6, 1.0],
+        style: style,
+        room: 'living',
+        cost: 320
+      });
+
+      // 9. Ceiling Fan
+      items.push({
+        id: 'house_living_fan',
+        type: 'ceiling_fan',
+        name: 'Aero Minimalist Ceiling Fan',
+        position: [-4.5, 2.75, 3.25],
+        rotation: [0, 0, 0],
+        room: 'living',
+        cost: 280
+      });
+
+      // ==========================================
+      // ZONE 2: DINING ROOM (X: -1.0 to 3.0, Z: 0.5 to 6.0)
+      // ==========================================
+      // 10. Dining Table & 6 Designer Chairs
+      items.push({
+        id: 'house_dining_set',
+        type: 'dining_set',
+        name: 'Solid Hardwood Dining Table & 6 Chairs',
+        position: [1.0, 0, 3.25],
+        rotation: [0, 0, 0],
+        style: style,
+        woodColor: palette.woodColor,
+        room: 'dining',
+        cost: 1850
+      });
+
+      // 11. Overhead Linear Brass Chandelier
+      items.push({
+        id: 'house_dining_pendant',
+        type: 'pendant_light',
+        name: 'Linear Brass Dining Chandelier',
+        position: [1.0, 2.7, 3.25],
+        rotation: [0, 0, 0],
+        style: style,
+        room: 'dining',
+        cost: 450
+      });
+
+      // 12. Buffet Sideboard / Credenza (Against North wall)
+      items.push({
+        id: 'house_dining_credenza',
+        type: 'credenza',
+        name: 'Buffet Sideboard & Serving Credenza',
+        position: [1.0, 0, 0.85],
+        rotation: [0, 0, 0],
+        style: style,
+        woodColor: palette.woodColor,
+        room: 'dining',
+        cost: 720
+      });
+
+      // 13. Dining Room Rug
+      items.push({
+        id: 'house_dining_rug',
+        type: 'rug',
+        name: 'Dining Area Low-Pile Rug',
+        position: [1.0, 0.005, 3.25],
+        rotation: [0, 0, 0],
+        dimensions: [2.8, 2.2],
+        style: style,
+        room: 'dining',
+        cost: 310
+      });
+
+      // 14. Minimalist Wall Clock
+      items.push({
+        id: 'house_dining_clock',
+        type: 'wall_clock',
+        name: 'Architectural Minimalist Wall Clock',
+        position: [1.0, 2.2, 0.58],
+        rotation: [0, 0, 0],
+        room: 'dining',
+        cost: 110
+      });
+
+      // ==========================================
+      // ZONE 3: MODULAR KITCHEN (X: 3.0 to 7.0, Z: 0.5 to 6.0)
+      // ==========================================
+      // 15. Modular Kitchen Cabinets with Dual Sink (North wall)
+      items.push({
+        id: 'house_kitchen_cabinets',
+        type: 'kitchen_cabinets',
+        name: 'Modular Shaker Cabinets with Double Sink',
+        position: [5.0, 0, 0.95],
+        rotation: [0, 0, 0],
+        style: style,
+        color: palette.kitchenColor || 0x2c3e50,
+        room: 'kitchen',
+        cost: 2600
+      });
+
+      // 16. Quartz Waterfall Prep Island with Breakfast Bar
+      items.push({
+        id: 'house_kitchen_island',
+        type: 'kitchen_island',
+        name: 'Quartz Waterfall Prep Island & Breakfast Bar',
+        position: [4.8, 0, 3.25],
+        rotation: [0, 0, 0],
+        style: style,
+        color: palette.kitchenIslandColor || 0x334155,
+        room: 'kitchen',
+        cost: 1450
+      });
+
+      // 17. Bar Stool 1
+      items.push({
+        id: 'house_kitchen_stool_1',
+        type: 'bar_stool',
+        name: 'Designer Swivel Bar Stool #1',
+        position: [3.9, 0, 2.9],
+        rotation: [0, -Math.PI / 2, 0],
+        style: style,
+        color: palette.accentColor,
+        room: 'kitchen',
+        cost: 180
+      });
+
+      // 18. Bar Stool 2
+      items.push({
+        id: 'house_kitchen_stool_2',
+        type: 'bar_stool',
+        name: 'Designer Swivel Bar Stool #2',
+        position: [3.9, 0, 3.6],
+        rotation: [0, -Math.PI / 2, 0],
+        style: style,
+        color: palette.accentColor,
+        room: 'kitchen',
+        cost: 180
+      });
+
+      // 19. French Door Refrigerator
+      items.push({
+        id: 'house_kitchen_fridge',
+        type: 'refrigerator',
+        name: 'Stainless Steel French-Door Refrigerator',
+        position: [6.4, 0, 1.05],
+        rotation: [0, 0, 0],
+        room: 'kitchen',
+        cost: 1600
+      });
+
+      // 20. Induction Range & Vent Hood (East wall)
+      items.push({
+        id: 'house_kitchen_range',
+        type: 'kitchen_range',
+        name: 'Induction Cooktop Range with Ducted Hood',
+        position: [6.6, 0, 3.25],
+        rotation: [0, -Math.PI / 2, 0],
+        room: 'kitchen',
+        cost: 1250
+      });
+
+      // 21. Espresso Coffee Machine
+      items.push({
+        id: 'house_kitchen_coffee',
+        type: 'coffee_machine',
+        name: 'Artisan Espresso Coffee Machine',
+        position: [3.5, 0.92, 0.95],
+        rotation: [0, 0, 0],
+        room: 'kitchen',
+        cost: 350
+      });
+
+      // 22. Alkaline Water Purifier
+      items.push({
+        id: 'house_kitchen_purifier',
+        type: 'water_purifier',
+        name: 'RO UV Alkaline Water Purifier',
+        position: [6.35, 1.5, 2.1],
+        rotation: [0, 0, 0],
+        room: 'kitchen',
+        cost: 290
+      });
+
+      // 23. Pedal Trash Bin
+      items.push({
+        id: 'house_kitchen_trash',
+        type: 'trash_bin',
+        name: 'Stainless Step Trash Bin',
+        position: [6.6, 0, 5.4],
+        rotation: [0, 0, 0],
+        room: 'kitchen',
+        cost: 95
+      });
+
+      // ==========================================
+      // ZONE 4: MASTER BEDROOM (X: -7.0 to -0.5, Z: -5.5 to 0.5)
+      // ==========================================
+      // 24. King Size Platform Bed (North headboard wall, facing South)
+      items.push({
+        id: 'house_bed_king',
+        type: 'bed',
+        name: 'King Size Designer Platform Bed',
+        position: [-3.75, 0, -4.3],
+        rotation: [0, 0, 0],
+        style: style,
+        color: palette.woodColor,
+        room: 'bedroom',
+        cost: 1750
+      });
+
+      // 25. Nightstand Left
+      items.push({
+        id: 'house_bed_nightstand_l',
+        type: 'nightstand',
+        name: 'Bedside Nightstand (Left)',
+        position: [-5.3, 0, -4.9],
+        rotation: [0, 0, 0],
+        style: style,
+        room: 'bedroom',
+        cost: 240
+      });
+
+      // 26. Nightstand Right
+      items.push({
+        id: 'house_bed_nightstand_r',
+        type: 'nightstand',
+        name: 'Bedside Nightstand (Right)',
+        position: [-2.2, 0, -4.9],
+        rotation: [0, 0, 0],
+        style: style,
+        room: 'bedroom',
+        cost: 240
+      });
+
+      // 27. Table Lamp Left
+      items.push({
+        id: 'house_bed_lamp_l',
+        type: 'table_lamp',
+        name: 'Bedside Table Lamp (Left)',
+        position: [-5.3, 0.58, -4.9],
+        rotation: [0, 0, 0],
+        color: palette.accentColor,
+        room: 'bedroom',
+        cost: 110
+      });
+
+      // 28. Table Lamp Right
+      items.push({
+        id: 'house_bed_lamp_r',
+        type: 'table_lamp',
+        name: 'Bedside Table Lamp (Right)',
+        position: [-2.2, 0.58, -4.9],
+        rotation: [0, 0, 0],
+        color: palette.accentColor,
+        room: 'bedroom',
+        cost: 110
+      });
+
+      // 29. 3-Door Master Wardrobe (East acoustic wall)
+      items.push({
+        id: 'house_bed_wardrobe',
+        type: 'wardrobe',
+        name: 'Full-Height 3-Door Master Wardrobe',
+        position: [-0.9, 0, -2.4],
+        rotation: [0, -Math.PI / 2, 0],
+        style: style,
+        color: palette.wardrobeColor || 0x2b2d42,
+        room: 'bedroom',
+        cost: 1550
+      });
+
+      // 30. Plush Bedroom Area Rug
+      items.push({
+        id: 'house_bed_rug',
+        type: 'rug',
+        name: 'Plush High-Pile Bedroom Rug',
+        position: [-3.75, 0.005, -3.0],
+        rotation: [0, 0, 0],
+        dimensions: [3.2, 2.2],
+        style: style,
+        room: 'bedroom',
+        cost: 360
+      });
+
+      // 31. Lounge Armchair in Bedroom
+      items.push({
+        id: 'house_bed_lounge',
+        type: 'armchair',
+        name: 'Velvet Bedroom Relaxation Armchair',
+        position: [-6.2, 0, -2.0],
+        rotation: [0, 0.8, 0],
+        style: style,
+        color: palette.sofaColor,
+        room: 'bedroom',
+        cost: 520
+      });
+
+      // 32. Full-Length Dressing Mirror
+      items.push({
+        id: 'house_bed_mirror',
+        type: 'floor_mirror',
+        name: 'Full-Length Dressing Mirror',
+        position: [-6.5, 0, -0.6],
+        rotation: [0, 0.5, 0],
+        style: style,
+        room: 'bedroom',
+        cost: 280
+      });
+
+      // 33. Inverter Split AC
+      items.push({
+        id: 'house_bed_ac',
+        type: 'air_conditioner',
+        name: 'Inverter Split AC Unit',
+        position: [-3.75, 2.4, -5.44],
+        rotation: [0, 0, 0],
+        room: 'bedroom',
+        cost: 650
+      });
+
+      // ==========================================
+      // ZONE 5: HOME OFFICE & STUDY (X: -0.5 to 7.0, Z: -5.5 to 0.5)
+      // ==========================================
+      // 34. Executive Studio Desk
+      items.push({
+        id: 'house_office_desk',
+        type: 'desk',
+        name: 'Executive Studio Desk with Cable Bay',
+        position: [3.25, 0, -2.5],
+        rotation: [0, 0, 0],
+        style: style,
+        room: 'office',
+        cost: 950
+      });
+
+      // 35. High-Back Ergonomic Mesh Office Chair
+      items.push({
+        id: 'house_office_chair',
+        type: 'office_chair',
+        name: 'Ergonomic High-Back Executive Mesh Chair',
+        position: [3.25, 0, -3.3],
+        rotation: [0, 0, 0],
+        room: 'office',
+        cost: 540
+      });
+
+      // 36. Floor-to-Ceiling Library Bookshelf (North wall)
+      items.push({
+        id: 'house_office_bookshelf',
+        type: 'bookshelf',
+        name: 'Floor-to-Ceiling Architectural Bookshelf',
+        position: [3.25, 0, -5.15],
+        rotation: [0, 0, 0],
+        style: style,
+        room: 'office',
+        cost: 820
+      });
+
+      // 37. Resource Storage Credenza (West wall)
+      items.push({
+        id: 'house_office_credenza',
+        type: 'credenza',
+        name: 'Executive File Storage & Resource Credenza',
+        position: [-0.1, 0, -3.5],
+        rotation: [0, Math.PI / 2, 0],
+        style: style,
+        woodColor: palette.woodColor,
+        room: 'office',
+        cost: 680
+      });
+
+      // 38. Client Visitor Armchair
+      items.push({
+        id: 'house_office_visitor',
+        type: 'armchair',
+        name: 'Executive Client Armchair',
+        position: [2.3, 0, -1.6],
+        rotation: [0, Math.PI, 0],
+        style: style,
+        color: palette.accentColor,
+        room: 'office',
+        cost: 480
+      });
+
+      // 39. Desk LED Task Lamp
+      items.push({
+        id: 'house_office_lamp',
+        type: 'table_lamp',
+        name: 'Architectural LED Task Lamp',
+        position: [2.3, 0.78, -2.5],
+        rotation: [0, 0, 0],
+        color: palette.accentColor,
+        room: 'office',
+        cost: 120
+      });
+
+      // 40. Indoor Monstera Plant
+      items.push({
+        id: 'house_office_plant',
+        type: 'plant',
+        name: 'Architectural Monstera Ceramic Planter',
+        position: [6.4, 0, -5.0],
+        rotation: [0, 0, 0],
+        room: 'office',
+        cost: 150
+      });
+
+      // 41. Office Geometric Area Rug
+      items.push({
+        id: 'house_office_rug',
+        type: 'rug',
+        name: 'Office Geometric Low-Profile Rug',
+        position: [3.25, 0.005, -2.5],
+        rotation: [0, 0, 0],
+        dimensions: [3.0, 2.4],
+        style: style,
+        room: 'office',
+        cost: 340
+      });
+
+      // 42. Framed Architectural Blueprint Art (North wall)
+      items.push({
+        id: 'house_office_art',
+        type: 'wall_art',
+        name: 'Framed Architectural Blueprint Art',
+        position: [0.8, 1.8, -5.44],
+        rotation: [0, 0, 0],
+        dimensions: [1.4, 0.9],
+        style: style,
+        room: 'office',
+        cost: 290
+      });
+
+    } else if (roomType === 'living_room' || roomType.startsWith('living_room_')) {
       // Determine which of the 4 Living Room Design Types is selected
       let livingType = pref.livingRoomType || 1;
       if (roomType === 'living_room_zen' || roomType === 'living_room_type2') livingType = 2;

@@ -37,6 +37,11 @@ class App {
     this.keysDown = {};
     this.currentRoomDimensions = { width: 5.0, length: 4.5, height: 2.8 };
 
+    // Complete House Multi-Room Navigation & State
+    this.currentHouseZone = 'all';
+    this.currentHouseRoomTypes = { living: 1, dining: 1, kitchen: 1, bedroom: 1, office: 1 };
+    this.cameraAnimation = null;
+
     this.initScene();
     this.initLights();
     this.initRoom();
@@ -168,12 +173,19 @@ class App {
       const interactiveTargets = [
         ...this.furnitureGroup.children,
         ...(this.roomBuilder.windowGroup ? [this.roomBuilder.windowGroup] : []),
-        ...(this.roomBuilder.doorGroup ? [this.roomBuilder.doorGroup] : [])
+        ...(this.roomBuilder.doorGroup ? [this.roomBuilder.doorGroup] : []),
+        ...(this.roomBuilder.roomBadges || [])
       ];
       const intersects = this.raycaster.intersectObjects(interactiveTargets, true);
 
       if (intersects.length > 0) {
         const clickedMesh = intersects[0].object;
+
+        // Check if clicked 3D Room Badge
+        if (clickedMesh.userData && clickedMesh.userData.isRoomBadge) {
+          this.focusRoom(clickedMesh.userData.roomZone);
+          return;
+        }
 
         // Check if clicked an architectural element (Window or Door)
         let isArch = null;
@@ -1017,16 +1029,61 @@ class App {
       });
     });
 
+    // Complete House Navigator Bar buttons (Whole House, Living, Dining, Kitchen, Bedroom, Office)
+    document.querySelectorAll('.house-nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const roomSelect = document.getElementById('room-type');
+        if (roomSelect && roomSelect.value !== 'complete_house') {
+          roomSelect.value = 'complete_house';
+          this.syncRoomVariantsUI('complete_house');
+          this.triggerAIGeneration().then(() => {
+            this.focusRoom(btn.dataset.targetRoom);
+          });
+        } else {
+          this.focusRoom(btn.dataset.targetRoom);
+        }
+      });
+    });
+
+    // Complete House Zone Hub buttons in sidebar
+    document.querySelectorAll('.house-zone-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const roomSelect = document.getElementById('room-type');
+        if (roomSelect && roomSelect.value !== 'complete_house') {
+          roomSelect.value = 'complete_house';
+          this.syncRoomVariantsUI('complete_house');
+          this.triggerAIGeneration().then(() => {
+            this.focusRoom(btn.dataset.zone);
+          });
+        } else {
+          this.focusRoom(btn.dataset.zone);
+        }
+      });
+    });
+
     // Master Bedroom 4 Design Types Selector Buttons
     document.querySelectorAll('.bedroom-type-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-bedroom-type');
         const roomSelect = document.getElementById('room-type');
-        if (roomSelect) {
-          roomSelect.value = targetType;
+        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+
+        let vNum = 1;
+        if (targetType === 'bedroom_zen') vNum = 2;
+        else if (targetType === 'bedroom_hotel') vNum = 3;
+        else if (targetType === 'bedroom_scandi') vNum = 4;
+
+        if (isHouse) {
+          this.currentHouseRoomTypes.bedroom = vNum;
+          this.currentHouseZone = 'bedroom';
+          this.syncRoomVariantsUI('complete_house');
+          this.triggerAIGeneration();
+          this.focusRoom('bedroom');
+        } else {
+          if (roomSelect) roomSelect.value = targetType;
+          this.syncRoomVariantsUI(targetType);
+          this.triggerAIGeneration();
         }
-        this.syncRoomVariantsUI(targetType);
-        this.triggerAIGeneration();
         const typeTitle = btn.querySelector('strong')?.textContent || 'Master Bedroom Type';
         this.showToast(`✨ Switched to ${typeTitle}`);
       });
@@ -1037,11 +1094,24 @@ class App {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-living-type');
         const roomSelect = document.getElementById('room-type');
-        if (roomSelect) {
-          roomSelect.value = targetType;
+        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+
+        let vNum = 1;
+        if (targetType === 'living_room_zen') vNum = 2;
+        else if (targetType === 'living_room_luxury') vNum = 3;
+        else if (targetType === 'living_room_cozy') vNum = 4;
+
+        if (isHouse) {
+          this.currentHouseRoomTypes.living = vNum;
+          this.currentHouseZone = 'living';
+          this.syncRoomVariantsUI('complete_house');
+          this.triggerAIGeneration();
+          this.focusRoom('living');
+        } else {
+          if (roomSelect) roomSelect.value = targetType;
+          this.syncRoomVariantsUI(targetType);
+          this.triggerAIGeneration();
         }
-        this.syncRoomVariantsUI(targetType);
-        this.triggerAIGeneration();
         const typeTitle = btn.querySelector('strong')?.textContent || 'Living Room Type';
         this.showToast(`✨ Switched to ${typeTitle}`);
       });
@@ -1052,11 +1122,24 @@ class App {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-office-type');
         const roomSelect = document.getElementById('room-type');
-        if (roomSelect) {
-          roomSelect.value = targetType;
+        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+
+        let vNum = 1;
+        if (targetType === 'home_office_minimal') vNum = 2;
+        else if (targetType === 'home_office_creative') vNum = 3;
+        else if (targetType === 'home_office_academic') vNum = 4;
+
+        if (isHouse) {
+          this.currentHouseRoomTypes.office = vNum;
+          this.currentHouseZone = 'office';
+          this.syncRoomVariantsUI('complete_house');
+          this.triggerAIGeneration();
+          this.focusRoom('office');
+        } else {
+          if (roomSelect) roomSelect.value = targetType;
+          this.syncRoomVariantsUI(targetType);
+          this.triggerAIGeneration();
         }
-        this.syncRoomVariantsUI(targetType);
-        this.triggerAIGeneration();
         const typeTitle = btn.querySelector('strong')?.textContent || 'Home Office Type';
         this.showToast(`✨ Switched to ${typeTitle}`);
       });
@@ -1067,11 +1150,24 @@ class App {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-dining-type');
         const roomSelect = document.getElementById('room-type');
-        if (roomSelect) {
-          roomSelect.value = targetType;
+        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+
+        let vNum = 1;
+        if (targetType === 'dining_room_minimal') vNum = 2;
+        else if (targetType === 'dining_room_luxury') vNum = 3;
+        else if (targetType === 'dining_room_scandi') vNum = 4;
+
+        if (isHouse) {
+          this.currentHouseRoomTypes.dining = vNum;
+          this.currentHouseZone = 'dining';
+          this.syncRoomVariantsUI('complete_house');
+          this.triggerAIGeneration();
+          this.focusRoom('dining');
+        } else {
+          if (roomSelect) roomSelect.value = targetType;
+          this.syncRoomVariantsUI(targetType);
+          this.triggerAIGeneration();
         }
-        this.syncRoomVariantsUI(targetType);
-        this.triggerAIGeneration();
         const typeTitle = btn.querySelector('strong')?.textContent || 'Dining Room Type';
         this.showToast(`✨ Switched to ${typeTitle}`);
       });
@@ -1082,11 +1178,24 @@ class App {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-kitchen-type');
         const roomSelect = document.getElementById('room-type');
-        if (roomSelect) {
-          roomSelect.value = targetType;
+        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+
+        let vNum = 1;
+        if (targetType === 'kitchen_lshape') vNum = 2;
+        else if (targetType === 'kitchen_galley') vNum = 3;
+        else if (targetType === 'kitchen_ushape') vNum = 4;
+
+        if (isHouse) {
+          this.currentHouseRoomTypes.kitchen = vNum;
+          this.currentHouseZone = 'kitchen';
+          this.syncRoomVariantsUI('complete_house');
+          this.triggerAIGeneration();
+          this.focusRoom('kitchen');
+        } else {
+          if (roomSelect) roomSelect.value = targetType;
+          this.syncRoomVariantsUI(targetType);
+          this.triggerAIGeneration();
         }
-        this.syncRoomVariantsUI(targetType);
-        this.triggerAIGeneration();
         const typeTitle = btn.querySelector('strong')?.textContent || 'Modular Kitchen Type';
         this.showToast(`✨ Switched to ${typeTitle}`);
       });
@@ -1815,11 +1924,72 @@ class App {
 
   // Master Bedroom & Living Room Variants UI Synchronizer
   syncRoomVariantsUI(currentRoomType) {
+    const isHouse = currentRoomType === 'complete_house';
+    const houseHub = document.getElementById('house-hub-wrapper');
+    const houseNav = document.getElementById('house-navigator-bar');
+    if (houseHub) houseHub.style.display = isHouse ? 'block' : 'none';
+    if (houseNav) houseNav.style.display = isHouse ? 'flex' : 'none';
+
     // 1. Bedroom Variants
     const bedWrapper = document.getElementById('bedroom-variants-wrapper');
     const bedPill = document.getElementById('bedroom-type-pill');
     const bedButtons = document.querySelectorAll('.bedroom-type-btn');
     const isBedroom = currentRoomType === 'bedroom' || (currentRoomType && currentRoomType.startsWith('bedroom_'));
+
+    // 2. Living Room Variants
+    const livingWrapper = document.getElementById('living-variants-wrapper');
+    const livingPill = document.getElementById('living-type-pill');
+    const livingButtons = document.querySelectorAll('.living-type-btn');
+    const isLiving = currentRoomType === 'living_room' || (currentRoomType && currentRoomType.startsWith('living_room_'));
+
+    // 3. Home Office Variants
+    const officeWrapper = document.getElementById('office-variants-wrapper');
+    const officePill = document.getElementById('office-type-pill');
+    const officeButtons = document.querySelectorAll('.office-type-btn');
+    const isOffice = currentRoomType === 'home_office' || (currentRoomType && currentRoomType.startsWith('home_office_'));
+
+    // 4. Dining Room Variants
+    const diningWrapper = document.getElementById('dining-variants-wrapper');
+    const diningPill = document.getElementById('dining-type-pill');
+    const diningButtons = document.querySelectorAll('.dining-type-btn');
+    const isDining = currentRoomType === 'dining_room' || (currentRoomType && currentRoomType.startsWith('dining_room_'));
+
+    // 5. Modular Kitchen Variants
+    const kitchenWrapper = document.getElementById('kitchen-variants-wrapper');
+    const kitchenPill = document.getElementById('kitchen-type-pill');
+    const kitchenButtons = document.querySelectorAll('.kitchen-type-btn');
+    const isKitchen = currentRoomType === 'kitchen' || (currentRoomType && currentRoomType.startsWith('kitchen_'));
+
+    if (isHouse) {
+      const activeZone = this.currentHouseZone || 'living';
+      if (bedWrapper) bedWrapper.style.display = (activeZone === 'bedroom') ? 'block' : 'none';
+      if (livingWrapper) livingWrapper.style.display = (activeZone === 'living' || activeZone === 'all') ? 'block' : 'none';
+      if (officeWrapper) officeWrapper.style.display = (activeZone === 'office') ? 'block' : 'none';
+      if (diningWrapper) diningWrapper.style.display = (activeZone === 'dining') ? 'block' : 'none';
+      if (kitchenWrapper) kitchenWrapper.style.display = (activeZone === 'kitchen') ? 'block' : 'none';
+
+      // Highlight active design buttons in the active room
+      const bedNum = this.currentHouseRoomTypes.bedroom;
+      bedButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === bedNum));
+      if (bedPill) bedPill.textContent = `Type ${bedNum} Active`;
+
+      const livingNum = this.currentHouseRoomTypes.living;
+      livingButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === livingNum));
+      if (livingPill) livingPill.textContent = `Type ${livingNum} Active`;
+
+      const officeNum = this.currentHouseRoomTypes.office;
+      officeButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === officeNum));
+      if (officePill) officePill.textContent = `Type ${officeNum} Active`;
+
+      const diningNum = this.currentHouseRoomTypes.dining;
+      diningButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === diningNum));
+      if (diningPill) diningPill.textContent = `Type ${diningNum} Active`;
+
+      const kitchenNum = this.currentHouseRoomTypes.kitchen;
+      kitchenButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === kitchenNum));
+      if (kitchenPill) kitchenPill.textContent = `Type ${kitchenNum} Active`;
+      return;
+    }
 
     if (bedWrapper) {
       bedWrapper.style.display = isBedroom ? 'block' : 'none';
@@ -1837,12 +2007,6 @@ class App {
       }
     }
 
-    // 2. Living Room Variants
-    const livingWrapper = document.getElementById('living-variants-wrapper');
-    const livingPill = document.getElementById('living-type-pill');
-    const livingButtons = document.querySelectorAll('.living-type-btn');
-    const isLiving = currentRoomType === 'living_room' || (currentRoomType && currentRoomType.startsWith('living_room_'));
-
     if (livingWrapper) {
       livingWrapper.style.display = isLiving ? 'block' : 'none';
       if (isLiving) {
@@ -1858,12 +2022,6 @@ class App {
         }
       }
     }
-
-    // 3. Home Office Variants
-    const officeWrapper = document.getElementById('office-variants-wrapper');
-    const officePill = document.getElementById('office-type-pill');
-    const officeButtons = document.querySelectorAll('.office-type-btn');
-    const isOffice = currentRoomType === 'home_office' || (currentRoomType && currentRoomType.startsWith('home_office_'));
 
     if (officeWrapper) {
       officeWrapper.style.display = isOffice ? 'block' : 'none';
@@ -1881,12 +2039,6 @@ class App {
       }
     }
 
-    // 4. Dining Room Variants
-    const diningWrapper = document.getElementById('dining-variants-wrapper');
-    const diningPill = document.getElementById('dining-type-pill');
-    const diningButtons = document.querySelectorAll('.dining-type-btn');
-    const isDining = currentRoomType === 'dining_room' || (currentRoomType && currentRoomType.startsWith('dining_room_'));
-
     if (diningWrapper) {
       diningWrapper.style.display = isDining ? 'block' : 'none';
       if (isDining) {
@@ -1902,12 +2054,6 @@ class App {
         }
       }
     }
-
-    // 5. Modular Kitchen Variants
-    const kitchenWrapper = document.getElementById('kitchen-variants-wrapper');
-    const kitchenPill = document.getElementById('kitchen-type-pill');
-    const kitchenButtons = document.querySelectorAll('.kitchen-type-btn');
-    const isKitchen = currentRoomType === 'kitchen' || (currentRoomType && currentRoomType.startsWith('kitchen_'));
 
     if (kitchenWrapper) {
       kitchenWrapper.style.display = isKitchen ? 'block' : 'none';
@@ -1931,40 +2077,136 @@ class App {
     this.syncRoomVariantsUI(currentRoomType);
   }
 
+  // Complete House Room Navigator Focus & Camera Transition
+  focusRoom(zoneKey, animate = true) {
+    this.currentHouseZone = zoneKey;
+
+    // Update buttons in #house-navigator-bar
+    document.querySelectorAll('.house-nav-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.targetRoom === zoneKey);
+    });
+
+    // Update buttons in #house-hub-wrapper
+    document.querySelectorAll('.house-zone-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.zone === zoneKey);
+    });
+
+    const pill = document.getElementById('house-active-room-pill');
+    const titles = {
+      all: 'Complete House',
+      living: 'Living Lounge',
+      dining: 'Dining Pavilion',
+      kitchen: 'Modular Kitchen',
+      bedroom: 'Master Bedroom',
+      office: 'Home Office & Study'
+    };
+    if (pill) pill.textContent = (titles[zoneKey] || 'Room') + ' Active';
+
+    // Show corresponding room variant selector in sidebar
+    this.syncRoomVariantsUI(document.getElementById('room-type')?.value || 'complete_house');
+
+    // Camera target positions
+    let targetPos, targetLook;
+    switch (zoneKey) {
+      case 'living':
+        targetPos = new THREE.Vector3(-4.0, 4.0, 8.5);
+        targetLook = new THREE.Vector3(-4.0, 1.2, 3.25);
+        this.showToast('📍 Viewing Living Lounge');
+        break;
+      case 'dining':
+        targetPos = new THREE.Vector3(1.0, 3.8, 8.0);
+        targetLook = new THREE.Vector3(1.0, 1.1, 3.25);
+        this.showToast('📍 Viewing Dining Pavilion');
+        break;
+      case 'kitchen':
+        targetPos = new THREE.Vector3(5.0, 3.8, 8.0);
+        targetLook = new THREE.Vector3(5.0, 1.1, 3.25);
+        this.showToast('📍 Viewing Modular Kitchen');
+        break;
+      case 'bedroom':
+        targetPos = new THREE.Vector3(-3.75, 4.2, 3.0);
+        targetLook = new THREE.Vector3(-3.75, 1.2, -2.5);
+        this.showToast('📍 Viewing Master Bedroom Suite');
+        break;
+      case 'office':
+        targetPos = new THREE.Vector3(3.25, 4.2, 3.0);
+        targetLook = new THREE.Vector3(3.25, 1.2, -2.5);
+        this.showToast('📍 Viewing Home Office & Study');
+        break;
+      case 'all':
+      default:
+        targetPos = new THREE.Vector3(0, 14.5, 17.5);
+        targetLook = new THREE.Vector3(0, 1.0, 0.5);
+        this.showToast('🏠 Viewing Complete House (All Connected Rooms)');
+        break;
+    }
+
+    if (animate) {
+      this.cameraAnimation = {
+        targetPos: targetPos,
+        targetLook: targetLook
+      };
+    } else {
+      this.camera.position.copy(targetPos);
+      this.controls.target.copy(targetLook);
+      this.controls.update();
+    }
+  }
+
   // 6. CAMERA PRESETS & WALKTHROUGH
   setCameraPreset(mode) {
     const hud = document.getElementById('walkthrough-hud');
     if (mode === 'walk') {
       this.isWalkthrough = true;
       if (hud) hud.style.display = 'block';
-      this.camera.position.set(0, 1.6, 1.6);
-      this.controls.target.set(0, 1.55, -0.6);
+      if (this.roomBuilder.isCompleteHouse) {
+        this.camera.position.set(-4.0, 1.6, 4.5);
+        this.controls.target.set(-4.0, 1.55, 2.0);
+      } else {
+        this.camera.position.set(0, 1.6, 1.6);
+        this.controls.target.set(0, 1.55, -0.6);
+      }
       this.controls.maxPolarAngle = Math.PI - 0.05;
       this.controls.minDistance = 0.05;
-      this.showToast('Walkthrough active! Use WASD or Arrow Keys to walk');
+      this.showToast('Walkthrough active! Use WASD or Arrow Keys to walk through the house');
     } else {
       this.isWalkthrough = false;
       if (hud) hud.style.display = 'none';
       this.controls.maxPolarAngle = Math.PI / 2 - 0.02;
       this.controls.minDistance = 2.0;
 
-      switch (mode) {
-        case 'top':
-          // Top-down Floor Plan
-          this.camera.position.set(0, 9.0, 0.001);
-          this.controls.target.set(0, 0, 0);
-          break;
-        case 'front':
-          // Front elevation
-          this.camera.position.set(0, 1.8, 6.5);
-          this.controls.target.set(0, 1.4, 0);
-          break;
-        case '3d':
-        default:
-          // Free 3D Orbit
-          this.camera.position.set(0, 4.5, 6.8);
-          this.controls.target.set(0, 1.0, 0);
-          break;
+      if (this.roomBuilder.isCompleteHouse) {
+        switch (mode) {
+          case 'top':
+            this.camera.position.set(0, 22.0, 0.001);
+            this.controls.target.set(0, 0, 0.25);
+            break;
+          case 'front':
+            this.camera.position.set(0, 3.5, 17.5);
+            this.controls.target.set(0, 1.4, 0.5);
+            break;
+          case '3d':
+          default:
+            this.camera.position.set(0, 14.5, 17.5);
+            this.controls.target.set(0, 1.0, 0.5);
+            break;
+        }
+      } else {
+        switch (mode) {
+          case 'top':
+            this.camera.position.set(0, 9.0, 0.001);
+            this.controls.target.set(0, 0, 0);
+            break;
+          case 'front':
+            this.camera.position.set(0, 1.8, 6.5);
+            this.controls.target.set(0, 1.4, 0);
+            break;
+          case '3d':
+          default:
+            this.camera.position.set(0, 4.5, 6.8);
+            this.controls.target.set(0, 1.0, 0);
+            break;
+        }
       }
     }
     this.controls.update();
@@ -1974,33 +2216,42 @@ class App {
   async triggerAIGeneration() {
     this.showToast('AI is optimizing spatial layout...');
 
-    const currentRoomType = document.getElementById('room-type')?.value || 'bedroom';
-    let bedType = 1;
+    const currentRoomType = document.getElementById('room-type')?.value || 'complete_house';
+    const isHouse = currentRoomType === 'complete_house';
+
+    let bedType = isHouse ? (this.currentHouseRoomTypes.bedroom || 1) : 1;
     if (currentRoomType === 'bedroom_zen') bedType = 2;
     else if (currentRoomType === 'bedroom_hotel') bedType = 3;
     else if (currentRoomType === 'bedroom_scandi') bedType = 4;
 
-    let livingType = 1;
+    let livingType = isHouse ? (this.currentHouseRoomTypes.living || 1) : 1;
     if (currentRoomType === 'living_room_zen') livingType = 2;
     else if (currentRoomType === 'living_room_luxury') livingType = 3;
     else if (currentRoomType === 'living_room_cozy') livingType = 4;
 
-    let officeType = 1;
+    let officeType = isHouse ? (this.currentHouseRoomTypes.office || 1) : 1;
     if (currentRoomType === 'home_office_minimal') officeType = 2;
     else if (currentRoomType === 'home_office_creative') officeType = 3;
     else if (currentRoomType === 'home_office_academic') officeType = 4;
 
-    let diningType = 1;
+    let diningType = isHouse ? (this.currentHouseRoomTypes.dining || 1) : 1;
     if (currentRoomType === 'dining_room_minimal') diningType = 2;
     else if (currentRoomType === 'dining_room_luxury') diningType = 3;
     else if (currentRoomType === 'dining_room_scandi') diningType = 4;
 
-    let kitchenType = 1;
+    let kitchenType = isHouse ? (this.currentHouseRoomTypes.kitchen || 1) : 1;
     if (currentRoomType === 'kitchen_lshape') kitchenType = 2;
     else if (currentRoomType === 'kitchen_galley') kitchenType = 3;
     else if (currentRoomType === 'kitchen_ushape') kitchenType = 4;
 
     this.syncRoomVariantsUI(currentRoomType);
+
+    const houseDims = { width: 14.0, length: 11.5, height: 2.8 };
+    const singleDims = {
+      width: parseFloat(document.getElementById('room-w').value) || 5.0,
+      length: parseFloat(document.getElementById('room-l').value) || 4.5,
+      height: parseFloat(document.getElementById('room-h').value) || 2.8
+    };
 
     const pref = {
       roomType: currentRoomType,
@@ -2009,11 +2260,7 @@ class App {
       officeType: officeType,
       diningType: diningType,
       kitchenType: kitchenType,
-      dimensions: {
-        width: parseFloat(document.getElementById('room-w').value) || 5.0,
-        length: parseFloat(document.getElementById('room-l').value) || 4.5,
-        height: parseFloat(document.getElementById('room-h').value) || 2.8
-      },
+      dimensions: isHouse ? houseDims : singleDims,
       style: this.currentStyle,
       colorScheme: document.getElementById('color-scheme').value,
       flooring: document.getElementById('flooring-select').value,
@@ -2023,7 +2270,17 @@ class App {
 
     // 1. Rebuild room architecture with new dimensions and style
     this.currentRoomDimensions = pref.dimensions;
-    this.roomBuilder.buildRoom(pref.dimensions, 0xfaf5ee, pref.flooring);
+    if (isHouse) {
+      const rw = document.getElementById('room-w');
+      const rl = document.getElementById('room-l');
+      const rh = document.getElementById('room-h');
+      if (rw) rw.value = '14.0';
+      if (rl) rl.value = '11.5';
+      if (rh) rh.value = '2.8';
+      this.roomBuilder.buildCompleteHouse(0xfaf5ee, pref.flooring);
+    } else {
+      this.roomBuilder.buildRoom(pref.dimensions, 0xfaf5ee, pref.flooring);
+    }
 
     // 2. Clear old furniture
     while (this.furnitureGroup.children.length > 0) {
@@ -2049,6 +2306,12 @@ class App {
     designPlan.items.forEach(item => {
       this.addFurnitureItem(item);
     });
+
+    // 5. Initial Camera Setup for Complete House
+    if (isHouse && !this.initialHouseLoaded) {
+      this.initialHouseLoaded = true;
+      this.setCameraPreset('3d');
+    }
 
     // 5. Update AI Insights Tab UI
     document.getElementById('ai-concept-title').textContent = designPlan.conceptName;
@@ -2584,6 +2847,17 @@ class App {
   // 12. ANIMATION LOOP WITH INTERACTIVE WALKTHROUGH
   animate() {
     requestAnimationFrame(this.animate);
+
+    // Smooth Camera Transition Lerp
+    if (this.cameraAnimation) {
+      this.camera.position.lerp(this.cameraAnimation.targetPos, 0.08);
+      this.controls.target.lerp(this.cameraAnimation.targetLook, 0.08);
+      if (this.camera.position.distanceTo(this.cameraAnimation.targetPos) < 0.05) {
+        this.camera.position.copy(this.cameraAnimation.targetPos);
+        this.controls.target.copy(this.cameraAnimation.targetLook);
+        this.cameraAnimation = null;
+      }
+    }
 
     if (this.isWalkthrough) {
       const moveSpeed = 0.05;

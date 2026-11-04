@@ -274,9 +274,21 @@ class RoomBuilder {
     this.windowGroup = null;
     this.doorGroup = null;
     this.doorHinge = null;
+
+    // Complete House Multi-Room Architecture Properties
+    this.isCompleteHouse = false;
+    this.houseFloors = [];
+    this.houseWalls = [];
+    this.frontWalls = [];
+    this.roomBadges = [];
   }
 
   buildRoom(dimensions, wallColorHex = 0xf3f4f6, flooringType = 'wood_oak') {
+    this.isCompleteHouse = false;
+    this.houseFloors = [];
+    this.houseWalls = [];
+    this.frontWalls = [];
+    this.roomBadges = [];
     this.currentDimensions = dimensions;
     this.currentWallColor = wallColorHex;
     this.currentFlooring = flooringType;
@@ -643,6 +655,12 @@ class RoomBuilder {
       this.walls.front.visible = !enabled;
       this.walls.front.material.opacity = enabled ? 0.0 : 0.95;
     }
+    if (this.frontWalls && this.frontWalls.length > 0) {
+      this.frontWalls.forEach(wall => {
+        wall.visible = !enabled;
+        if (wall.material) wall.material.opacity = enabled ? 0.0 : 0.95;
+      });
+    }
   }
 
   setWallColor(hex) {
@@ -652,6 +670,14 @@ class RoomBuilder {
         this.walls[w].material.color.set(hex);
       }
     });
+    if (this.houseWalls && this.houseWalls.length > 0) {
+      this.houseWalls.forEach(w => {
+        if (w.material) {
+          if (Array.isArray(w.material)) w.material.forEach(m => m.color.set(hex));
+          else w.material.color.set(hex);
+        }
+      });
+    }
   }
 
   setSingleWallColor(wallKey, hex) {
@@ -672,7 +698,403 @@ class RoomBuilder {
   }
 
   setFlooring(type) {
-    this.buildFloor(this.currentDimensions.width, this.currentDimensions.length, type);
+    if (this.isCompleteHouse) {
+      this.buildCompleteHouse(this.currentWallColor, type);
+    } else {
+      this.buildFloor(this.currentDimensions.width, this.currentDimensions.length, type);
+    }
+  }
+
+  // ==========================================
+  // COMPLETE HOUSE ARCHITECTURAL BUILDER
+  // ==========================================
+  buildCompleteHouse(wallColorHex = 0xfaf5ee, flooringType = 'wood_oak') {
+    this.isCompleteHouse = true;
+    this.currentDimensions = { width: 14.0, length: 11.5, height: 2.8 };
+    this.currentWallColor = wallColorHex;
+    this.currentFlooring = flooringType;
+
+    // 1. Clear previous room geometry
+    while (this.roomGroup.children.length > 0) {
+      const obj = this.roomGroup.children[0];
+      this.roomGroup.remove(obj);
+      if (obj.geometry) obj.geometry.dispose();
+      if (obj.material) {
+        if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
+        else obj.material.dispose();
+      }
+    }
+    this.walls = {};
+    this.floor = null;
+    this.baseboards = [];
+    this.houseFloors = [];
+    this.houseWalls = [];
+    this.frontWalls = [];
+    this.roomBadges = [];
+
+    const H = 2.8;
+
+    // 2. Multi-Room Floors with Transitions
+    this.buildHouseFloors(flooringType);
+
+    // 3. Complete House Perimeter & Interior Dividing Walls
+    this.buildHouseWalls(H, wallColorHex);
+
+    // 4. Exterior Windows & Interior Passages/Doors
+    this.buildHouseWindowsAndDoors(H);
+
+    // 5. Baseboards along walls
+    this.buildHouseBaseboards(H);
+
+    // 6. 3D Interactive Room Pin Badges
+    this.buildHouseRoomBadges();
+
+    // 7. Measurement Floor Grid for Complete House
+    this.buildFloorGrid(14.0, 11.5);
+  }
+
+  buildHouseFloors(flooringType) {
+    const makeFloorMesh = (W, L, posX, posZ, floorType, zoneKey) => {
+      let floorTexture;
+      let roughness = 0.4;
+      let metalness = 0.05;
+
+      switch (floorType) {
+        case 'dark_walnut':
+          floorTexture = TextureGenerator.createWoodTexture(0x4a2e18);
+          roughness = 0.5;
+          break;
+        case 'marble':
+          floorTexture = TextureGenerator.createMarbleTexture(0xf8fafc, 0x94a3b8);
+          roughness = 0.15;
+          metalness = 0.1;
+          break;
+        case 'tile':
+          floorTexture = TextureGenerator.createTileTexture(0xe2e8f0, 0x64748b);
+          roughness = 0.3;
+          break;
+        case 'carpet':
+          floorTexture = TextureGenerator.createFabricTexture(0xd6d3d1);
+          roughness = 0.95;
+          metalness = 0.0;
+          break;
+        case 'wood_oak':
+        default:
+          floorTexture = TextureGenerator.createWoodTexture(0xd4a373);
+          roughness = 0.5;
+          break;
+      }
+
+      floorTexture.repeat.set(W / 2, L / 2);
+
+      const floorMat = new THREE.MeshStandardMaterial({
+        map: floorTexture,
+        roughness: roughness,
+        metalness: metalness
+      });
+
+      const floorGeom = new THREE.PlaneGeometry(W, L);
+      const mesh = new THREE.Mesh(floorGeom, floorMat);
+      mesh.rotation.x = -Math.PI / 2;
+      mesh.position.set(posX, 0, posZ);
+      mesh.receiveShadow = true;
+      mesh.name = `HouseFloor_${zoneKey}`;
+      mesh.userData = { isFloor: true, roomZone: zoneKey };
+      this.houseFloors.push(mesh);
+      this.roomGroup.add(mesh);
+      return mesh;
+    };
+
+    // 1. Living Room Floor (Front-Left)
+    makeFloorMesh(6.0, 5.5, -4.0, 3.25, flooringType, 'living');
+
+    // 2. Dining Room Floor (Front-Center)
+    makeFloorMesh(4.0, 5.5, 1.0, 3.25, flooringType, 'dining');
+
+    // 3. Modular Kitchen Floor (Front-Right - Polished Porcelain Tile)
+    const kitchenFlooring = (flooringType === 'marble') ? 'marble' : 'tile';
+    makeFloorMesh(4.0, 5.5, 5.0, 3.25, kitchenFlooring, 'kitchen');
+
+    // 4. Master Bedroom Floor (Back-Left)
+    makeFloorMesh(6.5, 6.0, -3.75, -2.5, flooringType, 'bedroom');
+
+    // 5. Home Office Floor (Back-Right - Elegant Hardwood)
+    const officeFlooring = (flooringType === 'wood_oak' || flooringType === 'dark_walnut') ? flooringType : 'dark_walnut';
+    makeFloorMesh(7.5, 6.0, 3.25, -2.5, officeFlooring, 'office');
+
+    // Decorative Satin Brass Doorway Threshold Strips
+    const brassMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.25 });
+    const addThreshold = (w, d, x, z) => {
+      const geom = new THREE.BoxGeometry(w, 0.008, d);
+      const strip = new THREE.Mesh(geom, brassMat);
+      strip.position.set(x, 0.004, z);
+      strip.name = 'DoorwayThreshold';
+      this.roomGroup.add(strip);
+    };
+
+    // Archway transition between Living and Dining
+    addThreshold(0.08, 2.6, -1.0, 3.1);
+    // Counter pass transition between Dining and Kitchen
+    addThreshold(0.08, 3.0, 3.0, 3.1);
+    // Master Bedroom doorway threshold
+    addThreshold(1.1, 0.08, -1.85, 0.5);
+    // Home Office doorway threshold
+    addThreshold(1.1, 0.08, 1.95, 0.5);
+  }
+
+  buildHouseWalls(H, wallColorHex) {
+    const createWallMat = (isCutaway = false) => new THREE.MeshStandardMaterial({
+      color: wallColorHex,
+      roughness: 0.85,
+      side: THREE.DoubleSide,
+      transparent: isCutaway,
+      opacity: isCutaway ? (this.cutawayEnabled ? 0.0 : 0.95) : 1.0
+    });
+
+    const addWall = (w, h, d, x, y, z, name = 'Wall', isCutaway = false) => {
+      const geom = new THREE.BoxGeometry(w, h, d);
+      const mat = createWallMat(isCutaway);
+      const mesh = new THREE.Mesh(geom, mat);
+      mesh.name = name;
+      mesh.position.set(x, y, z);
+      mesh.castShadow = !isCutaway;
+      mesh.receiveShadow = true;
+      mesh.userData = { type: 'wall', isCutawayWall: isCutaway, name: name };
+      if (isCutaway) {
+        mesh.visible = !this.cutawayEnabled;
+        this.frontWalls.push(mesh);
+      }
+      this.houseWalls.push(mesh);
+      this.roomGroup.add(mesh);
+      return mesh;
+    };
+
+    // A. EXTERIOR PERIMETER WALLS (14.0m x 11.5m Footprint)
+    // 1. Back Exterior Wall (North, Z = -5.575)
+    this.walls.back = addWall(14.3, H, 0.15, 0, H / 2, -5.575, 'Exterior Back Wall');
+
+    // 2. Left Exterior Wall (West, X = -7.075)
+    this.walls.left = addWall(0.15, H, 11.8, -7.075, H / 2, 0.25, 'Exterior Left Wall');
+
+    // 3. Right Exterior Wall (East, X = 7.075)
+    this.walls.right = addWall(0.15, H, 11.8, 7.075, H / 2, 0.25, 'Exterior Right Wall');
+
+    // 4. Front Exterior Wall (South, Z = 6.075 - Cutaway View Enabled)
+    this.walls.front = addWall(14.3, H, 0.15, 0, H / 2, 6.075, 'Exterior Front Wall (Cutaway)', true);
+
+    // Front Architectural Base Curb (0.12m high border always visible to frame floor)
+    const curbMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.7 });
+    const curb = new THREE.Mesh(new THREE.BoxGeometry(14.3, 0.12, 0.15), curbMat);
+    curb.position.set(0, 0.06, 6.075);
+    this.roomGroup.add(curb);
+
+    // B. INTERIOR DIVIDING WALLS WITH OPENINGS & PASSAGES
+    // 1. East-West Dividing Spine Wall at Z = 0.5 (separating Front & Rear Wings)
+    // Master Bedroom South Wall (-7.0 to -2.4m)
+    addWall(4.6, H, 0.12, -4.7, H / 2, 0.5, 'Bedroom South Wall');
+    // Master Bedroom Door Lintel (overhead beam above 1.1m door opening)
+    addWall(1.1, 0.6, 0.12, -1.85, 2.5, 0.5, 'Bedroom Door Lintel');
+    // Central Hallway Corridor Arch Lintel (overhead beam above 2.7m open passage)
+    addWall(2.7, 0.45, 0.12, 0.05, 2.575, 0.5, 'Hallway Arch Lintel');
+    // Home Office Door Lintel (overhead beam above 1.1m door opening)
+    addWall(1.1, 0.6, 0.12, 1.95, 2.5, 0.5, 'Office Door Lintel');
+    // Modular Kitchen North Wall (2.5 to 7.0m)
+    addWall(4.5, H, 0.12, 4.75, H / 2, 0.5, 'Kitchen North Wall');
+
+    // 2. North-South Dividing Wall in Rear Wing at X = -0.5 (Acoustic Partition Bedroom & Office)
+    addWall(0.12, H, 6.0, -0.5, H / 2, -2.5, 'Bedroom-Office Acoustic Partition');
+
+    // 3. North-South Dividing Wall in Front Wing at X = -1.0 (Living Room & Dining Room)
+    // Back stub wall (0.5m to 1.8m)
+    addWall(0.12, H, 1.3, -1.0, H / 2, 1.15, 'Living-Dining Partition Back');
+    // Grand Open Archway Lintel (overhead beam above 2.6m wide arch opening)
+    addWall(0.12, 0.45, 2.6, -1.0, 2.575, 3.1, 'Living-Dining Arch Lintel');
+    // Front stub wall (4.4m to 6.0m)
+    addWall(0.12, H, 1.6, -1.0, H / 2, 5.2, 'Living-Dining Partition Front');
+
+    // 4. North-South Dividing Wall in Front Wing at X = 3.0 (Dining Room & Modular Kitchen)
+    // Back stub wall (0.5m to 1.6m)
+    addWall(0.12, H, 1.1, 3.0, H / 2, 1.05, 'Dining-Kitchen Partition Back');
+    // Open Counter / Serving Arch Lintel (overhead beam above 3.0m wide open pass)
+    addWall(0.12, 0.45, 3.0, 3.0, 2.575, 3.1, 'Dining-Kitchen Pass Lintel');
+    // Front stub wall (4.6m to 6.0m)
+    addWall(0.12, H, 1.4, 3.0, H / 2, 5.3, 'Dining-Kitchen Partition Front');
+  }
+
+  buildHouseWindowsAndDoors(H) {
+    const frameMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.3 });
+    const glassMat = new THREE.MeshPhysicalMaterial({
+      color: 0xbae6fd,
+      transmission: 0.9,
+      opacity: 0.4,
+      transparent: true,
+      roughness: 0.1
+    });
+    const doorFrameMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6 });
+    const doorMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.7 });
+    const handleMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.2 });
+
+    const createArchitecturalWindow = (w, h, posX, posY, posZ, rotY) => {
+      const winGroup = new THREE.Group();
+      winGroup.name = 'HouseWindow';
+      // Frame
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(0.06, h, w), frameMat);
+      winGroup.add(frame);
+      // Glass
+      const glass = new THREE.Mesh(new THREE.BoxGeometry(0.01, h - 0.1, w - 0.1), glassMat);
+      winGroup.add(glass);
+      // Mullions
+      const crossV = new THREE.Mesh(new THREE.BoxGeometry(0.07, h - 0.1, 0.03), frameMat);
+      const crossH = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.03, w - 0.1), frameMat);
+      winGroup.add(crossV);
+      winGroup.add(crossH);
+
+      winGroup.position.set(posX, posY, posZ);
+      winGroup.rotation.y = rotY;
+      this.roomGroup.add(winGroup);
+      return winGroup;
+    };
+
+    // 1. Master Bedroom Window on West Exterior Wall
+    createArchitecturalWindow(1.8, 1.4, -6.98, 1.5, -2.5, 0);
+
+    // 2. Living Room Picture Window on West Exterior Wall
+    createArchitecturalWindow(2.2, 1.5, -6.98, 1.5, 3.25, 0);
+
+    // 3. Home Office Panoramic Double Window on East Exterior Wall
+    createArchitecturalWindow(2.4, 1.4, 6.98, 1.5, -2.5, Math.PI);
+
+    // 4. Modular Kitchen Casement Window on East Exterior Wall
+    createArchitecturalWindow(1.6, 1.2, 6.98, 1.65, 3.25, Math.PI);
+
+    // 5. Bedroom Window on North Exterior Wall
+    createArchitecturalWindow(1.8, 1.3, -3.75, 1.6, -5.48, -Math.PI / 2);
+
+    // Architectural Interior Doors with Casings and Handles
+    const createInteriorDoor = (posX, posZ, swingDeg, isLeftSwing = false) => {
+      const doorGroup = new THREE.Group();
+      doorGroup.name = 'InteriorDoor';
+      const dW = 0.95;
+      const dH = 2.15;
+
+      // Frame
+      const fTop = new THREE.Mesh(new THREE.BoxGeometry(dW + 0.08, 0.04, 0.08), doorFrameMat);
+      fTop.position.set(0, dH + 0.02, 0);
+      const fL = new THREE.Mesh(new THREE.BoxGeometry(0.04, dH, 0.08), doorFrameMat);
+      fL.position.set(-dW / 2 - 0.02, dH / 2, 0);
+      const fR = new THREE.Mesh(new THREE.BoxGeometry(0.04, dH, 0.08), doorFrameMat);
+      fR.position.set(dW / 2 + 0.02, dH / 2, 0);
+      doorGroup.add(fTop);
+      doorGroup.add(fL);
+      doorGroup.add(fR);
+
+      // Hinged Panel
+      const hinge = new THREE.Group();
+      hinge.position.set(-dW / 2, 0, 0);
+      const panel = new THREE.Mesh(new THREE.BoxGeometry(dW - 0.02, dH - 0.02, 0.038), doorMat);
+      panel.position.set(dW / 2, (dH - 0.02) / 2, 0);
+      panel.castShadow = true;
+      hinge.add(panel);
+
+      // Brass Handle
+      const hCyl = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.12, 12), handleMat);
+      hCyl.rotation.z = Math.PI / 2;
+      hCyl.position.set(dW - 0.1, 1.0, 0.03);
+      hinge.add(hCyl);
+
+      hinge.rotation.y = (swingDeg || 0) * (Math.PI / 180);
+      doorGroup.add(hinge);
+
+      doorGroup.position.set(posX, 0, posZ);
+      this.roomGroup.add(doorGroup);
+      return doorGroup;
+    };
+
+    // Master Bedroom Door (swings 20 degrees into bedroom)
+    createInteriorDoor(-1.85, 0.5, 20);
+    // Home Office Door (swings 20 degrees into office)
+    createInteriorDoor(1.95, 0.5, 20);
+  }
+
+  buildHouseBaseboards(H) {
+    const bbMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
+    const bbH = 0.1;
+    const bbD = 0.02;
+
+    const addBB = (w, d, x, z) => {
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, bbH, d), bbMat);
+      mesh.position.set(x, bbH / 2, z);
+      this.baseboards.push(mesh);
+      this.roomGroup.add(mesh);
+    };
+
+    // Perimeter Back
+    addBB(14.0, bbD, 0, -5.5 + bbD / 2);
+    // Perimeter Left
+    addBB(bbD, 11.5, -7.0 + bbD / 2, 0.25);
+    // Perimeter Right
+    addBB(bbD, 11.5, 7.0 - bbD / 2, 0.25);
+  }
+
+  buildHouseRoomBadges() {
+    this.createRoomBadge('LIVING LOUNGE', '🛋️', -4.0, 3.25, 'living');
+    this.createRoomBadge('DINING PAVILION', '🍽️', 1.0, 3.25, 'dining');
+    this.createRoomBadge('MODULAR KITCHEN', '🍳', 5.0, 3.25, 'kitchen');
+    this.createRoomBadge('MASTER BEDROOM', '🛏️', -3.75, -2.5, 'bedroom');
+    this.createRoomBadge('HOME OFFICE & STUDY', '💼', 3.25, -2.5, 'office');
+  }
+
+  createRoomBadge(title, icon, x, z, roomKey) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 140;
+    const ctx = canvas.getContext('2d');
+
+    // Rounded rectangle dark glass pill background
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+    ctx.strokeStyle = 'rgba(99, 102, 241, 0.75)';
+    ctx.lineWidth = 6;
+
+    const r = 26;
+    ctx.beginPath();
+    ctx.moveTo(r, 0);
+    ctx.lineTo(512 - r, 0);
+    ctx.quadraticCurveTo(512, 0, 512, r);
+    ctx.lineTo(512, 140 - r);
+    ctx.quadraticCurveTo(512, 140, 512 - r, 140);
+    ctx.lineTo(r, 140);
+    ctx.quadraticCurveTo(0, 140, 0, 140 - r);
+    ctx.lineTo(0, r);
+    ctx.quadraticCurveTo(0, 0, r, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Text & Icon
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 44px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`${icon} ${title}`, 256, 70);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+    const badgeMat = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      depthWrite: false,
+      side: THREE.DoubleSide
+    });
+
+    const badgeGeom = new THREE.PlaneGeometry(1.6, 0.44);
+    const badge = new THREE.Mesh(badgeGeom, badgeMat);
+    badge.rotation.x = -Math.PI / 2;
+    badge.position.set(x, 0.04, z);
+    badge.name = `RoomBadge_${roomKey}`;
+    badge.userData = { isRoomBadge: true, roomZone: roomKey, title: title };
+    this.roomBadges.push(badge);
+    this.roomGroup.add(badge);
+    return badge;
   }
 }
 
@@ -4019,7 +4441,547 @@ class AIEngine {
     let spatialRationale = '';
     let lightingPlan = '';
 
-    if (roomType === 'living_room' || roomType.startsWith('living_room_')) {
+    if (roomType === 'complete_house' || roomType === 'whole_house' || roomType === 'house') {
+      concept = `COMPLETE 5-ROOM ARCHITECTURAL RESIDENCE (${style.toUpperCase()})`;
+      spatialRationale = `A unified, continuous 14m × 11.5m complete home layout where all 5 rooms are situated seamlessly adjacent to each other with shared architectural walls, open archways, and connecting corridors. The sunlit front wing combines an expansive Living Lounge with Missouri TV Entertainment Center, an interconnected Formal Dining Pavilion, and an Open-Concept Modular Kitchen. The private rear wing features a secluded Master Bedroom Suite and an Executive Home Office & Library Sanctuary.`;
+      lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips and pendant glow in kitchen, dimmable bedside luminaires in master bedroom, and focused glare-free task light in executive study.`;
+
+      const livingType = pref.livingRoomType || 1;
+      const diningType = pref.diningType || 1;
+      const kitchenType = pref.kitchenType || 1;
+      const bedType = pref.bedroomType || 1;
+      const officeType = pref.officeType || 1;
+
+      // ==========================================
+      // ZONE 1: LIVING ROOM (X: -7.0 to -1.0, Z: 0.5 to 6.0)
+      // ==========================================
+      // 1. Missouri TV Entertainment Center (North dividing wall, facing South)
+      items.push({
+        id: 'house_living_tv_unit',
+        type: 'missouri_tv_unit',
+        name: `Missouri Engineered Wood TV Unit (Design ${livingType})`,
+        position: [-4.5, 0, 0.85],
+        rotation: [0, 0, 0],
+        style: style,
+        design: livingType,
+        room: 'living',
+        cost: 1350
+      });
+
+      // 2. Main 3-Seater Living Room Sofa (facing North toward TV)
+      items.push({
+        id: 'house_living_sofa',
+        type: 'sofa',
+        name: 'Plush Ergonomic Living Lounge Sofa',
+        position: [-4.5, 0, 4.0],
+        rotation: [0, Math.PI, 0],
+        style: style,
+        color: palette.sofaColor,
+        room: 'living',
+        cost: 1400
+      });
+
+      // 3. Central Coffee Table
+      items.push({
+        id: 'house_living_coffee_table',
+        type: 'coffee_table',
+        name: 'Architectural Wood & Glass Coffee Table',
+        position: [-4.5, 0, 2.5],
+        rotation: [0, 0, 0],
+        style: style,
+        woodColor: palette.woodColor,
+        room: 'living',
+        cost: 420
+      });
+
+      // 4. Accent Armchair (Angled inward for social conversation)
+      items.push({
+        id: 'house_living_armchair',
+        type: 'armchair',
+        name: 'Designer Lounge Accent Chair',
+        position: [-2.4, 0, 3.2],
+        rotation: [0, -Math.PI / 2 - 0.35, 0],
+        style: style,
+        color: palette.accentColor,
+        room: 'living',
+        cost: 580
+      });
+
+      // 5. Living Room Area Rug
+      items.push({
+        id: 'house_living_rug',
+        type: 'rug',
+        name: 'Living Room Plush Wool Rug',
+        position: [-4.3, 0.005, 3.1],
+        rotation: [0, 0, 0],
+        dimensions: [3.2, 2.4],
+        style: style,
+        room: 'living',
+        cost: 380
+      });
+
+      // 6. Arc Floor Lamp
+      items.push({
+        id: 'house_living_lamp',
+        type: 'floor_lamp',
+        name: 'Sculptural Brass Arc Floor Lamp',
+        position: [-6.4, 0, 4.8],
+        rotation: [0, 0, 0],
+        style: style,
+        room: 'living',
+        cost: 290
+      });
+
+      // 7. Indoor Fiddle Leaf Fig Plant
+      items.push({
+        id: 'house_living_plant',
+        type: 'plant',
+        name: 'Fiddle Leaf Fig Ceramic Planter',
+        position: [-6.4, 0, 1.0],
+        rotation: [0, 0, 0],
+        room: 'living',
+        cost: 140
+      });
+
+      // 8. Gallery Wall Canvas (West exterior wall)
+      items.push({
+        id: 'house_living_art',
+        type: 'wall_art',
+        name: 'Curated Gallery Wall Art',
+        position: [-6.94, 1.8, 3.8],
+        rotation: [0, Math.PI / 2, 0],
+        dimensions: [1.6, 1.0],
+        style: style,
+        room: 'living',
+        cost: 320
+      });
+
+      // 9. Ceiling Fan
+      items.push({
+        id: 'house_living_fan',
+        type: 'ceiling_fan',
+        name: 'Aero Minimalist Ceiling Fan',
+        position: [-4.5, 2.75, 3.25],
+        rotation: [0, 0, 0],
+        room: 'living',
+        cost: 280
+      });
+
+      // ==========================================
+      // ZONE 2: DINING ROOM (X: -1.0 to 3.0, Z: 0.5 to 6.0)
+      // ==========================================
+      // 10. Dining Table & 6 Designer Chairs
+      items.push({
+        id: 'house_dining_set',
+        type: 'dining_set',
+        name: 'Solid Hardwood Dining Table & 6 Chairs',
+        position: [1.0, 0, 3.25],
+        rotation: [0, 0, 0],
+        style: style,
+        woodColor: palette.woodColor,
+        room: 'dining',
+        cost: 1850
+      });
+
+      // 11. Overhead Linear Brass Chandelier
+      items.push({
+        id: 'house_dining_pendant',
+        type: 'pendant_light',
+        name: 'Linear Brass Dining Chandelier',
+        position: [1.0, 2.7, 3.25],
+        rotation: [0, 0, 0],
+        style: style,
+        room: 'dining',
+        cost: 450
+      });
+
+      // 12. Buffet Sideboard / Credenza (Against North wall)
+      items.push({
+        id: 'house_dining_credenza',
+        type: 'credenza',
+        name: 'Buffet Sideboard & Serving Credenza',
+        position: [1.0, 0, 0.85],
+        rotation: [0, 0, 0],
+        style: style,
+        woodColor: palette.woodColor,
+        room: 'dining',
+        cost: 720
+      });
+
+      // 13. Dining Room Rug
+      items.push({
+        id: 'house_dining_rug',
+        type: 'rug',
+        name: 'Dining Area Low-Pile Rug',
+        position: [1.0, 0.005, 3.25],
+        rotation: [0, 0, 0],
+        dimensions: [2.8, 2.2],
+        style: style,
+        room: 'dining',
+        cost: 310
+      });
+
+      // 14. Minimalist Wall Clock
+      items.push({
+        id: 'house_dining_clock',
+        type: 'wall_clock',
+        name: 'Architectural Minimalist Wall Clock',
+        position: [1.0, 2.2, 0.58],
+        rotation: [0, 0, 0],
+        room: 'dining',
+        cost: 110
+      });
+
+      // ==========================================
+      // ZONE 3: MODULAR KITCHEN (X: 3.0 to 7.0, Z: 0.5 to 6.0)
+      // ==========================================
+      // 15. Modular Kitchen Cabinets with Dual Sink (North wall)
+      items.push({
+        id: 'house_kitchen_cabinets',
+        type: 'kitchen_cabinets',
+        name: 'Modular Shaker Cabinets with Double Sink',
+        position: [5.0, 0, 0.95],
+        rotation: [0, 0, 0],
+        style: style,
+        color: palette.kitchenColor || 0x2c3e50,
+        room: 'kitchen',
+        cost: 2600
+      });
+
+      // 16. Quartz Waterfall Prep Island with Breakfast Bar
+      items.push({
+        id: 'house_kitchen_island',
+        type: 'kitchen_island',
+        name: 'Quartz Waterfall Prep Island & Breakfast Bar',
+        position: [4.8, 0, 3.25],
+        rotation: [0, 0, 0],
+        style: style,
+        color: palette.kitchenIslandColor || 0x334155,
+        room: 'kitchen',
+        cost: 1450
+      });
+
+      // 17. Bar Stool 1
+      items.push({
+        id: 'house_kitchen_stool_1',
+        type: 'bar_stool',
+        name: 'Designer Swivel Bar Stool #1',
+        position: [3.9, 0, 2.9],
+        rotation: [0, -Math.PI / 2, 0],
+        style: style,
+        color: palette.accentColor,
+        room: 'kitchen',
+        cost: 180
+      });
+
+      // 18. Bar Stool 2
+      items.push({
+        id: 'house_kitchen_stool_2',
+        type: 'bar_stool',
+        name: 'Designer Swivel Bar Stool #2',
+        position: [3.9, 0, 3.6],
+        rotation: [0, -Math.PI / 2, 0],
+        style: style,
+        color: palette.accentColor,
+        room: 'kitchen',
+        cost: 180
+      });
+
+      // 19. French Door Refrigerator
+      items.push({
+        id: 'house_kitchen_fridge',
+        type: 'refrigerator',
+        name: 'Stainless Steel French-Door Refrigerator',
+        position: [6.4, 0, 1.05],
+        rotation: [0, 0, 0],
+        room: 'kitchen',
+        cost: 1600
+      });
+
+      // 20. Induction Range & Vent Hood (East wall)
+      items.push({
+        id: 'house_kitchen_range',
+        type: 'kitchen_range',
+        name: 'Induction Cooktop Range with Ducted Hood',
+        position: [6.6, 0, 3.25],
+        rotation: [0, -Math.PI / 2, 0],
+        room: 'kitchen',
+        cost: 1250
+      });
+
+      // 21. Espresso Coffee Machine
+      items.push({
+        id: 'house_kitchen_coffee',
+        type: 'coffee_machine',
+        name: 'Artisan Espresso Coffee Machine',
+        position: [3.5, 0.92, 0.95],
+        rotation: [0, 0, 0],
+        room: 'kitchen',
+        cost: 350
+      });
+
+      // 22. Alkaline Water Purifier
+      items.push({
+        id: 'house_kitchen_purifier',
+        type: 'water_purifier',
+        name: 'RO UV Alkaline Water Purifier',
+        position: [6.35, 1.5, 2.1],
+        rotation: [0, 0, 0],
+        room: 'kitchen',
+        cost: 290
+      });
+
+      // 23. Pedal Trash Bin
+      items.push({
+        id: 'house_kitchen_trash',
+        type: 'trash_bin',
+        name: 'Stainless Step Trash Bin',
+        position: [6.6, 0, 5.4],
+        rotation: [0, 0, 0],
+        room: 'kitchen',
+        cost: 95
+      });
+
+      // ==========================================
+      // ZONE 4: MASTER BEDROOM (X: -7.0 to -0.5, Z: -5.5 to 0.5)
+      // ==========================================
+      // 24. King Size Platform Bed (North headboard wall, facing South)
+      items.push({
+        id: 'house_bed_king',
+        type: 'bed',
+        name: 'King Size Designer Platform Bed',
+        position: [-3.75, 0, -4.3],
+        rotation: [0, 0, 0],
+        style: style,
+        color: palette.woodColor,
+        room: 'bedroom',
+        cost: 1750
+      });
+
+      // 25. Nightstand Left
+      items.push({
+        id: 'house_bed_nightstand_l',
+        type: 'nightstand',
+        name: 'Bedside Nightstand (Left)',
+        position: [-5.3, 0, -4.9],
+        rotation: [0, 0, 0],
+        style: style,
+        room: 'bedroom',
+        cost: 240
+      });
+
+      // 26. Nightstand Right
+      items.push({
+        id: 'house_bed_nightstand_r',
+        type: 'nightstand',
+        name: 'Bedside Nightstand (Right)',
+        position: [-2.2, 0, -4.9],
+        rotation: [0, 0, 0],
+        style: style,
+        room: 'bedroom',
+        cost: 240
+      });
+
+      // 27. Table Lamp Left
+      items.push({
+        id: 'house_bed_lamp_l',
+        type: 'table_lamp',
+        name: 'Bedside Table Lamp (Left)',
+        position: [-5.3, 0.58, -4.9],
+        rotation: [0, 0, 0],
+        color: palette.accentColor,
+        room: 'bedroom',
+        cost: 110
+      });
+
+      // 28. Table Lamp Right
+      items.push({
+        id: 'house_bed_lamp_r',
+        type: 'table_lamp',
+        name: 'Bedside Table Lamp (Right)',
+        position: [-2.2, 0.58, -4.9],
+        rotation: [0, 0, 0],
+        color: palette.accentColor,
+        room: 'bedroom',
+        cost: 110
+      });
+
+      // 29. 3-Door Master Wardrobe (East acoustic wall)
+      items.push({
+        id: 'house_bed_wardrobe',
+        type: 'wardrobe',
+        name: 'Full-Height 3-Door Master Wardrobe',
+        position: [-0.9, 0, -2.4],
+        rotation: [0, -Math.PI / 2, 0],
+        style: style,
+        color: palette.wardrobeColor || 0x2b2d42,
+        room: 'bedroom',
+        cost: 1550
+      });
+
+      // 30. Plush Bedroom Area Rug
+      items.push({
+        id: 'house_bed_rug',
+        type: 'rug',
+        name: 'Plush High-Pile Bedroom Rug',
+        position: [-3.75, 0.005, -3.0],
+        rotation: [0, 0, 0],
+        dimensions: [3.2, 2.2],
+        style: style,
+        room: 'bedroom',
+        cost: 360
+      });
+
+      // 31. Lounge Armchair in Bedroom
+      items.push({
+        id: 'house_bed_lounge',
+        type: 'armchair',
+        name: 'Velvet Bedroom Relaxation Armchair',
+        position: [-6.2, 0, -2.0],
+        rotation: [0, 0.8, 0],
+        style: style,
+        color: palette.sofaColor,
+        room: 'bedroom',
+        cost: 520
+      });
+
+      // 32. Full-Length Dressing Mirror
+      items.push({
+        id: 'house_bed_mirror',
+        type: 'floor_mirror',
+        name: 'Full-Length Dressing Mirror',
+        position: [-6.5, 0, -0.6],
+        rotation: [0, 0.5, 0],
+        style: style,
+        room: 'bedroom',
+        cost: 280
+      });
+
+      // 33. Inverter Split AC
+      items.push({
+        id: 'house_bed_ac',
+        type: 'air_conditioner',
+        name: 'Inverter Split AC Unit',
+        position: [-3.75, 2.4, -5.44],
+        rotation: [0, 0, 0],
+        room: 'bedroom',
+        cost: 650
+      });
+
+      // ==========================================
+      // ZONE 5: HOME OFFICE & STUDY (X: -0.5 to 7.0, Z: -5.5 to 0.5)
+      // ==========================================
+      // 34. Executive Studio Desk
+      items.push({
+        id: 'house_office_desk',
+        type: 'desk',
+        name: 'Executive Studio Desk with Cable Bay',
+        position: [3.25, 0, -2.5],
+        rotation: [0, 0, 0],
+        style: style,
+        room: 'office',
+        cost: 950
+      });
+
+      // 35. High-Back Ergonomic Mesh Office Chair
+      items.push({
+        id: 'house_office_chair',
+        type: 'office_chair',
+        name: 'Ergonomic High-Back Executive Mesh Chair',
+        position: [3.25, 0, -3.3],
+        rotation: [0, 0, 0],
+        room: 'office',
+        cost: 540
+      });
+
+      // 36. Floor-to-Ceiling Library Bookshelf (North wall)
+      items.push({
+        id: 'house_office_bookshelf',
+        type: 'bookshelf',
+        name: 'Floor-to-Ceiling Architectural Bookshelf',
+        position: [3.25, 0, -5.15],
+        rotation: [0, 0, 0],
+        style: style,
+        room: 'office',
+        cost: 820
+      });
+
+      // 37. Resource Storage Credenza (West wall)
+      items.push({
+        id: 'house_office_credenza',
+        type: 'credenza',
+        name: 'Executive File Storage & Resource Credenza',
+        position: [-0.1, 0, -3.5],
+        rotation: [0, Math.PI / 2, 0],
+        style: style,
+        woodColor: palette.woodColor,
+        room: 'office',
+        cost: 680
+      });
+
+      // 38. Client Visitor Armchair
+      items.push({
+        id: 'house_office_visitor',
+        type: 'armchair',
+        name: 'Executive Client Armchair',
+        position: [2.3, 0, -1.6],
+        rotation: [0, Math.PI, 0],
+        style: style,
+        color: palette.accentColor,
+        room: 'office',
+        cost: 480
+      });
+
+      // 39. Desk LED Task Lamp
+      items.push({
+        id: 'house_office_lamp',
+        type: 'table_lamp',
+        name: 'Architectural LED Task Lamp',
+        position: [2.3, 0.78, -2.5],
+        rotation: [0, 0, 0],
+        color: palette.accentColor,
+        room: 'office',
+        cost: 120
+      });
+
+      // 40. Indoor Monstera Plant
+      items.push({
+        id: 'house_office_plant',
+        type: 'plant',
+        name: 'Architectural Monstera Ceramic Planter',
+        position: [6.4, 0, -5.0],
+        rotation: [0, 0, 0],
+        room: 'office',
+        cost: 150
+      });
+
+      // 41. Office Geometric Area Rug
+      items.push({
+        id: 'house_office_rug',
+        type: 'rug',
+        name: 'Office Geometric Low-Profile Rug',
+        position: [3.25, 0.005, -2.5],
+        rotation: [0, 0, 0],
+        dimensions: [3.0, 2.4],
+        style: style,
+        room: 'office',
+        cost: 340
+      });
+
+      // 42. Framed Architectural Blueprint Art (North wall)
+      items.push({
+        id: 'house_office_art',
+        type: 'wall_art',
+        name: 'Framed Architectural Blueprint Art',
+        position: [0.8, 1.8, -5.44],
+        rotation: [0, 0, 0],
+        dimensions: [1.4, 0.9],
+        style: style,
+        room: 'office',
+        cost: 290
+      });
+
+    } else if (roomType === 'living_room' || roomType.startsWith('living_room_')) {
       // Determine which of the 4 Living Room Design Types is selected
       let livingType = pref.livingRoomType || 1;
       if (roomType === 'living_room_zen' || roomType === 'living_room_type2') livingType = 2;
@@ -6771,6 +7733,11 @@ class App {
     this.keysDown = {};
     this.currentRoomDimensions = { width: 5.0, length: 4.5, height: 2.8 };
 
+    // Complete House Multi-Room Navigation & State
+    this.currentHouseZone = 'all';
+    this.currentHouseRoomTypes = { living: 1, dining: 1, kitchen: 1, bedroom: 1, office: 1 };
+    this.cameraAnimation = null;
+
     this.initScene();
     this.initLights();
     this.initRoom();
@@ -6902,12 +7869,19 @@ class App {
       const interactiveTargets = [
         ...this.furnitureGroup.children,
         ...(this.roomBuilder.windowGroup ? [this.roomBuilder.windowGroup] : []),
-        ...(this.roomBuilder.doorGroup ? [this.roomBuilder.doorGroup] : [])
+        ...(this.roomBuilder.doorGroup ? [this.roomBuilder.doorGroup] : []),
+        ...(this.roomBuilder.roomBadges || [])
       ];
       const intersects = this.raycaster.intersectObjects(interactiveTargets, true);
 
       if (intersects.length > 0) {
         const clickedMesh = intersects[0].object;
+
+        // Check if clicked 3D Room Badge
+        if (clickedMesh.userData && clickedMesh.userData.isRoomBadge) {
+          this.focusRoom(clickedMesh.userData.roomZone);
+          return;
+        }
 
         // Check if clicked an architectural element (Window or Door)
         let isArch = null;
@@ -7751,16 +8725,61 @@ class App {
       });
     });
 
+    // Complete House Navigator Bar buttons (Whole House, Living, Dining, Kitchen, Bedroom, Office)
+    document.querySelectorAll('.house-nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const roomSelect = document.getElementById('room-type');
+        if (roomSelect && roomSelect.value !== 'complete_house') {
+          roomSelect.value = 'complete_house';
+          this.syncRoomVariantsUI('complete_house');
+          this.triggerAIGeneration().then(() => {
+            this.focusRoom(btn.dataset.targetRoom);
+          });
+        } else {
+          this.focusRoom(btn.dataset.targetRoom);
+        }
+      });
+    });
+
+    // Complete House Zone Hub buttons in sidebar
+    document.querySelectorAll('.house-zone-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const roomSelect = document.getElementById('room-type');
+        if (roomSelect && roomSelect.value !== 'complete_house') {
+          roomSelect.value = 'complete_house';
+          this.syncRoomVariantsUI('complete_house');
+          this.triggerAIGeneration().then(() => {
+            this.focusRoom(btn.dataset.zone);
+          });
+        } else {
+          this.focusRoom(btn.dataset.zone);
+        }
+      });
+    });
+
     // Master Bedroom 4 Design Types Selector Buttons
     document.querySelectorAll('.bedroom-type-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-bedroom-type');
         const roomSelect = document.getElementById('room-type');
-        if (roomSelect) {
-          roomSelect.value = targetType;
+        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+
+        let vNum = 1;
+        if (targetType === 'bedroom_zen') vNum = 2;
+        else if (targetType === 'bedroom_hotel') vNum = 3;
+        else if (targetType === 'bedroom_scandi') vNum = 4;
+
+        if (isHouse) {
+          this.currentHouseRoomTypes.bedroom = vNum;
+          this.currentHouseZone = 'bedroom';
+          this.syncRoomVariantsUI('complete_house');
+          this.triggerAIGeneration();
+          this.focusRoom('bedroom');
+        } else {
+          if (roomSelect) roomSelect.value = targetType;
+          this.syncRoomVariantsUI(targetType);
+          this.triggerAIGeneration();
         }
-        this.syncRoomVariantsUI(targetType);
-        this.triggerAIGeneration();
         const typeTitle = btn.querySelector('strong')?.textContent || 'Master Bedroom Type';
         this.showToast(`✨ Switched to ${typeTitle}`);
       });
@@ -7771,11 +8790,24 @@ class App {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-living-type');
         const roomSelect = document.getElementById('room-type');
-        if (roomSelect) {
-          roomSelect.value = targetType;
+        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+
+        let vNum = 1;
+        if (targetType === 'living_room_zen') vNum = 2;
+        else if (targetType === 'living_room_luxury') vNum = 3;
+        else if (targetType === 'living_room_cozy') vNum = 4;
+
+        if (isHouse) {
+          this.currentHouseRoomTypes.living = vNum;
+          this.currentHouseZone = 'living';
+          this.syncRoomVariantsUI('complete_house');
+          this.triggerAIGeneration();
+          this.focusRoom('living');
+        } else {
+          if (roomSelect) roomSelect.value = targetType;
+          this.syncRoomVariantsUI(targetType);
+          this.triggerAIGeneration();
         }
-        this.syncRoomVariantsUI(targetType);
-        this.triggerAIGeneration();
         const typeTitle = btn.querySelector('strong')?.textContent || 'Living Room Type';
         this.showToast(`✨ Switched to ${typeTitle}`);
       });
@@ -7786,11 +8818,24 @@ class App {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-office-type');
         const roomSelect = document.getElementById('room-type');
-        if (roomSelect) {
-          roomSelect.value = targetType;
+        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+
+        let vNum = 1;
+        if (targetType === 'home_office_minimal') vNum = 2;
+        else if (targetType === 'home_office_creative') vNum = 3;
+        else if (targetType === 'home_office_academic') vNum = 4;
+
+        if (isHouse) {
+          this.currentHouseRoomTypes.office = vNum;
+          this.currentHouseZone = 'office';
+          this.syncRoomVariantsUI('complete_house');
+          this.triggerAIGeneration();
+          this.focusRoom('office');
+        } else {
+          if (roomSelect) roomSelect.value = targetType;
+          this.syncRoomVariantsUI(targetType);
+          this.triggerAIGeneration();
         }
-        this.syncRoomVariantsUI(targetType);
-        this.triggerAIGeneration();
         const typeTitle = btn.querySelector('strong')?.textContent || 'Home Office Type';
         this.showToast(`✨ Switched to ${typeTitle}`);
       });
@@ -7801,11 +8846,24 @@ class App {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-dining-type');
         const roomSelect = document.getElementById('room-type');
-        if (roomSelect) {
-          roomSelect.value = targetType;
+        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+
+        let vNum = 1;
+        if (targetType === 'dining_room_minimal') vNum = 2;
+        else if (targetType === 'dining_room_luxury') vNum = 3;
+        else if (targetType === 'dining_room_scandi') vNum = 4;
+
+        if (isHouse) {
+          this.currentHouseRoomTypes.dining = vNum;
+          this.currentHouseZone = 'dining';
+          this.syncRoomVariantsUI('complete_house');
+          this.triggerAIGeneration();
+          this.focusRoom('dining');
+        } else {
+          if (roomSelect) roomSelect.value = targetType;
+          this.syncRoomVariantsUI(targetType);
+          this.triggerAIGeneration();
         }
-        this.syncRoomVariantsUI(targetType);
-        this.triggerAIGeneration();
         const typeTitle = btn.querySelector('strong')?.textContent || 'Dining Room Type';
         this.showToast(`✨ Switched to ${typeTitle}`);
       });
@@ -7816,11 +8874,24 @@ class App {
       btn.addEventListener('click', () => {
         const targetType = btn.getAttribute('data-kitchen-type');
         const roomSelect = document.getElementById('room-type');
-        if (roomSelect) {
-          roomSelect.value = targetType;
+        const isHouse = roomSelect && roomSelect.value === 'complete_house';
+
+        let vNum = 1;
+        if (targetType === 'kitchen_lshape') vNum = 2;
+        else if (targetType === 'kitchen_galley') vNum = 3;
+        else if (targetType === 'kitchen_ushape') vNum = 4;
+
+        if (isHouse) {
+          this.currentHouseRoomTypes.kitchen = vNum;
+          this.currentHouseZone = 'kitchen';
+          this.syncRoomVariantsUI('complete_house');
+          this.triggerAIGeneration();
+          this.focusRoom('kitchen');
+        } else {
+          if (roomSelect) roomSelect.value = targetType;
+          this.syncRoomVariantsUI(targetType);
+          this.triggerAIGeneration();
         }
-        this.syncRoomVariantsUI(targetType);
-        this.triggerAIGeneration();
         const typeTitle = btn.querySelector('strong')?.textContent || 'Modular Kitchen Type';
         this.showToast(`✨ Switched to ${typeTitle}`);
       });
@@ -8549,11 +9620,72 @@ class App {
 
   // Master Bedroom & Living Room Variants UI Synchronizer
   syncRoomVariantsUI(currentRoomType) {
+    const isHouse = currentRoomType === 'complete_house';
+    const houseHub = document.getElementById('house-hub-wrapper');
+    const houseNav = document.getElementById('house-navigator-bar');
+    if (houseHub) houseHub.style.display = isHouse ? 'block' : 'none';
+    if (houseNav) houseNav.style.display = isHouse ? 'flex' : 'none';
+
     // 1. Bedroom Variants
     const bedWrapper = document.getElementById('bedroom-variants-wrapper');
     const bedPill = document.getElementById('bedroom-type-pill');
     const bedButtons = document.querySelectorAll('.bedroom-type-btn');
     const isBedroom = currentRoomType === 'bedroom' || (currentRoomType && currentRoomType.startsWith('bedroom_'));
+
+    // 2. Living Room Variants
+    const livingWrapper = document.getElementById('living-variants-wrapper');
+    const livingPill = document.getElementById('living-type-pill');
+    const livingButtons = document.querySelectorAll('.living-type-btn');
+    const isLiving = currentRoomType === 'living_room' || (currentRoomType && currentRoomType.startsWith('living_room_'));
+
+    // 3. Home Office Variants
+    const officeWrapper = document.getElementById('office-variants-wrapper');
+    const officePill = document.getElementById('office-type-pill');
+    const officeButtons = document.querySelectorAll('.office-type-btn');
+    const isOffice = currentRoomType === 'home_office' || (currentRoomType && currentRoomType.startsWith('home_office_'));
+
+    // 4. Dining Room Variants
+    const diningWrapper = document.getElementById('dining-variants-wrapper');
+    const diningPill = document.getElementById('dining-type-pill');
+    const diningButtons = document.querySelectorAll('.dining-type-btn');
+    const isDining = currentRoomType === 'dining_room' || (currentRoomType && currentRoomType.startsWith('dining_room_'));
+
+    // 5. Modular Kitchen Variants
+    const kitchenWrapper = document.getElementById('kitchen-variants-wrapper');
+    const kitchenPill = document.getElementById('kitchen-type-pill');
+    const kitchenButtons = document.querySelectorAll('.kitchen-type-btn');
+    const isKitchen = currentRoomType === 'kitchen' || (currentRoomType && currentRoomType.startsWith('kitchen_'));
+
+    if (isHouse) {
+      const activeZone = this.currentHouseZone || 'living';
+      if (bedWrapper) bedWrapper.style.display = (activeZone === 'bedroom') ? 'block' : 'none';
+      if (livingWrapper) livingWrapper.style.display = (activeZone === 'living' || activeZone === 'all') ? 'block' : 'none';
+      if (officeWrapper) officeWrapper.style.display = (activeZone === 'office') ? 'block' : 'none';
+      if (diningWrapper) diningWrapper.style.display = (activeZone === 'dining') ? 'block' : 'none';
+      if (kitchenWrapper) kitchenWrapper.style.display = (activeZone === 'kitchen') ? 'block' : 'none';
+
+      // Highlight active design buttons in the active room
+      const bedNum = this.currentHouseRoomTypes.bedroom;
+      bedButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === bedNum));
+      if (bedPill) bedPill.textContent = `Type ${bedNum} Active`;
+
+      const livingNum = this.currentHouseRoomTypes.living;
+      livingButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === livingNum));
+      if (livingPill) livingPill.textContent = `Type ${livingNum} Active`;
+
+      const officeNum = this.currentHouseRoomTypes.office;
+      officeButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === officeNum));
+      if (officePill) officePill.textContent = `Type ${officeNum} Active`;
+
+      const diningNum = this.currentHouseRoomTypes.dining;
+      diningButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === diningNum));
+      if (diningPill) diningPill.textContent = `Type ${diningNum} Active`;
+
+      const kitchenNum = this.currentHouseRoomTypes.kitchen;
+      kitchenButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === kitchenNum));
+      if (kitchenPill) kitchenPill.textContent = `Type ${kitchenNum} Active`;
+      return;
+    }
 
     if (bedWrapper) {
       bedWrapper.style.display = isBedroom ? 'block' : 'none';
@@ -8571,12 +9703,6 @@ class App {
       }
     }
 
-    // 2. Living Room Variants
-    const livingWrapper = document.getElementById('living-variants-wrapper');
-    const livingPill = document.getElementById('living-type-pill');
-    const livingButtons = document.querySelectorAll('.living-type-btn');
-    const isLiving = currentRoomType === 'living_room' || (currentRoomType && currentRoomType.startsWith('living_room_'));
-
     if (livingWrapper) {
       livingWrapper.style.display = isLiving ? 'block' : 'none';
       if (isLiving) {
@@ -8592,12 +9718,6 @@ class App {
         }
       }
     }
-
-    // 3. Home Office Variants
-    const officeWrapper = document.getElementById('office-variants-wrapper');
-    const officePill = document.getElementById('office-type-pill');
-    const officeButtons = document.querySelectorAll('.office-type-btn');
-    const isOffice = currentRoomType === 'home_office' || (currentRoomType && currentRoomType.startsWith('home_office_'));
 
     if (officeWrapper) {
       officeWrapper.style.display = isOffice ? 'block' : 'none';
@@ -8615,12 +9735,6 @@ class App {
       }
     }
 
-    // 4. Dining Room Variants
-    const diningWrapper = document.getElementById('dining-variants-wrapper');
-    const diningPill = document.getElementById('dining-type-pill');
-    const diningButtons = document.querySelectorAll('.dining-type-btn');
-    const isDining = currentRoomType === 'dining_room' || (currentRoomType && currentRoomType.startsWith('dining_room_'));
-
     if (diningWrapper) {
       diningWrapper.style.display = isDining ? 'block' : 'none';
       if (isDining) {
@@ -8636,12 +9750,6 @@ class App {
         }
       }
     }
-
-    // 5. Modular Kitchen Variants
-    const kitchenWrapper = document.getElementById('kitchen-variants-wrapper');
-    const kitchenPill = document.getElementById('kitchen-type-pill');
-    const kitchenButtons = document.querySelectorAll('.kitchen-type-btn');
-    const isKitchen = currentRoomType === 'kitchen' || (currentRoomType && currentRoomType.startsWith('kitchen_'));
 
     if (kitchenWrapper) {
       kitchenWrapper.style.display = isKitchen ? 'block' : 'none';
@@ -8665,40 +9773,136 @@ class App {
     this.syncRoomVariantsUI(currentRoomType);
   }
 
+  // Complete House Room Navigator Focus & Camera Transition
+  focusRoom(zoneKey, animate = true) {
+    this.currentHouseZone = zoneKey;
+
+    // Update buttons in #house-navigator-bar
+    document.querySelectorAll('.house-nav-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.targetRoom === zoneKey);
+    });
+
+    // Update buttons in #house-hub-wrapper
+    document.querySelectorAll('.house-zone-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.zone === zoneKey);
+    });
+
+    const pill = document.getElementById('house-active-room-pill');
+    const titles = {
+      all: 'Complete House',
+      living: 'Living Lounge',
+      dining: 'Dining Pavilion',
+      kitchen: 'Modular Kitchen',
+      bedroom: 'Master Bedroom',
+      office: 'Home Office & Study'
+    };
+    if (pill) pill.textContent = (titles[zoneKey] || 'Room') + ' Active';
+
+    // Show corresponding room variant selector in sidebar
+    this.syncRoomVariantsUI(document.getElementById('room-type')?.value || 'complete_house');
+
+    // Camera target positions
+    let targetPos, targetLook;
+    switch (zoneKey) {
+      case 'living':
+        targetPos = new THREE.Vector3(-4.0, 4.0, 8.5);
+        targetLook = new THREE.Vector3(-4.0, 1.2, 3.25);
+        this.showToast('📍 Viewing Living Lounge');
+        break;
+      case 'dining':
+        targetPos = new THREE.Vector3(1.0, 3.8, 8.0);
+        targetLook = new THREE.Vector3(1.0, 1.1, 3.25);
+        this.showToast('📍 Viewing Dining Pavilion');
+        break;
+      case 'kitchen':
+        targetPos = new THREE.Vector3(5.0, 3.8, 8.0);
+        targetLook = new THREE.Vector3(5.0, 1.1, 3.25);
+        this.showToast('📍 Viewing Modular Kitchen');
+        break;
+      case 'bedroom':
+        targetPos = new THREE.Vector3(-3.75, 4.2, 3.0);
+        targetLook = new THREE.Vector3(-3.75, 1.2, -2.5);
+        this.showToast('📍 Viewing Master Bedroom Suite');
+        break;
+      case 'office':
+        targetPos = new THREE.Vector3(3.25, 4.2, 3.0);
+        targetLook = new THREE.Vector3(3.25, 1.2, -2.5);
+        this.showToast('📍 Viewing Home Office & Study');
+        break;
+      case 'all':
+      default:
+        targetPos = new THREE.Vector3(0, 14.5, 17.5);
+        targetLook = new THREE.Vector3(0, 1.0, 0.5);
+        this.showToast('🏠 Viewing Complete House (All Connected Rooms)');
+        break;
+    }
+
+    if (animate) {
+      this.cameraAnimation = {
+        targetPos: targetPos,
+        targetLook: targetLook
+      };
+    } else {
+      this.camera.position.copy(targetPos);
+      this.controls.target.copy(targetLook);
+      this.controls.update();
+    }
+  }
+
   // 6. CAMERA PRESETS & WALKTHROUGH
   setCameraPreset(mode) {
     const hud = document.getElementById('walkthrough-hud');
     if (mode === 'walk') {
       this.isWalkthrough = true;
       if (hud) hud.style.display = 'block';
-      this.camera.position.set(0, 1.6, 1.6);
-      this.controls.target.set(0, 1.55, -0.6);
+      if (this.roomBuilder.isCompleteHouse) {
+        this.camera.position.set(-4.0, 1.6, 4.5);
+        this.controls.target.set(-4.0, 1.55, 2.0);
+      } else {
+        this.camera.position.set(0, 1.6, 1.6);
+        this.controls.target.set(0, 1.55, -0.6);
+      }
       this.controls.maxPolarAngle = Math.PI - 0.05;
       this.controls.minDistance = 0.05;
-      this.showToast('Walkthrough active! Use WASD or Arrow Keys to walk');
+      this.showToast('Walkthrough active! Use WASD or Arrow Keys to walk through the house');
     } else {
       this.isWalkthrough = false;
       if (hud) hud.style.display = 'none';
       this.controls.maxPolarAngle = Math.PI / 2 - 0.02;
       this.controls.minDistance = 2.0;
 
-      switch (mode) {
-        case 'top':
-          // Top-down Floor Plan
-          this.camera.position.set(0, 9.0, 0.001);
-          this.controls.target.set(0, 0, 0);
-          break;
-        case 'front':
-          // Front elevation
-          this.camera.position.set(0, 1.8, 6.5);
-          this.controls.target.set(0, 1.4, 0);
-          break;
-        case '3d':
-        default:
-          // Free 3D Orbit
-          this.camera.position.set(0, 4.5, 6.8);
-          this.controls.target.set(0, 1.0, 0);
-          break;
+      if (this.roomBuilder.isCompleteHouse) {
+        switch (mode) {
+          case 'top':
+            this.camera.position.set(0, 22.0, 0.001);
+            this.controls.target.set(0, 0, 0.25);
+            break;
+          case 'front':
+            this.camera.position.set(0, 3.5, 17.5);
+            this.controls.target.set(0, 1.4, 0.5);
+            break;
+          case '3d':
+          default:
+            this.camera.position.set(0, 14.5, 17.5);
+            this.controls.target.set(0, 1.0, 0.5);
+            break;
+        }
+      } else {
+        switch (mode) {
+          case 'top':
+            this.camera.position.set(0, 9.0, 0.001);
+            this.controls.target.set(0, 0, 0);
+            break;
+          case 'front':
+            this.camera.position.set(0, 1.8, 6.5);
+            this.controls.target.set(0, 1.4, 0);
+            break;
+          case '3d':
+          default:
+            this.camera.position.set(0, 4.5, 6.8);
+            this.controls.target.set(0, 1.0, 0);
+            break;
+        }
       }
     }
     this.controls.update();
@@ -8708,33 +9912,42 @@ class App {
   async triggerAIGeneration() {
     this.showToast('AI is optimizing spatial layout...');
 
-    const currentRoomType = document.getElementById('room-type')?.value || 'bedroom';
-    let bedType = 1;
+    const currentRoomType = document.getElementById('room-type')?.value || 'complete_house';
+    const isHouse = currentRoomType === 'complete_house';
+
+    let bedType = isHouse ? (this.currentHouseRoomTypes.bedroom || 1) : 1;
     if (currentRoomType === 'bedroom_zen') bedType = 2;
     else if (currentRoomType === 'bedroom_hotel') bedType = 3;
     else if (currentRoomType === 'bedroom_scandi') bedType = 4;
 
-    let livingType = 1;
+    let livingType = isHouse ? (this.currentHouseRoomTypes.living || 1) : 1;
     if (currentRoomType === 'living_room_zen') livingType = 2;
     else if (currentRoomType === 'living_room_luxury') livingType = 3;
     else if (currentRoomType === 'living_room_cozy') livingType = 4;
 
-    let officeType = 1;
+    let officeType = isHouse ? (this.currentHouseRoomTypes.office || 1) : 1;
     if (currentRoomType === 'home_office_minimal') officeType = 2;
     else if (currentRoomType === 'home_office_creative') officeType = 3;
     else if (currentRoomType === 'home_office_academic') officeType = 4;
 
-    let diningType = 1;
+    let diningType = isHouse ? (this.currentHouseRoomTypes.dining || 1) : 1;
     if (currentRoomType === 'dining_room_minimal') diningType = 2;
     else if (currentRoomType === 'dining_room_luxury') diningType = 3;
     else if (currentRoomType === 'dining_room_scandi') diningType = 4;
 
-    let kitchenType = 1;
+    let kitchenType = isHouse ? (this.currentHouseRoomTypes.kitchen || 1) : 1;
     if (currentRoomType === 'kitchen_lshape') kitchenType = 2;
     else if (currentRoomType === 'kitchen_galley') kitchenType = 3;
     else if (currentRoomType === 'kitchen_ushape') kitchenType = 4;
 
     this.syncRoomVariantsUI(currentRoomType);
+
+    const houseDims = { width: 14.0, length: 11.5, height: 2.8 };
+    const singleDims = {
+      width: parseFloat(document.getElementById('room-w').value) || 5.0,
+      length: parseFloat(document.getElementById('room-l').value) || 4.5,
+      height: parseFloat(document.getElementById('room-h').value) || 2.8
+    };
 
     const pref = {
       roomType: currentRoomType,
@@ -8743,11 +9956,7 @@ class App {
       officeType: officeType,
       diningType: diningType,
       kitchenType: kitchenType,
-      dimensions: {
-        width: parseFloat(document.getElementById('room-w').value) || 5.0,
-        length: parseFloat(document.getElementById('room-l').value) || 4.5,
-        height: parseFloat(document.getElementById('room-h').value) || 2.8
-      },
+      dimensions: isHouse ? houseDims : singleDims,
       style: this.currentStyle,
       colorScheme: document.getElementById('color-scheme').value,
       flooring: document.getElementById('flooring-select').value,
@@ -8757,7 +9966,17 @@ class App {
 
     // 1. Rebuild room architecture with new dimensions and style
     this.currentRoomDimensions = pref.dimensions;
-    this.roomBuilder.buildRoom(pref.dimensions, 0xfaf5ee, pref.flooring);
+    if (isHouse) {
+      const rw = document.getElementById('room-w');
+      const rl = document.getElementById('room-l');
+      const rh = document.getElementById('room-h');
+      if (rw) rw.value = '14.0';
+      if (rl) rl.value = '11.5';
+      if (rh) rh.value = '2.8';
+      this.roomBuilder.buildCompleteHouse(0xfaf5ee, pref.flooring);
+    } else {
+      this.roomBuilder.buildRoom(pref.dimensions, 0xfaf5ee, pref.flooring);
+    }
 
     // 2. Clear old furniture
     while (this.furnitureGroup.children.length > 0) {
@@ -8783,6 +10002,12 @@ class App {
     designPlan.items.forEach(item => {
       this.addFurnitureItem(item);
     });
+
+    // 5. Initial Camera Setup for Complete House
+    if (isHouse && !this.initialHouseLoaded) {
+      this.initialHouseLoaded = true;
+      this.setCameraPreset('3d');
+    }
 
     // 5. Update AI Insights Tab UI
     document.getElementById('ai-concept-title').textContent = designPlan.conceptName;
@@ -9318,6 +10543,17 @@ class App {
   // 12. ANIMATION LOOP WITH INTERACTIVE WALKTHROUGH
   animate() {
     requestAnimationFrame(this.animate);
+
+    // Smooth Camera Transition Lerp
+    if (this.cameraAnimation) {
+      this.camera.position.lerp(this.cameraAnimation.targetPos, 0.08);
+      this.controls.target.lerp(this.cameraAnimation.targetLook, 0.08);
+      if (this.camera.position.distanceTo(this.cameraAnimation.targetPos) < 0.05) {
+        this.camera.position.copy(this.cameraAnimation.targetPos);
+        this.controls.target.copy(this.cameraAnimation.targetLook);
+        this.cameraAnimation = null;
+      }
+    }
 
     if (this.isWalkthrough) {
       const moveSpeed = 0.05;
