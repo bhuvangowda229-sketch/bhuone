@@ -138,6 +138,84 @@ class TextureGenerator {
     return texture;
   }
 
+  // Lush Garden Grass Texture
+  static createGrassTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#4d7c0f';
+    ctx.fillRect(0, 0, 256, 256);
+    for (let i = 0; i < 3500; i++) {
+      const x = Math.random() * 256;
+      const y = Math.random() * 256;
+      const h = 3 + Math.random() * 5;
+      const colors = ['#65a30d', '#3f6212', '#84cc16', '#365314', '#558b2f'];
+      ctx.strokeStyle = colors[Math.floor(Math.random() * colors.length)];
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + (Math.random() - 0.5) * 2, y - h);
+      ctx.stroke();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+  }
+
+  // Driveway & Patio Stone Paving Texture
+  static createPavingTexture(colorHex = 0xd1d5db) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#' + colorHex.toString(16).padStart(6, '0');
+    ctx.fillRect(0, 0, 256, 256);
+    ctx.strokeStyle = '#9ca3af';
+    ctx.lineWidth = 2;
+    const s = 64;
+    for (let y = 0; y <= 256; y += s) {
+      const offset = (y / s) % 2 === 0 ? 0 : s / 2;
+      for (let x = -s; x <= 256 + s; x += s) {
+        ctx.strokeRect(x + offset, y, s, s);
+      }
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+  }
+
+  // Aqua / Sky Blue Bathroom Designer Tile Texture
+  static createBlueTileTexture(colorHex = 0x38bdf8, groutHex = 0x0284c7) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#' + colorHex.toString(16).padStart(6, '0');
+    ctx.fillRect(0, 0, 256, 256);
+    const tileSize = 48;
+    ctx.strokeStyle = '#' + groutHex.toString(16).padStart(6, '0');
+    ctx.lineWidth = 2;
+    for (let x = 0; x <= 256; x += tileSize) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, 256);
+      ctx.stroke();
+    }
+    for (let y = 0; y <= 256; y += tileSize) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(256, y);
+      ctx.stroke();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+  }
+
   // Fabric weave texture (for sofas, chairs, cushions)
   static createFabricTexture(colorHex = 0x5a6268) {
     const canvas = document.createElement('canvas');
@@ -711,7 +789,8 @@ class RoomBuilder {
   buildCompleteHouse(wallColorHex = 0xfaf5ee, flooringType = 'wood_oak', houseType = '1bhk') {
     this.isCompleteHouse = true;
     this.houseType = houseType || '1bhk';
-    this.currentDimensions = { width: 14.0, length: 11.5, height: 2.8 };
+    const isVilla = (this.houseType === 'villa_2bhk' || this.houseType === 'villa');
+    this.currentDimensions = isVilla ? { width: 16.0, length: 18.5, height: 2.8 } : { width: 14.0, length: 11.5, height: 2.8 };
     this.currentWallColor = wallColorHex;
     this.currentFlooring = flooringType;
 
@@ -735,23 +814,22 @@ class RoomBuilder {
 
     const H = 2.8;
 
-    // 2. Multi-Room Floors with Transitions
-    this.buildHouseFloors(flooringType);
-
-    // 3. Complete House Perimeter & Interior Dividing Walls
-    this.buildHouseWalls(H, wallColorHex);
-
-    // 4. Exterior Windows & Interior Passages/Doors
-    this.buildHouseWindowsAndDoors(H);
-
-    // 5. Baseboards along walls
-    this.buildHouseBaseboards(H);
-
-    // 6. 3D Interactive Room Pin Badges
-    this.buildHouseRoomBadges();
-
-    // 7. Measurement Floor Grid for Complete House
-    this.buildFloorGrid(14.0, 11.5);
+    if (isVilla) {
+      // Contemporary Villa Estate Architecture matching user photograph
+      this.buildVillaFloors(flooringType);
+      this.buildVillaWalls(H, wallColorHex);
+      this.buildVillaWindowsAndDoors(H);
+      this.buildVillaBadges();
+      this.buildFloorGrid(16.0, 18.5);
+    } else {
+      // 1BHK Classic Complete House
+      this.buildHouseFloors(flooringType);
+      this.buildHouseWalls(H, wallColorHex);
+      this.buildHouseWindowsAndDoors(H);
+      this.buildHouseBaseboards(H);
+      this.buildHouseRoomBadges();
+      this.buildFloorGrid(14.0, 11.5);
+    }
   }
 
   buildHouseFloors(flooringType) {
@@ -761,6 +839,21 @@ class RoomBuilder {
       let metalness = 0.05;
 
       switch (floorType) {
+        case 'blue_tile':
+          floorTexture = TextureGenerator.createBlueTileTexture(0x38bdf8, 0x0284c7);
+          roughness = 0.2;
+          metalness = 0.05;
+          break;
+        case 'grass':
+          floorTexture = TextureGenerator.createGrassTexture();
+          roughness = 0.95;
+          metalness = 0.0;
+          break;
+        case 'paving':
+          floorTexture = TextureGenerator.createPavingTexture(0xd1d5db);
+          roughness = 0.65;
+          metalness = 0.05;
+          break;
         case 'dark_walnut':
           floorTexture = TextureGenerator.createWoodTexture(0x4a2e18);
           roughness = 0.5;
@@ -1104,6 +1197,310 @@ class RoomBuilder {
     this.roomBadges.push(badge);
     this.roomGroup.add(badge);
     return badge;
+  }
+
+  // ==========================================
+  // CONTEMPORARY VILLA ARCHITECTURE (MATCHING USER PHOTOGRAPH)
+  // ==========================================
+  buildVillaFloors(flooringType) {
+    const makeFloorMesh = (W, L, posX, posZ, floorType, zoneKey) => {
+      let floorTexture;
+      let roughness = 0.4;
+      let metalness = 0.05;
+
+      switch (floorType) {
+        case 'blue_tile':
+          floorTexture = TextureGenerator.createBlueTileTexture(0x38bdf8, 0x0284c7);
+          roughness = 0.2;
+          metalness = 0.05;
+          break;
+        case 'grass':
+          floorTexture = TextureGenerator.createGrassTexture();
+          roughness = 0.95;
+          metalness = 0.0;
+          break;
+        case 'paving':
+          floorTexture = TextureGenerator.createPavingTexture(0xd1d5db);
+          roughness = 0.65;
+          metalness = 0.05;
+          break;
+        case 'dark_walnut':
+          floorTexture = TextureGenerator.createWoodTexture(0x4a2e18);
+          roughness = 0.5;
+          break;
+        case 'marble':
+          floorTexture = TextureGenerator.createMarbleTexture(0xf8fafc, 0x94a3b8);
+          roughness = 0.15;
+          metalness = 0.1;
+          break;
+        case 'tile':
+          floorTexture = TextureGenerator.createTileTexture(0xf8fafc, 0xcfd4dc);
+          roughness = 0.25;
+          break;
+        case 'wood_oak':
+        default:
+          floorTexture = TextureGenerator.createWoodTexture(0xd4a373);
+          roughness = 0.5;
+          break;
+      }
+
+      floorTexture.repeat.set(Math.max(1, Math.round(W / 2)), Math.max(1, Math.round(L / 2)));
+
+      const floorMat = new THREE.MeshStandardMaterial({
+        map: floorTexture,
+        roughness: roughness,
+        metalness: metalness
+      });
+
+      const floorGeom = new THREE.PlaneGeometry(W, L);
+      const mesh = new THREE.Mesh(floorGeom, floorMat);
+      mesh.rotation.x = -Math.PI / 2;
+      mesh.position.set(posX, 0, posZ);
+      mesh.receiveShadow = true;
+      mesh.name = `HouseFloor_${zoneKey}`;
+      mesh.userData = { isFloor: true, roomZone: zoneKey, zone: zoneKey };
+      this.houseFloors.push(mesh);
+      this.roomGroup.add(mesh);
+      return mesh;
+    };
+
+    // 1. Entrance Foyer (Front-Left)
+    makeFloorMesh(3.0, 3.0, -4.7, 4.9, 'tile', 'foyer');
+
+    // 2. Common Bathroom 1 (Mid-Left - Sky Blue Designer Tiles)
+    makeFloorMesh(3.0, 2.8, -4.7, 2.0, 'blue_tile', 'common_bath');
+
+    // 3. Second Bedroom (Back-Left - Warm Oak Wood)
+    makeFloorMesh(4.4, 6.6, -4.0, -2.7, flooringType || 'wood_oak', 'bedroom2');
+
+    // 4. Living Room Lounge (Center-Front - Polished Ivory Tile)
+    makeFloorMesh(5.6, 4.6, -0.4, 4.1, 'tile', 'living');
+
+    // 5. Dining Area (Center-Mid - Polished Ivory Tile)
+    makeFloorMesh(4.2, 3.4, 0.3, 0.1, 'tile', 'dining');
+
+    // 6. Modular Kitchen (Center-Back - Polished Tile)
+    makeFloorMesh(4.2, 4.4, 0.3, -3.8, 'tile', 'kitchen');
+
+    // 7. Master Bedroom (Front-Right - Warm Oak Wood)
+    makeFloorMesh(4.0, 5.4, 4.4, 3.7, flooringType || 'wood_oak', 'bedroom');
+
+    // 8. Walk-in Wardrobe / Dressing Area (Mid-Right)
+    makeFloorMesh(2.0, 3.0, 3.4, -0.5, flooringType || 'wood_oak', 'walk_in_closet');
+
+    // 9. Master En-Suite Bathroom (Mid-Right Outer - Sky Blue Tiles)
+    makeFloorMesh(2.0, 3.0, 5.4, -0.5, 'blue_tile', 'master_bath');
+
+    // 10. Backyard Lawn & Garden (Rear-Right Outdoor)
+    makeFloorMesh(4.0, 3.0, 4.4, -7.5, 'grass', 'backyard');
+
+    // 11. Front Lawn (Front-Right Outdoor)
+    makeFloorMesh(5.4, 2.8, 3.7, 7.8, 'grass', 'front_lawn');
+
+    // 12. Front Paved Driveway & Porch Approach (Front-Left Outdoor)
+    makeFloorMesh(4.8, 2.8, -3.8, 7.8, 'paving', 'driveway');
+
+    // 13. Left Garden Landscape Buffer
+    makeFloorMesh(1.6, 18.0, -7.2, 0.25, 'grass', 'left_garden');
+
+    // 14. Right Garden Landscape Buffer
+    makeFloorMesh(1.6, 18.0, 7.2, 0.25, 'grass', 'right_garden');
+
+    // 15. Rear Garden Buffer (Behind Second Bed & Kitchen)
+    makeFloorMesh(8.6, 3.0, -1.9, -7.5, 'grass', 'rear_garden');
+
+    // Front Porch Concrete Entrance Steps (at Entrance Foyer Door)
+    const stepMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.7 });
+    const step1 = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.08, 0.45), stepMat);
+    step1.position.set(-4.7, 0.04, 6.55);
+    this.roomGroup.add(step1);
+
+    const step2 = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.08, 0.4), stepMat);
+    step2.position.set(-4.7, 0.12, 6.45);
+    this.roomGroup.add(step2);
+
+    // Satin Brass Transition Strips
+    const brassMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.25 });
+    const addThreshold = (w, d, x, z) => {
+      const geom = new THREE.BoxGeometry(w, 0.008, d);
+      const strip = new THREE.Mesh(geom, brassMat);
+      strip.position.set(x, 0.004, z);
+      this.roomGroup.add(strip);
+    };
+    addThreshold(0.06, 2.4, -3.2, 4.9);
+    addThreshold(1.0, 0.06, -4.7, 3.4);
+    addThreshold(1.0, 0.06, -4.0, 0.6);
+    addThreshold(0.06, 2.6, 2.4, 3.7);
+    addThreshold(1.2, 0.06, 3.4, 1.0);
+    addThreshold(0.06, 1.0, 4.4, -0.5);
+  }
+
+  buildVillaWalls(H, wallColorHex) {
+    const createWallMat = (isCutaway = false, customColor = null) => new THREE.MeshStandardMaterial({
+      color: customColor || wallColorHex,
+      roughness: 0.85,
+      side: THREE.DoubleSide,
+      transparent: isCutaway,
+      opacity: isCutaway ? (this.cutawayEnabled ? 0.0 : 0.95) : 1.0
+    });
+
+    const addWall = (w, h, d, x, y, z, name = 'Wall', isCutaway = false, customColor = null) => {
+      const geom = new THREE.BoxGeometry(w, h, d);
+      const mat = createWallMat(isCutaway, customColor);
+      const mesh = new THREE.Mesh(geom, mat);
+      mesh.name = name;
+      mesh.position.set(x, y, z);
+      mesh.castShadow = !isCutaway;
+      mesh.receiveShadow = true;
+      mesh.userData = { type: 'wall', isCutawayWall: isCutaway, name: name };
+      if (isCutaway) {
+        mesh.visible = !this.cutawayEnabled;
+        this.frontWalls.push(mesh);
+      }
+      this.houseWalls.push(mesh);
+      this.roomGroup.add(mesh);
+      return mesh;
+    };
+
+    // A. EXTERIOR BOUNDARY COMPOUND WALL (Around 16.0m x 18.5m property)
+    const boundColor = 0xe7e5e4; // Warm stone perimeter wall
+    const boundH = 1.1; // Low boundary wall for perfect 3D dollhouse perspective
+    addWall(16.3, boundH, 0.15, 0, boundH / 2, -9.0, 'Perimeter Rear Boundary Wall', false, boundColor);
+    addWall(0.15, boundH, 18.3, -8.0, boundH / 2, 0.25, 'Perimeter Left Boundary Wall', false, boundColor);
+    addWall(0.15, boundH, 18.3, 8.0, boundH / 2, 0.25, 'Perimeter Right Boundary Wall', false, boundColor);
+    addWall(7.5, boundH, 0.15, 4.25, boundH / 2, 9.25, 'Perimeter Front Garden Wall', true, boundColor);
+    addWall(2.5, boundH, 0.15, -6.75, boundH / 2, 9.25, 'Perimeter Front Gate Left Wall', true, boundColor);
+
+    // Boundary Wall Dark Trim Capping
+    const capMat = new THREE.MeshStandardMaterial({ color: 0x44403c, roughness: 0.6 });
+    const addCap = (w, d, x, z) => {
+      const cap = new THREE.Mesh(new THREE.BoxGeometry(w, 0.05, d), capMat);
+      cap.position.set(x, boundH + 0.025, z);
+      this.roomGroup.add(cap);
+    };
+    addCap(16.35, 0.2, 0, -9.0);
+    addCap(0.2, 18.35, -8.0, 0.25);
+    addCap(0.2, 18.35, 8.0, 0.25);
+
+    // B. VILLA EXTERIOR BUILDING WALLS (Height H = 2.8m)
+    addWall(8.8, H, 0.15, -1.8, H / 2, -6.0, 'Second Bed & Kitchen North Wall');
+    addWall(4.2, H, 0.15, 4.4, H / 2, -2.0, 'Master Suite Backyard Wall');
+    addWall(0.15, H, 7.2, 6.4, H / 2, -5.6, 'Backyard & Master East Exterior Wall');
+
+    // Second Bed West Wall with Terracotta Accent
+    const terracotta = 0xc2410c;
+    addWall(0.15, H, 6.6, -6.2, H / 2, -2.7, 'Second Bed Terracotta Accent Wall', false, terracotta);
+    addWall(0.15, H, 5.8, -6.2, H / 2, 3.5, 'Common Bath & Foyer West Wall');
+    addWall(0.15, H, 5.4, 6.4, H / 2, 3.7, 'Master Bedroom East Exterior Wall');
+
+    // Front Exterior Walls (Cutaway View Enabled)
+    addWall(0.9, H, 0.15, -5.75, H / 2, 6.4, 'Foyer Front Wall Left', true);
+    addWall(1.2, 0.6, 0.15, -4.7, 2.5, 6.4, 'Foyer Front Door Lintel', true);
+    addWall(0.9, H, 0.15, -3.65, H / 2, 6.4, 'Foyer Front Wall Right', true);
+    addWall(5.6, H, 0.15, -0.4, H / 2, 6.4, 'Living Room Front Wall (Cutaway)', true);
+    addWall(4.0, H, 0.15, 4.4, H / 2, 6.4, 'Master Bedroom Front Wall (Cutaway)', true);
+
+    // Front Architectural Floor Curb
+    const curbMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.7 });
+    const curb = new THREE.Mesh(new THREE.BoxGeometry(12.8, 0.12, 0.15), curbMat);
+    curb.position.set(0.1, 0.06, 6.4);
+    this.roomGroup.add(curb);
+
+    // C. INTERIOR DIVIDING WALLS
+    addWall(0.12, H, 2.8, -3.2, H / 2, 2.0, 'Common Bath East Wall');
+    addWall(0.12, H, 1.2, -3.2, H / 2, 5.8, 'Foyer TV Partition Wall');
+
+    // Slatted wood vertical screen between Foyer and Living Room
+    const woodMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.4 });
+    for (let sz = 3.6; sz <= 5.0; sz += 0.28) {
+      const slat = new THREE.Mesh(new THREE.BoxGeometry(0.04, H, 0.08), woodMat);
+      slat.position.set(-3.2, H / 2, sz);
+      this.roomGroup.add(slat);
+    }
+
+    addWall(3.0, H, 0.12, -4.7, H / 2, 3.4, 'Common Bath-Foyer Wall');
+    addWall(3.0, H, 0.12, -4.7, H / 2, 0.6, 'Common Bath-Second Bed Wall');
+    addWall(0.12, H, 6.6, -1.8, H / 2, -2.7, 'Second Bed-Kitchen Dividing Wall');
+    addWall(0.12, H, 5.4, 2.4, H / 2, 3.7, 'Master Bed-Living Dividing Wall');
+    addWall(0.12, H, 3.0, 2.4, H / 2, -0.5, 'Walk-in Closet-Dining Wall');
+    addWall(1.0, H, 0.12, 2.9, H / 2, 1.0, 'Closet-Bed Wall Left');
+    addWall(1.4, 0.6, 0.12, 4.1, 2.5, 1.0, 'Closet Doorway Lintel');
+    addWall(1.0, H, 0.12, 5.9, H / 2, 1.0, 'Closet-Bed Wall Right');
+    addWall(0.12, H, 3.0, 4.4, H / 2, -0.5, 'Closet-Bath Dividing Wall');
+  }
+
+  buildVillaWindowsAndDoors(H) {
+    const frameMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.3 });
+    const woodTrimMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.4 });
+    const glassMat = new THREE.MeshPhysicalMaterial({
+      color: 0xbae6fd,
+      transmission: 0.9,
+      opacity: 0.4,
+      transparent: true,
+      roughness: 0.1
+    });
+
+    const createArchitecturalWindow = (w, h, posX, posY, posZ, rotY = 0, isWoodTrim = false) => {
+      const winGroup = new THREE.Group();
+      winGroup.name = 'HouseWindow';
+      const fMat = isWoodTrim ? woodTrimMat : frameMat;
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(0.06, h, w), fMat);
+      winGroup.add(frame);
+      const glass = new THREE.Mesh(new THREE.BoxGeometry(0.01, h - 0.1, w - 0.1), glassMat);
+      winGroup.add(glass);
+      const crossV = new THREE.Mesh(new THREE.BoxGeometry(0.07, h - 0.1, 0.03), fMat);
+      const crossH = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.03, w - 0.1), fMat);
+      winGroup.add(crossV);
+      winGroup.add(crossH);
+      winGroup.position.set(posX, posY, posZ);
+      winGroup.rotation.y = rotY;
+      this.roomGroup.add(winGroup);
+      return winGroup;
+    };
+
+    // 1. Second Bedroom North Window (overlooking rear garden)
+    createArchitecturalWindow(2.0, 1.3, -4.0, 1.6, -5.92, -Math.PI / 2, true);
+
+    // 2. Modular Kitchen North Window (above counter)
+    createArchitecturalWindow(1.8, 1.2, 0.3, 1.7, -5.92, -Math.PI / 2, true);
+
+    // 3. Backyard Sliding Glass Door from Master/Kitchen Corridor (Z = -2.0)
+    createArchitecturalWindow(1.8, 2.2, 4.4, 1.15, -1.95, -Math.PI / 2, false);
+
+    // 4. Living Room Front Panoramic Window (Cutaway)
+    createArchitecturalWindow(3.6, 2.0, -0.4, 1.2, 6.35, -Math.PI / 2, true);
+
+    // 5. Master Bedroom Front Picture Window (Cutaway)
+    createArchitecturalWindow(2.6, 1.6, 4.4, 1.4, 6.35, -Math.PI / 2, true);
+
+    // Front Pivot Wooden Entrance Door (at Foyer)
+    const doorGroup = new THREE.Group();
+    doorGroup.name = 'FrontPivotDoor';
+    const doorWoodMat = new THREE.MeshStandardMaterial({ color: 0x9a3412, roughness: 0.35 });
+    const pivotLeaf = new THREE.Mesh(new THREE.BoxGeometry(1.1, 2.3, 0.06), doorWoodMat);
+    pivotLeaf.position.set(-4.7, 1.18, 6.4);
+    doorGroup.add(pivotLeaf);
+    for (let sx = -0.45; sx <= 0.45; sx += 0.15) {
+      const slat = new THREE.Mesh(new THREE.BoxGeometry(0.03, 2.25, 0.015), new THREE.MeshStandardMaterial({ color: 0x451a03 }));
+      slat.position.set(-4.7 + sx, 1.18, 6.435);
+      doorGroup.add(slat);
+    }
+    const brassHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.85, 12), new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.9, roughness: 0.15 }));
+    brassHandle.position.set(-4.3, 1.15, 6.45);
+    doorGroup.add(brassHandle);
+    this.roomGroup.add(doorGroup);
+  }
+
+  buildVillaBadges() {
+    this.createRoomBadge('ENTRANCE FOYER', '🚪', -4.7, 4.9, 'foyer');
+    this.createRoomBadge('LIVING ROOM', '🛋️', -0.4, 4.1, 'living');
+    this.createRoomBadge('DINING AREA', '🍽️', 0.3, 0.1, 'dining');
+    this.createRoomBadge('MODULAR KITCHEN', '🍳', 0.3, -3.8, 'kitchen');
+    this.createRoomBadge('SECOND BEDROOM', '🛏️', -4.0, -2.7, 'bedroom2');
+    this.createRoomBadge('COMMON BATHROOM 1', '🚿', -4.7, 2.0, 'common_bath');
+    this.createRoomBadge('MASTER BEDROOM', '👑', 4.4, 3.7, 'bedroom');
+    this.createRoomBadge('MASTER BATHROOM', '🛁', 5.4, -0.5, 'master_bath');
+    this.createRoomBadge('BACKYARD GARDEN', '🌿', 4.4, -7.5, 'backyard');
   }
 }
 
@@ -4466,6 +4863,454 @@ class FurnitureFactory {
 
     return group;
   }
+
+  // 38. MODERN CERAMIC TOILET COMMODE (BATHROOM SUITE)
+  static createToilet(style = 'modern') {
+    const group = new THREE.Group();
+    group.name = 'Modern Toilet';
+    group.userData = { type: 'toilet', name: 'Ceramic Toilet Commode', cost: 280 };
+
+    const porcelainMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      roughness: 0.1,
+      metalness: 0.05
+    });
+    const chromeMat = new THREE.MeshStandardMaterial({
+      color: 0xe2e8f0,
+      metalness: 0.9,
+      roughness: 0.15
+    });
+
+    // Base pedestal
+    const base = this.createMesh(new THREE.CylinderGeometry(0.16, 0.19, 0.38, 16), porcelainMat, 'Toilet Base');
+    base.position.set(0, 0.19, 0);
+    group.add(base);
+
+    // Oval Bowl
+    const bowl = this.createMesh(new THREE.CylinderGeometry(0.22, 0.18, 0.16, 16), porcelainMat, 'Toilet Bowl');
+    bowl.position.set(0, 0.38, 0.08);
+    bowl.scale.set(0.9, 1.0, 1.25);
+    group.add(bowl);
+
+    // Seat and Closed Lid
+    const lidMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.15 });
+    const lid = this.createMesh(new THREE.CylinderGeometry(0.23, 0.23, 0.03, 16), lidMat, 'Toilet Lid');
+    lid.position.set(0, 0.47, 0.09);
+    lid.scale.set(0.9, 1.0, 1.25);
+    group.add(lid);
+
+    // Cistern Tank
+    const cistern = this.createMesh(new THREE.BoxGeometry(0.42, 0.44, 0.22), porcelainMat, 'Cistern Tank');
+    cistern.position.set(0, 0.54, -0.16);
+    group.add(cistern);
+
+    // Dual Flush Chrome Buttons
+    const flushBtn = this.createMesh(new THREE.CylinderGeometry(0.025, 0.025, 0.015, 12), chromeMat, 'Dual Flush Button');
+    flushBtn.position.set(0, 0.765, -0.16);
+    group.add(flushBtn);
+
+    return group;
+  }
+
+  // 39. TEMPERED GLASS WALK-IN SHOWER CABIN
+  static createShowerEnclosure(width = 1.1, depth = 1.0) {
+    const group = new THREE.Group();
+    group.name = 'Glass Shower Enclosure';
+    group.userData = { type: 'shower', name: 'Walk-in Glass Shower Enclosure', cost: 650 };
+
+    const trayMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.2 });
+    const glassMat = new THREE.MeshStandardMaterial({
+      color: 0x93c5fd,
+      roughness: 0.05,
+      metalness: 0.1,
+      transparent: true,
+      opacity: 0.4
+    });
+    const chromeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.15 });
+
+    // Raised Slim Acrylic Shower Base Tray
+    const tray = this.createMesh(new THREE.BoxGeometry(width, 0.06, depth), trayMat, 'Shower Tray');
+    tray.position.set(0, 0.03, 0);
+    group.add(tray);
+
+    // Chrome Drain
+    const drain = this.createMesh(new THREE.CylinderGeometry(0.04, 0.04, 0.01, 16), chromeMat, 'Shower Drain');
+    drain.position.set(0, 0.065, 0);
+    group.add(drain);
+
+    // Transparent Glass Panels (Front & Side)
+    const glassH = 2.0;
+    const glassSide = this.createMesh(new THREE.BoxGeometry(0.015, glassH, depth), glassMat, 'Glass Screen Side');
+    glassSide.position.set(-width / 2 + 0.01, glassH / 2 + 0.06, 0);
+    group.add(glassSide);
+
+    const glassFront = this.createMesh(new THREE.BoxGeometry(width * 0.6, glassH, 0.015), glassMat, 'Glass Screen Front');
+    glassFront.position.set(width * 0.2, glassH / 2 + 0.06, depth / 2 - 0.01);
+    group.add(glassFront);
+
+    // Chrome Overhead Rain Shower Head & Arm
+    const showerPole = this.createMesh(new THREE.CylinderGeometry(0.012, 0.012, 1.2, 10), chromeMat, 'Shower Riser');
+    showerPole.position.set(0, 1.4, -depth / 2 + 0.04);
+    group.add(showerPole);
+
+    const showerArm = this.createMesh(new THREE.BoxGeometry(0.02, 0.02, 0.35), chromeMat, 'Shower Arm');
+    showerArm.position.set(0, 2.0, -depth / 2 + 0.2);
+    group.add(showerArm);
+
+    const rainHead = this.createMesh(new THREE.CylinderGeometry(0.12, 0.12, 0.02, 20), chromeMat, 'Rain Shower Head');
+    rainHead.position.set(0, 1.98, -depth / 2 + 0.36);
+    group.add(rainHead);
+
+    // Chrome Thermostatic Mixer Handle
+    const mixer = this.createMesh(new THREE.CylinderGeometry(0.03, 0.03, 0.12, 12), chromeMat, 'Mixer Tap');
+    mixer.position.set(0, 1.05, -depth / 2 + 0.05);
+    mixer.rotation.z = Math.PI / 2;
+    group.add(mixer);
+
+    return group;
+  }
+
+  // 40. FLOATING BATHROOM VANITY WITH BASIN & LED MIRROR
+  static createBathroomVanity(width = 0.9, style = 'modern') {
+    const group = new THREE.Group();
+    group.name = 'Bathroom Vanity';
+    group.userData = { type: 'bathroom_vanity', name: 'Floating Bathroom Vanity & Basin', cost: 480 };
+
+    const woodMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.4 });
+    const basinMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1 });
+    const mirrorMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.05, metalness: 0.95 });
+    const chromeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.15 });
+
+    const d = 0.48;
+    const h = 0.42;
+
+    // Floating vanity cabinet
+    const cabinet = this.createMesh(new THREE.BoxGeometry(width, h, d), woodMat, 'Vanity Cabinet');
+    cabinet.position.set(0, 0.55, 0);
+    group.add(cabinet);
+
+    // White Porcelain Washbasin
+    const basin = this.createMesh(new THREE.BoxGeometry(width * 0.65, 0.12, d * 0.75), basinMat, 'Porcelain Basin');
+    basin.position.set(0, 0.55 + h / 2 + 0.06, 0);
+    group.add(basin);
+
+    // Tall Chrome Mixer Faucet
+    const faucet = this.createMesh(new THREE.CylinderGeometry(0.015, 0.015, 0.16, 12), chromeMat, 'Chrome Faucet');
+    faucet.position.set(0, 0.55 + h / 2 + 0.16, -d * 0.25);
+    group.add(faucet);
+
+    // Illuminated LED Mirror (Wall-Mounted)
+    const mirrorW = width * 0.85;
+    const mirrorH = 0.75;
+    const mirrorBack = this.createMesh(new THREE.BoxGeometry(mirrorW, mirrorH, 0.02), new THREE.MeshBasicMaterial({ color: 0xe0f2fe }), 'LED Mirror Backlight');
+    mirrorBack.position.set(0, 1.45, -d / 2 - 0.01);
+    group.add(mirrorBack);
+
+    const mirrorGlass = this.createMesh(new THREE.BoxGeometry(mirrorW - 0.04, mirrorH - 0.04, 0.01), mirrorMat, 'Mirror Glass');
+    mirrorGlass.position.set(0, 1.45, -d / 2);
+    group.add(mirrorGlass);
+
+    // Chrome Towel Bar with White Towel
+    const towelBar = this.createMesh(new THREE.CylinderGeometry(0.008, 0.008, 0.35, 12), chromeMat, 'Towel Bar');
+    towelBar.rotation.z = Math.PI / 2;
+    towelBar.position.set(width / 2 + 0.04, 0.65, 0);
+    group.add(towelBar);
+
+    const towel = this.createMesh(new THREE.BoxGeometry(0.04, 0.28, 0.25), new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.8 }), 'Hand Towel');
+    towel.position.set(width / 2 + 0.04, 0.56, 0);
+    group.add(towel);
+
+    return group;
+  }
+
+  // 41. COMPLETE PRE-ARRANGED BATHROOM SUITE
+  static createBathroomSuite(type = 'common') {
+    const group = new THREE.Group();
+    group.name = type === 'master' ? 'Master Bathroom Suite' : 'Common Bathroom Suite';
+    group.userData = { type: 'bathroom_suite', name: 'Designer En-Suite Bathroom Fixtures', cost: 1350 };
+
+    // 1. Walk-in Glass Shower (Left corner)
+    const shower = this.createShowerEnclosure(1.15, 1.05);
+    shower.position.set(-0.85, 0, 0.55);
+    group.add(shower);
+
+    // 2. Modern Toilet (Center-back)
+    const toilet = this.createToilet();
+    toilet.position.set(0.15, 0, 0.85);
+    group.add(toilet);
+
+    // 3. Floating Vanity & LED Mirror (Right wall)
+    const vanity = this.createBathroomVanity(0.85);
+    vanity.position.set(1.1, 0, 0.25);
+    vanity.rotation.y = -Math.PI / 2;
+    group.add(vanity);
+
+    return group;
+  }
+
+  // 42. ENTRANCE FOYER CONSOLE & BRASS ROUND MIRROR
+  static createFoyerConsole() {
+    const group = new THREE.Group();
+    group.name = 'Entrance Foyer Console';
+    group.userData = { type: 'foyer_console', name: 'Foyer Credenza, Round Mirror & Plant', cost: 420 };
+
+    const woodMat = new THREE.MeshStandardMaterial({ color: 0x5c4033, roughness: 0.35 });
+    const brassMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.2 });
+    const mirrorMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.05, metalness: 0.95 });
+
+    // Slim Wooden Console Table
+    const tableTop = this.createMesh(new THREE.BoxGeometry(1.2, 0.04, 0.36), woodMat, 'Console Top');
+    tableTop.position.set(0, 0.78, 0);
+    group.add(tableTop);
+
+    // Slim Legs
+    const legMat = brassMat;
+    const addLeg = (x, z) => {
+      const leg = this.createMesh(new THREE.CylinderGeometry(0.012, 0.012, 0.76, 12), legMat, 'Console Leg');
+      leg.position.set(x, 0.38, z);
+      group.add(leg);
+    };
+    addLeg(-0.54, -0.14);
+    addLeg(0.54, -0.14);
+    addLeg(-0.54, 0.14);
+    addLeg(0.54, 0.14);
+
+    // Circular Round Brass Wall Mirror
+    const mirrorRim = this.createMesh(new THREE.TorusGeometry(0.38, 0.02, 12, 32), brassMat, 'Brass Mirror Rim');
+    mirrorRim.position.set(0, 1.45, -0.16);
+    group.add(mirrorRim);
+
+    const mirrorFace = this.createMesh(new THREE.CircleGeometry(0.37, 32), mirrorMat, 'Mirror Face');
+    mirrorFace.position.set(0, 1.45, -0.155);
+    group.add(mirrorFace);
+
+    // Small Ceramic Catchall Bowl
+    const bowl = this.createMesh(new THREE.CylinderGeometry(0.08, 0.05, 0.04, 16), new THREE.MeshStandardMaterial({ color: 0xf1f5f9 }), 'Key Dish');
+    bowl.position.set(0.35, 0.82, 0);
+    group.add(bowl);
+
+    // Tabletop Miniature Orchid / Planter
+    const pot = this.createMesh(new THREE.CylinderGeometry(0.06, 0.04, 0.1, 16), new THREE.MeshStandardMaterial({ color: 0xffffff }), 'Table Planter');
+    pot.position.set(-0.38, 0.85, 0);
+    group.add(pot);
+
+    const plantMat = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.6 });
+    for (let i = 0; i < 5; i++) {
+      const leaf = this.createMesh(new THREE.SphereGeometry(0.04, 8, 8), plantMat, 'Plant Leaf');
+      leaf.scale.set(0.5, 1.5, 0.2);
+      leaf.position.set(-0.38 + (i - 2) * 0.02, 0.94 + i * 0.02, 0);
+      leaf.rotation.z = (i - 2) * 0.25;
+      group.add(leaf);
+    }
+
+    return group;
+  }
+
+  // 43. MASTER SUITE WALK-IN WARDROBE SYSTEM
+  static createWalkInWardrobe() {
+    const group = new THREE.Group();
+    group.name = 'Walk-In Wardrobe';
+    group.userData = { type: 'walk_in_wardrobe', name: 'Modular Walk-in Closet Organizer', cost: 890 };
+
+    const woodMat = new THREE.MeshStandardMaterial({ color: 0x5c4033, roughness: 0.4 });
+    const chromeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.15 });
+
+    const totalW = 1.9;
+    const totalH = 2.4;
+    const totalD = 0.55;
+
+    // Upright dividers
+    const uprightGeom = new THREE.BoxGeometry(0.03, totalH, totalD);
+    const u1 = this.createMesh(uprightGeom, woodMat, 'Closet Frame Left');
+    u1.position.set(-totalW / 2 + 0.015, totalH / 2, 0);
+    group.add(u1);
+
+    const u2 = this.createMesh(uprightGeom, woodMat, 'Closet Frame Center');
+    u2.position.set(0, totalH / 2, 0);
+    group.add(u2);
+
+    const u3 = this.createMesh(uprightGeom, woodMat, 'Closet Frame Right');
+    u3.position.set(totalW / 2 - 0.015, totalH / 2, 0);
+    group.add(u3);
+
+    // Shelves
+    const shelfGeom = new THREE.BoxGeometry(totalW / 2 - 0.03, 0.025, totalD);
+    [-totalW / 4, totalW / 4].forEach(posX => {
+      [0.05, 0.45, 1.85, 2.35].forEach(posY => {
+        const shelf = this.createMesh(shelfGeom, woodMat, 'Closet Shelf');
+        shelf.position.set(posX, posY, 0);
+        group.add(shelf);
+      });
+    });
+
+    // Hanging Chrome Rails
+    const railGeom = new THREE.CylinderGeometry(0.012, 0.012, totalW / 2 - 0.03, 12);
+    const rail1 = this.createMesh(railGeom, chromeMat, 'Hanging Rail Left');
+    rail1.rotation.z = Math.PI / 2;
+    rail1.position.set(-totalW / 4, 1.75, 0);
+    group.add(rail1);
+
+    const rail2 = this.createMesh(railGeom, chromeMat, 'Hanging Rail Right');
+    rail2.rotation.z = Math.PI / 2;
+    rail2.position.set(totalW / 4, 1.75, 0);
+    group.add(rail2);
+
+    // Hanging Colorful Garments
+    const shirtColors = [0x1e3a8a, 0xf8fafc, 0xb91c1c, 0x047857, 0x475569, 0xd97706];
+    shirtColors.forEach((col, idx) => {
+      const shirtMat = new THREE.MeshStandardMaterial({ color: col, roughness: 0.8 });
+      const shirt = this.createMesh(new THREE.BoxGeometry(0.05, 0.65, 0.38), shirtMat, 'Hanging Garment ' + (idx + 1));
+      const px = -totalW / 4 - 0.35 + idx * 0.14;
+      shirt.position.set(px, 1.35, 0);
+      group.add(shirt);
+    });
+
+    // Lower Storage Drawers
+    const drawerMat = new THREE.MeshStandardMaterial({ color: 0x4a3525, roughness: 0.3 });
+    for (let i = 0; i < 2; i++) {
+      const drawer = this.createMesh(new THREE.BoxGeometry(totalW / 2 - 0.04, 0.16, totalD - 0.02), drawerMat, 'Closet Drawer ' + (i + 1));
+      drawer.position.set(totalW / 4, 0.15 + i * 0.18, 0);
+      group.add(drawer);
+    }
+
+    return group;
+  }
+
+  // 44. COGNAC CARAMEL LEATHER L-SHAPED LUXURY SECTIONAL SOFA
+  static createCognacLeatherSectional() {
+    const group = new THREE.Group();
+    group.name = 'Cognac Leather Sectional';
+    group.userData = { type: 'cognac_sectional', name: 'Cognac Leather L-Sectional Sofa', cost: 1650 };
+
+    const leatherMat = new THREE.MeshStandardMaterial({
+      color: 0xb45309, // Rich Caramel / Cognac warm leather
+      roughness: 0.35,
+      metalness: 0.05
+    });
+    const cushionMat = new THREE.MeshStandardMaterial({
+      color: 0x9a3412,
+      roughness: 0.4
+    });
+    const woodLegMat = new THREE.MeshStandardMaterial({ color: 0x2b1d0c, roughness: 0.5 });
+    const pillowMat = new THREE.MeshStandardMaterial({ color: 0xfef3c7, roughness: 0.7 });
+
+    // Main Sofa Base (Long section along North/South)
+    const mainBase = this.createMesh(new THREE.BoxGeometry(1.0, 0.22, 2.6), leatherMat, 'Main Sofa Base');
+    mainBase.position.set(0, 0.21, 0);
+    group.add(mainBase);
+
+    // Return Chaise Base (Short section along East/West)
+    const chaiseBase = this.createMesh(new THREE.BoxGeometry(1.4, 0.22, 1.0), leatherMat, 'Chaise Sofa Base');
+    chaiseBase.position.set(1.2, 0.21, -0.8);
+    group.add(chaiseBase);
+
+    // High Backrests
+    const back1 = this.createMesh(new THREE.BoxGeometry(0.24, 0.55, 2.6), leatherMat, 'Main Sofa Backrest');
+    back1.position.set(-0.38, 0.55, 0);
+    group.add(back1);
+
+    const back2 = this.createMesh(new THREE.BoxGeometry(1.4, 0.55, 0.24), leatherMat, 'Chaise Sofa Backrest');
+    back2.position.set(1.2, 0.55, -1.18);
+    group.add(back2);
+
+    // Plush Seat Cushions
+    for (let z = -0.85; z <= 0.95; z += 0.85) {
+      const sc = this.createMesh(new THREE.BoxGeometry(0.72, 0.16, 0.8), cushionMat, 'Plush Seat Cushion');
+      sc.position.set(0.08, 0.38, z);
+      group.add(sc);
+    }
+    const cc = this.createMesh(new THREE.BoxGeometry(1.25, 0.16, 0.72), cushionMat, 'Chaise Seat Cushion');
+    cc.position.set(1.15, 0.38, -0.72);
+    group.add(cc);
+
+    // Accent Throw Pillows
+    const p1 = this.createMesh(new THREE.BoxGeometry(0.12, 0.32, 0.32), pillowMat, 'Cream Accent Pillow');
+    p1.rotation.y = 0.2;
+    p1.position.set(-0.15, 0.58, -0.9);
+    group.add(p1);
+
+    const p2 = this.createMesh(new THREE.BoxGeometry(0.32, 0.32, 0.12), pillowMat, 'Cream Accent Pillow');
+    p2.rotation.y = -0.2;
+    p2.position.set(1.6, 0.58, -0.95);
+    group.add(p2);
+
+    // Contemporary Stained Wood Legs
+    const legGeom = new THREE.CylinderGeometry(0.025, 0.018, 0.12, 12);
+    const legPositions = [
+      [-0.45, -1.2], [0.45, -1.2],
+      [-0.45, 1.2], [0.45, 1.2],
+      [1.8, -1.2], [1.8, -0.35]
+    ];
+    legPositions.forEach((pos, idx) => {
+      const leg = this.createMesh(legGeom, woodLegMat, 'Sofa Leg ' + (idx + 1));
+      leg.position.set(pos[0], 0.06, pos[1]);
+      group.add(leg);
+    });
+
+    return group;
+  }
+
+  // 45. GARDEN SHRUB & BUSH (LANDSCAPING)
+  static createGardenBush(scale = 1.0, colorHex = 0x3f6212) {
+    const group = new THREE.Group();
+    group.name = 'Garden Shrub';
+    group.userData = { type: 'garden_bush', name: 'Manicured Garden Shrub', cost: 45 };
+
+    const foliageMat = new THREE.MeshStandardMaterial({
+      color: colorHex,
+      roughness: 0.85
+    });
+
+    // Cluster of rounded organic green spheres
+    const mainSphere = this.createMesh(new THREE.SphereGeometry(0.35 * scale, 12, 12), foliageMat, 'Foliage Cluster');
+    mainSphere.position.set(0, 0.32 * scale, 0);
+    mainSphere.scale.set(1.2, 0.9, 1.1);
+    group.add(mainSphere);
+
+    const offsets = [
+      [0.15, 0.28, 0.12, 0.28],
+      [-0.14, 0.26, -0.1, 0.26],
+      [0.08, 0.42, -0.08, 0.24],
+      [-0.12, 0.35, 0.14, 0.25]
+    ];
+    offsets.forEach((o, idx) => {
+      const s = this.createMesh(new THREE.SphereGeometry(o[3] * scale, 10, 10), foliageMat, 'Foliage Detail ' + (idx + 1));
+      s.position.set(o[0] * scale, o[1] * scale, o[2] * scale);
+      group.add(s);
+    });
+
+    return group;
+  }
+
+  // 46. PERIMETER GREEN HEDGE ROW (COMPOUND BOUNDARY)
+  static createPerimeterHedge(length = 2.0, height = 0.85) {
+    const group = new THREE.Group();
+    group.name = 'Perimeter Hedge';
+    group.userData = { type: 'perimeter_hedge', name: 'Manicured Perimeter Hedge Row', cost: 95 };
+
+    const hedgeMat = new THREE.MeshStandardMaterial({ color: 0x365314, roughness: 0.9 });
+    const hedge = this.createMesh(new THREE.BoxGeometry(0.4, height, length), hedgeMat, 'Hedge Bush');
+    hedge.position.set(0, height / 2, 0);
+    group.add(hedge);
+
+    return group;
+  }
+
+  // 47. OUTDOOR SLATE STEPPING STONES
+  static createSteppingStones(count = 4) {
+    const group = new THREE.Group();
+    group.name = 'Garden Stepping Stones';
+    group.userData = { type: 'stepping_stones', name: 'Natural Slate Garden Pathway Stones', cost: 65 };
+
+    const stoneMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.85 });
+    for (let i = 0; i < count; i++) {
+      const stone = this.createMesh(new THREE.CylinderGeometry(0.24, 0.26, 0.025, 8), stoneMat, 'Stepping Stone ' + (i + 1));
+      stone.position.set(0, 0.015, (i - count / 2) * 0.7);
+      stone.scale.set(1.0 + (i % 2) * 0.15, 1.0, 0.9 + ((i + 1) % 2) * 0.2);
+      group.add(stone);
+    }
+    return group;
+  }
 }
 
   window.FurnitureFactory = FurnitureFactory;
@@ -4504,9 +5349,14 @@ class AIEngine {
     let spatialRationale = '';
     let lightingPlan = '';
 
-    if (roomType === 'complete_house' || roomType === 'complete_house_2bhk' || roomType === 'whole_house' || roomType === 'house') {
-      const is2BHK = (roomType === 'complete_house_2bhk' || pref.houseType === '2bhk');
-      if (is2BHK) {
+    if (roomType === 'complete_house' || roomType === 'complete_house_2bhk' || roomType === 'villa_2bhk' || roomType === 'whole_house' || roomType === 'house') {
+      const isVilla = (roomType === 'villa_2bhk' || pref.houseType === 'villa_2bhk' || pref.houseType === 'villa');
+      const is2BHK = (roomType === 'complete_house_2bhk' || pref.houseType === '2bhk' || isVilla);
+      if (isVilla) {
+        concept = `CONTEMPORARY LUXURY VILLA (2 BHK ESTATE ${style.toUpperCase()})`;
+        spatialRationale = `A master-crafted 16m × 18.5m contemporary villa estate with perimeter boundary garden, front driveway & porch, entrance foyer with pivot door & console, sunken living lounge with cognac leather sectional & Missouri TV unit, open dining area, U-shaped modular kitchen, terracotta second bedroom suite with twin beds & study, walk-in closet, common & master en-suite designer bathrooms, and private backyard garden.`;
+        lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips in kitchen, illuminated LED mirrors in bathrooms, and independent dimmable bedside luminaires in both bedrooms.`;
+      } else if (is2BHK) {
         concept = `COMPLETE DOUBLE BEDROOM RESIDENCE (2 BHK ${style.toUpperCase()})`;
         spatialRationale = `A unified, continuous 14m × 11.5m 2-Bedroom residential floor plan with fully connected living, dining, kitchen, and two dedicated bedroom suites. The front wing houses the great-room living lounge with Missouri TV entertainment center, interconnected dining pavilion, and modular kitchen. The rear wing features the Master Bedroom Suite (Bedroom 1) and a fully appointed Second Bedroom (Bedroom 2 / Double Bed & Study Suite) with private hallway access.`;
         lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips in kitchen, and independent dimmable bedside luminaires and split ACs in both Master Bedroom 1 and Bedroom 2.`;
@@ -5075,6 +5925,165 @@ class AIEngine {
           room: 'bedroom2',
           cost: 650
         });
+
+        // 45. Twin Single Bed 2 for Second Bedroom
+        items.push({
+          id: 'house_bed2_twin2',
+          type: 'single_bed',
+          name: 'Twin Single Bed (Second Bedroom)',
+          position: [-4.0, 0, -3.8],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          color: palette.woodColor,
+          room: 'bedroom2',
+          cost: 850
+        });
+
+        if (isVilla) {
+          // ==========================================
+          // VILLA SUITE EXTENSIONS: FOYER, BATHROOMS & GARDENS
+          // ==========================================
+          // 46. Entrance Foyer Console & Brass Round Mirror
+          items.push({
+            id: 'house_foyer_console',
+            type: 'foyer_console',
+            name: 'Entrance Foyer Console Table & Round Mirror',
+            position: [-4.7, 0, 4.9],
+            rotation: [0, 0, 0],
+            room: 'foyer',
+            cost: 420
+          });
+
+          // 47. Entrance Foyer Potted Planter
+          items.push({
+            id: 'house_foyer_plant',
+            type: 'plant',
+            name: 'Entrance Foyer Potted Fig Tree',
+            position: [-3.6, 0, 6.0],
+            rotation: [0, 0, 0],
+            room: 'foyer',
+            cost: 160
+          });
+
+          // 48. Common Bathroom 1: Ceramic Toilet
+          items.push({
+            id: 'house_bath1_toilet',
+            type: 'toilet',
+            name: 'Common Bathroom Ceramic Toilet',
+            position: [-5.6, 0, 1.8],
+            rotation: [0, Math.PI / 2, 0],
+            room: 'common_bath',
+            cost: 280
+          });
+
+          // 49. Common Bathroom 1: Glass Shower Cabin
+          items.push({
+            id: 'house_bath1_shower',
+            type: 'shower',
+            name: 'Common Bathroom Walk-In Glass Shower',
+            position: [-3.8, 0, 1.2],
+            rotation: [0, 0, 0],
+            room: 'common_bath',
+            cost: 650
+          });
+
+          // 50. Common Bathroom 1: Floating Vanity & LED Mirror
+          items.push({
+            id: 'house_bath1_vanity',
+            type: 'bathroom_vanity',
+            name: 'Common Bathroom Vanity & Mirror',
+            position: [-4.7, 0, 3.2],
+            rotation: [0, Math.PI, 0],
+            room: 'common_bath',
+            cost: 480
+          });
+
+          // 51. Master Suite Walk-In Wardrobe System
+          items.push({
+            id: 'house_walk_in_wardrobe',
+            type: 'walk_in_wardrobe',
+            name: 'Master Suite Walk-In Wardrobe Organizer',
+            position: [3.4, 0, -0.5],
+            rotation: [0, 0, 0],
+            room: 'walk_in_closet',
+            cost: 890
+          });
+
+          // 52. Master En-Suite Bathroom: Glass Shower Enclosure
+          items.push({
+            id: 'house_master_shower',
+            type: 'shower',
+            name: 'Master En-Suite Walk-In Glass Shower',
+            position: [5.8, 0, -1.2],
+            rotation: [0, -Math.PI / 2, 0],
+            room: 'master_bath',
+            cost: 650
+          });
+
+          // 53. Master En-Suite Bathroom: Ceramic Toilet
+          items.push({
+            id: 'house_master_toilet',
+            type: 'toilet',
+            name: 'Master En-Suite Ceramic Toilet',
+            position: [4.8, 0, -1.5],
+            rotation: [0, 0, 0],
+            room: 'master_bath',
+            cost: 280
+          });
+
+          // 54. Master En-Suite Bathroom: Floating Vanity & Mirror
+          items.push({
+            id: 'house_master_vanity',
+            type: 'bathroom_vanity',
+            name: 'Master En-Suite Vanity & Lighted Mirror',
+            position: [5.4, 0, 0.6],
+            rotation: [0, Math.PI, 0],
+            room: 'master_bath',
+            cost: 480
+          });
+
+          // 55. Backyard Garden Slate Stepping Stones
+          items.push({
+            id: 'house_garden_stones',
+            type: 'stepping_stones',
+            name: 'Backyard Garden Slate Pathway Stones',
+            position: [4.4, 0, -7.5],
+            rotation: [0, 0, 0],
+            room: 'backyard',
+            cost: 65
+          });
+
+          // 56. Backyard Landscaped Garden Bushes
+          items.push({
+            id: 'house_garden_bush_1',
+            type: 'garden_bush',
+            name: 'Backyard Flowering Garden Shrub',
+            position: [5.8, 0, -8.2],
+            rotation: [0, 0, 0],
+            room: 'backyard',
+            cost: 45
+          });
+
+          items.push({
+            id: 'house_garden_bush_2',
+            type: 'garden_bush',
+            name: 'Backyard Flowering Garden Shrub',
+            position: [3.0, 0, -8.2],
+            rotation: [0, 0, 0],
+            room: 'backyard',
+            cost: 45
+          });
+
+          items.push({
+            id: 'house_front_bush',
+            type: 'garden_bush',
+            name: 'Front Lawn Manicured Hedge Shrub',
+            position: [5.5, 0, 8.6],
+            rotation: [0, 0, 0],
+            room: 'front_lawn',
+            cost: 45
+          });
+        }
 
       } else {
         // ==========================================
@@ -9995,7 +11004,7 @@ class App {
       });
       const housePill = document.getElementById('house-active-room-pill');
       if (housePill) {
-        housePill.textContent = is2BHK ? '2 BHK (Double Bed) Active' : '1 BHK (Single Bed) Active';
+        housePill.textContent = is2BHK ? 'Contemporary Villa (2 BHK) Active' : '1 BHK (Single Bed) Active';
       }
       const hubRearBtn = document.getElementById('hub-zone-rear');
       if (hubRearBtn) {
@@ -10006,7 +11015,7 @@ class App {
       if (navRearBtn) {
         navRearBtn.innerHTML = is2BHK ? '<span>🛏️</span> Bed 2' : '<span>💼</span> Office';
         navRearBtn.setAttribute('data-target-room', is2BHK ? 'bedroom2' : 'office');
-        navRearBtn.setAttribute('title', is2BHK ? 'Focus Bedroom 2 (Double Suite)' : 'Focus Home Office & Study');
+        navRearBtn.setAttribute('title', is2BHK ? 'Focus Second Bedroom (Twin Suite)' : 'Focus Home Office & Study');
       }
 
       const activeZone = this.currentHouseZone || 'living';
@@ -10143,12 +11152,17 @@ class App {
     const pill = document.getElementById('house-active-room-pill');
     const is2BHK = (this.currentHouseType === '2bhk') || (document.getElementById('room-type')?.value === 'complete_house_2bhk');
     const titles = {
-      all: is2BHK ? 'Complete House (2 BHK)' : 'Complete House (1 BHK)',
-      living: 'Living Lounge',
-      dining: 'Dining Pavilion',
+      all: is2BHK ? 'Contemporary Villa (2 BHK Estate)' : 'Complete House (1 BHK)',
+      living: 'Living Room Lounge',
+      dining: 'Dining Area',
       kitchen: 'Modular Kitchen',
-      bedroom: is2BHK ? 'Master Bedroom (Bed 1)' : 'Master Bedroom',
-      bedroom2: 'Bedroom 2 (Double Suite)',
+      bedroom: is2BHK ? 'Master Bedroom Suite' : 'Master Bedroom',
+      bedroom2: 'Second Bedroom (Twin Suite)',
+      foyer: 'Entrance Foyer',
+      common_bath: 'Common Bathroom 1',
+      master_bath: 'Master En-Suite Bathroom',
+      walk_in_closet: 'Walk-In Wardrobe Dressing',
+      backyard: 'Backyard Garden & Patio',
       office: 'Home Office & Study'
     };
     if (pill) pill.textContent = (titles[zoneKey] || 'Room') + ' Active';
@@ -10160,29 +11174,54 @@ class App {
     let targetPos, targetLook;
     switch (zoneKey) {
       case 'living':
-        targetPos = new THREE.Vector3(-4.0, 4.0, 8.5);
-        targetLook = new THREE.Vector3(-4.0, 1.2, 3.25);
-        this.showToast('📍 Viewing Living Lounge');
+        targetPos = new THREE.Vector3(-0.4, 4.2, 8.5);
+        targetLook = new THREE.Vector3(-0.4, 1.2, 4.1);
+        this.showToast('📍 Viewing Living Room Lounge');
         break;
       case 'dining':
-        targetPos = new THREE.Vector3(1.0, 3.8, 8.0);
-        targetLook = new THREE.Vector3(1.0, 1.1, 3.25);
-        this.showToast('📍 Viewing Dining Pavilion');
+        targetPos = new THREE.Vector3(0.3, 4.2, 5.0);
+        targetLook = new THREE.Vector3(0.3, 1.1, 0.1);
+        this.showToast('📍 Viewing Dining Area');
         break;
       case 'kitchen':
-        targetPos = new THREE.Vector3(5.0, 3.8, 8.0);
-        targetLook = new THREE.Vector3(5.0, 1.1, 3.25);
+        targetPos = new THREE.Vector3(0.3, 4.2, 1.0);
+        targetLook = new THREE.Vector3(0.3, 1.1, -3.8);
         this.showToast('📍 Viewing Modular Kitchen');
         break;
       case 'bedroom':
-        targetPos = new THREE.Vector3(-3.75, 4.2, 3.0);
-        targetLook = new THREE.Vector3(-3.75, 1.2, -2.5);
-        this.showToast(is2BHK ? '📍 Viewing Master Bedroom (Bed 1)' : '📍 Viewing Master Bedroom Suite');
+        targetPos = new THREE.Vector3(4.4, 4.2, 8.2);
+        targetLook = new THREE.Vector3(4.4, 1.2, 3.7);
+        this.showToast(is2BHK ? '📍 Viewing Master Bedroom Suite' : '📍 Viewing Master Bedroom');
         break;
       case 'bedroom2':
-        targetPos = new THREE.Vector3(3.25, 4.2, 3.0);
-        targetLook = new THREE.Vector3(3.25, 1.2, -2.5);
-        this.showToast('📍 Viewing Bedroom 2 (Double Bed Suite)');
+        targetPos = new THREE.Vector3(-4.0, 4.2, 2.5);
+        targetLook = new THREE.Vector3(-4.0, 1.2, -2.7);
+        this.showToast('📍 Viewing Second Bedroom (Twin Suite)');
+        break;
+      case 'foyer':
+        targetPos = new THREE.Vector3(-4.7, 3.8, 8.8);
+        targetLook = new THREE.Vector3(-4.7, 1.2, 4.9);
+        this.showToast('📍 Viewing Entrance Foyer');
+        break;
+      case 'common_bath':
+        targetPos = new THREE.Vector3(-4.7, 3.8, 5.8);
+        targetLook = new THREE.Vector3(-4.7, 1.2, 2.0);
+        this.showToast('📍 Viewing Common Bathroom 1');
+        break;
+      case 'master_bath':
+        targetPos = new THREE.Vector3(5.4, 3.8, 3.0);
+        targetLook = new THREE.Vector3(5.4, 1.2, -0.5);
+        this.showToast('📍 Viewing Master En-Suite Bathroom');
+        break;
+      case 'walk_in_closet':
+        targetPos = new THREE.Vector3(3.4, 3.8, 3.0);
+        targetLook = new THREE.Vector3(3.4, 1.2, -0.5);
+        this.showToast('📍 Viewing Walk-In Wardrobe');
+        break;
+      case 'backyard':
+        targetPos = new THREE.Vector3(4.4, 6.5, -3.5);
+        targetLook = new THREE.Vector3(4.4, 1.0, -7.5);
+        this.showToast('📍 Viewing Backyard Garden & Patio');
         break;
       case 'office':
         targetPos = new THREE.Vector3(3.25, 4.2, 3.0);
@@ -10191,9 +11230,9 @@ class App {
         break;
       case 'all':
       default:
-        targetPos = new THREE.Vector3(0, 14.5, 17.5);
-        targetLook = new THREE.Vector3(0, 1.0, 0.5);
-        this.showToast(is2BHK ? '🏡 Viewing Complete House (2 BHK)' : '🏠 Viewing Complete House (1 BHK)');
+        targetPos = new THREE.Vector3(0, 16.5, 19.5);
+        targetLook = new THREE.Vector3(0, 0.8, 0.5);
+        this.showToast(is2BHK ? '🏡 Viewing Contemporary Villa Estate (All Rooms)' : '🏠 Viewing Complete House (1 BHK)');
         break;
     }
 
@@ -10306,7 +11345,8 @@ class App {
 
     this.syncRoomVariantsUI(currentRoomType);
 
-    const houseDims = { width: 14.0, length: 11.5, height: 2.8 };
+    const villaDims = { width: 16.0, length: 18.5, height: 2.8 };
+    const houseDims = is2BHK ? villaDims : { width: 14.0, length: 11.5, height: 2.8 };
     const singleDims = {
       width: parseFloat(document.getElementById('room-w').value) || 5.0,
       length: parseFloat(document.getElementById('room-l').value) || 4.5,
@@ -10335,8 +11375,8 @@ class App {
       const rw = document.getElementById('room-w');
       const rl = document.getElementById('room-l');
       const rh = document.getElementById('room-h');
-      if (rw) rw.value = '14.0';
-      if (rl) rl.value = '11.5';
+      if (rw) rw.value = is2BHK ? '16.0' : '14.0';
+      if (rl) rl.value = is2BHK ? '18.5' : '11.5';
       if (rh) rh.value = '2.8';
       this.roomBuilder.buildCompleteHouse(0xfaf5ee, pref.flooring, this.currentHouseType);
     } else {
@@ -10586,6 +11626,36 @@ class App {
         break;
       case 'water_purifier':
         meshGroup = FurnitureFactory.createWaterPurifier(style);
+        break;
+      case 'toilet':
+        meshGroup = FurnitureFactory.createToilet(style);
+        break;
+      case 'shower':
+        meshGroup = FurnitureFactory.createShowerEnclosure(itemData.width || 1.1, itemData.depth || 1.0);
+        break;
+      case 'bathroom_vanity':
+        meshGroup = FurnitureFactory.createBathroomVanity(itemData.width || 0.9, style);
+        break;
+      case 'bathroom_suite':
+        meshGroup = FurnitureFactory.createBathroomSuite(itemData.suiteType || 'common');
+        break;
+      case 'foyer_console':
+        meshGroup = FurnitureFactory.createFoyerConsole();
+        break;
+      case 'walk_in_wardrobe':
+        meshGroup = FurnitureFactory.createWalkInWardrobe();
+        break;
+      case 'cognac_sectional':
+        meshGroup = FurnitureFactory.createCognacLeatherSectional();
+        break;
+      case 'garden_bush':
+        meshGroup = FurnitureFactory.createGardenBush(itemData.scale || 1.0, itemData.colorHex || 0x3f6212);
+        break;
+      case 'perimeter_hedge':
+        meshGroup = FurnitureFactory.createPerimeterHedge(itemData.length || 2.0);
+        break;
+      case 'stepping_stones':
+        meshGroup = FurnitureFactory.createSteppingStones(itemData.count || 4);
         break;
       default:
         meshGroup = FurnitureFactory.createCoffeeTable(style);

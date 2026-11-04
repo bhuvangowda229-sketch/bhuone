@@ -134,6 +134,84 @@ export class TextureGenerator {
     return texture;
   }
 
+  // Lush Garden Grass Texture
+  static createGrassTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#4d7c0f';
+    ctx.fillRect(0, 0, 256, 256);
+    for (let i = 0; i < 3500; i++) {
+      const x = Math.random() * 256;
+      const y = Math.random() * 256;
+      const h = 3 + Math.random() * 5;
+      const colors = ['#65a30d', '#3f6212', '#84cc16', '#365314', '#558b2f'];
+      ctx.strokeStyle = colors[Math.floor(Math.random() * colors.length)];
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + (Math.random() - 0.5) * 2, y - h);
+      ctx.stroke();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+  }
+
+  // Driveway & Patio Stone Paving Texture
+  static createPavingTexture(colorHex = 0xd1d5db) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#' + colorHex.toString(16).padStart(6, '0');
+    ctx.fillRect(0, 0, 256, 256);
+    ctx.strokeStyle = '#9ca3af';
+    ctx.lineWidth = 2;
+    const s = 64;
+    for (let y = 0; y <= 256; y += s) {
+      const offset = (y / s) % 2 === 0 ? 0 : s / 2;
+      for (let x = -s; x <= 256 + s; x += s) {
+        ctx.strokeRect(x + offset, y, s, s);
+      }
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+  }
+
+  // Aqua / Sky Blue Bathroom Designer Tile Texture
+  static createBlueTileTexture(colorHex = 0x38bdf8, groutHex = 0x0284c7) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#' + colorHex.toString(16).padStart(6, '0');
+    ctx.fillRect(0, 0, 256, 256);
+    const tileSize = 48;
+    ctx.strokeStyle = '#' + groutHex.toString(16).padStart(6, '0');
+    ctx.lineWidth = 2;
+    for (let x = 0; x <= 256; x += tileSize) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, 256);
+      ctx.stroke();
+    }
+    for (let y = 0; y <= 256; y += tileSize) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(256, y);
+      ctx.stroke();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+  }
+
   // Fabric weave texture (for sofas, chairs, cushions)
   static createFabricTexture(colorHex = 0x5a6268) {
     const canvas = document.createElement('canvas');

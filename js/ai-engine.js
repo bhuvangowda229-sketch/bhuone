@@ -32,9 +32,14 @@ export class AIEngine {
     let spatialRationale = '';
     let lightingPlan = '';
 
-    if (roomType === 'complete_house' || roomType === 'complete_house_2bhk' || roomType === 'whole_house' || roomType === 'house') {
-      const is2BHK = (roomType === 'complete_house_2bhk' || pref.houseType === '2bhk');
-      if (is2BHK) {
+    if (roomType === 'complete_house' || roomType === 'complete_house_2bhk' || roomType === 'villa_2bhk' || roomType === 'whole_house' || roomType === 'house') {
+      const isVilla = (roomType === 'villa_2bhk' || pref.houseType === 'villa_2bhk' || pref.houseType === 'villa');
+      const is2BHK = (roomType === 'complete_house_2bhk' || pref.houseType === '2bhk' || isVilla);
+      if (isVilla) {
+        concept = `CONTEMPORARY LUXURY VILLA (2 BHK ESTATE ${style.toUpperCase()})`;
+        spatialRationale = `A master-crafted 16m × 18.5m contemporary villa estate with perimeter boundary garden, front driveway & porch, entrance foyer with pivot door & console, sunken living lounge with cognac leather sectional & Missouri TV unit, open dining area, U-shaped modular kitchen, terracotta second bedroom suite with twin beds & study, walk-in closet, common & master en-suite designer bathrooms, and private backyard garden.`;
+        lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips in kitchen, illuminated LED mirrors in bathrooms, and independent dimmable bedside luminaires in both bedrooms.`;
+      } else if (is2BHK) {
         concept = `COMPLETE DOUBLE BEDROOM RESIDENCE (2 BHK ${style.toUpperCase()})`;
         spatialRationale = `A unified, continuous 14m × 11.5m 2-Bedroom residential floor plan with fully connected living, dining, kitchen, and two dedicated bedroom suites. The front wing houses the great-room living lounge with Missouri TV entertainment center, interconnected dining pavilion, and modular kitchen. The rear wing features the Master Bedroom Suite (Bedroom 1) and a fully appointed Second Bedroom (Bedroom 2 / Double Bed & Study Suite) with private hallway access.`;
         lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips in kitchen, and independent dimmable bedside luminaires and split ACs in both Master Bedroom 1 and Bedroom 2.`;
@@ -603,6 +608,165 @@ export class AIEngine {
           room: 'bedroom2',
           cost: 650
         });
+
+        // 45. Twin Single Bed 2 for Second Bedroom
+        items.push({
+          id: 'house_bed2_twin2',
+          type: 'single_bed',
+          name: 'Twin Single Bed (Second Bedroom)',
+          position: [-4.0, 0, -3.8],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          color: palette.woodColor,
+          room: 'bedroom2',
+          cost: 850
+        });
+
+        if (isVilla) {
+          // ==========================================
+          // VILLA SUITE EXTENSIONS: FOYER, BATHROOMS & GARDENS
+          // ==========================================
+          // 46. Entrance Foyer Console & Brass Round Mirror
+          items.push({
+            id: 'house_foyer_console',
+            type: 'foyer_console',
+            name: 'Entrance Foyer Console Table & Round Mirror',
+            position: [-4.7, 0, 4.9],
+            rotation: [0, 0, 0],
+            room: 'foyer',
+            cost: 420
+          });
+
+          // 47. Entrance Foyer Potted Planter
+          items.push({
+            id: 'house_foyer_plant',
+            type: 'plant',
+            name: 'Entrance Foyer Potted Fig Tree',
+            position: [-3.6, 0, 6.0],
+            rotation: [0, 0, 0],
+            room: 'foyer',
+            cost: 160
+          });
+
+          // 48. Common Bathroom 1: Ceramic Toilet
+          items.push({
+            id: 'house_bath1_toilet',
+            type: 'toilet',
+            name: 'Common Bathroom Ceramic Toilet',
+            position: [-5.6, 0, 1.8],
+            rotation: [0, Math.PI / 2, 0],
+            room: 'common_bath',
+            cost: 280
+          });
+
+          // 49. Common Bathroom 1: Glass Shower Cabin
+          items.push({
+            id: 'house_bath1_shower',
+            type: 'shower',
+            name: 'Common Bathroom Walk-In Glass Shower',
+            position: [-3.8, 0, 1.2],
+            rotation: [0, 0, 0],
+            room: 'common_bath',
+            cost: 650
+          });
+
+          // 50. Common Bathroom 1: Floating Vanity & LED Mirror
+          items.push({
+            id: 'house_bath1_vanity',
+            type: 'bathroom_vanity',
+            name: 'Common Bathroom Vanity & Mirror',
+            position: [-4.7, 0, 3.2],
+            rotation: [0, Math.PI, 0],
+            room: 'common_bath',
+            cost: 480
+          });
+
+          // 51. Master Suite Walk-In Wardrobe System
+          items.push({
+            id: 'house_walk_in_wardrobe',
+            type: 'walk_in_wardrobe',
+            name: 'Master Suite Walk-In Wardrobe Organizer',
+            position: [3.4, 0, -0.5],
+            rotation: [0, 0, 0],
+            room: 'walk_in_closet',
+            cost: 890
+          });
+
+          // 52. Master En-Suite Bathroom: Glass Shower Enclosure
+          items.push({
+            id: 'house_master_shower',
+            type: 'shower',
+            name: 'Master En-Suite Walk-In Glass Shower',
+            position: [5.8, 0, -1.2],
+            rotation: [0, -Math.PI / 2, 0],
+            room: 'master_bath',
+            cost: 650
+          });
+
+          // 53. Master En-Suite Bathroom: Ceramic Toilet
+          items.push({
+            id: 'house_master_toilet',
+            type: 'toilet',
+            name: 'Master En-Suite Ceramic Toilet',
+            position: [4.8, 0, -1.5],
+            rotation: [0, 0, 0],
+            room: 'master_bath',
+            cost: 280
+          });
+
+          // 54. Master En-Suite Bathroom: Floating Vanity & Mirror
+          items.push({
+            id: 'house_master_vanity',
+            type: 'bathroom_vanity',
+            name: 'Master En-Suite Vanity & Lighted Mirror',
+            position: [5.4, 0, 0.6],
+            rotation: [0, Math.PI, 0],
+            room: 'master_bath',
+            cost: 480
+          });
+
+          // 55. Backyard Garden Slate Stepping Stones
+          items.push({
+            id: 'house_garden_stones',
+            type: 'stepping_stones',
+            name: 'Backyard Garden Slate Pathway Stones',
+            position: [4.4, 0, -7.5],
+            rotation: [0, 0, 0],
+            room: 'backyard',
+            cost: 65
+          });
+
+          // 56. Backyard Landscaped Garden Bushes
+          items.push({
+            id: 'house_garden_bush_1',
+            type: 'garden_bush',
+            name: 'Backyard Flowering Garden Shrub',
+            position: [5.8, 0, -8.2],
+            rotation: [0, 0, 0],
+            room: 'backyard',
+            cost: 45
+          });
+
+          items.push({
+            id: 'house_garden_bush_2',
+            type: 'garden_bush',
+            name: 'Backyard Flowering Garden Shrub',
+            position: [3.0, 0, -8.2],
+            rotation: [0, 0, 0],
+            room: 'backyard',
+            cost: 45
+          });
+
+          items.push({
+            id: 'house_front_bush',
+            type: 'garden_bush',
+            name: 'Front Lawn Manicured Hedge Shrub',
+            position: [5.5, 0, 8.6],
+            rotation: [0, 0, 0],
+            room: 'front_lawn',
+            cost: 45
+          });
+        }
 
       } else {
         // ==========================================

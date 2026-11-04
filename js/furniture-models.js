@@ -3357,4 +3357,452 @@ export class FurnitureFactory {
 
     return group;
   }
+
+  // 38. MODERN CERAMIC TOILET COMMODE (BATHROOM SUITE)
+  static createToilet(style = 'modern') {
+    const group = new THREE.Group();
+    group.name = 'Modern Toilet';
+    group.userData = { type: 'toilet', name: 'Ceramic Toilet Commode', cost: 280 };
+
+    const porcelainMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      roughness: 0.1,
+      metalness: 0.05
+    });
+    const chromeMat = new THREE.MeshStandardMaterial({
+      color: 0xe2e8f0,
+      metalness: 0.9,
+      roughness: 0.15
+    });
+
+    // Base pedestal
+    const base = this.createMesh(new THREE.CylinderGeometry(0.16, 0.19, 0.38, 16), porcelainMat, 'Toilet Base');
+    base.position.set(0, 0.19, 0);
+    group.add(base);
+
+    // Oval Bowl
+    const bowl = this.createMesh(new THREE.CylinderGeometry(0.22, 0.18, 0.16, 16), porcelainMat, 'Toilet Bowl');
+    bowl.position.set(0, 0.38, 0.08);
+    bowl.scale.set(0.9, 1.0, 1.25);
+    group.add(bowl);
+
+    // Seat and Closed Lid
+    const lidMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.15 });
+    const lid = this.createMesh(new THREE.CylinderGeometry(0.23, 0.23, 0.03, 16), lidMat, 'Toilet Lid');
+    lid.position.set(0, 0.47, 0.09);
+    lid.scale.set(0.9, 1.0, 1.25);
+    group.add(lid);
+
+    // Cistern Tank
+    const cistern = this.createMesh(new THREE.BoxGeometry(0.42, 0.44, 0.22), porcelainMat, 'Cistern Tank');
+    cistern.position.set(0, 0.54, -0.16);
+    group.add(cistern);
+
+    // Dual Flush Chrome Buttons
+    const flushBtn = this.createMesh(new THREE.CylinderGeometry(0.025, 0.025, 0.015, 12), chromeMat, 'Dual Flush Button');
+    flushBtn.position.set(0, 0.765, -0.16);
+    group.add(flushBtn);
+
+    return group;
+  }
+
+  // 39. TEMPERED GLASS WALK-IN SHOWER CABIN
+  static createShowerEnclosure(width = 1.1, depth = 1.0) {
+    const group = new THREE.Group();
+    group.name = 'Glass Shower Enclosure';
+    group.userData = { type: 'shower', name: 'Walk-in Glass Shower Enclosure', cost: 650 };
+
+    const trayMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.2 });
+    const glassMat = new THREE.MeshStandardMaterial({
+      color: 0x93c5fd,
+      roughness: 0.05,
+      metalness: 0.1,
+      transparent: true,
+      opacity: 0.4
+    });
+    const chromeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.15 });
+
+    // Raised Slim Acrylic Shower Base Tray
+    const tray = this.createMesh(new THREE.BoxGeometry(width, 0.06, depth), trayMat, 'Shower Tray');
+    tray.position.set(0, 0.03, 0);
+    group.add(tray);
+
+    // Chrome Drain
+    const drain = this.createMesh(new THREE.CylinderGeometry(0.04, 0.04, 0.01, 16), chromeMat, 'Shower Drain');
+    drain.position.set(0, 0.065, 0);
+    group.add(drain);
+
+    // Transparent Glass Panels (Front & Side)
+    const glassH = 2.0;
+    const glassSide = this.createMesh(new THREE.BoxGeometry(0.015, glassH, depth), glassMat, 'Glass Screen Side');
+    glassSide.position.set(-width / 2 + 0.01, glassH / 2 + 0.06, 0);
+    group.add(glassSide);
+
+    const glassFront = this.createMesh(new THREE.BoxGeometry(width * 0.6, glassH, 0.015), glassMat, 'Glass Screen Front');
+    glassFront.position.set(width * 0.2, glassH / 2 + 0.06, depth / 2 - 0.01);
+    group.add(glassFront);
+
+    // Chrome Overhead Rain Shower Head & Arm
+    const showerPole = this.createMesh(new THREE.CylinderGeometry(0.012, 0.012, 1.2, 10), chromeMat, 'Shower Riser');
+    showerPole.position.set(0, 1.4, -depth / 2 + 0.04);
+    group.add(showerPole);
+
+    const showerArm = this.createMesh(new THREE.BoxGeometry(0.02, 0.02, 0.35), chromeMat, 'Shower Arm');
+    showerArm.position.set(0, 2.0, -depth / 2 + 0.2);
+    group.add(showerArm);
+
+    const rainHead = this.createMesh(new THREE.CylinderGeometry(0.12, 0.12, 0.02, 20), chromeMat, 'Rain Shower Head');
+    rainHead.position.set(0, 1.98, -depth / 2 + 0.36);
+    group.add(rainHead);
+
+    // Chrome Thermostatic Mixer Handle
+    const mixer = this.createMesh(new THREE.CylinderGeometry(0.03, 0.03, 0.12, 12), chromeMat, 'Mixer Tap');
+    mixer.position.set(0, 1.05, -depth / 2 + 0.05);
+    mixer.rotation.z = Math.PI / 2;
+    group.add(mixer);
+
+    return group;
+  }
+
+  // 40. FLOATING BATHROOM VANITY WITH BASIN & LED MIRROR
+  static createBathroomVanity(width = 0.9, style = 'modern') {
+    const group = new THREE.Group();
+    group.name = 'Bathroom Vanity';
+    group.userData = { type: 'bathroom_vanity', name: 'Floating Bathroom Vanity & Basin', cost: 480 };
+
+    const woodMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.4 });
+    const basinMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1 });
+    const mirrorMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.05, metalness: 0.95 });
+    const chromeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.15 });
+
+    const d = 0.48;
+    const h = 0.42;
+
+    // Floating vanity cabinet
+    const cabinet = this.createMesh(new THREE.BoxGeometry(width, h, d), woodMat, 'Vanity Cabinet');
+    cabinet.position.set(0, 0.55, 0);
+    group.add(cabinet);
+
+    // White Porcelain Washbasin
+    const basin = this.createMesh(new THREE.BoxGeometry(width * 0.65, 0.12, d * 0.75), basinMat, 'Porcelain Basin');
+    basin.position.set(0, 0.55 + h / 2 + 0.06, 0);
+    group.add(basin);
+
+    // Tall Chrome Mixer Faucet
+    const faucet = this.createMesh(new THREE.CylinderGeometry(0.015, 0.015, 0.16, 12), chromeMat, 'Chrome Faucet');
+    faucet.position.set(0, 0.55 + h / 2 + 0.16, -d * 0.25);
+    group.add(faucet);
+
+    // Illuminated LED Mirror (Wall-Mounted)
+    const mirrorW = width * 0.85;
+    const mirrorH = 0.75;
+    const mirrorBack = this.createMesh(new THREE.BoxGeometry(mirrorW, mirrorH, 0.02), new THREE.MeshBasicMaterial({ color: 0xe0f2fe }), 'LED Mirror Backlight');
+    mirrorBack.position.set(0, 1.45, -d / 2 - 0.01);
+    group.add(mirrorBack);
+
+    const mirrorGlass = this.createMesh(new THREE.BoxGeometry(mirrorW - 0.04, mirrorH - 0.04, 0.01), mirrorMat, 'Mirror Glass');
+    mirrorGlass.position.set(0, 1.45, -d / 2);
+    group.add(mirrorGlass);
+
+    // Chrome Towel Bar with White Towel
+    const towelBar = this.createMesh(new THREE.CylinderGeometry(0.008, 0.008, 0.35, 12), chromeMat, 'Towel Bar');
+    towelBar.rotation.z = Math.PI / 2;
+    towelBar.position.set(width / 2 + 0.04, 0.65, 0);
+    group.add(towelBar);
+
+    const towel = this.createMesh(new THREE.BoxGeometry(0.04, 0.28, 0.25), new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.8 }), 'Hand Towel');
+    towel.position.set(width / 2 + 0.04, 0.56, 0);
+    group.add(towel);
+
+    return group;
+  }
+
+  // 41. COMPLETE PRE-ARRANGED BATHROOM SUITE
+  static createBathroomSuite(type = 'common') {
+    const group = new THREE.Group();
+    group.name = type === 'master' ? 'Master Bathroom Suite' : 'Common Bathroom Suite';
+    group.userData = { type: 'bathroom_suite', name: 'Designer En-Suite Bathroom Fixtures', cost: 1350 };
+
+    // 1. Walk-in Glass Shower (Left corner)
+    const shower = this.createShowerEnclosure(1.15, 1.05);
+    shower.position.set(-0.85, 0, 0.55);
+    group.add(shower);
+
+    // 2. Modern Toilet (Center-back)
+    const toilet = this.createToilet();
+    toilet.position.set(0.15, 0, 0.85);
+    group.add(toilet);
+
+    // 3. Floating Vanity & LED Mirror (Right wall)
+    const vanity = this.createBathroomVanity(0.85);
+    vanity.position.set(1.1, 0, 0.25);
+    vanity.rotation.y = -Math.PI / 2;
+    group.add(vanity);
+
+    return group;
+  }
+
+  // 42. ENTRANCE FOYER CONSOLE & BRASS ROUND MIRROR
+  static createFoyerConsole() {
+    const group = new THREE.Group();
+    group.name = 'Entrance Foyer Console';
+    group.userData = { type: 'foyer_console', name: 'Foyer Credenza, Round Mirror & Plant', cost: 420 };
+
+    const woodMat = new THREE.MeshStandardMaterial({ color: 0x5c4033, roughness: 0.35 });
+    const brassMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.2 });
+    const mirrorMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.05, metalness: 0.95 });
+
+    // Slim Wooden Console Table
+    const tableTop = this.createMesh(new THREE.BoxGeometry(1.2, 0.04, 0.36), woodMat, 'Console Top');
+    tableTop.position.set(0, 0.78, 0);
+    group.add(tableTop);
+
+    // Slim Legs
+    const legMat = brassMat;
+    const addLeg = (x, z) => {
+      const leg = this.createMesh(new THREE.CylinderGeometry(0.012, 0.012, 0.76, 12), legMat, 'Console Leg');
+      leg.position.set(x, 0.38, z);
+      group.add(leg);
+    };
+    addLeg(-0.54, -0.14);
+    addLeg(0.54, -0.14);
+    addLeg(-0.54, 0.14);
+    addLeg(0.54, 0.14);
+
+    // Circular Round Brass Wall Mirror
+    const mirrorRim = this.createMesh(new THREE.TorusGeometry(0.38, 0.02, 12, 32), brassMat, 'Brass Mirror Rim');
+    mirrorRim.position.set(0, 1.45, -0.16);
+    group.add(mirrorRim);
+
+    const mirrorFace = this.createMesh(new THREE.CircleGeometry(0.37, 32), mirrorMat, 'Mirror Face');
+    mirrorFace.position.set(0, 1.45, -0.155);
+    group.add(mirrorFace);
+
+    // Small Ceramic Catchall Bowl
+    const bowl = this.createMesh(new THREE.CylinderGeometry(0.08, 0.05, 0.04, 16), new THREE.MeshStandardMaterial({ color: 0xf1f5f9 }), 'Key Dish');
+    bowl.position.set(0.35, 0.82, 0);
+    group.add(bowl);
+
+    // Tabletop Miniature Orchid / Planter
+    const pot = this.createMesh(new THREE.CylinderGeometry(0.06, 0.04, 0.1, 16), new THREE.MeshStandardMaterial({ color: 0xffffff }), 'Table Planter');
+    pot.position.set(-0.38, 0.85, 0);
+    group.add(pot);
+
+    const plantMat = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.6 });
+    for (let i = 0; i < 5; i++) {
+      const leaf = this.createMesh(new THREE.SphereGeometry(0.04, 8, 8), plantMat, 'Plant Leaf');
+      leaf.scale.set(0.5, 1.5, 0.2);
+      leaf.position.set(-0.38 + (i - 2) * 0.02, 0.94 + i * 0.02, 0);
+      leaf.rotation.z = (i - 2) * 0.25;
+      group.add(leaf);
+    }
+
+    return group;
+  }
+
+  // 43. MASTER SUITE WALK-IN WARDROBE SYSTEM
+  static createWalkInWardrobe() {
+    const group = new THREE.Group();
+    group.name = 'Walk-In Wardrobe';
+    group.userData = { type: 'walk_in_wardrobe', name: 'Modular Walk-in Closet Organizer', cost: 890 };
+
+    const woodMat = new THREE.MeshStandardMaterial({ color: 0x5c4033, roughness: 0.4 });
+    const chromeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.15 });
+
+    const totalW = 1.9;
+    const totalH = 2.4;
+    const totalD = 0.55;
+
+    // Upright dividers
+    const uprightGeom = new THREE.BoxGeometry(0.03, totalH, totalD);
+    const u1 = this.createMesh(uprightGeom, woodMat, 'Closet Frame Left');
+    u1.position.set(-totalW / 2 + 0.015, totalH / 2, 0);
+    group.add(u1);
+
+    const u2 = this.createMesh(uprightGeom, woodMat, 'Closet Frame Center');
+    u2.position.set(0, totalH / 2, 0);
+    group.add(u2);
+
+    const u3 = this.createMesh(uprightGeom, woodMat, 'Closet Frame Right');
+    u3.position.set(totalW / 2 - 0.015, totalH / 2, 0);
+    group.add(u3);
+
+    // Shelves
+    const shelfGeom = new THREE.BoxGeometry(totalW / 2 - 0.03, 0.025, totalD);
+    [-totalW / 4, totalW / 4].forEach(posX => {
+      [0.05, 0.45, 1.85, 2.35].forEach(posY => {
+        const shelf = this.createMesh(shelfGeom, woodMat, 'Closet Shelf');
+        shelf.position.set(posX, posY, 0);
+        group.add(shelf);
+      });
+    });
+
+    // Hanging Chrome Rails
+    const railGeom = new THREE.CylinderGeometry(0.012, 0.012, totalW / 2 - 0.03, 12);
+    const rail1 = this.createMesh(railGeom, chromeMat, 'Hanging Rail Left');
+    rail1.rotation.z = Math.PI / 2;
+    rail1.position.set(-totalW / 4, 1.75, 0);
+    group.add(rail1);
+
+    const rail2 = this.createMesh(railGeom, chromeMat, 'Hanging Rail Right');
+    rail2.rotation.z = Math.PI / 2;
+    rail2.position.set(totalW / 4, 1.75, 0);
+    group.add(rail2);
+
+    // Hanging Colorful Garments
+    const shirtColors = [0x1e3a8a, 0xf8fafc, 0xb91c1c, 0x047857, 0x475569, 0xd97706];
+    shirtColors.forEach((col, idx) => {
+      const shirtMat = new THREE.MeshStandardMaterial({ color: col, roughness: 0.8 });
+      const shirt = this.createMesh(new THREE.BoxGeometry(0.05, 0.65, 0.38), shirtMat, 'Hanging Garment ' + (idx + 1));
+      const px = -totalW / 4 - 0.35 + idx * 0.14;
+      shirt.position.set(px, 1.35, 0);
+      group.add(shirt);
+    });
+
+    // Lower Storage Drawers
+    const drawerMat = new THREE.MeshStandardMaterial({ color: 0x4a3525, roughness: 0.3 });
+    for (let i = 0; i < 2; i++) {
+      const drawer = this.createMesh(new THREE.BoxGeometry(totalW / 2 - 0.04, 0.16, totalD - 0.02), drawerMat, 'Closet Drawer ' + (i + 1));
+      drawer.position.set(totalW / 4, 0.15 + i * 0.18, 0);
+      group.add(drawer);
+    }
+
+    return group;
+  }
+
+  // 44. COGNAC CARAMEL LEATHER L-SHAPED LUXURY SECTIONAL SOFA
+  static createCognacLeatherSectional() {
+    const group = new THREE.Group();
+    group.name = 'Cognac Leather Sectional';
+    group.userData = { type: 'cognac_sectional', name: 'Cognac Leather L-Sectional Sofa', cost: 1650 };
+
+    const leatherMat = new THREE.MeshStandardMaterial({
+      color: 0xb45309, // Rich Caramel / Cognac warm leather
+      roughness: 0.35,
+      metalness: 0.05
+    });
+    const cushionMat = new THREE.MeshStandardMaterial({
+      color: 0x9a3412,
+      roughness: 0.4
+    });
+    const woodLegMat = new THREE.MeshStandardMaterial({ color: 0x2b1d0c, roughness: 0.5 });
+    const pillowMat = new THREE.MeshStandardMaterial({ color: 0xfef3c7, roughness: 0.7 });
+
+    // Main Sofa Base (Long section along North/South)
+    const mainBase = this.createMesh(new THREE.BoxGeometry(1.0, 0.22, 2.6), leatherMat, 'Main Sofa Base');
+    mainBase.position.set(0, 0.21, 0);
+    group.add(mainBase);
+
+    // Return Chaise Base (Short section along East/West)
+    const chaiseBase = this.createMesh(new THREE.BoxGeometry(1.4, 0.22, 1.0), leatherMat, 'Chaise Sofa Base');
+    chaiseBase.position.set(1.2, 0.21, -0.8);
+    group.add(chaiseBase);
+
+    // High Backrests
+    const back1 = this.createMesh(new THREE.BoxGeometry(0.24, 0.55, 2.6), leatherMat, 'Main Sofa Backrest');
+    back1.position.set(-0.38, 0.55, 0);
+    group.add(back1);
+
+    const back2 = this.createMesh(new THREE.BoxGeometry(1.4, 0.55, 0.24), leatherMat, 'Chaise Sofa Backrest');
+    back2.position.set(1.2, 0.55, -1.18);
+    group.add(back2);
+
+    // Plush Seat Cushions
+    for (let z = -0.85; z <= 0.95; z += 0.85) {
+      const sc = this.createMesh(new THREE.BoxGeometry(0.72, 0.16, 0.8), cushionMat, 'Plush Seat Cushion');
+      sc.position.set(0.08, 0.38, z);
+      group.add(sc);
+    }
+    const cc = this.createMesh(new THREE.BoxGeometry(1.25, 0.16, 0.72), cushionMat, 'Chaise Seat Cushion');
+    cc.position.set(1.15, 0.38, -0.72);
+    group.add(cc);
+
+    // Accent Throw Pillows
+    const p1 = this.createMesh(new THREE.BoxGeometry(0.12, 0.32, 0.32), pillowMat, 'Cream Accent Pillow');
+    p1.rotation.y = 0.2;
+    p1.position.set(-0.15, 0.58, -0.9);
+    group.add(p1);
+
+    const p2 = this.createMesh(new THREE.BoxGeometry(0.32, 0.32, 0.12), pillowMat, 'Cream Accent Pillow');
+    p2.rotation.y = -0.2;
+    p2.position.set(1.6, 0.58, -0.95);
+    group.add(p2);
+
+    // Contemporary Stained Wood Legs
+    const legGeom = new THREE.CylinderGeometry(0.025, 0.018, 0.12, 12);
+    const legPositions = [
+      [-0.45, -1.2], [0.45, -1.2],
+      [-0.45, 1.2], [0.45, 1.2],
+      [1.8, -1.2], [1.8, -0.35]
+    ];
+    legPositions.forEach((pos, idx) => {
+      const leg = this.createMesh(legGeom, woodLegMat, 'Sofa Leg ' + (idx + 1));
+      leg.position.set(pos[0], 0.06, pos[1]);
+      group.add(leg);
+    });
+
+    return group;
+  }
+
+  // 45. GARDEN SHRUB & BUSH (LANDSCAPING)
+  static createGardenBush(scale = 1.0, colorHex = 0x3f6212) {
+    const group = new THREE.Group();
+    group.name = 'Garden Shrub';
+    group.userData = { type: 'garden_bush', name: 'Manicured Garden Shrub', cost: 45 };
+
+    const foliageMat = new THREE.MeshStandardMaterial({
+      color: colorHex,
+      roughness: 0.85
+    });
+
+    // Cluster of rounded organic green spheres
+    const mainSphere = this.createMesh(new THREE.SphereGeometry(0.35 * scale, 12, 12), foliageMat, 'Foliage Cluster');
+    mainSphere.position.set(0, 0.32 * scale, 0);
+    mainSphere.scale.set(1.2, 0.9, 1.1);
+    group.add(mainSphere);
+
+    const offsets = [
+      [0.15, 0.28, 0.12, 0.28],
+      [-0.14, 0.26, -0.1, 0.26],
+      [0.08, 0.42, -0.08, 0.24],
+      [-0.12, 0.35, 0.14, 0.25]
+    ];
+    offsets.forEach((o, idx) => {
+      const s = this.createMesh(new THREE.SphereGeometry(o[3] * scale, 10, 10), foliageMat, 'Foliage Detail ' + (idx + 1));
+      s.position.set(o[0] * scale, o[1] * scale, o[2] * scale);
+      group.add(s);
+    });
+
+    return group;
+  }
+
+  // 46. PERIMETER GREEN HEDGE ROW (COMPOUND BOUNDARY)
+  static createPerimeterHedge(length = 2.0, height = 0.85) {
+    const group = new THREE.Group();
+    group.name = 'Perimeter Hedge';
+    group.userData = { type: 'perimeter_hedge', name: 'Manicured Perimeter Hedge Row', cost: 95 };
+
+    const hedgeMat = new THREE.MeshStandardMaterial({ color: 0x365314, roughness: 0.9 });
+    const hedge = this.createMesh(new THREE.BoxGeometry(0.4, height, length), hedgeMat, 'Hedge Bush');
+    hedge.position.set(0, height / 2, 0);
+    group.add(hedge);
+
+    return group;
+  }
+
+  // 47. OUTDOOR SLATE STEPPING STONES
+  static createSteppingStones(count = 4) {
+    const group = new THREE.Group();
+    group.name = 'Garden Stepping Stones';
+    group.userData = { type: 'stepping_stones', name: 'Natural Slate Garden Pathway Stones', cost: 65 };
+
+    const stoneMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.85 });
+    for (let i = 0; i < count; i++) {
+      const stone = this.createMesh(new THREE.CylinderGeometry(0.24, 0.26, 0.025, 8), stoneMat, 'Stepping Stone ' + (i + 1));
+      stone.position.set(0, 0.015, (i - count / 2) * 0.7);
+      stone.scale.set(1.0 + (i % 2) * 0.15, 1.0, 0.9 + ((i + 1) % 2) * 0.2);
+      group.add(stone);
+    }
+    return group;
+  }
 }
