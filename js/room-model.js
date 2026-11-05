@@ -1165,8 +1165,8 @@ export class RoomBuilder {
     // 2. Common Bathroom 1 (Mid-Left - Sky Blue Designer Tiles)
     makeFloorMesh(3.0, 2.8, -4.7, 2.0, 'blue_tile', 'common_bath');
 
-    // 3. Second Bedroom (Back-Left - Warm Oak Wood)
-    makeFloorMesh(4.4, 6.6, -4.0, -2.7, bedFlooring, 'bedroom2');
+    // 3. Outdoor Courtyard Garden (Back-Left - Rich Teak Wood Decking)
+    makeFloorMesh(4.4, 6.6, -4.0, -2.7, 'wood_teak', 'bedroom2');
 
     // 4. Living Room Lounge (Center-Front - Polished Ivory Tile)
     makeFloorMesh(5.6, 4.6, -0.4, 4.1, commonFlooring, 'living');
@@ -1279,7 +1279,25 @@ export class RoomBuilder {
     addCap(0.2, 18.35, 8.0, 0.25);
 
     // B. VILLA EXTERIOR BUILDING WALLS (Height H = 2.8m)
-    addWall(8.8, H, 0.15, -1.8, H / 2, -6.0, 'Second Bed & Kitchen North Wall');
+    // Modular Kitchen North Exterior Wall (from X = -1.8 to X = +2.6)
+    addWall(4.4, H, 0.15, 0.4, H / 2, -6.0, 'Modular Kitchen North Wall');
+
+    // Courtyard Garden North Vista Opening (Connecting directly to Rear Landscape & Grounds)
+    // Flanked by architectural piers with a 2.8m wide open panoramic garden vista & lintel
+    addWall(0.8, H, 0.15, -5.8, H / 2, -6.0, 'Courtyard North Wall West');
+    addWall(2.8, 0.6, 0.15, -4.0, 2.5, -6.0, 'Courtyard Garden Vista Lintel');
+    addWall(0.8, H, 0.15, -2.2, H / 2, -6.0, 'Courtyard North Wall East');
+
+    // Architectural Thresholds for Courtyard Transitions
+    const threshMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.5 });
+    const addThreshold = (w, d, x, z) => {
+      const thresh = new THREE.Mesh(new THREE.BoxGeometry(w, 0.04, d), threshMat);
+      thresh.position.set(x, 0.02, z);
+      thresh.name = 'CourtyardTransitionThreshold';
+      this.roomGroup.add(thresh);
+    };
+    addThreshold(2.8, 0.18, -4.0, -6.0); // Garden vista threshold
+    addThreshold(1.4, 0.18, -2.5, 0.6);  // Hallway entry threshold
     // Master Suite Backyard Wall at Z = -2.0 with 1.8m Sliding Glass Door Opening
     addWall(1.2, H, 0.15, 2.9, H / 2, -2.0, 'Master Suite Backyard Wall West');
     addWall(1.8, 0.6, 0.15, 4.4, 2.5, -2.0, 'Master Suite Backyard Sliding Door Lintel');
@@ -1384,8 +1402,8 @@ export class RoomBuilder {
       return winGroup;
     };
 
-    // 1. Second Bedroom North Window (overlooking rear garden)
-    createArchitecturalWindow(2.0, 1.3, -4.0, 1.6, -5.92, -Math.PI / 2, true);
+    // 1. Courtyard Garden Sliding Glass Door / Open Portal (overlooking rear garden)
+    createArchitecturalWindow(2.8, 2.2, -4.0, 1.15, -5.95, -Math.PI / 2, false);
 
     // 2. Modular Kitchen North Window (above counter)
     createArchitecturalWindow(1.8, 1.2, 0.3, 1.7, -5.92, -Math.PI / 2, true);
@@ -1414,7 +1432,7 @@ export class RoomBuilder {
     this.createRoomBadge('LIVING ROOM', '🛋️', -0.4, 4.1, 'living');
     this.createRoomBadge('DINING AREA', '🍽️', 0.3, 0.1, 'dining');
     this.createRoomBadge('MODULAR KITCHEN', '🍳', 0.3, -3.8, 'kitchen');
-    this.createRoomBadge('SECOND BEDROOM', '🛏️', -4.0, -2.7, 'bedroom2');
+    this.createRoomBadge('COURTYARD GARDEN', '🌿', -4.0, -2.7, 'bedroom2');
     this.createRoomBadge('COMMON BATHROOM', '🚿', -4.7, 2.0, 'common_bath');
     this.createRoomBadge('MASTER BEDROOM', '👑', 4.4, 3.7, 'bedroom');
     this.createRoomBadge('MASTER BATHROOM', '🛁', 5.4, -0.5, 'master_bath');

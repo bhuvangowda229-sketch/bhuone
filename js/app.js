@@ -2765,6 +2765,30 @@ class App {
       case 'straight_kitchen':
         meshGroup = FurnitureFactory.createStraightModularKitchen(style, itemData.color);
         break;
+      case 'courtyard_sectional':
+        meshGroup = FurnitureFactory.createCourtyardSectional();
+        break;
+      case 'courtyard_fire_table':
+        meshGroup = FurnitureFactory.createCourtyardFireTable();
+        break;
+      case 'courtyard_chair':
+        meshGroup = FurnitureFactory.createCourtyardLoungeChair();
+        break;
+      case 'courtyard_pergola':
+        meshGroup = FurnitureFactory.createPergolaStructure(itemData.width || 3.6, itemData.depth || 3.4, itemData.height || 2.75);
+        break;
+      case 'courtyard_greenwall':
+        meshGroup = FurnitureFactory.createVerticalGreenWall(itemData.width || 2.4, itemData.height || 2.0);
+        break;
+      case 'courtyard_tree':
+        meshGroup = FurnitureFactory.createCourtyardPlanterTree();
+        break;
+      case 'courtyard_fountain':
+        meshGroup = FurnitureFactory.createBasaltWaterFeature();
+        break;
+      case 'courtyard_lanterns':
+        meshGroup = FurnitureFactory.createOutdoorFloorLanterns();
+        break;
       default:
         meshGroup = FurnitureFactory.createCoffeeTable(style);
         break;
