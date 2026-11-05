@@ -1214,12 +1214,12 @@ export class RoomBuilder {
       strip.position.set(x, 0.004, z);
       this.roomGroup.add(strip);
     };
-    addThreshold(0.06, 2.4, -3.2, 4.9);
-    addThreshold(1.0, 0.06, -4.7, 3.4);
-    addThreshold(1.0, 0.06, -4.0, 0.6);
-    addThreshold(0.06, 2.6, 2.4, 3.7);
-    addThreshold(1.2, 0.06, 3.4, 1.0);
-    addThreshold(0.06, 1.0, 4.4, -0.5);
+    addThreshold(0.06, 1.4, -3.2, 5.7);
+    addThreshold(0.06, 1.0, -3.2, 2.1);
+    addThreshold(1.2, 0.06, -2.5, 0.6);
+    addThreshold(0.06, 1.2, 2.4, 3.4);
+    addThreshold(1.4, 0.06, 4.1, 1.0);
+    addThreshold(0.06, 1.1, 4.4, -0.45);
   }
 
   buildVillaWalls(H, wallColorHex) {
@@ -1294,26 +1294,53 @@ export class RoomBuilder {
     this.roomGroup.add(curb);
 
     // C. INTERIOR DIVIDING WALLS
-    addWall(0.12, H, 2.8, -3.2, H / 2, 2.0, 'Common Bath East Wall');
-    addWall(0.12, H, 1.2, -3.2, H / 2, 5.8, 'Foyer TV Partition Wall');
+    // 1. Common Bath East Wall with Hallway Doorway (X = -3.2)
+    addWall(0.12, H, 1.0, -3.2, H / 2, 1.1, 'Common Bath East Wall North');
+    addWall(0.12, 0.6, 1.0, -3.2, 2.5, 2.1, 'Common Bath Door Lintel');
+    addWall(0.12, H, 0.8, -3.2, H / 2, 3.0, 'Common Bath East Wall South');
 
-    // Slatted wood vertical screen between Foyer and Living Room
+    // 2. Foyer Partition & Slatted Wood Screen (X = -3.2)
+    addWall(0.12, H, 1.0, -3.2, H / 2, 4.1, 'Foyer TV Partition Wall');
     const woodMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.4 });
-    for (let sz = 3.6; sz <= 5.0; sz += 0.28) {
+    for (let sz = 3.6; sz <= 4.8; sz += 0.25) {
       const slat = new THREE.Mesh(new THREE.BoxGeometry(0.04, H, 0.08), woodMat);
       slat.position.set(-3.2, H / 2, sz);
+      slat.name = 'FoyerSlattedScreen';
       this.roomGroup.add(slat);
     }
+    // Foyer open portal header beam
+    const portalBeam = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.35, 1.4), woodMat);
+    portalBeam.position.set(-3.2, H - 0.175, 5.7);
+    portalBeam.name = 'FoyerPortalBeam';
+    this.roomGroup.add(portalBeam);
 
-    addWall(3.0, H, 0.12, -4.7, H / 2, 3.4, 'Common Bath-Foyer Wall');
+    // 3. Common Bath Solid Partition Walls
+    addWall(3.0, H, 0.12, -4.7, H / 2, 3.4, 'Common Bath-Foyer Privacy Wall');
     addWall(3.0, H, 0.12, -4.7, H / 2, 0.6, 'Common Bath-Second Bed Wall');
+
+    // 4. Hallway Corridor Opening to Second Bedroom at Z = 0.6
+    addWall(1.4, 0.6, 0.12, -2.5, 2.5, 0.6, 'Second Bed Entrance Lintel');
+
+    // 5. Second Bed-Kitchen North-South Dividing Wall at X = -1.8
     addWall(0.12, H, 6.6, -1.8, H / 2, -2.7, 'Second Bed-Kitchen Dividing Wall');
-    addWall(0.12, H, 5.4, 2.4, H / 2, 3.7, 'Master Bed-Living Dividing Wall');
+
+    // 6. Master Bedroom - Living Dividing Wall at X = 2.4 (with 1.2m entrance doorway)
+    addWall(0.12, H, 1.8, 2.4, H / 2, 1.9, 'Master Bed-Living Wall North');
+    addWall(0.12, 0.6, 1.2, 2.4, 2.5, 3.4, 'Master Bed Entrance Lintel');
+    addWall(0.12, H, 2.4, 2.4, H / 2, 5.2, 'Master Bed-Living Wall South');
+
+    // 7. Walk-in Closet-Dining Wall at X = 2.4
     addWall(0.12, H, 3.0, 2.4, H / 2, -0.5, 'Walk-in Closet-Dining Wall');
+
+    // 8. Master Bedroom to Walk-In Dressing Portal Wall at Z = 1.0
     addWall(1.0, H, 0.12, 2.9, H / 2, 1.0, 'Closet-Bed Wall Left');
     addWall(1.4, 0.6, 0.12, 4.1, 2.5, 1.0, 'Closet Doorway Lintel');
-    addWall(1.0, H, 0.12, 5.9, H / 2, 1.0, 'Closet-Bed Wall Right');
-    addWall(0.12, H, 3.0, 4.4, H / 2, -0.5, 'Closet-Bath Dividing Wall');
+    addWall(1.6, H, 0.12, 5.6, H / 2, 1.0, 'Closet-Bed Wall Right');
+
+    // 9. Walk-In Dressing to Master En-Suite Bathroom Dividing Wall at X = 4.4 (with 1.1m doorway)
+    addWall(0.12, H, 0.9, 4.4, H / 2, 0.55, 'Closet-Bath Dividing Wall South');
+    addWall(0.12, 0.6, 1.1, 4.4, 2.5, -0.45, 'Master En-Suite Door Lintel');
+    addWall(0.12, H, 1.0, 4.4, H / 2, -1.5, 'Closet-Bath Dividing Wall North');
   }
 
   buildVillaWindowsAndDoors(H) {

@@ -1672,12 +1672,12 @@ class RoomBuilder {
       strip.position.set(x, 0.004, z);
       this.roomGroup.add(strip);
     };
-    addThreshold(0.06, 2.4, -3.2, 4.9);
-    addThreshold(1.0, 0.06, -4.7, 3.4);
-    addThreshold(1.0, 0.06, -4.0, 0.6);
-    addThreshold(0.06, 2.6, 2.4, 3.7);
-    addThreshold(1.2, 0.06, 3.4, 1.0);
-    addThreshold(0.06, 1.0, 4.4, -0.5);
+    addThreshold(0.06, 1.4, -3.2, 5.7);
+    addThreshold(0.06, 1.0, -3.2, 2.1);
+    addThreshold(1.2, 0.06, -2.5, 0.6);
+    addThreshold(0.06, 1.2, 2.4, 3.4);
+    addThreshold(1.4, 0.06, 4.1, 1.0);
+    addThreshold(0.06, 1.1, 4.4, -0.45);
   }
 
   buildVillaWalls(H, wallColorHex) {
@@ -1752,26 +1752,53 @@ class RoomBuilder {
     this.roomGroup.add(curb);
 
     // C. INTERIOR DIVIDING WALLS
-    addWall(0.12, H, 2.8, -3.2, H / 2, 2.0, 'Common Bath East Wall');
-    addWall(0.12, H, 1.2, -3.2, H / 2, 5.8, 'Foyer TV Partition Wall');
+    // 1. Common Bath East Wall with Hallway Doorway (X = -3.2)
+    addWall(0.12, H, 1.0, -3.2, H / 2, 1.1, 'Common Bath East Wall North');
+    addWall(0.12, 0.6, 1.0, -3.2, 2.5, 2.1, 'Common Bath Door Lintel');
+    addWall(0.12, H, 0.8, -3.2, H / 2, 3.0, 'Common Bath East Wall South');
 
-    // Slatted wood vertical screen between Foyer and Living Room
+    // 2. Foyer Partition & Slatted Wood Screen (X = -3.2)
+    addWall(0.12, H, 1.0, -3.2, H / 2, 4.1, 'Foyer TV Partition Wall');
     const woodMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.4 });
-    for (let sz = 3.6; sz <= 5.0; sz += 0.28) {
+    for (let sz = 3.6; sz <= 4.8; sz += 0.25) {
       const slat = new THREE.Mesh(new THREE.BoxGeometry(0.04, H, 0.08), woodMat);
       slat.position.set(-3.2, H / 2, sz);
+      slat.name = 'FoyerSlattedScreen';
       this.roomGroup.add(slat);
     }
+    // Foyer open portal header beam
+    const portalBeam = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.35, 1.4), woodMat);
+    portalBeam.position.set(-3.2, H - 0.175, 5.7);
+    portalBeam.name = 'FoyerPortalBeam';
+    this.roomGroup.add(portalBeam);
 
-    addWall(3.0, H, 0.12, -4.7, H / 2, 3.4, 'Common Bath-Foyer Wall');
+    // 3. Common Bath Solid Partition Walls
+    addWall(3.0, H, 0.12, -4.7, H / 2, 3.4, 'Common Bath-Foyer Privacy Wall');
     addWall(3.0, H, 0.12, -4.7, H / 2, 0.6, 'Common Bath-Second Bed Wall');
+
+    // 4. Hallway Corridor Opening to Second Bedroom at Z = 0.6
+    addWall(1.4, 0.6, 0.12, -2.5, 2.5, 0.6, 'Second Bed Entrance Lintel');
+
+    // 5. Second Bed-Kitchen North-South Dividing Wall at X = -1.8
     addWall(0.12, H, 6.6, -1.8, H / 2, -2.7, 'Second Bed-Kitchen Dividing Wall');
-    addWall(0.12, H, 5.4, 2.4, H / 2, 3.7, 'Master Bed-Living Dividing Wall');
+
+    // 6. Master Bedroom - Living Dividing Wall at X = 2.4 (with 1.2m entrance doorway)
+    addWall(0.12, H, 1.8, 2.4, H / 2, 1.9, 'Master Bed-Living Wall North');
+    addWall(0.12, 0.6, 1.2, 2.4, 2.5, 3.4, 'Master Bed Entrance Lintel');
+    addWall(0.12, H, 2.4, 2.4, H / 2, 5.2, 'Master Bed-Living Wall South');
+
+    // 7. Walk-in Closet-Dining Wall at X = 2.4
     addWall(0.12, H, 3.0, 2.4, H / 2, -0.5, 'Walk-in Closet-Dining Wall');
+
+    // 8. Master Bedroom to Walk-In Dressing Portal Wall at Z = 1.0
     addWall(1.0, H, 0.12, 2.9, H / 2, 1.0, 'Closet-Bed Wall Left');
     addWall(1.4, 0.6, 0.12, 4.1, 2.5, 1.0, 'Closet Doorway Lintel');
-    addWall(1.0, H, 0.12, 5.9, H / 2, 1.0, 'Closet-Bed Wall Right');
-    addWall(0.12, H, 3.0, 4.4, H / 2, -0.5, 'Closet-Bath Dividing Wall');
+    addWall(1.6, H, 0.12, 5.6, H / 2, 1.0, 'Closet-Bed Wall Right');
+
+    // 9. Walk-In Dressing to Master En-Suite Bathroom Dividing Wall at X = 4.4 (with 1.1m doorway)
+    addWall(0.12, H, 0.9, 4.4, H / 2, 0.55, 'Closet-Bath Dividing Wall South');
+    addWall(0.12, 0.6, 1.1, 4.4, 2.5, -0.45, 'Master En-Suite Door Lintel');
+    addWall(0.12, H, 1.0, 4.4, H / 2, -1.5, 'Closet-Bath Dividing Wall North');
   }
 
   buildVillaWindowsAndDoors(H) {
@@ -5843,9 +5870,9 @@ class AIEngine {
       const is2BHK = isVilla || (roomType === 'complete_house_2bhk' || pref.houseType === '2bhk');
 
       if (isVilla) {
-        concept = `ARCHITECTURAL 2 BHK RESIDENCE (${style.toUpperCase()})`;
-        spatialRationale = `A master-crafted 16m Ã— 18.5m architectural residence featuring a grand entrance foyer with pivot wooden door & slatted divider, open-concept living room lounge with Missouri TV unit, seamlessly connected central dining area with chandelier, high-efficiency modular kitchen with island and pantry garden window, peaceful master bedroom suite with walk-in dressing wardrobe and luxury sky-blue master en-suite bathroom, quiet second bedroom suite with terracotta accent wall, and a convenient designer common bathroom.`;
-        lightingPlan = `Harmonious multi-zone architectural illumination: layered warm 3000K LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips in kitchen, illuminated anti-fog LED mirrors in both bathrooms, and independent dimmable bedside luminaires in both bedrooms.`;
+        concept = `ARCHITECTURAL 2 BHK RESIDENCE (CORRECTED & OPTIMIZED ${style.toUpperCase()})`;
+        spatialRationale = `A master-crafted 16m × 18.5m architectural residence optimized for real-time room flow, generous walking clearances, and zero furniture-wall collisions. Features a grand entrance foyer with pivot wooden door & slatted divider, open-concept living lounge with Missouri TV unit facing the sectional lounge sofa, seamlessly connected dining area with solid hardwood table, 6 chairs & china credenza, high-efficiency L-shaped modular kitchen with quartz prep island, private master bedroom suite with king bed on the solid east wall, dressing vanity with mirror, walk-in dressing room with sliding mirrored wardrobe, luxury sky-blue master en-suite bathroom with walk-in glass shower, peaceful second bedroom suite with queen bed, study workstation & sliding wardrobe, and a discreetly accessible designer common bathroom.`;
+        lightingPlan = `Layered architectural illumination with warm 3000K interior ambiance: recessed living cove glows, statement linear brass chandelier above the dining table, under-cabinet task LED strips in modular kitchen, illuminated anti-fog LED mirrors in both bathrooms, dimmable bedside luminaires, and study task lighting.`;
 
         // ==========================================
         // 1. ENTRANCE FOYER (X: -6.2 to -3.2, Z: 3.4 to 6.4)
@@ -5888,7 +5915,7 @@ class AIEngine {
         items.push({
           id: 'house_living_tv_unit',
           type: 'missouri_tv_unit',
-          name: 'Missouri Engineered Wood TV Unit',
+          name: 'Missouri Engineered Wood TV Unit with Fluted Slat Backdrop',
           position: [-2.95, 0, 4.1],
           rotation: [0, Math.PI / 2, 0],
           style: style,
@@ -5899,8 +5926,8 @@ class AIEngine {
         items.push({
           id: 'house_living_sofa',
           type: 'sofa',
-          name: 'Plush Ergonomic Living Lounge Sofa',
-          position: [0.8, 0, 4.1],
+          name: 'Plush Ergonomic Living Lounge Sofa Facing TV Unit',
+          position: [0.6, 0, 4.1],
           rotation: [0, -Math.PI / 2, 0],
           style: style,
           color: palette.sofaColor,
@@ -5911,8 +5938,8 @@ class AIEngine {
         items.push({
           id: 'house_living_coffee_table',
           type: 'coffee_table',
-          name: 'Architectural Wood & Glass Coffee Table',
-          position: [-1.0, 0, 4.1],
+          name: 'Architectural Wood & Glass Centre Table',
+          position: [-1.1, 0, 4.1],
           rotation: [0, 0, 0],
           style: style,
           woodColor: palette.woodColor,
@@ -5924,7 +5951,7 @@ class AIEngine {
           id: 'house_living_armchair',
           type: 'armchair',
           name: 'Designer Lounge Accent Chair',
-          position: [0.5, 0, 2.5],
+          position: [0.4, 0, 2.3],
           rotation: [0, -2.4, 0],
           style: style,
           color: palette.accentColor,
@@ -5935,10 +5962,10 @@ class AIEngine {
         items.push({
           id: 'house_living_rug',
           type: 'rug',
-          name: 'Living Room Plush Wool Rug',
-          position: [-0.5, 0.005, 4.1],
+          name: 'Living Room Plush Wool Area Rug',
+          position: [-0.6, 0.005, 4.1],
           rotation: [0, 0, 0],
-          dimensions: [3.4, 2.6],
+          dimensions: [3.6, 2.8],
           style: style,
           room: 'living',
           cost: 380
@@ -5975,13 +6002,25 @@ class AIEngine {
           cost: 280
         });
 
+        items.push({
+          id: 'house_living_art',
+          type: 'wall_art',
+          name: 'Living Room Curated Abstract Canvas Art',
+          position: [-3.14, 1.8, 5.6],
+          rotation: [0, Math.PI / 2, 0],
+          dimensions: [1.4, 0.9],
+          style: style,
+          room: 'living',
+          cost: 320
+        });
+
         // ==========================================
         // 3. DINING AREA (X: -1.8 to 2.4, Z: -1.6 to 1.8)
         // ==========================================
         items.push({
           id: 'house_dining_set',
           type: 'dining_set',
-          name: 'Solid Hardwood Dining Table & 6 Chairs',
+          name: 'Solid Hardwood Dining Table & 6 Designer Chairs',
           position: [0.3, 0, 0.1],
           rotation: [0, 0, 0],
           style: style,
@@ -6004,7 +6043,7 @@ class AIEngine {
         items.push({
           id: 'house_dining_rug',
           type: 'rug',
-          name: 'Dining Area Low-Pile Rug',
+          name: 'Dining Area Low-Pile Defined Rug',
           position: [0.3, 0.005, 0.1],
           rotation: [0, 0, 0],
           dimensions: [2.8, 2.2],
@@ -6016,7 +6055,7 @@ class AIEngine {
         items.push({
           id: 'house_dining_credenza',
           type: 'credenza',
-          name: 'Buffet Sideboard & Serving Credenza',
+          name: 'Crockery Unit & China Buffet Sideboard',
           position: [-1.5, 0, 0.1],
           rotation: [0, Math.PI / 2, 0],
           style: style,
@@ -6035,13 +6074,23 @@ class AIEngine {
           cost: 110
         });
 
+        items.push({
+          id: 'house_dining_plant',
+          type: 'plant',
+          name: 'Dining Pavilion Tall Fiddle Leaf Planter',
+          position: [1.9, 0, 1.4],
+          rotation: [0, 0, 0],
+          room: 'dining',
+          cost: 150
+        });
+
         // ==========================================
         // 4. MODULAR KITCHEN (X: -1.8 to 2.4, Z: -6.0 to -1.6)
         // ==========================================
         items.push({
           id: 'house_kitchen_cabinets',
           type: 'kitchen_cabinets',
-          name: 'Modular Shaker Cabinets with Double Sink',
+          name: 'Modular Shaker Cabinets with Double Sink & Casement Window',
           position: [0.3, 0, -5.6],
           rotation: [0, 0, 0],
           style: style,
@@ -6054,7 +6103,7 @@ class AIEngine {
           id: 'house_kitchen_range',
           type: 'kitchen_range',
           name: '4-Burner Induction Range with Chimney Hood',
-          position: [-1.5, 0, -4.2],
+          position: [-1.5, 0, -4.4],
           rotation: [0, Math.PI / 2, 0],
           style: style,
           room: 'kitchen',
@@ -6065,7 +6114,7 @@ class AIEngine {
           id: 'house_kitchen_fridge',
           type: 'refrigerator',
           name: 'Stainless Steel French-Door Refrigerator',
-          position: [-1.45, 0, -2.4],
+          position: [-1.45, 0, -2.8],
           rotation: [0, Math.PI / 2, 0],
           room: 'kitchen',
           cost: 1550
@@ -6075,7 +6124,7 @@ class AIEngine {
           id: 'house_kitchen_island',
           type: 'kitchen_island',
           name: 'Quartz Waterfall Prep Island & Breakfast Bar',
-          position: [0.3, 0, -2.4],
+          position: [0.3, 0, -2.6],
           rotation: [0, 0, 0],
           style: style,
           color: palette.kitchenIslandColor || 0x334155,
@@ -6087,7 +6136,7 @@ class AIEngine {
           id: 'house_kitchen_stool_1',
           type: 'bar_stool',
           name: 'Designer Swivel Bar Stool #1',
-          position: [-0.3, 0, -1.7],
+          position: [-0.3, 0, -1.9],
           rotation: [0, Math.PI, 0],
           style: style,
           color: palette.accentColor,
@@ -6099,7 +6148,7 @@ class AIEngine {
           id: 'house_kitchen_stool_2',
           type: 'bar_stool',
           name: 'Designer Swivel Bar Stool #2',
-          position: [0.7, 0, -1.7],
+          position: [0.7, 0, -1.9],
           rotation: [0, Math.PI, 0],
           style: style,
           color: palette.accentColor,
@@ -6140,12 +6189,14 @@ class AIEngine {
         // ==========================================
         // 5. MASTER BEDROOM SUITE (X: 2.4 to 6.4, Z: 1.0 to 6.4)
         // ==========================================
+        // Corrected Placement: King Bed on solid East wall (X = 6.4) facing West,
+        // fully clearing the doorway into Walk-in Closet (Z = 1.0) and Living entrance (X = 2.4, Z = 3.4)
         items.push({
           id: 'house_bed_king',
           type: 'bed',
-          name: 'King Size Designer Platform Bed',
-          position: [4.4, 0, 2.4],
-          rotation: [0, 0, 0],
+          name: 'King Size Designer Platform Bed with Acoustic Headboard',
+          position: [5.3, 0, 3.7],
+          rotation: [0, -Math.PI / 2, 0],
           style: style,
           color: palette.woodColor,
           room: 'bedroom',
@@ -6156,8 +6207,8 @@ class AIEngine {
           id: 'house_bed_nightstand_l',
           type: 'nightstand',
           name: 'Bedside Nightstand (Left)',
-          position: [2.9, 0, 1.6],
-          rotation: [0, 0, 0],
+          position: [5.9, 0, 5.1],
+          rotation: [0, -Math.PI / 2, 0],
           style: style,
           room: 'bedroom',
           cost: 240
@@ -6167,8 +6218,8 @@ class AIEngine {
           id: 'house_bed_nightstand_r',
           type: 'nightstand',
           name: 'Bedside Nightstand (Right)',
-          position: [5.9, 0, 1.6],
-          rotation: [0, 0, 0],
+          position: [5.9, 0, 2.3],
+          rotation: [0, -Math.PI / 2, 0],
           style: style,
           room: 'bedroom',
           cost: 240
@@ -6178,7 +6229,7 @@ class AIEngine {
           id: 'house_bed_lamp_l',
           type: 'table_lamp',
           name: 'Bedside Table Lamp (Left)',
-          position: [2.9, 0.58, 1.6],
+          position: [5.9, 0.58, 5.1],
           rotation: [0, 0, 0],
           color: palette.accentColor,
           room: 'bedroom',
@@ -6189,7 +6240,7 @@ class AIEngine {
           id: 'house_bed_lamp_r',
           type: 'table_lamp',
           name: 'Bedside Table Lamp (Right)',
-          position: [5.9, 0.58, 1.6],
+          position: [5.9, 0.58, 2.3],
           rotation: [0, 0, 0],
           color: palette.accentColor,
           room: 'bedroom',
@@ -6199,34 +6250,46 @@ class AIEngine {
         items.push({
           id: 'house_bed_rug',
           type: 'rug',
-          name: 'Plush High-Pile Bedroom Rug',
-          position: [4.4, 0.005, 3.6],
+          name: 'Plush Silk-Wool Master Suite Rug',
+          position: [4.6, 0.005, 3.7],
           rotation: [0, 0, 0],
-          dimensions: [3.2, 2.2],
+          dimensions: [2.8, 3.2],
           style: style,
           room: 'bedroom',
           cost: 360
         });
 
         items.push({
-          id: 'house_bed_lounge',
-          type: 'armchair',
-          name: 'Velvet Bedroom Relaxation Armchair',
-          position: [5.7, 0, 5.4],
-          rotation: [0, -2.4, 0],
+          id: 'house_bed_vanity',
+          type: 'credenza',
+          name: 'Master Dressing Table Console with Integrated LED Mirror',
+          position: [2.7, 0, 5.2],
+          rotation: [0, Math.PI / 2, 0],
           style: style,
-          color: palette.sofaColor,
+          woodColor: palette.woodColor,
           room: 'bedroom',
-          cost: 520
+          cost: 650
+        });
+
+        items.push({
+          id: 'house_bed_vanity_chair',
+          type: 'armchair',
+          name: 'Boucle Vanity Stool & Dressing Lounge Chair',
+          position: [3.3, 0, 5.2],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.accentColor,
+          room: 'bedroom',
+          cost: 380
         });
 
         items.push({
           id: 'house_bed_art',
           type: 'wall_art',
-          name: 'Curated Gallery Wall Art',
-          position: [6.34, 1.8, 3.7],
-          rotation: [0, -Math.PI / 2, 0],
-          dimensions: [1.6, 1.0],
+          name: 'Master Suite Curated Canvas Art',
+          position: [2.46, 1.8, 3.7],
+          rotation: [0, Math.PI / 2, 0],
+          dimensions: [1.4, 0.9],
           style: style,
           room: 'bedroom',
           cost: 320
@@ -6236,10 +6299,21 @@ class AIEngine {
           id: 'house_bed_ac',
           type: 'air_conditioner',
           name: 'Master Bedroom Inverter Split AC',
-          position: [6.34, 2.4, 2.0],
-          rotation: [0, -Math.PI / 2, 0],
+          position: [2.46, 2.4, 2.2],
+          rotation: [0, Math.PI / 2, 0],
           room: 'bedroom',
           cost: 650
+        });
+
+        items.push({
+          id: 'house_bed_pendant',
+          type: 'pendant_light',
+          name: 'Master Bedroom Warm Ambient Luminaire',
+          position: [4.4, 2.7, 3.7],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'bedroom',
+          cost: 350
         });
 
         // ==========================================
@@ -6247,18 +6321,20 @@ class AIEngine {
         // ==========================================
         items.push({
           id: 'house_walk_in_wardrobe',
-          type: 'walk_in_wardrobe',
-          name: 'Master Suite Walk-In Wardrobe Organizer',
-          position: [2.7, 0, -0.5],
+          type: 'mirrored_wardrobe',
+          name: 'Master Suite Sliding-Door Wardrobe System',
+          position: [2.75, 0, -0.5],
           rotation: [0, Math.PI / 2, 0],
+          style: style,
+          color: palette.wardrobeColor || 0x2b2d42,
           room: 'walk_in_closet',
-          cost: 890
+          cost: 1100
         });
 
         items.push({
           id: 'house_dressing_mirror',
           type: 'floor_mirror',
-          name: 'Full-Length Dressing Mirror',
+          name: 'Full-Length Illuminated Dressing Mirror',
           position: [3.4, 0, -1.8],
           rotation: [0, 0, 0],
           room: 'walk_in_closet',
@@ -6268,8 +6344,8 @@ class AIEngine {
         items.push({
           id: 'house_master_shower',
           type: 'shower',
-          name: 'Master En-Suite Walk-In Glass Shower',
-          position: [5.8, 0, -1.3],
+          name: 'Master En-Suite Walk-In Glass Shower Enclosure',
+          position: [5.7, 0, -1.3],
           rotation: [0, -Math.PI / 2, 0],
           room: 'master_bath',
           cost: 650
@@ -6278,8 +6354,8 @@ class AIEngine {
         items.push({
           id: 'house_master_toilet',
           type: 'toilet',
-          name: 'Master En-Suite Wall-Hung Toilet',
-          position: [4.8, 0, -1.6],
+          name: 'Concealed Cistern Wall-Hung Ceramic Toilet',
+          position: [4.8, 0, -1.5],
           rotation: [0, 0, 0],
           room: 'master_bath',
           cost: 320
@@ -6288,8 +6364,8 @@ class AIEngine {
         items.push({
           id: 'house_master_vanity',
           type: 'bathroom_vanity',
-          name: 'Master En-Suite Vanity & Lighted Mirror',
-          position: [5.4, 0, 0.6],
+          name: 'Master En-Suite Floating Vanity & LED Mirror',
+          position: [5.4, 0, 0.5],
           rotation: [0, Math.PI, 0],
           room: 'master_bath',
           cost: 540
@@ -6301,8 +6377,8 @@ class AIEngine {
         items.push({
           id: 'house_bed2_twin',
           type: 'bed',
-          name: 'Second Bedroom Designer Bed',
-          position: [-5.2, 0, -2.7],
+          name: 'Second Bedroom Queen Platform Bed',
+          position: [-5.1, 0, -2.7],
           rotation: [0, Math.PI / 2, 0],
           style: style,
           color: palette.woodColor,
@@ -6314,7 +6390,7 @@ class AIEngine {
           id: 'house_bed2_nightstand_l',
           type: 'nightstand',
           name: 'Second Bedroom Nightstand (Left)',
-          position: [-5.2, 0, -1.6],
+          position: [-5.1, 0, -1.6],
           rotation: [0, Math.PI / 2, 0],
           style: style,
           room: 'bedroom2',
@@ -6325,7 +6401,7 @@ class AIEngine {
           id: 'house_bed2_nightstand_r',
           type: 'nightstand',
           name: 'Second Bedroom Nightstand (Right)',
-          position: [-5.2, 0, -3.8],
+          position: [-5.1, 0, -3.8],
           rotation: [0, Math.PI / 2, 0],
           style: style,
           room: 'bedroom2',
@@ -6335,8 +6411,8 @@ class AIEngine {
         items.push({
           id: 'house_bed2_lamp_l',
           type: 'table_lamp',
-          name: 'Bedside Table Lamp',
-          position: [-5.2, 0.58, -1.6],
+          name: 'Bedside Reading Table Lamp (Left)',
+          position: [-5.1, 0.58, -1.6],
           rotation: [0, 0, 0],
           color: palette.accentColor,
           room: 'bedroom2',
@@ -6346,8 +6422,8 @@ class AIEngine {
         items.push({
           id: 'house_bed2_lamp_r',
           type: 'table_lamp',
-          name: 'Bedside Table Lamp',
-          position: [-5.2, 0.58, -3.8],
+          name: 'Bedside Reading Table Lamp (Right)',
+          position: [-5.1, 0.58, -3.8],
           rotation: [0, 0, 0],
           color: palette.accentColor,
           room: 'bedroom2',
@@ -6357,8 +6433,8 @@ class AIEngine {
         items.push({
           id: 'house_bed2_wardrobe',
           type: 'wardrobe',
-          name: 'Double Bedroom 2-Door Wardrobe',
-          position: [-2.1, 0, -4.5],
+          name: 'Second Bedroom Built-In Sliding Door Wardrobe',
+          position: [-2.15, 0, -1.2],
           rotation: [0, -Math.PI / 2, 0],
           style: style,
           color: palette.wardrobeColor || 0x2b2d42,
@@ -6366,35 +6442,35 @@ class AIEngine {
           cost: 1200
         });
 
+        // Ergonomic Study Desk & Swivel Office Chair
         items.push({
-          id: 'house_bed2_vanity',
-          type: 'credenza',
-          name: 'Bedroom Dressing Vanity Console',
-          position: [-2.1, 0, -1.5],
-          rotation: [0, -Math.PI / 2, 0],
+          id: 'house_bed2_desk',
+          type: 'desk',
+          name: 'Second Bedroom Ergonomic Study Workstation',
+          position: [-2.6, 0, -5.0],
+          rotation: [0, 0, 0],
           style: style,
           room: 'bedroom2',
-          cost: 650
+          cost: 580
         });
 
         items.push({
           id: 'house_bed2_chair',
-          type: 'armchair',
-          name: 'Velvet Bedroom Vanity Lounge Chair',
-          position: [-2.8, 0, -1.5],
-          rotation: [0, Math.PI / 2, 0],
-          style: style,
+          type: 'office_chair',
+          name: 'Ergonomic Swivel Study Chair',
+          position: [-2.6, 0, -4.3],
+          rotation: [0, 0, 0],
           room: 'bedroom2',
-          cost: 380
+          cost: 280
         });
 
         items.push({
           id: 'house_bed2_rug',
           type: 'rug',
           name: 'Bedroom 2 Plush Area Rug',
-          position: [-4.2, 0.005, -2.7],
+          position: [-4.0, 0.005, -2.7],
           rotation: [0, 0, 0],
-          dimensions: [3.0, 2.2],
+          dimensions: [2.8, 2.2],
           style: style,
           room: 'bedroom2',
           cost: 320
@@ -6403,9 +6479,9 @@ class AIEngine {
         items.push({
           id: 'house_bed2_art',
           type: 'wall_art',
-          name: 'Curated Bedroom Gallery Art',
-          position: [-4.0, 1.8, -5.94],
-          rotation: [0, 0, 0],
+          name: 'Curated Bedroom Modern Graphic Art',
+          position: [-1.86, 1.8, -3.2],
+          rotation: [0, -Math.PI / 2, 0],
           dimensions: [1.4, 0.9],
           style: style,
           room: 'bedroom2',
@@ -6416,7 +6492,7 @@ class AIEngine {
           id: 'house_bed2_ac',
           type: 'air_conditioner',
           name: 'Bedroom 2 Inverter Split AC',
-          position: [-3.0, 2.4, -5.94],
+          position: [-4.0, 2.4, -5.94],
           rotation: [0, 0, 0],
           room: 'bedroom2',
           cost: 650
@@ -6428,8 +6504,8 @@ class AIEngine {
         items.push({
           id: 'house_bath1_shower',
           type: 'shower',
-          name: 'Common Bathroom Walk-In Glass Shower',
-          position: [-5.5, 0, 1.3],
+          name: 'Common Bathroom Walk-In Glass Shower Enclosure',
+          position: [-5.5, 0, 1.4],
           rotation: [0, 0, 0],
           room: 'common_bath',
           cost: 650
@@ -6438,7 +6514,7 @@ class AIEngine {
         items.push({
           id: 'house_bath1_toilet',
           type: 'toilet',
-          name: 'Common Bathroom Ceramic Toilet',
+          name: 'Common Bathroom Ceramic Toilet with Concealed Cistern',
           position: [-4.0, 0, 0.95],
           rotation: [0, 0, 0],
           room: 'common_bath',
@@ -6448,8 +6524,8 @@ class AIEngine {
         items.push({
           id: 'house_bath1_vanity',
           type: 'bathroom_vanity',
-          name: 'Common Bathroom Vanity & Mirror',
-          position: [-3.5, 0, 2.4],
+          name: 'Common Bathroom Floating Vanity & Backlit Mirror',
+          position: [-3.55, 0, 2.4],
           rotation: [0, -Math.PI / 2, 0],
           room: 'common_bath',
           cost: 480
@@ -6471,7 +6547,7 @@ class AIEngine {
         items.push({
           id: 'house_garden_bush_1',
           type: 'garden_bush',
-          name: 'Backyard Flowering Garden Shrub',
+          name: 'Backyard Flowering Garden Shrub #1',
           position: [5.8, 0, -8.2],
           rotation: [0, 0, 0],
           room: 'backyard',
@@ -6481,7 +6557,7 @@ class AIEngine {
         items.push({
           id: 'house_garden_bush_2',
           type: 'garden_bush',
-          name: 'Backyard Flowering Garden Shrub',
+          name: 'Backyard Flowering Garden Shrub #2',
           position: [3.0, 0, -8.2],
           rotation: [0, 0, 0],
           room: 'backyard',
@@ -11495,6 +11571,7 @@ class App {
         targetLook: targetLook
       };
     } else {
+      this.cameraAnimation = null;
       this.camera.position.copy(targetPos);
       this.controls.target.copy(targetLook);
       this.controls.update();
@@ -11531,24 +11608,45 @@ class App {
       if (hud) hud.style.display = 'none';
       this.controls.maxPolarAngle = Math.PI / 2 - 0.02;
       this.controls.minDistance = 2.0;
+      this.cameraAnimation = null;
 
       if (this.roomBuilder.isCompleteHouse) {
+        this.controls.maxDistance = 45.0;
         switch (mode) {
           case 'top':
             this.camera.position.set(0, 22.0, 0.001);
             this.controls.target.set(0, 0, 0.25);
+            this.showToast('🗺️ Viewing Top-Down 3D Floor Plan');
             break;
           case 'front':
             this.camera.position.set(0, 3.5, 17.5);
             this.controls.target.set(0, 1.4, 0.5);
+            this.showToast('🏛️ Viewing Front Perspective House View');
             break;
+          case 'living':
+            this.focusRoom('living', false);
+            return;
+          case 'bedroom':
+            this.focusRoom('bedroom', false);
+            return;
+          case 'kitchen':
+            this.focusRoom('kitchen', false);
+            return;
+          case 'dining':
+            this.focusRoom('dining', false);
+            return;
+          case 'bathroom':
+            this.focusRoom('common_bath', false);
+            return;
           case '3d':
           default:
             this.camera.position.set(0, 14.5, 17.5);
             this.controls.target.set(0, 1.0, 0.5);
+            this.showToast('📐 Viewing Free 3D House Overview');
             break;
         }
       } else {
+        this.controls.maxDistance = 20.0;
         switch (mode) {
           case 'top':
             this.camera.position.set(0, 9.0, 0.001);
@@ -11594,14 +11692,15 @@ class App {
         : '🌊 Real-time tour started: Foyer → Living → Dining → Kitchen → Master Suite → Master Bath'));
 
     const waypoints = is2BHK ? [
-      { pos: new THREE.Vector3(-4.7, 1.55, 5.6), target: new THREE.Vector3(-4.7, 1.35, 3.6), duration: 4000, desc: '🚪 Grand Entrance Foyer with Pivot Door & Console' },
-      { pos: new THREE.Vector3(-0.4, 1.55, 4.6), target: new THREE.Vector3(-2.95, 1.35, 4.1), duration: 4500, desc: '🛋️ Open Living Lounge with Missouri TV Entertainment' },
-      { pos: new THREE.Vector3(0.3, 1.55, 1.4), target: new THREE.Vector3(0.3, 1.35, 0.1), duration: 4000, desc: '🍽️ Seamless transition to Central Dining Pavilion' },
-      { pos: new THREE.Vector3(0.3, 1.55, -2.0), target: new THREE.Vector3(0.3, 1.35, -5.6), duration: 4500, desc: '🍳 High-Efficiency Modular Kitchen & Breakfast Island' },
-      { pos: new THREE.Vector3(4.4, 1.55, 4.2), target: new THREE.Vector3(4.4, 1.35, 2.4), duration: 4500, desc: '👑 Master Bedroom Suite & Walk-in Dressing Wardrobe' },
-      { pos: new THREE.Vector3(5.4, 1.55, 1.0), target: new THREE.Vector3(5.4, 1.35, -0.5), duration: 4000, desc: '🛁 Master En-Suite Designer Bathroom' },
-      { pos: new THREE.Vector3(-4.0, 1.55, -1.2), target: new THREE.Vector3(-5.2, 1.35, -2.7), duration: 4500, desc: '🛏️ Quiet Second Bedroom Suite with Terracotta Accent Wall' },
-      { pos: new THREE.Vector3(-4.7, 1.55, 2.6), target: new THREE.Vector3(-4.7, 1.35, 1.3), duration: 4000, desc: '🚿 Designer Common Bathroom' }
+      { pos: new THREE.Vector3(-4.7, 1.55, 5.6), target: new THREE.Vector3(-4.7, 1.35, 3.6), duration: 4000, desc: '🚪 Grand Entrance Foyer with Pivot Door & Slat Divider' },
+      { pos: new THREE.Vector3(-0.4, 1.55, 4.6), target: new THREE.Vector3(-2.95, 1.35, 4.1), duration: 4500, desc: '🛋️ Open Living Lounge with Missouri TV Unit Facing Sectional Sofa' },
+      { pos: new THREE.Vector3(0.3, 1.55, 1.4), target: new THREE.Vector3(0.3, 1.35, 0.1), duration: 4000, desc: '🍽️ Seamless transition to Central Dining Pavilion with Crockery Credenza' },
+      { pos: new THREE.Vector3(0.3, 1.55, -2.0), target: new THREE.Vector3(0.3, 1.35, -5.6), duration: 4500, desc: '🍳 High-Efficiency Modular Kitchen, Waterfall Island & Range Hood' },
+      { pos: new THREE.Vector3(3.4, 1.55, 3.7), target: new THREE.Vector3(5.3, 1.35, 3.7), duration: 4500, desc: '👑 Master Bedroom Suite with King Bed on East Wall & Dressing Vanity' },
+      { pos: new THREE.Vector3(3.4, 1.55, -0.2), target: new THREE.Vector3(2.75, 1.35, -0.5), duration: 4000, desc: '👗 Walk-In Dressing Room with Sliding Mirrored Wardrobes' },
+      { pos: new THREE.Vector3(4.9, 1.55, -0.2), target: new THREE.Vector3(5.7, 1.35, -1.3), duration: 4000, desc: '🛁 Master En-Suite Designer Bathroom with Glass Rain Shower' },
+      { pos: new THREE.Vector3(-3.2, 1.55, -1.2), target: new THREE.Vector3(-5.1, 1.35, -2.7), duration: 4500, desc: '🛏️ Quiet Second Bedroom Suite with Terracotta Accent Wall & Study Desk' },
+      { pos: new THREE.Vector3(-3.8, 1.55, 2.1), target: new THREE.Vector3(-5.5, 1.35, 1.4), duration: 4000, desc: '🚿 Designer Common Bathroom with Walk-In Shower & Floating Vanity' }
     ] : (isApartment ? [
       { pos: new THREE.Vector3(-4.5, 1.55, 4.8), target: new THREE.Vector3(-4.5, 1.35, 1.8), duration: 4500, desc: '🛋️ Living Room Lounge with Missouri TV Entertainment' },
       { pos: new THREE.Vector3(0.8, 1.55, 3.8), target: new THREE.Vector3(1.0, 1.35, 2.8), duration: 4500, desc: '🍽️ Seamless transition to Central Dining Pavilion' },

@@ -2225,6 +2225,7 @@ class App {
         targetLook: targetLook
       };
     } else {
+      this.cameraAnimation = null;
       this.camera.position.copy(targetPos);
       this.controls.target.copy(targetLook);
       this.controls.update();
@@ -2261,24 +2262,45 @@ class App {
       if (hud) hud.style.display = 'none';
       this.controls.maxPolarAngle = Math.PI / 2 - 0.02;
       this.controls.minDistance = 2.0;
+      this.cameraAnimation = null;
 
       if (this.roomBuilder.isCompleteHouse) {
+        this.controls.maxDistance = 45.0;
         switch (mode) {
           case 'top':
             this.camera.position.set(0, 22.0, 0.001);
             this.controls.target.set(0, 0, 0.25);
+            this.showToast('🗺️ Viewing Top-Down 3D Floor Plan');
             break;
           case 'front':
             this.camera.position.set(0, 3.5, 17.5);
             this.controls.target.set(0, 1.4, 0.5);
+            this.showToast('🏛️ Viewing Front Perspective House View');
             break;
+          case 'living':
+            this.focusRoom('living', false);
+            return;
+          case 'bedroom':
+            this.focusRoom('bedroom', false);
+            return;
+          case 'kitchen':
+            this.focusRoom('kitchen', false);
+            return;
+          case 'dining':
+            this.focusRoom('dining', false);
+            return;
+          case 'bathroom':
+            this.focusRoom('common_bath', false);
+            return;
           case '3d':
           default:
             this.camera.position.set(0, 14.5, 17.5);
             this.controls.target.set(0, 1.0, 0.5);
+            this.showToast('📐 Viewing Free 3D House Overview');
             break;
         }
       } else {
+        this.controls.maxDistance = 20.0;
         switch (mode) {
           case 'top':
             this.camera.position.set(0, 9.0, 0.001);
@@ -2324,14 +2346,15 @@ class App {
         : '🌊 Real-time tour started: Foyer → Living → Dining → Kitchen → Master Suite → Master Bath'));
 
     const waypoints = is2BHK ? [
-      { pos: new THREE.Vector3(-4.7, 1.55, 5.6), target: new THREE.Vector3(-4.7, 1.35, 3.6), duration: 4000, desc: '🚪 Grand Entrance Foyer with Pivot Door & Console' },
-      { pos: new THREE.Vector3(-0.4, 1.55, 4.6), target: new THREE.Vector3(-2.95, 1.35, 4.1), duration: 4500, desc: '🛋️ Open Living Lounge with Missouri TV Entertainment' },
-      { pos: new THREE.Vector3(0.3, 1.55, 1.4), target: new THREE.Vector3(0.3, 1.35, 0.1), duration: 4000, desc: '🍽️ Seamless transition to Central Dining Pavilion' },
-      { pos: new THREE.Vector3(0.3, 1.55, -2.0), target: new THREE.Vector3(0.3, 1.35, -5.6), duration: 4500, desc: '🍳 High-Efficiency Modular Kitchen & Breakfast Island' },
-      { pos: new THREE.Vector3(4.4, 1.55, 4.2), target: new THREE.Vector3(4.4, 1.35, 2.4), duration: 4500, desc: '👑 Master Bedroom Suite & Walk-in Dressing Wardrobe' },
-      { pos: new THREE.Vector3(5.4, 1.55, 1.0), target: new THREE.Vector3(5.4, 1.35, -0.5), duration: 4000, desc: '🛁 Master En-Suite Designer Bathroom' },
-      { pos: new THREE.Vector3(-4.0, 1.55, -1.2), target: new THREE.Vector3(-5.2, 1.35, -2.7), duration: 4500, desc: '🛏️ Quiet Second Bedroom Suite with Terracotta Accent Wall' },
-      { pos: new THREE.Vector3(-4.7, 1.55, 2.6), target: new THREE.Vector3(-4.7, 1.35, 1.3), duration: 4000, desc: '🚿 Designer Common Bathroom' }
+      { pos: new THREE.Vector3(-4.7, 1.55, 5.6), target: new THREE.Vector3(-4.7, 1.35, 3.6), duration: 4000, desc: '🚪 Grand Entrance Foyer with Pivot Door & Slat Divider' },
+      { pos: new THREE.Vector3(-0.4, 1.55, 4.6), target: new THREE.Vector3(-2.95, 1.35, 4.1), duration: 4500, desc: '🛋️ Open Living Lounge with Missouri TV Unit Facing Sectional Sofa' },
+      { pos: new THREE.Vector3(0.3, 1.55, 1.4), target: new THREE.Vector3(0.3, 1.35, 0.1), duration: 4000, desc: '🍽️ Seamless transition to Central Dining Pavilion with Crockery Credenza' },
+      { pos: new THREE.Vector3(0.3, 1.55, -2.0), target: new THREE.Vector3(0.3, 1.35, -5.6), duration: 4500, desc: '🍳 High-Efficiency Modular Kitchen, Waterfall Island & Range Hood' },
+      { pos: new THREE.Vector3(3.4, 1.55, 3.7), target: new THREE.Vector3(5.3, 1.35, 3.7), duration: 4500, desc: '👑 Master Bedroom Suite with King Bed on East Wall & Dressing Vanity' },
+      { pos: new THREE.Vector3(3.4, 1.55, -0.2), target: new THREE.Vector3(2.75, 1.35, -0.5), duration: 4000, desc: '👗 Walk-In Dressing Room with Sliding Mirrored Wardrobes' },
+      { pos: new THREE.Vector3(4.9, 1.55, -0.2), target: new THREE.Vector3(5.7, 1.35, -1.3), duration: 4000, desc: '🛁 Master En-Suite Designer Bathroom with Glass Rain Shower' },
+      { pos: new THREE.Vector3(-3.2, 1.55, -1.2), target: new THREE.Vector3(-5.1, 1.35, -2.7), duration: 4500, desc: '🛏️ Quiet Second Bedroom Suite with Terracotta Accent Wall & Study Desk' },
+      { pos: new THREE.Vector3(-3.8, 1.55, 2.1), target: new THREE.Vector3(-5.5, 1.35, 1.4), duration: 4000, desc: '🚿 Designer Common Bathroom with Walk-In Shower & Floating Vanity' }
     ] : (isApartment ? [
       { pos: new THREE.Vector3(-4.5, 1.55, 4.8), target: new THREE.Vector3(-4.5, 1.35, 1.8), duration: 4500, desc: '🛋️ Living Room Lounge with Missouri TV Entertainment' },
       { pos: new THREE.Vector3(0.8, 1.55, 3.8), target: new THREE.Vector3(1.0, 1.35, 2.8), duration: 4500, desc: '🍽️ Seamless transition to Central Dining Pavilion' },
