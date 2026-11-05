@@ -43,6 +43,19 @@ class App {
     this.currentHouseRoomTypes = { living: 1, dining: 1, kitchen: 1, bedroom: 1, dressing: 1 };
     this.cameraAnimation = null;
 
+    // Sun Study & Solar Daylighting Simulation State
+    this.currentSunHour = 10.0;
+    // Laser Tape Measurement State
+    this.isMeasuring = false;
+    this.measureStartPoint = null;
+    this.measureMarkers = [];
+    this.measureLines = [];
+    this.measureSprites = [];
+    this.tempMeasureLine = null;
+    // Room Area Schedule State
+    this.scheduleUnit = 'metric';
+    this.show3DAreaBadges = false;
+
     this.initScene();
     this.initLights();
     this.initRoom();
@@ -152,6 +165,12 @@ class App {
       this.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       this.mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
       this.raycaster.setFromCamera(this.mouse, this.camera);
+
+      // In Laser Measurement mode, route click to laser tape logic
+      if (this.isMeasuring) {
+        this.handleMeasureClick(e);
+        return;
+      }
 
       // In walkthrough mode, clicking door opens/shuts it
       if (this.isWalkthrough) {
@@ -289,6 +308,12 @@ class App {
     });
 
     this.canvas.addEventListener('pointermove', (e) => {
+      // In Laser Measurement mode, route hover move to live measurement preview
+      if (this.isMeasuring) {
+        this.handleMeasureMove(e);
+        return;
+      }
+
       if (!this.isDragging || !this.selectedTarget || this.isWalkthrough) return;
 
       const rect = this.canvas.getBoundingClientRect();
@@ -1528,6 +1553,12 @@ class App {
     this.initArchitecturalControls();
     this.initWallArtControls();
     this.initWallColorControls();
+
+    // Initialize Sun Study, Measure Tool, Room Schedule, and Advanced Exports
+    this.initSunStudy();
+    this.initMeasureTool();
+    this.initRoomSchedule();
+    this.initExportTools();
   }
 
   initWallArtControls() {
@@ -3159,6 +3190,924 @@ class App {
 
     this.controls.update();
     this.renderer.render(this.scene, this.camera);
+  }
+
+  // ==========================================
+  // 12. SOLAR STUDY & DYNAMIC DAYLIGHT SIMULATION
+  // ==========================================
+  initSunStudy() {
+    const btnToggle = document.getElementById('btn-toggle-sun-study');
+    const hud = document.getElementById('sun-study-hud');
+    const btnClose = document.getElementById('btn-close-sun-study');
+    const timeSlider = document.getElementById('sun-time-slider');
+    const presetBtns = document.querySelectorAll('.sun-preset-btn');
+
+    if (!hud) return;
+
+    btnToggle?.addEventListener('click', () => {
+      const isVisible = hud.style.display !== 'none';
+      hud.style.display = isVisible ? 'none' : 'block';
+      btnToggle.classList.toggle('active', !isVisible);
+    });
+
+    btnClose?.addEventListener('click', () => {
+      hud.style.display = 'none';
+      btnToggle?.classList.remove('active');
+    });
+
+    timeSlider?.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      this.setTimeOfDay(val);
+      presetBtns.forEach(b => b.classList.toggle('active', Math.abs(parseFloat(b.dataset.time) - val) < 0.6));
+    });
+
+    presetBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const t = parseFloat(btn.dataset.time);
+        if (timeSlider) timeSlider.value = t;
+        presetBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.setTimeOfDay(t);
+      });
+    });
+
+    // Default to morning daylight (10:00 AM)
+    this.setTimeOfDay(10.0);
+  }
+
+  setTimeOfDay(hour) {
+    this.currentSunHour = hour;
+    const timeDisplay = document.getElementById('sun-time-display');
+
+    // Format display string (e.g. "10:30 AM — Morning Daylight")
+    const hInt = Math.floor(hour);
+    const mInt = Math.round((hour - hInt) * 60);
+    const mStr = mInt < 10 ? `0${mInt}` : `${mInt}`;
+    const period = hInt >= 12 ? 'PM' : 'AM';
+    const displayH = hInt > 12 ? hInt - 12 : (hInt === 0 ? 12 : hInt);
+    let phaseName = 'Daylight';
+
+    // Solar orbit geometry:
+    // Sun rises from East (-X), arcs across South (+Z), sets in West (+X)
+    const normalized = Math.max(0, Math.min(1, (hour - 6) / 14)); // 0 at 6 AM, 1 at 8 PM
+    const sunAngle = normalized * Math.PI;
+
+    const sunDist = 24.0;
+    const sunX = -Math.cos(sunAngle) * sunDist;
+    const sunY = Math.max(0.8, Math.sin(sunAngle) * 22.0);
+    const sunZ = 12.0 * Math.sin(sunAngle) + 6.0 * Math.cos(sunAngle);
+
+    if (this.sunLight) {
+      this.sunLight.position.set(sunX, sunY, sunZ);
+    }
+
+    if (hour < 7.5) {
+      // Dawn / Early Sunrise (6:00 - 7:30)
+      phaseName = 'Dawn Warm Sunrise';
+      if (this.sunLight) {
+        this.sunLight.color.setHex(0xff9944);
+        this.sunLight.intensity = 0.85;
+      }
+      if (this.ambientLight) {
+        this.ambientLight.color.setHex(0xd4bca8);
+        this.ambientLight.intensity = 0.50;
+      }
+      if (this.ceilingLight) {
+        this.ceilingLight.color.setHex(0xffe8c6);
+        this.ceilingLight.intensity = 0.6;
+      }
+      this.scene.background = new THREE.Color(0x181728);
+    } else if (hour < 11.5) {
+      // Morning Daylight (7:30 - 11:30)
+      phaseName = 'Morning Natural Daylight';
+      if (this.sunLight) {
+        this.sunLight.color.setHex(0xfffaec);
+        this.sunLight.intensity = 1.25;
+      }
+      if (this.ambientLight) {
+        this.ambientLight.color.setHex(0xfff6ec);
+        this.ambientLight.intensity = 0.65;
+      }
+      if (this.ceilingLight) {
+        this.ceilingLight.color.setHex(0xfff7ed);
+        this.ceilingLight.intensity = 0.45;
+      }
+      this.scene.background = new THREE.Color(0x0a0e17);
+    } else if (hour < 15.5) {
+      // Midday Peak Sun (11:30 - 15:30)
+      phaseName = 'Midday Peak Sun';
+      if (this.sunLight) {
+        this.sunLight.color.setHex(0xffffff);
+        this.sunLight.intensity = 1.35;
+      }
+      if (this.ambientLight) {
+        this.ambientLight.color.setHex(0xf8fafc);
+        this.ambientLight.intensity = 0.70;
+      }
+      if (this.ceilingLight) {
+        this.ceilingLight.intensity = 0.4;
+      }
+      this.scene.background = new THREE.Color(0x0a0e17);
+    } else if (hour < 18.5) {
+      // Golden Hour / Dusk (15:30 - 18:30)
+      phaseName = 'Golden Hour Warm Glow';
+      if (this.sunLight) {
+        this.sunLight.color.setHex(0xf59e0b);
+        this.sunLight.intensity = 1.05;
+      }
+      if (this.ambientLight) {
+        this.ambientLight.color.setHex(0xfde68a);
+        this.ambientLight.intensity = 0.52;
+      }
+      if (this.ceilingLight) {
+        this.ceilingLight.color.setHex(0xffeedd);
+        this.ceilingLight.intensity = 0.75;
+      }
+      this.scene.background = new THREE.Color(0x1a1524);
+    } else {
+      // Night Moonlight & Interior Ambience (18:30 - 22:00+)
+      phaseName = 'Night Moonlight & Interior Ambience';
+      if (this.sunLight) {
+        this.sunLight.color.setHex(0x60a5fa);
+        this.sunLight.intensity = 0.18;
+      }
+      if (this.ambientLight) {
+        this.ambientLight.color.setHex(0x1e293b);
+        this.ambientLight.intensity = 0.32;
+      }
+      if (this.ceilingLight) {
+        this.ceilingLight.color.setHex(0xffe2b0);
+        this.ceilingLight.intensity = 1.15; // Cozy glowing interior pendant and recessed lights
+      }
+      this.scene.background = new THREE.Color(0x060911);
+    }
+
+    if (timeDisplay) {
+      timeDisplay.textContent = `${displayH}:${mStr} ${period} — ${phaseName}`;
+    }
+
+    // Sync Day/Night mode button icon/text
+    const dayNightBtn = document.getElementById('btn-toggle-daylight');
+    if (dayNightBtn) {
+      if (hour >= 18.5 || hour < 6.5) {
+        dayNightBtn.textContent = '🌙 Night';
+        dayNightBtn.classList.remove('active');
+      } else {
+        dayNightBtn.textContent = '☀️ Day';
+        dayNightBtn.classList.add('active');
+      }
+    }
+  }
+
+  // ==========================================
+  // 13. REAL-TIME LASER MEASUREMENT TAPE TOOL
+  // ==========================================
+  initMeasureTool() {
+    const btnToggle = document.getElementById('btn-toggle-measure');
+    const hud = document.getElementById('measure-hud');
+    const btnClear = document.getElementById('btn-clear-measures');
+    const btnExit = document.getElementById('btn-exit-measure');
+
+    btnToggle?.addEventListener('click', () => {
+      this.toggleMeasureMode();
+    });
+
+    btnExit?.addEventListener('click', () => {
+      this.toggleMeasureMode(false);
+    });
+
+    btnClear?.addEventListener('click', () => {
+      this.clearAllMeasurements();
+    });
+  }
+
+  toggleMeasureMode(forceState = null) {
+    const btnToggle = document.getElementById('btn-toggle-measure');
+    const hud = document.getElementById('measure-hud');
+    const instruction = document.getElementById('measure-instruction');
+    const liveDist = document.getElementById('measure-live-dist');
+
+    this.isMeasuring = forceState !== null ? forceState : !this.isMeasuring;
+
+    if (this.isMeasuring) {
+      this.deselectObject();
+      this.canvas.classList.add('measuring');
+      if (hud) hud.style.display = 'flex';
+      btnToggle?.classList.add('active');
+      if (instruction) instruction.textContent = 'Click Point A on any wall, floor or furniture';
+      if (liveDist) liveDist.style.display = 'none';
+      this.measureStartPoint = null;
+      this.showToast('📏 Laser Measure active: Click any point to measure');
+    } else {
+      this.canvas.classList.remove('measuring');
+      if (hud) hud.style.display = 'none';
+      btnToggle?.classList.remove('active');
+      this.measureStartPoint = null;
+      if (this.tempMeasureLine) {
+        this.scene.remove(this.tempMeasureLine);
+        this.tempMeasureLine = null;
+      }
+    }
+  }
+
+  getMeasurementRaycastHit(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    this.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    this.mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+
+    const targets = [];
+    if (this.furnitureGroup) targets.push(...this.furnitureGroup.children);
+    if (this.roomBuilder) {
+      if (this.roomBuilder.roomGroup) targets.push(this.roomBuilder.roomGroup);
+      if (this.roomBuilder.houseFloors) targets.push(...this.roomBuilder.houseFloors);
+      if (this.roomBuilder.houseWalls) targets.push(...this.roomBuilder.houseWalls);
+      if (this.roomBuilder.floor) targets.push(this.roomBuilder.floor);
+      if (this.roomBuilder.walls) {
+        Object.values(this.roomBuilder.walls).forEach(w => { if (w) targets.push(w); });
+      }
+    }
+
+    const hits = this.raycaster.intersectObjects(targets, true).filter(h => {
+      return !h.object.userData?.isMeasureElement && !h.object.userData?.isRoomBadge;
+    });
+
+    return hits.length > 0 ? hits[0].point : null;
+  }
+
+  handleMeasureClick(e) {
+    const hitPoint = this.getMeasurementRaycastHit(e);
+    if (!hitPoint) return;
+
+    const instruction = document.getElementById('measure-instruction');
+    const liveDist = document.getElementById('measure-live-dist');
+
+    if (!this.measureStartPoint) {
+      // First click (Point A)
+      this.measureStartPoint = hitPoint.clone();
+      const markerA = this.createMeasurePointMarker(this.measureStartPoint, 0x10b981);
+      this.measureMarkers.push(markerA);
+      this.scene.add(markerA);
+
+      if (instruction) instruction.textContent = 'Move mouse to Point B and click to finish';
+    } else {
+      // Second click (Point B)
+      const endPoint = hitPoint.clone();
+      const markerB = this.createMeasurePointMarker(endPoint, 0x38bdf8);
+      this.measureMarkers.push(markerB);
+      this.scene.add(markerB);
+
+      const distance = this.measureStartPoint.distanceTo(endPoint);
+      this.createCompletedMeasureLine(this.measureStartPoint, endPoint, distance);
+
+      const mStr = `${distance.toFixed(2)} m`;
+      const ftTotal = distance * 3.28084;
+      const ft = Math.floor(ftTotal);
+      const inches = Math.round((ftTotal - ft) * 12);
+      const ftStr = `${ft}' ${inches}"`;
+
+      this.showToast(`📏 Dimension Recorded: ${mStr} (${ftStr})`);
+
+      if (instruction) instruction.textContent = `Measured: ${mStr} (${ftStr}) — Click next Point A`;
+      if (liveDist) liveDist.style.display = 'none';
+
+      if (this.tempMeasureLine) {
+        this.scene.remove(this.tempMeasureLine);
+        this.tempMeasureLine = null;
+      }
+      this.measureStartPoint = null;
+    }
+  }
+
+  handleMeasureMove(e) {
+    if (!this.measureStartPoint) return;
+
+    const hitPoint = this.getMeasurementRaycastHit(e);
+    if (!hitPoint) return;
+
+    const distance = this.measureStartPoint.distanceTo(hitPoint);
+    const liveDist = document.getElementById('measure-live-dist');
+    if (liveDist) {
+      liveDist.style.display = 'inline';
+      const mStr = `${distance.toFixed(2)} m`;
+      const ftTotal = distance * 3.28084;
+      const ft = Math.floor(ftTotal);
+      const inches = Math.round((ftTotal - ft) * 12);
+      liveDist.textContent = `${mStr} (${ft}' ${inches}")`;
+    }
+
+    this.updateTempMeasureLine(this.measureStartPoint, hitPoint);
+  }
+
+  createMeasurePointMarker(pos, colorHex = 0x10b981) {
+    const geom = new THREE.SphereGeometry(0.045, 16, 16);
+    const mat = new THREE.MeshBasicMaterial({ color: colorHex, depthTest: false });
+    const mesh = new THREE.Mesh(geom, mat);
+    mesh.position.copy(pos);
+    mesh.renderOrder = 999;
+    mesh.userData = { isMeasureElement: true };
+    return mesh;
+  }
+
+  updateTempMeasureLine(start, end) {
+    if (this.tempMeasureLine) {
+      this.scene.remove(this.tempMeasureLine);
+    }
+    const geom = new THREE.BufferGeometry().setFromPoints([start, end]);
+    const mat = new THREE.LineDashedMaterial({
+      color: 0x38bdf8,
+      dashSize: 0.1,
+      gapSize: 0.05,
+      depthTest: false
+    });
+    this.tempMeasureLine = new THREE.Line(geom, mat);
+    this.tempMeasureLine.computeLineDistances();
+    this.tempMeasureLine.renderOrder = 998;
+    this.tempMeasureLine.userData = { isMeasureElement: true };
+    this.scene.add(this.tempMeasureLine);
+  }
+
+  createCompletedMeasureLine(start, end, distance) {
+    // 3D Laser Dimension Line
+    const geom = new THREE.BufferGeometry().setFromPoints([start, end]);
+    const mat = new THREE.LineBasicMaterial({ color: 0x10b981, linewidth: 2, depthTest: false });
+    const line = new THREE.Line(geom, mat);
+    line.renderOrder = 998;
+    line.userData = { isMeasureElement: true };
+    this.scene.add(line);
+    this.measureLines.push(line);
+
+    // Dimension Label Sprite at Midpoint
+    const mid = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+    mid.y += 0.08; // Slight elevation so it floats clearly above surface
+
+    const mStr = `${distance.toFixed(2)} m`;
+    const ftTotal = distance * 3.28084;
+    const ft = Math.floor(ftTotal);
+    const inches = Math.round((ftTotal - ft) * 12);
+    const labelText = `${mStr} (${ft}' ${inches}")`;
+
+    const sprite = this.createMeasureLabelSprite(labelText);
+    sprite.position.copy(mid);
+    this.scene.add(sprite);
+    this.measureSprites.push(sprite);
+  }
+
+  createMeasureLabelSprite(text) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(3, 3, 250, 58, 10);
+    else ctx.rect(3, 3, 250, 58);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.font = 'bold 22px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    ctx.fillStyle = '#6ee7b7';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 128, 32);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const mat = new THREE.SpriteMaterial({ map: texture, depthTest: false, transparent: true });
+    const sprite = new THREE.Sprite(mat);
+    sprite.scale.set(0.85, 0.22, 1.0);
+    sprite.renderOrder = 999;
+    sprite.userData = { isMeasureElement: true };
+    return sprite;
+  }
+
+  clearAllMeasurements() {
+    this.measureMarkers.forEach(m => this.scene.remove(m));
+    this.measureLines.forEach(l => this.scene.remove(l));
+    this.measureSprites.forEach(s => this.scene.remove(s));
+    if (this.tempMeasureLine) {
+      this.scene.remove(this.tempMeasureLine);
+      this.tempMeasureLine = null;
+    }
+    this.measureMarkers = [];
+    this.measureLines = [];
+    this.measureSprites = [];
+    this.measureStartPoint = null;
+
+    const instruction = document.getElementById('measure-instruction');
+    const liveDist = document.getElementById('measure-live-dist');
+    if (instruction) instruction.textContent = 'All measurements cleared. Click Point A to start';
+    if (liveDist) liveDist.style.display = 'none';
+    this.showToast('🗑️ Measurement lines cleared');
+  }
+
+  // ==========================================
+  // 14. ROOM DIMENSIONS & AREA SCHEDULE
+  // ==========================================
+  initRoomSchedule() {
+    const btnOpen = document.getElementById('btn-room-schedule');
+    const modal = document.getElementById('schedule-modal');
+    const btnClose = document.getElementById('btn-close-schedule');
+    const btnDismiss = document.getElementById('btn-dismiss-schedule');
+    const btnMetric = document.getElementById('btn-unit-metric');
+    const btnImperial = document.getElementById('btn-unit-imperial');
+    const chk3DAreas = document.getElementById('chk-show-3d-areas');
+
+    btnOpen?.addEventListener('click', () => {
+      this.updateRoomScheduleData();
+      if (modal) modal.style.display = 'flex';
+    });
+
+    const closeModal = () => {
+      if (modal) modal.style.display = 'none';
+    };
+
+    btnClose?.addEventListener('click', closeModal);
+    btnDismiss?.addEventListener('click', closeModal);
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    btnMetric?.addEventListener('click', () => {
+      this.scheduleUnit = 'metric';
+      btnMetric.classList.add('active');
+      btnImperial?.classList.remove('active');
+      this.updateRoomScheduleData();
+      if (this.show3DAreaBadges) this.toggleFloorAreaBadges(true);
+    });
+
+    btnImperial?.addEventListener('click', () => {
+      this.scheduleUnit = 'imperial';
+      btnImperial.classList.add('active');
+      btnMetric?.classList.remove('active');
+      this.updateRoomScheduleData();
+      if (this.show3DAreaBadges) this.toggleFloorAreaBadges(true);
+    });
+
+    chk3DAreas?.addEventListener('change', (e) => {
+      this.show3DAreaBadges = e.target.checked;
+      this.toggleFloorAreaBadges(this.show3DAreaBadges);
+    });
+  }
+
+  getRoomScheduleList() {
+    const isVilla = this.roomBuilder && (this.roomBuilder.houseType === 'villa_2bhk' || this.roomBuilder.houseType === '2bhk' || this.roomBuilder.houseType === 'villa');
+    
+    // Flooring label lookup
+    const floorSelect = document.getElementById('flooring-select');
+    const currentFloorText = floorSelect ? floorSelect.options[floorSelect.selectedIndex]?.text : 'Continuous Light Porcelain Tile';
+
+    if (isVilla) {
+      return {
+        houseType: 'Complete House Residence (2 BHK Villa)',
+        totalBuiltUp: 182.0,
+        carpetArea: 117.8,
+        rooms: [
+          { name: '🚪 Entrance Foyer', width: 2.4, length: 2.8, height: 2.8, floor: currentFloorText },
+          { name: '🛋️ Living Room Suite', width: 5.4, length: 4.8, height: 2.8, floor: currentFloorText },
+          { name: '🍽️ Dining Area', width: 3.8, length: 3.4, height: 2.8, floor: currentFloorText },
+          { name: '🍳 Modular Kitchen', width: 3.8, length: 3.6, height: 2.8, floor: 'Modern Ceramic Tile' },
+          { name: '👑 Master Bedroom Suite', width: 4.6, length: 4.2, height: 2.8, floor: 'Light Oak Wood Parquet' },
+          { name: '🛁 Master Ensuite Bathroom', width: 2.8, length: 2.4, height: 2.8, floor: 'Porcelain Marble Tile' },
+          { name: '🛏️ Second Bedroom', width: 4.0, length: 3.6, height: 2.8, floor: 'Light Oak Wood Parquet' },
+          { name: '🚿 Common Bathroom', width: 2.4, length: 2.2, height: 2.8, floor: 'Porcelain Marble Tile' },
+          { name: '🌿 Terrace & Garden', width: 5.2, length: 3.5, height: 2.8, floor: 'Outdoor Paving & Turf' }
+        ]
+      };
+    } else {
+      return {
+        houseType: 'Single Bedroom House (1 BHK Planned Architecture)',
+        totalBuiltUp: 105.0,
+        carpetArea: 88.1,
+        rooms: [
+          { name: '🚪 Entrance Foyer', width: 2.4, length: 2.8, height: 2.8, floor: currentFloorText },
+          { name: '🛋️ Living Room', width: 5.2, length: 4.8, height: 2.8, floor: currentFloorText },
+          { name: '🍽️ Dining Area', width: 3.8, length: 3.2, height: 2.8, floor: currentFloorText },
+          { name: '🍳 Modular Kitchen', width: 3.8, length: 3.6, height: 2.8, floor: currentFloorText },
+          { name: '👑 Master Bedroom Suite', width: 4.5, length: 4.0, height: 2.8, floor: currentFloorText },
+          { name: '🛁 Master Bathroom', width: 2.8, length: 2.4, height: 2.8, floor: 'Waterproof Floor Tile' },
+          { name: '🚶 Internal Hallway & Privacy Corridor', width: 1.4, length: 4.2, height: 2.8, floor: currentFloorText }
+        ]
+      };
+    }
+  }
+
+  updateRoomScheduleData() {
+    const data = this.getRoomScheduleList();
+    const isMetric = this.scheduleUnit === 'metric';
+
+    // Update house type badge
+    const badge = document.getElementById('schedule-house-type-badge');
+    if (badge) badge.textContent = data.houseType;
+
+    // Convert areas
+    const formatArea = (sqm) => {
+      if (isMetric) return `${sqm.toFixed(1)} m²`;
+      const sqft = sqm * 10.7639;
+      return `${sqft.toFixed(0)} sq ft`;
+    };
+
+    const formatDim = (m) => {
+      if (isMetric) return `${m.toFixed(2)}m`;
+      const ftTotal = m * 3.28084;
+      const ft = Math.floor(ftTotal);
+      const inc = Math.round((ftTotal - ft) * 12);
+      return `${ft}' ${inc}"`;
+    };
+
+    // Summary stats
+    const totalEl = document.getElementById('sched-stat-total');
+    const carpetEl = document.getElementById('sched-stat-carpet');
+    const roomsEl = document.getElementById('sched-stat-rooms');
+
+    if (totalEl) totalEl.textContent = formatArea(data.totalBuiltUp);
+    if (carpetEl) carpetEl.textContent = formatArea(data.carpetArea);
+    if (roomsEl) roomsEl.textContent = `${data.rooms.length} Spaces`;
+
+    // Table rows
+    const tbody = document.getElementById('schedule-table-rows');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    data.rooms.forEach(r => {
+      const area = r.width * r.length;
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td style="font-weight: 600; color: #f1f5f9;">${r.name}</td>
+        <td>${formatDim(r.width)} &times; ${formatDim(r.length)}</td>
+        <td style="font-weight: 600; color: #38bdf8;">${formatArea(area)}</td>
+        <td>${formatDim(r.height)}</td>
+        <td style="color: #94a3b8; font-size: 11px;">${r.floor}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  toggleFloorAreaBadges(enabled) {
+    if (!this.roomBuilder || !this.roomBuilder.roomBadges) return;
+    const isMetric = this.scheduleUnit === 'metric';
+
+    const roomAreaMap = {
+      foyer: 6.7,
+      living: 25.0,
+      dining: 12.2,
+      kitchen: 13.7,
+      bedroom: 18.0,
+      bedroom2: 14.4,
+      master_bath: 6.7,
+      common_bath: 5.3,
+      backyard: 18.2
+    };
+
+    this.roomBuilder.roomBadges.forEach(badge => {
+      const zoneKey = badge.userData?.roomZone;
+      const baseTitle = badge.userData?.title || '';
+      const areaM2 = roomAreaMap[zoneKey];
+      if (!areaM2) return;
+
+      const areaStr = isMetric ? `${areaM2.toFixed(1)} m²` : `${Math.round(areaM2 * 10.7639)} sq ft`;
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 140;
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+      ctx.strokeStyle = enabled ? '#10b981' : 'rgba(99, 102, 241, 0.85)';
+      ctx.lineWidth = 6;
+      const r = 26;
+      ctx.beginPath();
+      ctx.moveTo(r, 0);
+      ctx.lineTo(512 - r, 0);
+      ctx.quadraticCurveTo(512, 0, 512, r);
+      ctx.lineTo(512, 140 - r);
+      ctx.quadraticCurveTo(512, 140, 512 - r, 140);
+      ctx.lineTo(r, 140);
+      ctx.quadraticCurveTo(0, 140, 0, 140 - r);
+      ctx.lineTo(0, r);
+      ctx.quadraticCurveTo(0, 0, r, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 36px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      if (enabled) {
+        ctx.fillText(baseTitle, 256, 50);
+        ctx.fillStyle = '#34d399';
+        ctx.font = '600 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillText(areaStr, 256, 95);
+      } else {
+        ctx.font = 'bold 44px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillText(baseTitle, 256, 70);
+      }
+
+      if (badge.material && badge.material.map) {
+        badge.material.map.dispose();
+        badge.material.map = new THREE.CanvasTexture(canvas);
+        badge.material.map.needsUpdate = true;
+      }
+    });
+
+    this.showToast(enabled ? '📐 3D Room Area Badges enabled' : '📐 3D Room Area Badges hidden');
+  }
+
+  // ==========================================
+  // 15. ADVANCED EXPORTS: 360° VR PANORAMA & .OBJ + .MTL
+  // ==========================================
+  initExportTools() {
+    const btnObj = document.getElementById('btn-export-obj');
+    const btnPano = document.getElementById('btn-export-panorama');
+
+    btnObj?.addEventListener('click', () => {
+      this.export3DModelOBJ();
+    });
+
+    btnPano?.addEventListener('click', () => {
+      this.export360Panorama();
+    });
+  }
+
+  downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 1000);
+  }
+
+  export360Panorama() {
+    this.showToast('🌐 Generating 360° Equirectangular Panorama render...');
+
+    try {
+      // Hide helpers and selection highlights during render
+      const selVisible = this.selectionHelper ? this.selectionHelper.visible : false;
+      if (this.selectionHelper) this.selectionHelper.visible = false;
+      const badgesVisible = (this.roomBuilder?.roomBadges || []).map(b => {
+        const v = b.visible;
+        b.visible = false;
+        return { badge: b, visible: v };
+      });
+
+      // 1. Setup CubeCamera at eye level in the center of current space
+      const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(1024, {
+        generateMipmaps: true,
+        minFilter: THREE.LinearMipmapLinearFilter,
+        magFilter: THREE.LinearFilter
+      });
+      const cubeCamera = new THREE.CubeCamera(0.1, 100, cubeRenderTarget);
+
+      // Camera position: use current camera x/z, clamped inside house at eye level (y = 1.6)
+      cubeCamera.position.set(this.camera.position.x, 1.6, this.camera.position.z);
+      this.scene.add(cubeCamera);
+      cubeCamera.update(this.renderer, this.scene);
+
+      // 2. Render CubeMap into Equirectangular 2:1 Texture (2048 x 1024)
+      const panoWidth = 2048;
+      const panoHeight = 1024;
+      const panoRenderTarget = new THREE.WebGLRenderTarget(panoWidth, panoHeight);
+
+      // Equirectangular projection camera & scene
+      const panoScene = new THREE.Scene();
+      const panoCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+      const panoVertexShader = `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = vec4(position, 1.0);
+        }
+      `;
+
+      const panoFragmentShader = `
+        uniform samplerCube tCube;
+        varying vec2 vUv;
+        #define M_PI 3.1415926535897932384626433832795
+        void main() {
+          float phi = (vUv.x - 0.5) * 2.0 * M_PI;
+          float theta = (0.5 - vUv.y) * M_PI;
+          vec3 dir = vec3(sin(phi) * cos(theta), sin(theta), -cos(phi) * cos(theta));
+          gl_FragColor = textureCube(tCube, dir);
+        }
+      `;
+
+      const panoMaterial = new THREE.ShaderMaterial({
+        vertexShader: panoVertexShader,
+        fragmentShader: panoFragmentShader,
+        uniforms: {
+          tCube: { value: cubeRenderTarget.texture }
+        }
+      });
+
+      const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), panoMaterial);
+      panoScene.add(quad);
+
+      // Render to panoRenderTarget
+      this.renderer.setRenderTarget(panoRenderTarget);
+      this.renderer.render(panoScene, panoCamera);
+
+      // Read back pixels
+      const pixelBuffer = new Uint8Array(panoWidth * panoHeight * 4);
+      this.renderer.readRenderTargetPixels(panoRenderTarget, 0, 0, panoWidth, panoHeight, pixelBuffer);
+
+      // Reset renderer target
+      this.renderer.setRenderTarget(null);
+
+      // Copy pixels into an offscreen HTML5 canvas to export as JPEG
+      const canvas = document.createElement('canvas');
+      canvas.width = panoWidth;
+      canvas.height = panoHeight;
+      const ctx = canvas.getContext('2d');
+      const imgData = ctx.createImageData(panoWidth, panoHeight);
+
+      // Invert vertical rows (WebGL coordinates are Y-flipped)
+      for (let y = 0; y < panoHeight; y++) {
+        const srcRow = (panoHeight - 1 - y) * panoWidth * 4;
+        const dstRow = y * panoWidth * 4;
+        for (let x = 0; x < panoWidth * 4; x++) {
+          imgData.data[dstRow + x] = pixelBuffer[srcRow + x];
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+
+      // Trigger download
+      canvas.toBlob((blob) => {
+        if (blob) {
+          this.downloadBlob(blob, `interior-360-panorama-${new Date().toISOString().slice(0, 10)}.jpg`);
+          this.showToast('✨ 360° VR Panorama downloaded! (Ready for VR & Facebook 360)');
+        }
+      }, 'image/jpeg', 0.95);
+
+      // Cleanup
+      this.scene.remove(cubeCamera);
+      cubeRenderTarget.dispose();
+      panoRenderTarget.dispose();
+      panoMaterial.dispose();
+      quad.geometry.dispose();
+
+      // Restore hidden helpers
+      if (this.selectionHelper) this.selectionHelper.visible = selVisible;
+      badgesVisible.forEach(item => { item.badge.visible = item.visible; });
+    } catch (err) {
+      console.error('Panorama export failed:', err);
+      this.showToast('⚠️ Could not complete 360° export: ' + err.message);
+    }
+  }
+
+  export3DModelOBJ() {
+    this.showToast('📦 Serializing complete 3D scene to Wavefront (.OBJ + .MTL)...');
+
+    try {
+      let objOutput = '# AI Interior Studio - Architectural 3D House Export\n';
+      objOutput += '# Exported from Three.js scene\n';
+      objOutput += 'mtllib interior-materials.mtl\n\n';
+
+      let mtlOutput = '# Materials library for AI Interior Studio\n\n';
+
+      const materialsMap = new Map();
+      let vertexOffset = 1;
+      let normalOffset = 1;
+      let uvOffset = 1;
+
+      // Meshes to export: room geometry + furniture geometry
+      const exportRoots = [this.furnitureGroup, this.roomBuilder?.roomGroup].filter(Boolean);
+
+      exportRoots.forEach(root => {
+        root.updateMatrixWorld(true);
+        root.traverse(child => {
+          if (!child.isMesh || !child.geometry) return;
+          if (child.userData?.isMeasureElement || child.userData?.isRoomBadge) return;
+          if (child.name === 'SelectionBox' || child.name === 'MeasurementGrid') return;
+
+          const geom = child.geometry.clone();
+          geom.applyMatrix4(child.matrixWorld);
+
+          const positions = geom.attributes.position;
+          const normals = geom.attributes.normal;
+          const uvs = geom.attributes.uv;
+
+          if (!positions) return;
+
+          // Material export
+          const mat = Array.isArray(child.material) ? child.material[0] : child.material;
+          const matName = mat ? (mat.name || `Mat_${mat.id || 'std'}`) : 'DefaultMaterial';
+
+          if (mat && !materialsMap.has(matName)) {
+            materialsMap.set(matName, true);
+            const col = mat.color ? mat.color : { r: 0.8, g: 0.8, b: 0.8 };
+            const op = mat.opacity !== undefined ? mat.opacity : 1.0;
+            mtlOutput += `newmtl ${matName}\n`;
+            mtlOutput += `Kd ${col.r.toFixed(4)} ${col.g.toFixed(4)} ${col.b.toFixed(4)}\n`;
+            mtlOutput += `Ks 0.2000 0.2000 0.2000\n`;
+            mtlOutput += `Ns 25.0\n`;
+            mtlOutput += `d ${op.toFixed(2)}\n`;
+            mtlOutput += `illum 2\n\n`;
+          }
+
+          objOutput += `o ${child.name || 'HouseMesh_' + child.id}\n`;
+          objOutput += `usemtl ${matName}\n`;
+
+          // Write vertices
+          for (let i = 0; i < positions.count; i++) {
+            objOutput += `v ${positions.getX(i).toFixed(4)} ${positions.getY(i).toFixed(4)} ${positions.getZ(i).toFixed(4)}\n`;
+          }
+
+          // Write normals
+          if (normals) {
+            for (let i = 0; i < normals.count; i++) {
+              objOutput += `vn ${normals.getX(i).toFixed(4)} ${normals.getY(i).toFixed(4)} ${normals.getZ(i).toFixed(4)}\n`;
+            }
+          }
+
+          // Write UVs
+          if (uvs) {
+            for (let i = 0; i < uvs.count; i++) {
+              objOutput += `vt ${uvs.getX(i).toFixed(4)} ${uvs.getY(i).toFixed(4)}\n`;
+            }
+          }
+
+          // Write faces
+          const hasNormals = Boolean(normals);
+          const hasUvs = Boolean(uvs);
+
+          if (geom.index) {
+            const indices = geom.index.array;
+            for (let i = 0; i < indices.length; i += 3) {
+              const a = indices[i] + vertexOffset;
+              const b = indices[i + 1] + vertexOffset;
+              const c = indices[i + 2] + vertexOffset;
+              if (hasNormals && hasUvs) {
+                const na = indices[i] + normalOffset;
+                const nb = indices[i + 1] + normalOffset;
+                const nc = indices[i + 2] + normalOffset;
+                const ua = indices[i] + uvOffset;
+                const ub = indices[i + 1] + uvOffset;
+                const uc = indices[i + 2] + uvOffset;
+                objOutput += `f ${a}/${ua}/${na} ${b}/${ub}/${nb} ${c}/${uc}/${nc}\n`;
+              } else if (hasNormals) {
+                const na = indices[i] + normalOffset;
+                const nb = indices[i + 1] + normalOffset;
+                const nc = indices[i + 2] + normalOffset;
+                objOutput += `f ${a}//${na} ${b}//${nb} ${c}//${nc}\n`;
+              } else {
+                objOutput += `f ${a} ${b} ${c}\n`;
+              }
+            }
+          } else {
+            for (let i = 0; i < positions.count; i += 3) {
+              const a = i + vertexOffset;
+              const b = i + 1 + vertexOffset;
+              const c = i + 2 + vertexOffset;
+              if (hasNormals && hasUvs) {
+                const na = i + normalOffset;
+                const nb = i + 1 + normalOffset;
+                const nc = i + 2 + normalOffset;
+                const ua = i + uvOffset;
+                const ub = i + 1 + uvOffset;
+                const uc = i + 2 + uvOffset;
+                objOutput += `f ${a}/${ua}/${na} ${b}/${ub}/${nb} ${c}/${uc}/${nc}\n`;
+              } else if (hasNormals) {
+                const na = i + normalOffset;
+                const nb = i + 1 + normalOffset;
+                const nc = i + 2 + normalOffset;
+                objOutput += `f ${a}//${na} ${b}//${nb} ${c}//${nc}\n`;
+              } else {
+                objOutput += `f ${a} ${b} ${c}\n`;
+              }
+            }
+          }
+
+          vertexOffset += positions.count;
+          if (normals) normalOffset += normals.count;
+          if (uvs) uvOffset += uvs.count;
+
+          geom.dispose();
+        });
+      });
+
+      // Download both OBJ and MTL
+      const objBlob = new Blob([objOutput], { type: 'text/plain' });
+      const mtlBlob = new Blob([mtlOutput], { type: 'text/plain' });
+
+      this.downloadBlob(objBlob, 'interior-architecture-model.obj');
+      setTimeout(() => {
+        this.downloadBlob(mtlBlob, 'interior-materials.mtl');
+      }, 300);
+
+      this.showToast('✅ 3D Model (.OBJ + .MTL) exported for Blender / 3ds Max / SketchUp!');
+    } catch (err) {
+      console.error('OBJ Export failed:', err);
+      this.showToast('⚠️ Export failed: ' + err.message);
+    }
   }
 }
 

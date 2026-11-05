@@ -43,6 +43,15 @@
       <a href="admin.html" id="btn-studio-admin" class="btn btn-sm" style="display: none; text-decoration: none; color: #a5b4fc; border-color: rgba(99, 102, 241, 0.4);" title="Open Admin User Registry">
         <span>👑</span> Admin
       </a>
+      <button class="btn btn-sm" id="btn-room-schedule" style="border-color: rgba(16, 185, 129, 0.45); color: #6ee7b7;" title="View Live Room Dimensions & Area Schedule">
+        <span>📐</span> Areas
+      </button>
+      <button class="btn btn-sm" id="btn-export-obj" style="border-color: rgba(168, 85, 247, 0.45); color: #d8b4fe;" title="Download Full 3D Model (.OBJ + .MTL) for Blender / 3ds Max / SketchUp">
+        <span>📦</span> Export 3D
+      </button>
+      <button class="btn btn-sm" id="btn-export-panorama" style="border-color: rgba(56, 189, 248, 0.45); color: #7dd3fc;" title="Export 360° Photosphere Equirectangular Panorama for VR & Facebook 360">
+        <span>🌐</span> 360° VR
+      </button>
       <button class="btn btn-sm" id="btn-view-renders" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(234, 88, 12, 0.25)); border-color: rgba(245, 158, 11, 0.6); color: #fde68a;" title="View Photorealistic Architectural 3D Renders">
         <span>🖼️</span> 3D Renders
       </button>
@@ -680,9 +689,52 @@
         <div class="overlay-group">
           <button class="tool-btn active" id="btn-toggle-cutaway" title="Toggle Front Wall Cutaway">✂️ Cutaway Wall</button>
           <button class="tool-btn active" id="btn-toggle-daylight" title="Toggle Day/Night Mode">☀️ Day</button>
+          <button class="tool-btn" id="btn-toggle-sun-study" title="Solar Study: Dynamic Time-of-Day Sun & Shadow Simulation" style="border-color: rgba(245, 158, 11, 0.45); color: #fde68a;">☀️ Sun Study</button>
+          <button class="tool-btn" id="btn-toggle-measure" title="Laser Tape Measure: Click any two points in 3D to measure exact distance" style="border-color: rgba(16, 185, 129, 0.45); color: #6ee7b7;">📏 Measure</button>
           <button class="tool-btn active" id="btn-toggle-grid" title="Toggle Measurement Grid">📏 Grid</button>
           <button class="tool-btn" id="btn-reset-cam" title="Reset Camera View">🔄 Reset</button>
         </div>
+      </div>
+
+      <!-- FLOATING SOLAR STUDY HUD -->
+      <div id="sun-study-hud" class="sun-study-panel" style="display: none;">
+        <div class="sun-study-header">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 18px;">☀️</span>
+            <div>
+              <strong style="font-size: 13px; color: #fde68a;">Solar Daylighting Study</strong>
+              <div id="sun-time-display" style="font-size: 11px; color: #a5b4fc; font-weight: 600;">10:00 AM — Morning Daylight</div>
+            </div>
+          </div>
+          <button id="btn-close-sun-study" class="close-hud-btn" title="Close Sun Study">&times;</button>
+        </div>
+
+        <div style="margin: 12px 0 8px 0;">
+          <input type="range" id="sun-time-slider" min="6" max="22" step="0.25" value="10" style="width: 100%; cursor: pointer;">
+          <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-dim); margin-top: 4px;">
+            <span>🌅 6 AM (Dawn)</span>
+            <span>☀️ 12 PM (Noon)</span>
+            <span>🌇 5:30 PM (Dusk)</span>
+            <span>🌙 10 PM (Night)</span>
+          </div>
+        </div>
+
+        <!-- Quick Presets -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 8px;">
+          <button type="button" class="btn btn-sm sun-preset-btn" data-time="7.0">🌅 Sunrise</button>
+          <button type="button" class="btn btn-sm sun-preset-btn active" data-time="11.5">☀️ Noon</button>
+          <button type="button" class="btn btn-sm sun-preset-btn" data-time="17.5">🌇 Golden</button>
+          <button type="button" class="btn btn-sm sun-preset-btn" data-time="21.0">🌙 Night</button>
+        </div>
+      </div>
+
+      <!-- FLOATING LASER MEASURE HUD -->
+      <div id="measure-hud" class="measure-hud" style="display: none;">
+        <span>📏 Laser Tape:</span>
+        <span id="measure-instruction" style="color: #94a3b8;">Click Point A to start</span>
+        <span id="measure-live-dist" class="measure-live-dist" style="display: none;">0.00 m</span>
+        <button id="btn-clear-measures" class="btn btn-sm" style="padding: 2px 8px; font-size: 11px; margin-left: 6px;">Clear</button>
+        <button id="btn-exit-measure" class="close-hud-btn" style="margin-left: 4px;" title="Exit Measurement Tool">&times;</button>
       </div>
 
       <!-- FLOATING OBJECT & SINGLE PART INSPECTOR (APPEARS ON CLICK) -->
@@ -1039,6 +1091,73 @@
             <div style="font-size: 12px; color: #e2e8f0; margin-top: 4px; line-height: 1.4;">Direct sightline past the dining area toward the private rear master suite doorway.</div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROOM AREA & DIMENSIONS SCHEDULE MODAL -->
+  <div class="modal-backdrop" id="schedule-modal">
+    <div class="modal-content" style="max-width: 760px; width: 94%; max-height: 88vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="font-size: 24px;">📐</div>
+          <div>
+            <h3 style="margin: 0; font-size: 17px; color: #fff;">Architectural Room Area & Dimension Schedule</h3>
+            <span id="schedule-house-type-badge" style="font-size: 11px; color: #10b981; font-weight: 600;">Single Bedroom House (1 BHK)</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <!-- Unit Switch -->
+          <div style="display: flex; background: rgba(0,0,0,0.4); padding: 2px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
+            <button type="button" class="btn btn-sm active" id="btn-unit-metric" style="padding: 4px 10px; font-size: 11px;">Metric (m²)</button>
+            <button type="button" class="btn btn-sm" id="btn-unit-imperial" style="padding: 4px 10px; font-size: 11px;">Imperial (sq ft)</button>
+          </div>
+          <button class="close-modal" id="btn-close-schedule" style="background: none; border: none; font-size: 24px; color: #94a3b8; cursor: pointer; line-height: 1; padding: 2px 8px;">&times;</button>
+        </div>
+      </div>
+
+      <div class="modal-body" style="overflow-y: auto; padding: 14px 0;">
+        <!-- Area Summary Cards -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px;">
+          <div class="area-summary-stat">
+            <div class="lbl">Total Built-Up Area</div>
+            <div class="val" id="sched-stat-total">182.0 m²</div>
+          </div>
+          <div class="area-summary-stat">
+            <div class="lbl">Carpet (Living) Area</div>
+            <div class="val" id="sched-stat-carpet">144.5 m²</div>
+          </div>
+          <div class="area-summary-stat">
+            <div class="lbl">Total Active Rooms</div>
+            <div class="val" id="sched-stat-rooms">6 Rooms</div>
+          </div>
+        </div>
+
+        <!-- Room Schedule Breakdown Table -->
+        <table class="room-schedule-table">
+          <thead>
+            <tr>
+              <th>Room Zone</th>
+              <th>Dimensions (W × L)</th>
+              <th>Floor Area</th>
+              <th>Ceiling H</th>
+              <th>Flooring Finish</th>
+            </tr>
+          </thead>
+          <tbody id="schedule-table-rows">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 12px; margin-top: 6px;">
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #e2e8f0; cursor: pointer; margin: 0;">
+          <input type="checkbox" id="chk-show-3d-areas" style="cursor: pointer;">
+          <span>Display Area Badges on 3D Floor Plan Badges</span>
+        </label>
+        <button class="btn btn-sm btn-primary" id="btn-dismiss-schedule">
+          <span>✓</span> Done
+        </button>
       </div>
     </div>
   </div>
