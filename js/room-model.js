@@ -487,7 +487,7 @@ export class RoomBuilder {
   buildCompleteHouse(wallColorHex = 0xfaf5ee, flooringType = 'wood_oak', houseType = '1bhk') {
     this.isCompleteHouse = true;
     this.houseType = houseType || '1bhk';
-    const isVilla = (this.houseType === 'villa_2bhk' || this.houseType === 'villa');
+    const isVilla = (this.houseType === 'villa_2bhk' || this.houseType === 'villa' || this.houseType === '2bhk' || this.houseType === 'complete_house_2bhk');
     this.currentDimensions = isVilla ? { width: 16.0, length: 18.5, height: 2.8 } : { width: 14.0, length: 11.5, height: 2.8 };
     this.currentWallColor = wallColorHex;
     this.currentFlooring = flooringType;
@@ -1217,7 +1217,7 @@ export class RoomBuilder {
     this.createRoomBadge('DINING AREA', '🍽️', 0.3, 0.1, 'dining');
     this.createRoomBadge('MODULAR KITCHEN', '🍳', 0.3, -3.8, 'kitchen');
     this.createRoomBadge('SECOND BEDROOM', '🛏️', -4.0, -2.7, 'bedroom2');
-    this.createRoomBadge('COMMON BATHROOM 1', '🚿', -4.7, 2.0, 'common_bath');
+    this.createRoomBadge('COMMON BATHROOM', '🚿', -4.7, 2.0, 'common_bath');
     this.createRoomBadge('MASTER BEDROOM', '👑', 4.4, 3.7, 'bedroom');
     this.createRoomBadge('MASTER BATHROOM', '🛁', 5.4, -0.5, 'master_bath');
     this.createRoomBadge('BACKYARD GARDEN', '🌿', 4.4, -7.5, 'backyard');

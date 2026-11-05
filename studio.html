@@ -91,7 +91,7 @@
                 <optgroup label="Complete Residence (All Connected Rooms)">
                   <option value="modern_apartment" selected>🏙️ Modern Apartment Suite (Open Living-Dining, Straight Kitchen & Rear Master)</option>
                   <option value="complete_house">🏠 Single Bedroom House (1 BHK - 5 Connected Rooms)</option>
-                  <option value="complete_house_2bhk">🏡 Contemporary Villa (2 BHK Estate - Garden & Patio)</option>
+                  <option value="complete_house_2bhk">🏛️ Architectural 2 BHK Residence (Foyer, Living, Dining, Kitchen, Master & Bath, Bed 2 & Bath)</option>
                 </optgroup>
                 <optgroup label="Individual Rooms">
                   <option value="bedroom">👑 Master Bedroom Suite</option>
@@ -121,20 +121,20 @@
                   🏠 1 BHK
                 </button>
                 <button type="button" class="btn btn-sm house-type-toggle-btn" data-house-type="2bhk" style="flex: 1; padding: 6px 3px; font-size: 10.5px; justify-content: center;">
-                  🏡 2 BHK Villa
+                  🏛️ 2 BHK Residence
                 </button>
               </div>
 
               <div class="house-zone-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;">
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="foyer" id="hub-zone-foyer" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🚪 Foyer</button>
                 <button type="button" class="btn btn-sm house-zone-btn active" data-zone="living" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🛋️ Living</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="dining" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🍽️ Dining</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="kitchen" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🍳 Kitchen</button>
-                <button type="button" class="btn btn-sm house-zone-btn" data-zone="bedroom" id="hub-zone-bed1" style="font-size: 11px; padding: 6px 4px; justify-content: center;">👑 Master</button>
-                <button type="button" class="btn btn-sm house-zone-btn" data-zone="bedroom2" id="hub-zone-rear" style="font-size: 11px; padding: 6px 4px; justify-content: center;">👗 Dressing</button>
-                <button type="button" class="btn btn-sm house-zone-btn" data-zone="foyer" id="hub-zone-foyer" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🚪 Foyer</button>
-                <button type="button" class="btn btn-sm house-zone-btn" data-zone="common_bath" id="hub-zone-bath" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🚿 Baths</button>
-                <button type="button" class="btn btn-sm house-zone-btn" data-zone="backyard" id="hub-zone-yard" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🌿 Yard</button>
-                <button type="button" class="btn btn-sm house-zone-btn" data-zone="all" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🌐 Whole Villa</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="bedroom" id="hub-zone-bed1" style="font-size: 11px; padding: 6px 4px; justify-content: center;">👑 Master Bed</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="master_bath" id="hub-zone-master-bath" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🛁 Master Bath</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="bedroom2" id="hub-zone-rear" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🛏️ Bed 2</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="common_bath" id="hub-zone-bath" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🚿 Common Bath</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="all" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🌐 Whole House</button>
               </div>
             </div>
 
@@ -622,7 +622,10 @@
         <!-- COMPLETE HOUSE ROOM NAVIGATOR (ADJACENT ROOMS) -->
         <div class="overlay-group house-nav-group" id="house-navigator-bar">
           <button type="button" class="tool-btn house-nav-btn active" data-target-room="all" title="Dollhouse 3D Overview of All Connected Rooms">
-            <span>🏠</span> Whole Estate
+            <span>🌐</span> Whole House
+          </button>
+          <button type="button" class="tool-btn house-nav-btn" data-target-room="foyer" id="nav-btn-foyer" title="Focus Entrance Foyer">
+            <span>🚪</span> Foyer
           </button>
           <button type="button" class="tool-btn house-nav-btn" data-target-room="living" title="Focus Living Room Lounge">
             <span>🛋️</span> Living
@@ -636,14 +639,14 @@
           <button type="button" class="tool-btn house-nav-btn" data-target-room="bedroom" id="nav-btn-bed1" title="Focus Master Bedroom Suite">
             <span>👑</span> Master
           </button>
-          <button type="button" class="tool-btn house-nav-btn" data-target-room="bedroom2" id="nav-btn-rear" title="Focus Second Bedroom (Twin Suite)">
+          <button type="button" class="tool-btn house-nav-btn" data-target-room="master_bath" id="nav-btn-master-bath" title="Focus Master En-Suite Bathroom">
+            <span>🛁</span> Master Bath
+          </button>
+          <button type="button" class="tool-btn house-nav-btn" data-target-room="bedroom2" id="nav-btn-rear" title="Focus Second Bedroom">
             <span>🛏️</span> Bed 2
           </button>
-          <button type="button" class="tool-btn house-nav-btn" data-target-room="foyer" id="nav-btn-foyer" title="Focus Entrance Foyer">
-            <span>🚪</span> Foyer
-          </button>
-          <button type="button" class="tool-btn house-nav-btn" data-target-room="common_bath" id="nav-btn-bath" title="Focus Bathroom Suites">
-            <span>🚿</span> Baths
+          <button type="button" class="tool-btn house-nav-btn" data-target-room="common_bath" id="nav-btn-bath" title="Focus Common Bathroom">
+            <span>🚿</span> Common Bath
           </button>
           <button type="button" class="tool-btn house-nav-btn" data-target-room="backyard" id="nav-btn-yard" title="Focus Backyard & Patio">
             <span>🌿</span> Yard
