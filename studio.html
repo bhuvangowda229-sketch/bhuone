@@ -290,32 +290,49 @@
             <!-- DOOR CONTROLS -->
             <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <strong style="font-size: 13px; color: #fff;">🚪 Entry Door</strong>
-                <span id="door-status-pill" style="font-size: 11px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 2px 8px; border-radius: 10px; font-weight: 600;">Right Wall</span>
+                <strong style="font-size: 13px; color: #fff;">🚪 Architectural Entry Door</strong>
+                <span id="door-status-pill" style="font-size: 11px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 2px 8px; border-radius: 10px; font-weight: 600;">🔒 Closed (0°)</span>
               </div>
               <div class="grid-2">
                 <div class="form-group">
-                  <label for="door-wall-select">Wall</label>
+                  <label for="door-wall-select">Wall / Location</label>
                   <select id="door-wall-select" class="form-select">
-                    <option value="right" selected>Right Wall</option>
+                    <option value="front" selected>🚪 Foyer Front Entrance</option>
+                    <option value="right">Right Wall</option>
                     <option value="back">Back Wall</option>
                     <option value="left">Left Wall</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label for="door-pos-slider">Slide Along Wall: <span id="door-pos-val" style="color: var(--accent-primary); font-weight: bold;">1.4m</span></label>
-                  <input type="range" id="door-pos-slider" min="-2.0" max="2.0" step="0.1" value="1.4">
+                  <label for="door-finish-select">Finish & Material</label>
+                  <select id="door-finish-select" class="form-select">
+                    <option value="teak" selected>🏛️ Natural Teak (Fluted)</option>
+                    <option value="walnut">🪵 Dark Walnut Wood</option>
+                    <option value="charcoal">🖤 Matte Modern Charcoal</option>
+                    <option value="white">⚪ Crisp Nordic White</option>
+                  </select>
                 </div>
               </div>
               <div class="grid-2" style="margin-top: 6px;">
                 <div class="form-group">
-                  <label for="door-w-slider">Width: <span id="door-w-val" style="color: var(--accent-primary); font-weight: bold;">0.9m</span></label>
-                  <input type="range" id="door-w-slider" min="0.7" max="1.3" step="0.05" value="0.9">
+                  <label for="door-pos-slider">Slide Along Wall: <span id="door-pos-val" style="color: var(--accent-primary); font-weight: bold;">0.00m</span></label>
+                  <input type="range" id="door-pos-slider" min="-0.35" max="0.35" step="0.05" value="0">
                 </div>
                 <div class="form-group">
-                  <label for="door-swing-slider">Open / Swing: <span id="door-swing-val" style="color: var(--accent-primary); font-weight: bold;">0°</span></label>
-                  <input type="range" id="door-swing-slider" min="0" max="90" step="5" value="0">
+                  <label for="door-w-slider">Width: <span id="door-w-val" style="color: var(--accent-primary); font-weight: bold;">1.05m</span></label>
+                  <input type="range" id="door-w-slider" min="0.85" max="1.25" step="0.05" value="1.05">
                 </div>
+              </div>
+              <div style="margin-top: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <label for="door-swing-slider" style="margin: 0; font-size: 12px;">Open / Swing Angle: <span id="door-swing-val" style="color: var(--accent-primary); font-weight: bold;">0°</span></label>
+                  <div style="display: flex; gap: 4px;">
+                    <button type="button" class="btn btn-sm btn-door-quick-swing" data-angle="0" style="padding: 2px 7px; font-size: 11px;">🔒 Close</button>
+                    <button type="button" class="btn btn-sm btn-door-quick-swing" data-angle="35" style="padding: 2px 7px; font-size: 11px;">🚪 Ajar</button>
+                    <button type="button" class="btn btn-sm btn-door-quick-swing" data-angle="80" style="padding: 2px 7px; font-size: 11px;">✨ Open</button>
+                  </div>
+                </div>
+                <input type="range" id="door-swing-slider" min="0" max="90" step="5" value="0" style="width: 100%;">
               </div>
             </div>
           </div>

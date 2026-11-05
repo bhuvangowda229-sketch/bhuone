@@ -165,7 +165,11 @@ class App {
             if (swingSlider) swingSlider.value = nextSwing;
             const swingVal = document.getElementById('door-swing-val');
             if (swingVal) swingVal.textContent = `${nextSwing}°`;
-            this.showToast(nextSwing > 0 ? '🚪 Room Door opened' : '🚪 Room Door closed');
+            const doorPill = document.getElementById('door-status-pill');
+            if (doorPill) {
+              doorPill.textContent = nextSwing === 0 ? '🔒 Closed (0°)' : (nextSwing >= 75 ? `✨ Open (${nextSwing}°)` : `🚪 Ajar (${nextSwing}°)`);
+            }
+            this.showToast(nextSwing > 0 ? `✨ Entry Door opened (${nextSwing}°)` : '🔒 Entry Door closed (0°)');
           }
         }
         return;
@@ -214,7 +218,11 @@ class App {
           if (swingSlider) swingSlider.value = nextSwing;
           const swingVal = document.getElementById('door-swing-val');
           if (swingVal) swingVal.textContent = `${nextSwing}°`;
-          this.showToast(nextSwing > 0 ? '🚪 Room Door opened (80°)' : '🚪 Room Door closed (0°)');
+          const doorPill = document.getElementById('door-status-pill');
+          if (doorPill) {
+            doorPill.textContent = nextSwing === 0 ? '🔒 Closed (0°)' : (nextSwing >= 75 ? `✨ Open (${nextSwing}°)` : `🚪 Ajar (${nextSwing}°)`);
+          }
+          this.showToast(nextSwing > 0 ? `✨ Entry Door opened (${nextSwing}°)` : '🔒 Entry Door closed (0°)');
           document.querySelector('[data-tab="tab-setup"]')?.click();
           document.getElementById('card-door-window')?.scrollIntoView({ behavior: 'smooth' });
           return;
@@ -1831,6 +1839,7 @@ class App {
 
     // Door Controls
     const doorWall = document.getElementById('door-wall-select');
+    const doorFinish = document.getElementById('door-finish-select');
     const doorPos = document.getElementById('door-pos-slider');
     const doorPosVal = document.getElementById('door-pos-val');
     const doorW = document.getElementById('door-w-slider');
@@ -1847,9 +1856,14 @@ class App {
       this.showToast(`Door moved to ${e.target.options[e.target.selectedIndex].text}`);
     });
 
+    doorFinish?.addEventListener('change', (e) => {
+      this.roomBuilder.updateDoor({ finish: e.target.value });
+      this.showToast(`Door finish changed to ${e.target.options[e.target.selectedIndex].text}`);
+    });
+
     doorPos?.addEventListener('input', (e) => {
       const val = parseFloat(e.target.value);
-      if (doorPosVal) doorPosVal.textContent = `${val >= 0 ? '+' : ''}${val.toFixed(1)}m`;
+      if (doorPosVal) doorPosVal.textContent = `${val >= 0 ? '+' : ''}${val.toFixed(2)}m`;
       this.roomBuilder.updateDoor({ offset: val });
     });
 
@@ -1862,7 +1876,23 @@ class App {
     doorSwing?.addEventListener('input', (e) => {
       const val = parseFloat(e.target.value);
       if (doorSwingVal) doorSwingVal.textContent = `${val}°`;
+      if (doorPill) {
+        doorPill.textContent = val === 0 ? '🔒 Closed (0°)' : (val >= 75 ? `✨ Open (${val}°)` : `🚪 Ajar (${val}°)`);
+      }
       this.roomBuilder.setDoorSwing(val);
+    });
+
+    document.querySelectorAll('.btn-door-quick-swing').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const angle = parseInt(btn.dataset.angle, 10);
+        this.roomBuilder.setDoorSwing(angle);
+        if (doorSwing) doorSwing.value = angle;
+        if (doorSwingVal) doorSwingVal.textContent = `${angle}°`;
+        if (doorPill) {
+          doorPill.textContent = angle === 0 ? '🔒 Closed (0°)' : (angle >= 75 ? `✨ Open (${angle}°)` : `🚪 Ajar (${angle}°)`);
+        }
+        this.showToast(angle === 0 ? '🔒 Door closed (0°)' : (angle >= 75 ? `✨ Door fully opened (${angle}°)` : `🚪 Door set ajar (${angle}°)`));
+      });
     });
 
     this.syncRoomVariantsUI(document.getElementById('room-type')?.value || 'bedroom');
@@ -1880,6 +1910,74 @@ class App {
     const houseNav = document.getElementById('house-navigator-bar');
     if (houseHub) houseHub.style.display = isHouse ? 'block' : 'none';
     if (houseNav) houseNav.style.display = isHouse ? 'flex' : 'none';
+
+    // Synchronize Architectural Door UI
+    const doorWall = document.getElementById('door-wall-select');
+    const doorPos = document.getElementById('door-pos-slider');
+    const doorPosVal = document.getElementById('door-pos-val');
+    const doorW = document.getElementById('door-w-slider');
+    const doorWVal = document.getElementById('door-w-val');
+    const doorSwing = document.getElementById('door-swing-slider');
+    const doorSwingVal = document.getElementById('door-swing-val');
+    const doorPill = document.getElementById('door-status-pill');
+    const doorFinish = document.getElementById('door-finish-select');
+
+    if (isHouse) {
+      if (doorWall) {
+        doorWall.innerHTML = '<option value="front" selected>🚪 Foyer Front Entrance</option>';
+        doorWall.disabled = true;
+      }
+      if (doorPos) {
+        doorPos.min = "-0.35";
+        doorPos.max = "0.35";
+        doorPos.step = "0.05";
+        doorPos.value = (this.roomBuilder?.doorConfig?.offset || 0).toString();
+      }
+      if (doorPosVal) {
+        const off = this.roomBuilder?.doorConfig?.offset || 0;
+        doorPosVal.textContent = `${off >= 0 ? '+' : ''}${off.toFixed(2)}m`;
+      }
+      if (doorW) {
+        doorW.min = "0.85";
+        doorW.max = "1.25";
+        doorW.step = "0.05";
+        doorW.value = (this.roomBuilder?.doorConfig?.width || 1.05).toString();
+      }
+      if (doorWVal) {
+        doorWVal.textContent = `${(this.roomBuilder?.doorConfig?.width || 1.05).toFixed(2)}m`;
+      }
+    } else {
+      if (doorWall) {
+        doorWall.disabled = false;
+        doorWall.innerHTML = `
+          <option value="right"${this.roomBuilder?.doorConfig?.wall === 'right' ? ' selected' : ''}>Right Wall</option>
+          <option value="back"${this.roomBuilder?.doorConfig?.wall === 'back' ? ' selected' : ''}>Back Wall</option>
+          <option value="left"${this.roomBuilder?.doorConfig?.wall === 'left' ? ' selected' : ''}>Left Wall</option>
+        `;
+      }
+      if (doorPos) {
+        doorPos.min = "-2.0";
+        doorPos.max = "2.0";
+        doorPos.step = "0.1";
+        doorPos.value = (this.roomBuilder?.doorConfig?.offset || 0).toString();
+      }
+      if (doorW) {
+        doorW.min = "0.7";
+        doorW.max = "1.3";
+        doorW.step = "0.05";
+        doorW.value = (this.roomBuilder?.doorConfig?.width || 0.9).toString();
+      }
+    }
+
+    if (doorFinish && this.roomBuilder?.doorConfig?.finish) {
+      doorFinish.value = this.roomBuilder.doorConfig.finish;
+    }
+    const currentAngle = this.roomBuilder?.doorConfig?.openAngle || 0;
+    if (doorSwing) doorSwing.value = currentAngle;
+    if (doorSwingVal) doorSwingVal.textContent = `${currentAngle}°`;
+    if (doorPill) {
+      doorPill.textContent = currentAngle === 0 ? '🔒 Closed (0°)' : (currentAngle >= 75 ? `✨ Open (${currentAngle}°)` : `🚪 Ajar (${currentAngle}°)`);
+    }
 
     if (isHouse) {
       document.querySelectorAll('.house-type-toggle-btn').forEach(b => {

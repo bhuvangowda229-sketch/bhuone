@@ -487,10 +487,11 @@ class RoomBuilder {
 
     this.doorConfig = {
       wall: 'right',     // 'right' | 'back' | 'left'
-      offset: 1.4,       // position along the wall in meters
-      width: 0.9,        // door width
-      height: 2.1,       // door height
-      openAngle: 0       // 0 to 90 degrees swing
+      offset: 0,         // position along the wall in meters
+      width: 1.05,       // door width
+      height: 2.2,       // door height
+      openAngle: 0,      // 0 to 90 degrees swing
+      finish: 'teak'     // 'teak' | 'walnut' | 'charcoal' | 'white'
     };
 
     this.windowGroup = null;
@@ -763,6 +764,48 @@ class RoomBuilder {
     this.roomGroup.add(this.windowGroup);
   }
 
+  getDoorFinishMaterials(finish = 'teak') {
+    switch (finish) {
+      case 'walnut':
+        return {
+          frameColor: 0x1f2937,
+          panelColor: 0x3e2723,
+          slatColor: 0x271916,
+          handleColor: 0xd4af37,
+          roughness: 0.38,
+          metalness: 0.05
+        };
+      case 'charcoal':
+        return {
+          frameColor: 0x0f172a,
+          panelColor: 0x1e293b,
+          slatColor: 0x0f172a,
+          handleColor: 0xe2b755,
+          roughness: 0.35,
+          metalness: 0.08
+        };
+      case 'white':
+        return {
+          frameColor: 0x334155,
+          panelColor: 0xf8fafc,
+          slatColor: 0xe2e8f0,
+          handleColor: 0x1e293b,
+          roughness: 0.45,
+          metalness: 0.02
+        };
+      case 'teak':
+      default:
+        return {
+          frameColor: 0x1e293b,
+          panelColor: 0x9a3412,
+          slatColor: 0x451a03,
+          handleColor: 0xd4af37,
+          roughness: 0.35,
+          metalness: 0.05
+        };
+    }
+  }
+
   rebuildDoor(W, L, H) {
     if (this.doorGroup) {
       this.roomGroup.remove(this.doorGroup);
@@ -778,6 +821,7 @@ class RoomBuilder {
     }
 
     const cfg = this.doorConfig;
+    const matInfo = this.getDoorFinishMaterials(cfg.finish || 'teak');
     const wallSpan = (cfg.wall === 'back') ? W : L;
     const doorW = Math.max(0.65, Math.min(1.4, cfg.width));
     const doorH = Math.max(1.8, Math.min(H - 0.05, cfg.height));
@@ -792,8 +836,8 @@ class RoomBuilder {
     this.doorGroup.name = 'Room Door';
     this.doorGroup.userData = { isArchitecture: true, type: 'door', name: 'Room Door' };
 
-    const doorFrameMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6 });
-    const doorMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.7 });
+    const doorFrameMat = new THREE.MeshStandardMaterial({ color: matInfo.frameColor, roughness: 0.5 });
+    const doorMat = new THREE.MeshStandardMaterial({ color: matInfo.panelColor, roughness: matInfo.roughness, metalness: matInfo.metalness });
 
     // Outer door jamb / frame
     const frameTop = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.04, doorW + 0.08), doorFrameMat);
@@ -807,21 +851,26 @@ class RoomBuilder {
     this.doorGroup.add(frameLeft);
     this.doorGroup.add(frameRight);
 
+    // Floor sill
+    const sill = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.015, doorW + 0.09), new THREE.MeshStandardMaterial({ color: 0xb49144, metalness: 0.8, roughness: 0.25 }));
+    sill.position.set(0, 0.008, 0);
+    this.doorGroup.add(sill);
+
     // Door hinge pivot located at side of opening
     this.doorHinge = new THREE.Group();
     this.doorHinge.name = 'Door Hinge';
     this.doorHinge.position.set(0, 0, -doorW / 2);
 
     // Door panel centered inside hinge pivot
-    const doorPanel = new THREE.Mesh(new THREE.BoxGeometry(0.035, doorH - 0.02, doorW - 0.02), doorMat);
+    const doorPanel = new THREE.Mesh(new THREE.BoxGeometry(0.04, doorH - 0.02, doorW - 0.02), doorMat);
     doorPanel.position.set(0, (doorH - 0.02) / 2, doorW / 2);
     doorPanel.castShadow = true;
     doorPanel.receiveShadow = true;
     doorPanel.name = 'Door Panel';
     this.doorHinge.add(doorPanel);
 
-    // Door handle (brass)
-    const handleMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.2 });
+    // Door handle (brass / designer)
+    const handleMat = new THREE.MeshStandardMaterial({ color: matInfo.handleColor, metalness: 0.85, roughness: 0.2 });
     const handleCyl = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.12, 12), handleMat);
     handleCyl.rotation.x = Math.PI / 2;
     handleCyl.position.set(-0.035, 1.0, doorW - 0.12);
@@ -849,6 +898,161 @@ class RoomBuilder {
     }
 
     this.doorGroup.traverse(child => {
+      child.userData.isDoor = true;
+      child.userData.isArchitecture = true;
+      child.userData.type = 'door';
+      child.userData.rootGroup = this.doorGroup;
+    });
+
+    this.roomGroup.add(this.doorGroup);
+  }
+
+  buildVillaEntryDoor(H = 2.8) {
+    if (this.doorGroup) {
+      this.roomGroup.remove(this.doorGroup);
+      this.doorGroup.traverse(child => {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+          if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+          else child.material.dispose();
+        }
+      });
+      this.doorGroup = null;
+      this.doorHinge = null;
+    }
+
+    const cfg = this.doorConfig;
+    const finish = cfg.finish || 'teak';
+    const matInfo = this.getDoorFinishMaterials(finish);
+
+    const doorW = Math.max(0.85, Math.min(1.25, cfg.width || 1.05));
+    const doorH = Math.max(2.0, Math.min(2.35, cfg.height || 2.25));
+    const offset = Math.max(-0.4, Math.min(0.4, typeof cfg.offset === 'number' ? cfg.offset : 0));
+    cfg.offset = offset;
+    cfg.width = doorW;
+    cfg.height = doorH;
+
+    this.doorGroup = new THREE.Group();
+    this.doorGroup.name = 'Entrance Foyer Door';
+    this.doorGroup.userData = { isArchitecture: true, type: 'door', name: 'Architectural Entry Door' };
+
+    const frameMat = new THREE.MeshStandardMaterial({ color: matInfo.frameColor, roughness: 0.4 });
+    const leafMat = new THREE.MeshStandardMaterial({ color: matInfo.panelColor, roughness: matInfo.roughness, metalness: matInfo.metalness });
+    const slatMat = new THREE.MeshStandardMaterial({ color: matInfo.slatColor, roughness: matInfo.roughness + 0.05 });
+    const brassHandleMat = new THREE.MeshStandardMaterial({ color: matInfo.handleColor, metalness: 0.85, roughness: 0.18 });
+    const sillMat = new THREE.MeshStandardMaterial({ color: 0xb49144, metalness: 0.8, roughness: 0.25 });
+    const lockMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.2, metalness: 0.5 });
+    const ledAccentMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+
+    // 1. Satin Brass Floor Sill / Threshold
+    const sillMesh = new THREE.Mesh(new THREE.BoxGeometry(doorW + 0.12, 0.015, 0.18), sillMat);
+    sillMesh.position.set(0, 0.008, 0);
+    this.doorGroup.add(sillMesh);
+
+    // 2. Door Frame / Jambs (Header & Side Stiles)
+    const jambThickness = 0.05;
+    const jambDepth = 0.16;
+    const frameHeader = new THREE.Mesh(new THREE.BoxGeometry(doorW + 0.12, jambThickness, jambDepth), frameMat);
+    frameHeader.position.set(0, doorH + jambThickness / 2, 0);
+    this.doorGroup.add(frameHeader);
+
+    const frameLeft = new THREE.Mesh(new THREE.BoxGeometry(jambThickness, doorH, jambDepth), frameMat);
+    frameLeft.position.set(-doorW / 2 - jambThickness / 2, doorH / 2, 0);
+    this.doorGroup.add(frameLeft);
+
+    const frameRight = new THREE.Mesh(new THREE.BoxGeometry(jambThickness, doorH, jambDepth), frameMat);
+    frameRight.position.set(doorW / 2 + jambThickness / 2, doorH / 2, 0);
+    this.doorGroup.add(frameRight);
+
+    // 3. Door Hinge Pivot Assembly
+    this.doorHinge = new THREE.Group();
+    this.doorHinge.name = 'Door Hinge Assembly';
+    const hingeX = -doorW / 2 + 0.02;
+    this.doorHinge.position.set(hingeX, 0, 0);
+
+    // Door Leaf panel
+    const leafW = doorW - 0.04;
+    const leafH = doorH - 0.02;
+    const leafThickness = 0.055;
+    const leafMesh = new THREE.Mesh(new THREE.BoxGeometry(leafW, leafH, leafThickness), leafMat);
+    leafMesh.position.set(leafW / 2, leafH / 2 + 0.01, 0);
+    leafMesh.castShadow = true;
+    leafMesh.receiveShadow = true;
+    leafMesh.name = 'Door Leaf';
+    this.doorHinge.add(leafMesh);
+
+    // 4. Vertical Fluted Architectural Slats on Exterior Face (Z > 0)
+    const slatSpacing = 0.09;
+    const numSlats = Math.floor((leafW - 0.08) / slatSpacing);
+    const startX = 0.04;
+    for (let i = 0; i <= numSlats; i++) {
+      const sx = startX + i * slatSpacing;
+      if (sx < leafW - 0.02) {
+        const slat = new THREE.Mesh(new THREE.BoxGeometry(0.024, leafH - 0.04, 0.014), slatMat);
+        slat.position.set(sx, leafH / 2 + 0.01, leafThickness / 2 + 0.007);
+        slat.castShadow = true;
+        this.doorHinge.add(slat);
+      }
+    }
+
+    // 5. Exterior Designer 95cm Vertical Pull Handle
+    const handleDistFromLatch = 0.12;
+    const handleX = leafW - handleDistFromLatch;
+    const handleY = 1.15;
+    const handleZ = leafThickness / 2 + 0.045;
+    const pullBar = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.95, 16), brassHandleMat);
+    pullBar.position.set(handleX, handleY, handleZ);
+    pullBar.castShadow = true;
+    this.doorHinge.add(pullBar);
+
+    // Pull bar stand-offs / mounting brackets
+    const bracketTop = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.04, 12), brassHandleMat);
+    bracketTop.rotation.x = Math.PI / 2;
+    bracketTop.position.set(handleX, handleY + 0.40, leafThickness / 2 + 0.02);
+    this.doorHinge.add(bracketTop);
+
+    const bracketBottom = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.04, 12), brassHandleMat);
+    bracketBottom.rotation.x = Math.PI / 2;
+    bracketBottom.position.set(handleX, handleY - 0.40, leafThickness / 2 + 0.02);
+    this.doorHinge.add(bracketBottom);
+
+    // 6. Exterior Keyless Smart Lock Escutcheon & Keypad
+    const lockBody = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.16, 0.02), lockMat);
+    lockBody.position.set(handleX, handleY + 0.58, leafThickness / 2 + 0.012);
+    this.doorHinge.add(lockBody);
+
+    const lockLed = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.006, 0.002), ledAccentMat);
+    lockLed.position.set(handleX, handleY + 0.63, leafThickness / 2 + 0.023);
+    this.doorHinge.add(lockLed);
+
+    // 7. Interior Modern Lever Handle & Rose
+    const rosePlate = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.008, 16), brassHandleMat);
+    rosePlate.rotation.x = Math.PI / 2;
+    rosePlate.position.set(handleX, 1.05, -leafThickness / 2 - 0.004);
+    this.doorHinge.add(rosePlate);
+
+    const leverStem = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.04, 12), brassHandleMat);
+    leverStem.rotation.x = Math.PI / 2;
+    leverStem.position.set(handleX, 1.05, -leafThickness / 2 - 0.02);
+    this.doorHinge.add(leverStem);
+
+    const leverHandle = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.016, 0.02), brassHandleMat);
+    leverHandle.position.set(handleX - 0.05, 1.05, -leafThickness / 2 - 0.04);
+    this.doorHinge.add(leverHandle);
+
+    // 8. Apply Inward Swing (negative Y rotation into foyer)
+    const angleDeg = cfg.openAngle || 0;
+    this.doorHinge.rotation.y = -(angleDeg * Math.PI / 180);
+
+    this.doorGroup.add(this.doorHinge);
+
+    // Position at foyer front entrance wall (X = -4.7 + offset, Y = 0, Z = 6.4)
+    this.doorGroup.position.set(-4.7 + offset, 0, 6.4);
+
+    this.doorGroup.traverse(child => {
+      child.userData.isDoor = true;
+      child.userData.isArchitecture = true;
+      child.userData.type = 'door';
       child.userData.rootGroup = this.doorGroup;
     });
 
@@ -858,7 +1062,11 @@ class RoomBuilder {
   setDoorSwing(angleDegrees) {
     this.doorConfig.openAngle = angleDegrees;
     if (this.doorHinge) {
-      this.doorHinge.rotation.y = (angleDegrees || 0) * (Math.PI / 180);
+      if (this.isCompleteHouse) {
+        this.doorHinge.rotation.y = -((angleDegrees || 0) * (Math.PI / 180));
+      } else {
+        this.doorHinge.rotation.y = (angleDegrees || 0) * (Math.PI / 180);
+      }
     }
   }
 
@@ -870,8 +1078,13 @@ class RoomBuilder {
 
   updateDoor(newConfig) {
     Object.assign(this.doorConfig, newConfig);
-    const { width: W, length: L, height: H } = this.currentDimensions;
-    this.rebuildDoor(W, L, H);
+    if (this.isCompleteHouse) {
+      const H = (this.currentDimensions && this.currentDimensions.height) ? this.currentDimensions.height : 2.8;
+      this.buildVillaEntryDoor(H);
+    } else {
+      const { width: W, length: L, height: H } = this.currentDimensions || { width: 4.8, length: 5.2, height: 2.8 };
+      this.rebuildDoor(W, L, H);
+    }
   }
 
   buildFloorGrid(W, L) {
@@ -1651,22 +1864,8 @@ class RoomBuilder {
     // 5. Master Bedroom Front Picture Window (Cutaway)
     createArchitecturalWindow(2.6, 1.6, 4.4, 1.4, 6.35, -Math.PI / 2, true);
 
-    // Front Pivot Wooden Entrance Door (at Foyer)
-    const doorGroup = new THREE.Group();
-    doorGroup.name = 'FrontPivotDoor';
-    const doorWoodMat = new THREE.MeshStandardMaterial({ color: 0x9a3412, roughness: 0.35 });
-    const pivotLeaf = new THREE.Mesh(new THREE.BoxGeometry(1.1, 2.3, 0.06), doorWoodMat);
-    pivotLeaf.position.set(-4.7, 1.18, 6.4);
-    doorGroup.add(pivotLeaf);
-    for (let sx = -0.45; sx <= 0.45; sx += 0.15) {
-      const slat = new THREE.Mesh(new THREE.BoxGeometry(0.03, 2.25, 0.015), new THREE.MeshStandardMaterial({ color: 0x451a03 }));
-      slat.position.set(-4.7 + sx, 1.18, 6.435);
-      doorGroup.add(slat);
-    }
-    const brassHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.85, 12), new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.9, roughness: 0.15 }));
-    brassHandle.position.set(-4.3, 1.15, 6.45);
-    doorGroup.add(brassHandle);
-    this.roomGroup.add(doorGroup);
+    // Architectural Adjustable Front Entrance Door at Foyer
+    this.buildVillaEntryDoor(H);
   }
 
   buildVillaBadges() {
@@ -9532,7 +9731,11 @@ class App {
             if (swingSlider) swingSlider.value = nextSwing;
             const swingVal = document.getElementById('door-swing-val');
             if (swingVal) swingVal.textContent = `${nextSwing}°`;
-            this.showToast(nextSwing > 0 ? '🚪 Room Door opened' : '🚪 Room Door closed');
+            const doorPill = document.getElementById('door-status-pill');
+            if (doorPill) {
+              doorPill.textContent = nextSwing === 0 ? '🔒 Closed (0°)' : (nextSwing >= 75 ? `✨ Open (${nextSwing}°)` : `🚪 Ajar (${nextSwing}°)`);
+            }
+            this.showToast(nextSwing > 0 ? `✨ Entry Door opened (${nextSwing}°)` : '🔒 Entry Door closed (0°)');
           }
         }
         return;
@@ -9581,7 +9784,11 @@ class App {
           if (swingSlider) swingSlider.value = nextSwing;
           const swingVal = document.getElementById('door-swing-val');
           if (swingVal) swingVal.textContent = `${nextSwing}°`;
-          this.showToast(nextSwing > 0 ? '🚪 Room Door opened (80°)' : '🚪 Room Door closed (0°)');
+          const doorPill = document.getElementById('door-status-pill');
+          if (doorPill) {
+            doorPill.textContent = nextSwing === 0 ? '🔒 Closed (0°)' : (nextSwing >= 75 ? `✨ Open (${nextSwing}°)` : `🚪 Ajar (${nextSwing}°)`);
+          }
+          this.showToast(nextSwing > 0 ? `✨ Entry Door opened (${nextSwing}°)` : '🔒 Entry Door closed (0°)');
           document.querySelector('[data-tab="tab-setup"]')?.click();
           document.getElementById('card-door-window')?.scrollIntoView({ behavior: 'smooth' });
           return;
@@ -11198,6 +11405,7 @@ class App {
 
     // Door Controls
     const doorWall = document.getElementById('door-wall-select');
+    const doorFinish = document.getElementById('door-finish-select');
     const doorPos = document.getElementById('door-pos-slider');
     const doorPosVal = document.getElementById('door-pos-val');
     const doorW = document.getElementById('door-w-slider');
@@ -11214,9 +11422,14 @@ class App {
       this.showToast(`Door moved to ${e.target.options[e.target.selectedIndex].text}`);
     });
 
+    doorFinish?.addEventListener('change', (e) => {
+      this.roomBuilder.updateDoor({ finish: e.target.value });
+      this.showToast(`Door finish changed to ${e.target.options[e.target.selectedIndex].text}`);
+    });
+
     doorPos?.addEventListener('input', (e) => {
       const val = parseFloat(e.target.value);
-      if (doorPosVal) doorPosVal.textContent = `${val >= 0 ? '+' : ''}${val.toFixed(1)}m`;
+      if (doorPosVal) doorPosVal.textContent = `${val >= 0 ? '+' : ''}${val.toFixed(2)}m`;
       this.roomBuilder.updateDoor({ offset: val });
     });
 
@@ -11229,7 +11442,23 @@ class App {
     doorSwing?.addEventListener('input', (e) => {
       const val = parseFloat(e.target.value);
       if (doorSwingVal) doorSwingVal.textContent = `${val}°`;
+      if (doorPill) {
+        doorPill.textContent = val === 0 ? '🔒 Closed (0°)' : (val >= 75 ? `✨ Open (${val}°)` : `🚪 Ajar (${val}°)`);
+      }
       this.roomBuilder.setDoorSwing(val);
+    });
+
+    document.querySelectorAll('.btn-door-quick-swing').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const angle = parseInt(btn.dataset.angle, 10);
+        this.roomBuilder.setDoorSwing(angle);
+        if (doorSwing) doorSwing.value = angle;
+        if (doorSwingVal) doorSwingVal.textContent = `${angle}°`;
+        if (doorPill) {
+          doorPill.textContent = angle === 0 ? '🔒 Closed (0°)' : (angle >= 75 ? `✨ Open (${angle}°)` : `🚪 Ajar (${angle}°)`);
+        }
+        this.showToast(angle === 0 ? '🔒 Door closed (0°)' : (angle >= 75 ? `✨ Door fully opened (${angle}°)` : `🚪 Door set ajar (${angle}°)`));
+      });
     });
 
     this.syncRoomVariantsUI(document.getElementById('room-type')?.value || 'bedroom');
@@ -11247,6 +11476,74 @@ class App {
     const houseNav = document.getElementById('house-navigator-bar');
     if (houseHub) houseHub.style.display = isHouse ? 'block' : 'none';
     if (houseNav) houseNav.style.display = isHouse ? 'flex' : 'none';
+
+    // Synchronize Architectural Door UI
+    const doorWall = document.getElementById('door-wall-select');
+    const doorPos = document.getElementById('door-pos-slider');
+    const doorPosVal = document.getElementById('door-pos-val');
+    const doorW = document.getElementById('door-w-slider');
+    const doorWVal = document.getElementById('door-w-val');
+    const doorSwing = document.getElementById('door-swing-slider');
+    const doorSwingVal = document.getElementById('door-swing-val');
+    const doorPill = document.getElementById('door-status-pill');
+    const doorFinish = document.getElementById('door-finish-select');
+
+    if (isHouse) {
+      if (doorWall) {
+        doorWall.innerHTML = '<option value="front" selected>🚪 Foyer Front Entrance</option>';
+        doorWall.disabled = true;
+      }
+      if (doorPos) {
+        doorPos.min = "-0.35";
+        doorPos.max = "0.35";
+        doorPos.step = "0.05";
+        doorPos.value = (this.roomBuilder?.doorConfig?.offset || 0).toString();
+      }
+      if (doorPosVal) {
+        const off = this.roomBuilder?.doorConfig?.offset || 0;
+        doorPosVal.textContent = `${off >= 0 ? '+' : ''}${off.toFixed(2)}m`;
+      }
+      if (doorW) {
+        doorW.min = "0.85";
+        doorW.max = "1.25";
+        doorW.step = "0.05";
+        doorW.value = (this.roomBuilder?.doorConfig?.width || 1.05).toString();
+      }
+      if (doorWVal) {
+        doorWVal.textContent = `${(this.roomBuilder?.doorConfig?.width || 1.05).toFixed(2)}m`;
+      }
+    } else {
+      if (doorWall) {
+        doorWall.disabled = false;
+        doorWall.innerHTML = `
+          <option value="right"${this.roomBuilder?.doorConfig?.wall === 'right' ? ' selected' : ''}>Right Wall</option>
+          <option value="back"${this.roomBuilder?.doorConfig?.wall === 'back' ? ' selected' : ''}>Back Wall</option>
+          <option value="left"${this.roomBuilder?.doorConfig?.wall === 'left' ? ' selected' : ''}>Left Wall</option>
+        `;
+      }
+      if (doorPos) {
+        doorPos.min = "-2.0";
+        doorPos.max = "2.0";
+        doorPos.step = "0.1";
+        doorPos.value = (this.roomBuilder?.doorConfig?.offset || 0).toString();
+      }
+      if (doorW) {
+        doorW.min = "0.7";
+        doorW.max = "1.3";
+        doorW.step = "0.05";
+        doorW.value = (this.roomBuilder?.doorConfig?.width || 0.9).toString();
+      }
+    }
+
+    if (doorFinish && this.roomBuilder?.doorConfig?.finish) {
+      doorFinish.value = this.roomBuilder.doorConfig.finish;
+    }
+    const currentAngle = this.roomBuilder?.doorConfig?.openAngle || 0;
+    if (doorSwing) doorSwing.value = currentAngle;
+    if (doorSwingVal) doorSwingVal.textContent = `${currentAngle}°`;
+    if (doorPill) {
+      doorPill.textContent = currentAngle === 0 ? '🔒 Closed (0°)' : (currentAngle >= 75 ? `✨ Open (${currentAngle}°)` : `🚪 Ajar (${currentAngle}°)`);
+    }
 
     if (isHouse) {
       document.querySelectorAll('.house-type-toggle-btn').forEach(b => {
