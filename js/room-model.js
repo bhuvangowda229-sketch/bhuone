@@ -688,7 +688,7 @@ export class RoomBuilder {
 
   setFlooring(type) {
     if (this.isCompleteHouse) {
-      this.buildCompleteHouse(this.currentWallColor, type);
+      this.buildCompleteHouse(this.currentWallColor, type, this.houseType);
     } else {
       this.buildFloor(this.currentDimensions.width, this.currentDimensions.length, type);
     }
@@ -821,20 +821,24 @@ export class RoomBuilder {
       return mesh;
     };
 
+    const isTileVariant = ['porcelain_tile', 'marble_white', 'tile', 'terrazzo', 'paving'].includes(flooringType);
+    const commonFlooring = isTileVariant ? flooringType : 'tile';
+    const bedFlooring = (!isTileVariant && flooringType) ? flooringType : 'herringbone_wood';
+
     // 1. Entrance Foyer (Front-Left - Polished Tiles)
-    makeFloorMesh(3.2, 3.6, -4.7, 4.6, 'tile', 'foyer');
+    makeFloorMesh(3.2, 3.6, -4.7, 4.6, commonFlooring, 'foyer');
 
     // 2. Living Room Lounge (Front-Center - Light Porcelain Tile)
-    makeFloorMesh(6.0, 4.6, -0.1, 4.1, 'tile', 'living');
+    makeFloorMesh(6.0, 4.6, -0.1, 4.1, commonFlooring, 'living');
 
     // 3. Dining Area (Front-Right - Light Porcelain Tile)
-    makeFloorMesh(4.0, 4.6, 4.9, 4.1, 'tile', 'dining');
+    makeFloorMesh(4.0, 4.6, 4.9, 4.1, commonFlooring, 'dining');
 
     // 4. Modular Kitchen (Rear-Right - Polished Porcelain Tile)
-    makeFloorMesh(4.0, 6.0, 4.9, -2.2, 'tile', 'kitchen');
+    makeFloorMesh(4.0, 6.0, 4.9, -2.2, commonFlooring, 'kitchen');
 
     // 5. Master Bedroom Suite (Rear-Left - Herringbone Wood Flooring)
-    makeFloorMesh(5.6, 7.6, -3.5, -2.0, 'herringbone_wood', 'bedroom');
+    makeFloorMesh(5.6, 7.6, -3.5, -2.0, bedFlooring, 'bedroom');
 
     // 6. Master Bathroom En-Suite (Rear-Center - Sky-Blue Designer Tiles)
     makeFloorMesh(3.6, 4.4, 1.1, -3.6, 'blue_tile', 'master_bath');
@@ -1151,29 +1155,33 @@ export class RoomBuilder {
       return mesh;
     };
 
+    const isTileVariant = ['porcelain_tile', 'marble_white', 'tile', 'terrazzo', 'paving'].includes(flooringType);
+    const commonFlooring = isTileVariant ? flooringType : 'tile';
+    const bedFlooring = (!isTileVariant && flooringType) ? flooringType : 'wood_oak';
+
     // 1. Entrance Foyer (Front-Left)
-    makeFloorMesh(3.0, 3.0, -4.7, 4.9, 'tile', 'foyer');
+    makeFloorMesh(3.0, 3.0, -4.7, 4.9, commonFlooring, 'foyer');
 
     // 2. Common Bathroom 1 (Mid-Left - Sky Blue Designer Tiles)
     makeFloorMesh(3.0, 2.8, -4.7, 2.0, 'blue_tile', 'common_bath');
 
     // 3. Second Bedroom (Back-Left - Warm Oak Wood)
-    makeFloorMesh(4.4, 6.6, -4.0, -2.7, flooringType || 'wood_oak', 'bedroom2');
+    makeFloorMesh(4.4, 6.6, -4.0, -2.7, bedFlooring, 'bedroom2');
 
     // 4. Living Room Lounge (Center-Front - Polished Ivory Tile)
-    makeFloorMesh(5.6, 4.6, -0.4, 4.1, 'tile', 'living');
+    makeFloorMesh(5.6, 4.6, -0.4, 4.1, commonFlooring, 'living');
 
     // 5. Dining Area (Center-Mid - Polished Ivory Tile)
-    makeFloorMesh(4.2, 3.4, 0.3, 0.1, 'tile', 'dining');
+    makeFloorMesh(4.2, 3.4, 0.3, 0.1, commonFlooring, 'dining');
 
     // 6. Modular Kitchen (Center-Back - Polished Tile)
-    makeFloorMesh(4.2, 4.4, 0.3, -3.8, 'tile', 'kitchen');
+    makeFloorMesh(4.2, 4.4, 0.3, -3.8, commonFlooring, 'kitchen');
 
     // 7. Master Bedroom (Front-Right - Warm Oak Wood)
-    makeFloorMesh(4.0, 5.4, 4.4, 3.7, flooringType || 'wood_oak', 'bedroom');
+    makeFloorMesh(4.0, 5.4, 4.4, 3.7, bedFlooring, 'bedroom');
 
     // 8. Walk-in Wardrobe / Dressing Area (Mid-Right)
-    makeFloorMesh(2.0, 3.0, 3.4, -0.5, flooringType || 'wood_oak', 'walk_in_closet');
+    makeFloorMesh(2.0, 3.0, 3.4, -0.5, bedFlooring, 'walk_in_closet');
 
     // 9. Master En-Suite Bathroom (Mid-Right Outer - Sky Blue Tiles)
     makeFloorMesh(2.0, 3.0, 5.4, -0.5, 'blue_tile', 'master_bath');
@@ -1220,6 +1228,7 @@ export class RoomBuilder {
     addThreshold(0.06, 1.2, 2.4, 3.4);
     addThreshold(1.4, 0.06, 4.1, 1.0);
     addThreshold(0.06, 1.1, 4.4, -0.45);
+    addThreshold(1.8, 0.06, 4.4, -2.0);
   }
 
   buildVillaWalls(H, wallColorHex) {
@@ -1271,7 +1280,10 @@ export class RoomBuilder {
 
     // B. VILLA EXTERIOR BUILDING WALLS (Height H = 2.8m)
     addWall(8.8, H, 0.15, -1.8, H / 2, -6.0, 'Second Bed & Kitchen North Wall');
-    addWall(4.2, H, 0.15, 4.4, H / 2, -2.0, 'Master Suite Backyard Wall');
+    // Master Suite Backyard Wall at Z = -2.0 with 1.8m Sliding Glass Door Opening
+    addWall(1.2, H, 0.15, 2.9, H / 2, -2.0, 'Master Suite Backyard Wall West');
+    addWall(1.8, 0.6, 0.15, 4.4, 2.5, -2.0, 'Master Suite Backyard Sliding Door Lintel');
+    addWall(1.2, H, 0.15, 5.9, H / 2, -2.0, 'Master Suite Backyard Wall East');
     addWall(0.15, H, 7.2, 6.4, H / 2, -5.6, 'Backyard & Master East Exterior Wall');
 
     // Second Bed West Wall with Terracotta Accent
@@ -1386,6 +1398,12 @@ export class RoomBuilder {
 
     // 5. Master Bedroom Front Picture Window (Cutaway)
     createArchitecturalWindow(2.6, 1.6, 4.4, 1.4, 6.35, -Math.PI / 2, true);
+
+    // 6. Common Bathroom West Transom Ventilation Window
+    createArchitecturalWindow(0.8, 0.6, -6.18, 2.2, 2.0, 0, false);
+
+    // 7. Master En-Suite Bathroom East Transom Ventilation Window
+    createArchitecturalWindow(0.8, 0.6, 6.38, 2.2, -0.5, 0, false);
 
     // Architectural Adjustable Front Entrance Door at Foyer
     this.buildVillaEntryDoor(H);

@@ -49,7 +49,7 @@ export class AIEngine {
           id: 'house_foyer_console',
           type: 'foyer_console',
           name: 'Entrance Foyer Console Table & Round Mirror',
-          position: [-4.7, 0, 3.6],
+          position: [-4.7, 0, 3.65],
           rotation: [0, 0, 0],
           room: 'foyer',
           cost: 480
@@ -224,7 +224,7 @@ export class AIEngine {
           id: 'house_dining_credenza',
           type: 'credenza',
           name: 'Crockery Unit & China Buffet Sideboard',
-          position: [-1.5, 0, 0.1],
+          position: [-1.52, 0, 0.1],
           rotation: [0, Math.PI / 2, 0],
           style: style,
           woodColor: palette.woodColor,
@@ -713,6 +713,16 @@ export class AIEngine {
         });
 
         items.push({
+          id: 'house_garden_patio',
+          type: 'patio_set',
+          name: 'Backyard Outdoor Teak & Wicker Bistro Set',
+          position: [4.4, 0, -6.8],
+          rotation: [0, 0, 0],
+          room: 'backyard',
+          cost: 420
+        });
+
+        items.push({
           id: 'house_garden_bush_1',
           type: 'garden_bush',
           name: 'Backyard Flowering Garden Shrub #1',
@@ -741,11 +751,221 @@ export class AIEngine {
           room: 'front_lawn',
           cost: 45
         });
+
+        items.push({
+          id: 'house_porch_planter_l',
+          type: 'plant',
+          name: 'Front Porch Architectural Planter (Left)',
+          position: [-5.8, 0, 6.7],
+          rotation: [0, 0, 0],
+          room: 'front_lawn',
+          cost: 110
+        });
+
+        items.push({
+          id: 'house_porch_planter_r',
+          type: 'plant',
+          name: 'Front Porch Architectural Planter (Right)',
+          position: [-3.6, 0, 6.7],
+          rotation: [0, 0, 0],
+          room: 'front_lawn',
+          cost: 110
+        });
       } else {
         if (isApartment) {
           concept = `MODERN APARTMENT SUITE (REAL-TIME FLOW ${style.toUpperCase()})`;
           spatialRationale = `A full modern apartment floor plan engineered with real-time room flow. An open-concept living room transitions fluidly to a central dining area and a streamlined single-wall straight modular kitchen mounted flush along the right wall. The private master bedroom suite is peacefully situated in the rear wing. Continuous light porcelain floor tiles run throughout the open living, dining, and kitchen zones, transitioning via a satin brass threshold to rich herringbone wood flooring in the master suite.`;
           lightingPlan = `Warm 3000K interior illumination with natural morning daylight. Warm 3000K LED under-cabinet kitchen task lighting, overhead linear brass dining chandelier, recessed living cove glows, and natural morning sunlight streaming through wide balcony glazing with soft morning shadows.`;
+
+          // ==========================================
+          // APARTMENT: 1. OPEN-CONCEPT LIVING ROOM
+          // ==========================================
+          items.push({
+            id: 'house_living_tv_unit',
+            type: 'missouri_tv_unit',
+            name: 'Missouri Engineered Wood TV Unit',
+            position: [-2.85, 0, 4.1],
+            rotation: [0, Math.PI / 2, 0],
+            style: style,
+            room: 'living',
+            cost: 1350
+          });
+
+          items.push({
+            id: 'house_living_sofa',
+            type: 'sofa',
+            name: 'Plush Ergonomic Living Lounge Sofa',
+            position: [0.6, 0, 4.1],
+            rotation: [0, -Math.PI / 2, 0],
+            style: style,
+            color: palette.sofaColor,
+            room: 'living',
+            cost: 1400
+          });
+
+          items.push({
+            id: 'house_living_coffee_table',
+            type: 'coffee_table',
+            name: 'Architectural Wood & Glass Coffee Table',
+            position: [-1.1, 0, 4.1],
+            rotation: [0, 0, 0],
+            style: style,
+            woodColor: palette.woodColor,
+            room: 'living',
+            cost: 420
+          });
+
+          items.push({
+            id: 'house_living_rug',
+            type: 'rug',
+            name: 'Living Room Plush Wool Rug',
+            position: [-0.4, 0.005, 4.1],
+            rotation: [0, 0, 0],
+            dimensions: [3.4, 2.6],
+            style: style,
+            room: 'living',
+            cost: 380
+          });
+
+          items.push({
+            id: 'house_living_lamp',
+            type: 'floor_lamp',
+            name: 'Sculptural Brass Arc Floor Lamp',
+            position: [1.8, 0, 5.8],
+            rotation: [0, 0, 0],
+            style: style,
+            room: 'living',
+            cost: 290
+          });
+
+          // ==========================================
+          // APARTMENT: 2. CENTRAL DINING AREA
+          // ==========================================
+          items.push({
+            id: 'house_dining_set',
+            type: 'dining_set',
+            name: 'Solid Hardwood Dining Table & 6 Chairs',
+            position: [1.0, 0, 1.2],
+            rotation: [0, 0, 0],
+            style: style,
+            woodColor: palette.woodColor,
+            room: 'dining',
+            cost: 1650
+          });
+
+          items.push({
+            id: 'house_dining_pendant',
+            type: 'pendant_light',
+            name: 'Linear Brass Dining Chandelier',
+            position: [1.0, 2.7, 1.2],
+            rotation: [0, 0, 0],
+            room: 'dining',
+            cost: 320
+          });
+
+          // ==========================================
+          // APARTMENT: 3. STRAIGHT MODULAR KITCHEN (RIGHT WALL)
+          // ==========================================
+          items.push({
+            id: 'house_kitchen_cabinets',
+            type: 'straight_kitchen',
+            name: 'Single-Wall Straight Modular Kitchen',
+            position: [6.4, 0, 1.2],
+            rotation: [0, -Math.PI / 2, 0],
+            room: 'kitchen',
+            cost: 4200
+          });
+
+          items.push({
+            id: 'house_kitchen_fridge',
+            type: 'refrigerator',
+            name: 'Stainless Steel French-Door Refrigerator',
+            position: [6.4, 0, -1.8],
+            rotation: [0, -Math.PI / 2, 0],
+            room: 'kitchen',
+            cost: 1450
+          });
+
+          // ==========================================
+          // APARTMENT: 4. REAR MASTER BEDROOM SUITE
+          // ==========================================
+          items.push({
+            id: 'house_bed_king',
+            type: 'bed',
+            name: 'King Size Designer Platform Bed',
+            position: [-3.5, 0, -3.8],
+            rotation: [0, 0, 0],
+            style: style,
+            color: palette.accentColor,
+            room: 'bedroom',
+            cost: 1850
+          });
+
+          items.push({
+            id: 'house_bed_nightstand_l',
+            type: 'nightstand',
+            name: 'Floating Bedside Nightstand (Left)',
+            position: [-5.0, 0, -4.6],
+            rotation: [0, 0, 0],
+            style: style,
+            woodColor: palette.woodColor,
+            room: 'bedroom',
+            cost: 240
+          });
+
+          items.push({
+            id: 'house_bed_nightstand_r',
+            type: 'nightstand',
+            name: 'Floating Bedside Nightstand (Right)',
+            position: [-2.0, 0, -4.6],
+            rotation: [0, 0, 0],
+            style: style,
+            woodColor: palette.woodColor,
+            room: 'bedroom',
+            cost: 240
+          });
+
+          items.push({
+            id: 'house_bed_wardrobe',
+            type: 'walk_in_wardrobe',
+            name: 'Full-Height Master Wardrobe System',
+            position: [-1.0, 0, -1.5],
+            rotation: [0, -Math.PI / 2, 0],
+            style: style,
+            color: palette.wardrobeColor || 0x2b2d42,
+            room: 'bedroom',
+            cost: 1650
+          });
+
+          items.push({
+            id: 'house_master_shower',
+            type: 'shower',
+            name: 'Master En-Suite Walk-In Glass Shower',
+            position: [2.4, 0, -5.0],
+            rotation: [0, -Math.PI / 2, 0],
+            room: 'master_bath',
+            cost: 650
+          });
+
+          items.push({
+            id: 'house_master_toilet',
+            type: 'toilet',
+            name: 'Master En-Suite Wall-Hung Toilet',
+            position: [1.1, 0, -5.2],
+            rotation: [0, 0, 0],
+            room: 'master_bath',
+            cost: 320
+          });
+
+          items.push({
+            id: 'house_master_vanity',
+            type: 'bathroom_vanity',
+            name: 'Master En-Suite Vanity & Lighted Mirror',
+            position: [1.1, 0, -1.8],
+            rotation: [0, Math.PI, 0],
+            room: 'master_bath',
+            cost: 540
+          });
         } else {
           concept = `ARCHITECTURAL 1 BHK SINGLE BEDROOM RESIDENCE (${style.toUpperCase()})`;
           spatialRationale = `A perfectly planned 14m × 13m architectural Single Bedroom House featuring a dedicated Entrance Foyer with customizable fluted entry door & slatted wooden divider, an open-concept Living Room lounge with Missouri TV entertainment center, interconnected Formal Dining Area with linear brass chandelier, high-efficiency Modular Kitchen with waterfall prep island and breakfast counter bar stools, private secluded Master Bedroom Suite with king platform bed, built-in wardrobe, and vanity console, and a luxury direct En-Suite Master Bathroom with frameless glass walk-in shower, floating vanity, and lighted mirror.`;
@@ -886,7 +1106,7 @@ export class AIEngine {
             id: 'house_dining_set',
             type: 'dining_set',
             name: 'Solid Hardwood Dining Table & 6 Chairs',
-            position: [4.9, 0, 4.1],
+            position: [4.9, 0, 2.7],
             rotation: [0, 0, 0],
             style: style,
             woodColor: palette.woodColor,
@@ -898,7 +1118,7 @@ export class AIEngine {
             id: 'house_dining_pendant',
             type: 'pendant_light',
             name: 'Linear Brass Dining Chandelier',
-            position: [4.9, 2.7, 4.1],
+            position: [4.9, 2.7, 2.7],
             rotation: [0, 0, 0],
             style: style,
             room: 'dining',
@@ -906,10 +1126,34 @@ export class AIEngine {
           });
 
           items.push({
+            id: 'house_dining_rug',
+            type: 'rug',
+            name: 'Dining Area Low-Pile Defined Rug',
+            position: [4.9, 0.005, 2.7],
+            rotation: [0, 0, 0],
+            dimensions: [3.0, 2.4],
+            style: style,
+            room: 'dining',
+            cost: 320
+          });
+
+          items.push({
+            id: 'house_dining_credenza',
+            type: 'credenza',
+            name: 'Crockery Unit & China Buffet Sideboard',
+            position: [6.6, 0, 2.7],
+            rotation: [0, -Math.PI / 2, 0],
+            style: style,
+            woodColor: palette.woodColor,
+            room: 'dining',
+            cost: 720
+          });
+
+          items.push({
             id: 'house_dining_plant',
             type: 'plant',
             name: 'Dining Area Tall Fiddle Leaf Planter',
-            position: [6.5, 0, 5.8],
+            position: [6.5, 0, 4.8],
             rotation: [0, 0, 0],
             room: 'dining',
             cost: 160
@@ -922,7 +1166,7 @@ export class AIEngine {
             id: 'house_kitchen_cabinets',
             type: 'kitchen_cabinets',
             name: 'Modular Kitchen Cabinets with Sink & Cooktop',
-            position: [4.9, 0, -5.0],
+            position: [4.9, 0, -5.6],
             rotation: [0, 0, 0],
             style: style,
             color: palette.kitchenColor || 0x2c3e50,
@@ -980,7 +1224,7 @@ export class AIEngine {
             id: 'house_kitchen_coffee',
             type: 'coffee_machine',
             name: 'Artisan Espresso Coffee Machine',
-            position: [3.6, 0.92, -5.0],
+            position: [3.6, 0.92, -5.5],
             rotation: [0, 0, 0],
             room: 'kitchen',
             cost: 320
@@ -990,7 +1234,7 @@ export class AIEngine {
             id: 'house_kitchen_purifier',
             type: 'water_purifier',
             name: 'RO UV Alkaline Water Purifier',
-            position: [6.2, 1.5, -5.2],
+            position: [5.9, 1.5, -5.9],
             rotation: [0, 0, 0],
             room: 'kitchen',
             cost: 290
@@ -1000,7 +1244,7 @@ export class AIEngine {
             id: 'house_kitchen_trash',
             type: 'trash_bin',
             name: 'Stainless Step Trash Bin',
-            position: [3.2, 0, -5.0],
+            position: [3.2, 0, -5.5],
             rotation: [0, 0, 0],
             room: 'kitchen',
             cost: 95

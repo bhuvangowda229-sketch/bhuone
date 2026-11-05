@@ -112,27 +112,27 @@ class App {
 
   // 2. LIGHTING SETUP
   initLights() {
-    // Ambient light
-    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
+    // Ambient light - warm balanced illumination
+    this.ambientLight = new THREE.AmbientLight(0xfff6ec, 0.65);
     this.scene.add(this.ambientLight);
 
-    // Sun / Window Directional Light
-    this.sunLight = new THREE.DirectionalLight(0xfffaed, 1.2);
-    this.sunLight.position.set(-8, 9, 4);
+    // Sun / Natural Morning Directional Light with full-villa shadow coverage
+    this.sunLight = new THREE.DirectionalLight(0xfffaed, 1.25);
+    this.sunLight.position.set(-12, 16, 10);
     this.sunLight.castShadow = true;
     this.sunLight.shadow.mapSize.width = 2048;
     this.sunLight.shadow.mapSize.height = 2048;
     this.sunLight.shadow.camera.near = 0.5;
-    this.sunLight.shadow.camera.far = 25;
-    this.sunLight.shadow.camera.left = -6;
-    this.sunLight.shadow.camera.right = 6;
-    this.sunLight.shadow.camera.top = 6;
-    this.sunLight.shadow.camera.bottom = -6;
-    this.sunLight.shadow.bias = -0.0005;
+    this.sunLight.shadow.camera.far = 42;
+    this.sunLight.shadow.camera.left = -16;
+    this.sunLight.shadow.camera.right = 16;
+    this.sunLight.shadow.camera.top = 16;
+    this.sunLight.shadow.camera.bottom = -16;
+    this.sunLight.shadow.bias = -0.0003;
     this.scene.add(this.sunLight);
 
     // Soft ceiling fill light
-    this.ceilingLight = new THREE.PointLight(0xfff7ed, 0.6, 12, 1.5);
+    this.ceilingLight = new THREE.PointLight(0xfff7ed, 0.6, 25, 1.5);
     this.ceilingLight.position.set(0, 2.7, 0);
     this.scene.add(this.ceilingLight);
   }
@@ -2758,6 +2758,12 @@ class App {
         break;
       case 'stepping_stones':
         meshGroup = FurnitureFactory.createSteppingStones(itemData.count || 4);
+        break;
+      case 'patio_set':
+        meshGroup = FurnitureFactory.createPatioSet();
+        break;
+      case 'straight_kitchen':
+        meshGroup = FurnitureFactory.createStraightModularKitchen(style, itemData.color);
         break;
       default:
         meshGroup = FurnitureFactory.createCoffeeTable(style);

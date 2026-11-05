@@ -3962,4 +3962,53 @@ export class FurnitureFactory {
 
     return group;
   }
+
+  // 49. OUTDOOR TEAK & WICKER PATIO BISTRO SET
+  static createPatioSet() {
+    const group = new THREE.Group();
+    group.name = 'Outdoor Patio Bistro Set';
+    group.userData = { type: 'patio_set', name: 'Outdoor Teak & Wicker Bistro Set', cost: 420 };
+
+    const teakMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.6 });
+    const metalMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4, metalness: 0.8 });
+    const fabricMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.8 });
+
+    // Round Bistro Table (Diameter 0.8m, Height 0.72m)
+    const tableTop = this.createMesh(new THREE.CylinderGeometry(0.4, 0.4, 0.03, 24), teakMat, 'Patio Table Top');
+    tableTop.position.set(0, 0.71, 0);
+    group.add(tableTop);
+
+    // Pedestal Metal Base
+    const pole = this.createMesh(new THREE.CylinderGeometry(0.025, 0.025, 0.68, 16), metalMat, 'Patio Table Pole');
+    pole.position.set(0, 0.35, 0);
+    group.add(pole);
+    const base = this.createMesh(new THREE.CylinderGeometry(0.24, 0.26, 0.02, 24), metalMat, 'Patio Table Base');
+    base.position.set(0, 0.01, 0);
+    group.add(base);
+
+    // 2 Outdoor Wicker Armchairs
+    [-0.6, 0.6].forEach((xOff, idx) => {
+      const chair = new THREE.Group();
+      chair.name = `Patio Chair ${idx + 1}`;
+      // Seat Cushion
+      const seat = this.createMesh(new THREE.CylinderGeometry(0.22, 0.22, 0.05, 16), fabricMat, 'Seat Cushion');
+      seat.position.set(0, 0.44, 0);
+      chair.add(seat);
+      // Curved Backrest
+      const back = this.createMesh(new THREE.CylinderGeometry(0.23, 0.23, 0.38, 16, 1, true, -Math.PI / 2, Math.PI), teakMat, 'Wicker Back');
+      back.position.set(0, 0.62, 0);
+      chair.add(back);
+      // Legs
+      [[-0.15, -0.15], [0.15, -0.15], [-0.15, 0.15], [0.15, 0.15]].forEach(([lx, lz]) => {
+        const leg = this.createMesh(new THREE.CylinderGeometry(0.012, 0.01, 0.42, 8), metalMat, 'Chair Leg');
+        leg.position.set(lx, 0.21, lz);
+        chair.add(leg);
+      });
+      chair.position.set(xOff, 0, 0);
+      chair.rotation.y = idx === 0 ? Math.PI / 2 : -Math.PI / 2;
+      group.add(chair);
+    });
+
+    return group;
+  }
 }
