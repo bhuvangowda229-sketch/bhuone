@@ -697,248 +697,183 @@ export class AIEngine {
           concept = `MODERN APARTMENT SUITE (REAL-TIME FLOW ${style.toUpperCase()})`;
           spatialRationale = `A full modern apartment floor plan engineered with real-time room flow. An open-concept living room transitions fluidly to a central dining area and a streamlined single-wall straight modular kitchen mounted flush along the right wall. The private master bedroom suite is peacefully situated in the rear wing. Continuous light porcelain floor tiles run throughout the open living, dining, and kitchen zones, transitioning via a satin brass threshold to rich herringbone wood flooring in the master suite.`;
           lightingPlan = `Warm 3000K interior illumination with natural morning daylight. Warm 3000K LED under-cabinet kitchen task lighting, overhead linear brass dining chandelier, recessed living cove glows, and natural morning sunlight streaming through wide balcony glazing with soft morning shadows.`;
-        } else if (is2BHK) {
-          concept = `COMPLETE DOUBLE BEDROOM RESIDENCE (2 BHK ${style.toUpperCase()})`;
-          spatialRationale = `A unified, continuous 14m Ã— 11.5m 2-Bedroom residential floor plan with fully connected living, dining, kitchen, and two dedicated bedroom suites. The front wing houses the great-room living lounge with Missouri TV entertainment center, interconnected dining pavilion, and modular kitchen. The rear wing features the Master Bedroom Suite (Bedroom 1) and a fully appointed Second Bedroom (Bedroom 2 / Double Bed & Dressing Suite) with private hallway access.`;
-          lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips in kitchen, and independent dimmable bedside luminaires and split ACs in both Master Bedroom 1 and Bedroom 2.`;
         } else {
-          concept = `COMPLETE SINGLE BEDROOM RESIDENCE (1 BHK ${style.toUpperCase()})`;
-          spatialRationale = `A unified, continuous 14m Ã— 11.5m complete home layout where all rooms are situated seamlessly adjacent to each other with shared architectural walls, open archways, and connecting corridors. The sunlit front wing combines an expansive Living Lounge with Missouri TV Entertainment Center, an interconnected Formal Dining Pavilion, and an Open-Concept Modular Kitchen. The private rear wing features a secluded Master Bedroom Suite and a Master Dressing & En-Suite Luxury Suite.`;
-          lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips and pendant glow in kitchen, dimmable bedside luminaires in master bedroom, and flattering vanity mirror glow in master dressing en-suite.`;
-        }
+          concept = `ARCHITECTURAL 1 BHK SINGLE BEDROOM RESIDENCE (${style.toUpperCase()})`;
+          spatialRationale = `A perfectly planned 14m × 13m architectural Single Bedroom House featuring a dedicated Entrance Foyer with customizable fluted entry door & slatted wooden divider, an open-concept Living Room lounge with Missouri TV entertainment center, interconnected Formal Dining Area with linear brass chandelier, high-efficiency Modular Kitchen with waterfall prep island and breakfast counter bar stools, private secluded Master Bedroom Suite with king platform bed, built-in wardrobe, and vanity console, and a luxury direct En-Suite Master Bathroom with frameless glass walk-in shower, floating vanity, and lighted mirror.`;
+          lightingPlan = `Layered warm 3000K architectural illumination: warm LED ambient cove lighting in the living lounge, suspended linear multi-pendant dining chandelier, high-CRI under-cabinet task lighting in the kitchen, illuminated LED anti-fog mirror in the master bathroom, and dual dimmable bedside reading sconces in the master suite.`;
 
-        const livingType = pref.livingRoomType || 1;
-        const diningType = pref.diningType || 1;
-        const kitchenType = pref.kitchenType || 1;
-        const bedType = pref.bedroomType || 1;
-
-        // ==========================================
-        // ZONE 1: LIVING ROOM (X: -7.0 to -1.0, Z: 0.5 to 6.0)
-        // ==========================================
-        items.push({
-          id: 'house_living_tv_unit',
-          type: 'missouri_tv_unit',
-          name: 'Missouri Engineered Wood TV Unit',
-          position: [-4.5, 0, 0.85],
-          rotation: [0, 0, 0],
-          style: style,
-          design: livingType,
-          room: 'living',
-          cost: 1350
-        });
-
-        items.push({
-          id: 'house_living_sofa',
-          type: 'sofa',
-          name: 'Plush Ergonomic Living Lounge Sofa',
-          position: [-4.5, 0, 4.0],
-          rotation: [0, Math.PI, 0],
-          style: style,
-          color: palette.sofaColor,
-          room: 'living',
-          cost: 1400
-        });
-
-        items.push({
-          id: 'house_living_coffee_table',
-          type: 'coffee_table',
-          name: 'Architectural Wood & Glass Coffee Table',
-          position: [-4.5, 0, 2.5],
-          rotation: [0, 0, 0],
-          style: style,
-          woodColor: palette.woodColor,
-          room: 'living',
-          cost: 420
-        });
-
-        items.push({
-          id: 'house_living_armchair',
-          type: 'armchair',
-          name: 'Designer Lounge Accent Chair',
-          position: [-2.4, 0, 3.2],
-          rotation: [0, -Math.PI / 2 - 0.35, 0],
-          style: style,
-          color: palette.accentColor,
-          room: 'living',
-          cost: 580
-        });
-
-        items.push({
-          id: 'house_living_rug',
-          type: 'rug',
-          name: 'Living Room Plush Wool Rug',
-          position: [-4.3, 0.005, 3.1],
-          rotation: [0, 0, 0],
-          dimensions: [3.2, 2.4],
-          style: style,
-          room: 'living',
-          cost: 380
-        });
-
-        items.push({
-          id: 'house_living_lamp',
-          type: 'floor_lamp',
-          name: 'Sculptural Brass Arc Floor Lamp',
-          position: [-6.4, 0, 4.8],
-          rotation: [0, 0, 0],
-          style: style,
-          room: 'living',
-          cost: 290
-        });
-
-        items.push({
-          id: 'house_living_plant',
-          type: 'plant',
-          name: 'Fiddle Leaf Fig Ceramic Planter',
-          position: [-6.4, 0, 1.0],
-          rotation: [0, 0, 0],
-          room: 'living',
-          cost: 140
-        });
-
-        items.push({
-          id: 'house_living_art',
-          type: 'wall_art',
-          name: 'Curated Gallery Wall Art',
-          position: [-6.94, 1.8, 3.8],
-          rotation: [0, Math.PI / 2, 0],
-          dimensions: [1.6, 1.0],
-          style: style,
-          room: 'living',
-          cost: 320
-        });
-
-        items.push({
-          id: 'house_living_fan',
-          type: 'ceiling_fan',
-          name: 'Aero Minimalist Ceiling Fan',
-          position: [-4.5, 2.75, 3.25],
-          rotation: [0, 0, 0],
-          room: 'living',
-          cost: 280
-        });
-
-        // ==========================================
-        // ZONE 2: DINING ROOM (X: -1.0 to 3.0, Z: 0.5 to 6.0)
-        // ==========================================
-        items.push({
-          id: 'house_dining_set',
-          type: 'dining_set',
-          name: 'Solid Hardwood Dining Table & 6 Chairs',
-          position: [1.0, 0, 3.25],
-          rotation: [0, 0, 0],
-          style: style,
-          woodColor: palette.woodColor,
-          room: 'dining',
-          cost: 1850
-        });
-
-        items.push({
-          id: 'house_dining_pendant',
-          type: 'pendant_light',
-          name: 'Linear Brass Dining Chandelier',
-          position: [1.0, 2.7, 3.25],
-          rotation: [0, 0, 0],
-          style: style,
-          room: 'dining',
-          cost: 450
-        });
-
-        items.push({
-          id: 'house_dining_credenza',
-          type: 'credenza',
-          name: 'Buffet Sideboard & Serving Credenza',
-          position: [1.0, 0, 0.85],
-          rotation: [0, 0, 0],
-          style: style,
-          woodColor: palette.woodColor,
-          room: 'dining',
-          cost: 720
-        });
-
-        items.push({
-          id: 'house_dining_rug',
-          type: 'rug',
-          name: 'Dining Area Low-Pile Rug',
-          position: [1.0, 0.005, 3.25],
-          rotation: [0, 0, 0],
-          dimensions: [2.8, 2.2],
-          style: style,
-          room: 'dining',
-          cost: 310
-        });
-
-        items.push({
-          id: 'house_dining_clock',
-          type: 'wall_clock',
-          name: 'Architectural Minimalist Wall Clock',
-          position: [1.0, 2.2, 0.58],
-          rotation: [0, 0, 0],
-          room: 'dining',
-          cost: 110
-        });
-
-        // ==========================================
-        // ZONE 3: MODULAR KITCHEN (X: 3.0 to 7.0, Z: 0.5 to 6.0)
-        // ==========================================
-        if (isApartment) {
+          // ==========================================
+          // 1. ENTRANCE FOYER (X: -6.3 to -3.1, Z: 2.8 to 6.4)
+          // ==========================================
           items.push({
-            id: 'house_kitchen_straight',
-            type: 'straight_kitchen',
-            name: 'Single-Wall Straight Modular Kitchen (Right Wall Run)',
-            position: [6.62, 0, 3.4],
+            id: 'house_foyer_console',
+            type: 'foyer_console',
+            name: 'Entrance Foyer Console Table & Round Mirror',
+            position: [-4.7, 0, 3.4],
+            rotation: [0, 0, 0],
+            room: 'foyer',
+            cost: 480
+          });
+
+          items.push({
+            id: 'house_foyer_plant',
+            type: 'plant',
+            name: 'Entrance Foyer Potted Fig Tree',
+            position: [-3.6, 0, 6.0],
+            rotation: [0, 0, 0],
+            room: 'foyer',
+            cost: 160
+          });
+
+          items.push({
+            id: 'house_foyer_rug',
+            type: 'rug',
+            name: 'Entrance Foyer Welcome Runner',
+            position: [-4.7, 0.005, 4.6],
+            rotation: [0, 0, 0],
+            dimensions: [1.8, 1.2],
+            style: style,
+            room: 'foyer',
+            cost: 210
+          });
+
+          // ==========================================
+          // 2. LIVING ROOM LOUNGE (X: -3.1 to 2.9, Z: 1.8 to 6.4)
+          // ==========================================
+          items.push({
+            id: 'house_living_tv_unit',
+            type: 'missouri_tv_unit',
+            name: 'Missouri Engineered Wood TV Unit',
+            position: [-2.85, 0, 4.1],
+            rotation: [0, Math.PI / 2, 0],
+            style: style,
+            room: 'living',
+            cost: 1350
+          });
+
+          items.push({
+            id: 'house_living_sofa',
+            type: 'sofa',
+            name: 'Plush Ergonomic Living Lounge Sofa',
+            position: [0.8, 0, 4.1],
             rotation: [0, -Math.PI / 2, 0],
             style: style,
-            color: palette.kitchenColor || 0x2c3e50,
-            room: 'kitchen',
-            cost: 4200
+            color: palette.sofaColor,
+            room: 'living',
+            cost: 1400
           });
 
           items.push({
-            id: 'house_kitchen_fridge',
-            type: 'refrigerator',
-            name: 'Stainless Steel French-Door Refrigerator',
-            position: [6.52, 0, 0.95],
-            rotation: [0, -Math.PI / 2, 0],
-            room: 'kitchen',
-            cost: 1600
+            id: 'house_living_coffee_table',
+            type: 'coffee_table',
+            name: 'Architectural Wood & Glass Coffee Table',
+            position: [-1.0, 0, 4.1],
+            rotation: [0, 0, 0],
+            style: style,
+            woodColor: palette.woodColor,
+            room: 'living',
+            cost: 420
           });
 
           items.push({
-            id: 'house_kitchen_coffee',
-            type: 'coffee_machine',
-            name: 'Artisan Espresso Coffee Machine',
-            position: [6.58, 0.92, 4.8],
-            rotation: [0, -Math.PI / 2, 0],
-            room: 'kitchen',
-            cost: 350
+            id: 'house_living_armchair',
+            type: 'armchair',
+            name: 'Designer Lounge Accent Chair',
+            position: [0.6, 0, 2.5],
+            rotation: [0, -2.4, 0],
+            style: style,
+            color: palette.accentColor,
+            room: 'living',
+            cost: 580
           });
 
           items.push({
-            id: 'house_kitchen_purifier',
-            type: 'water_purifier',
-            name: 'RO UV Alkaline Water Purifier',
-            position: [6.88, 1.5, 2.2],
-            rotation: [0, -Math.PI / 2, 0],
-            room: 'kitchen',
+            id: 'house_living_rug',
+            type: 'rug',
+            name: 'Living Room Plush Wool Rug',
+            position: [-0.5, 0.005, 4.1],
+            rotation: [0, 0, 0],
+            dimensions: [3.4, 2.6],
+            style: style,
+            room: 'living',
+            cost: 380
+          });
+
+          items.push({
+            id: 'house_living_lamp',
+            type: 'floor_lamp',
+            name: 'Sculptural Brass Arc Floor Lamp',
+            position: [1.8, 0, 5.8],
+            rotation: [0, 0, 0],
+            style: style,
+            room: 'living',
             cost: 290
           });
 
           items.push({
-            id: 'house_kitchen_trash',
-            type: 'trash_bin',
-            name: 'Stainless Step Trash Bin',
-            position: [6.6, 0, 5.5],
+            id: 'house_living_plant',
+            type: 'plant',
+            name: 'Living Room Ceramic Planter',
+            position: [-2.8, 0, 2.2],
             rotation: [0, 0, 0],
-            room: 'kitchen',
-            cost: 95
+            room: 'living',
+            cost: 140
           });
-        } else {
+
+          items.push({
+            id: 'house_living_fan',
+            type: 'ceiling_fan',
+            name: 'Aero Minimalist Ceiling Fan',
+            position: [-0.1, 2.75, 4.1],
+            rotation: [0, 0, 0],
+            room: 'living',
+            cost: 280
+          });
+
+          // ==========================================
+          // 3. DINING AREA (X: 2.9 to 6.9, Z: 1.8 to 6.4)
+          // ==========================================
+          items.push({
+            id: 'house_dining_set',
+            type: 'dining_set',
+            name: 'Solid Hardwood Dining Table & 6 Chairs',
+            position: [4.9, 0, 4.1],
+            rotation: [0, 0, 0],
+            style: style,
+            woodColor: palette.woodColor,
+            room: 'dining',
+            cost: 1850
+          });
+
+          items.push({
+            id: 'house_dining_pendant',
+            type: 'pendant_light',
+            name: 'Linear Brass Dining Chandelier',
+            position: [4.9, 2.7, 4.1],
+            rotation: [0, 0, 0],
+            style: style,
+            room: 'dining',
+            cost: 450
+          });
+
+          items.push({
+            id: 'house_dining_plant',
+            type: 'plant',
+            name: 'Dining Area Tall Fiddle Leaf Planter',
+            position: [6.5, 0, 5.8],
+            rotation: [0, 0, 0],
+            room: 'dining',
+            cost: 160
+          });
+
+          // ==========================================
+          // 4. MODULAR KITCHEN (X: 2.9 to 6.9, Z: -6.0 to 1.8)
+          // ==========================================
           items.push({
             id: 'house_kitchen_cabinets',
             type: 'kitchen_cabinets',
-            name: 'Modular Shaker Cabinets with Double Sink',
-            position: [5.0, 0, 0.95],
+            name: 'Modular Kitchen Cabinets with Sink & Cooktop',
+            position: [4.9, 0, -5.0],
             rotation: [0, 0, 0],
             style: style,
             color: palette.kitchenColor || 0x2c3e50,
@@ -950,7 +885,7 @@ export class AIEngine {
             id: 'house_kitchen_island',
             type: 'kitchen_island',
             name: 'Quartz Waterfall Prep Island & Breakfast Bar',
-            position: [4.8, 0, 3.25],
+            position: [4.9, 0, -2.2],
             rotation: [0, 0, 0],
             style: style,
             color: palette.kitchenIslandColor || 0x334155,
@@ -962,8 +897,8 @@ export class AIEngine {
             id: 'house_kitchen_stool_1',
             type: 'bar_stool',
             name: 'Designer Swivel Bar Stool #1',
-            position: [3.9, 0, 2.9],
-            rotation: [0, -Math.PI / 2, 0],
+            position: [4.3, 0, -1.2],
+            rotation: [0, Math.PI, 0],
             style: style,
             color: palette.accentColor,
             room: 'kitchen',
@@ -974,8 +909,8 @@ export class AIEngine {
             id: 'house_kitchen_stool_2',
             type: 'bar_stool',
             name: 'Designer Swivel Bar Stool #2',
-            position: [3.9, 0, 3.6],
-            rotation: [0, -Math.PI / 2, 0],
+            position: [5.5, 0, -1.2],
+            rotation: [0, Math.PI, 0],
             style: style,
             color: palette.accentColor,
             room: 'kitchen',
@@ -985,29 +920,18 @@ export class AIEngine {
           items.push({
             id: 'house_kitchen_fridge',
             type: 'refrigerator',
-            name: 'Stainless Steel Double Door Refrigerator',
-            position: [6.45, 0, 1.0],
-            rotation: [0, 0, 0],
-            room: 'kitchen',
-            cost: 1450
-          });
-
-          items.push({
-            id: 'house_kitchen_range',
-            type: 'kitchen_range',
-            name: '4-Burner Glass Top Range & Hood',
-            position: [6.45, 0, 2.4],
+            name: 'Stainless Steel French-Door Refrigerator',
+            position: [6.5, 0, -4.6],
             rotation: [0, -Math.PI / 2, 0],
-            style: style,
             room: 'kitchen',
-            cost: 1100
+            cost: 1550
           });
 
           items.push({
             id: 'house_kitchen_coffee',
             type: 'coffee_machine',
             name: 'Artisan Espresso Coffee Machine',
-            position: [5.8, 0.92, 0.88],
+            position: [3.6, 0.92, -5.0],
             rotation: [0, 0, 0],
             room: 'kitchen',
             cost: 320
@@ -1017,7 +941,7 @@ export class AIEngine {
             id: 'house_kitchen_purifier',
             type: 'water_purifier',
             name: 'RO UV Alkaline Water Purifier',
-            position: [4.2, 1.5, 0.6],
+            position: [6.2, 1.5, -5.2],
             rotation: [0, 0, 0],
             room: 'kitchen',
             cost: 290
@@ -1027,356 +951,182 @@ export class AIEngine {
             id: 'house_kitchen_trash',
             type: 'trash_bin',
             name: 'Stainless Step Trash Bin',
-            position: [6.6, 0, 5.4],
+            position: [3.2, 0, -5.0],
             rotation: [0, 0, 0],
             room: 'kitchen',
             cost: 95
           });
-        }
 
-        // ==========================================
-        // ZONE 4: MASTER BEDROOM (X: -7.0 to -0.5, Z: -5.5 to 0.5)
-        // ==========================================
-        items.push({
-          id: 'house_bed_king',
-          type: 'bed',
-          name: 'King Size Designer Platform Bed',
-          position: [-3.75, 0, -4.3],
-          rotation: [0, 0, 0],
-          style: style,
-          color: palette.woodColor,
-          room: 'bedroom',
-          cost: 1750
-        });
-
-        items.push({
-          id: 'house_bed_nightstand_l',
-          type: 'nightstand',
-          name: 'Bedside Nightstand (Left)',
-          position: [-5.3, 0, -4.9],
-          rotation: [0, 0, 0],
-          style: style,
-          room: 'bedroom',
-          cost: 240
-        });
-
-        items.push({
-          id: 'house_bed_nightstand_r',
-          type: 'nightstand',
-          name: 'Bedside Nightstand (Right)',
-          position: [-2.2, 0, -4.9],
-          rotation: [0, 0, 0],
-          style: style,
-          room: 'bedroom',
-          cost: 240
-        });
-
-        items.push({
-          id: 'house_bed_lamp_l',
-          type: 'table_lamp',
-          name: 'Bedside Table Lamp (Left)',
-          position: [-5.3, 0.58, -4.9],
-          rotation: [0, 0, 0],
-          color: palette.accentColor,
-          room: 'bedroom',
-          cost: 110
-        });
-
-        items.push({
-          id: 'house_bed_lamp_r',
-          type: 'table_lamp',
-          name: 'Bedside Table Lamp (Right)',
-          position: [-2.2, 0.58, -4.9],
-          rotation: [0, 0, 0],
-          color: palette.accentColor,
-          room: 'bedroom',
-          cost: 110
-        });
-
-        items.push({
-          id: 'house_bed_wardrobe',
-          type: 'wardrobe',
-          name: 'Full-Height 3-Door Master Wardrobe',
-          position: [-0.9, 0, -2.4],
-          rotation: [0, -Math.PI / 2, 0],
-          style: style,
-          color: palette.wardrobeColor || 0x2b2d42,
-          room: 'bedroom',
-          cost: 1550
-        });
-
-        items.push({
-          id: 'house_bed_rug',
-          type: 'rug',
-          name: 'Plush High-Pile Bedroom Rug',
-          position: [-3.75, 0.005, -3.0],
-          rotation: [0, 0, 0],
-          dimensions: [3.2, 2.2],
-          style: style,
-          room: 'bedroom',
-          cost: 360
-        });
-
-        items.push({
-          id: 'house_bed_lounge',
-          type: 'armchair',
-          name: 'Velvet Bedroom Relaxation Armchair',
-          position: [-6.2, 0, -2.0],
-          rotation: [0, 0.8, 0],
-          style: style,
-          color: palette.sofaColor,
-          room: 'bedroom',
-          cost: 520
-        });
-
-        items.push({
-          id: 'house_bed_mirror',
-          type: 'floor_mirror',
-          name: 'Full-Length Dressing Mirror',
-          position: [-6.5, 0, -0.6],
-          rotation: [0, 0.5, 0],
-          style: style,
-          room: 'bedroom',
-          cost: 280
-        });
-
-        items.push({
-          id: 'house_bed_ac',
-          type: 'air_conditioner',
-          name: 'Inverter Split AC Unit',
-          position: [-3.75, 2.4, -5.44],
-          rotation: [0, 0, 0],
-          room: 'bedroom',
-          cost: 650
-        });
-
-        if (is2BHK) {
-          // ZONE 5: BEDROOM 2 (14x11.5m 2BHK box)
+          // ==========================================
+          // 5. MASTER BEDROOM SUITE (X: -6.3 to -0.7, Z: -5.8 to 1.8)
+          // ==========================================
           items.push({
-            id: 'house_bed2_twin1',
+            id: 'house_bed_king',
             type: 'bed',
-            name: 'Second Bedroom Queen Bed',
-            position: [3.25, 0, -4.3],
+            name: 'King Size Designer Platform Bed',
+            position: [-3.5, 0, -3.8],
             rotation: [0, 0, 0],
             style: style,
             color: palette.woodColor,
-            room: 'bedroom2',
+            room: 'bedroom',
+            cost: 1750
+          });
+
+          items.push({
+            id: 'house_bed_nightstand_l',
+            type: 'nightstand',
+            name: 'Bedside Nightstand (Left)',
+            position: [-5.0, 0, -4.6],
+            rotation: [0, 0, 0],
+            style: style,
+            room: 'bedroom',
+            cost: 240
+          });
+
+          items.push({
+            id: 'house_bed_nightstand_r',
+            type: 'nightstand',
+            name: 'Bedside Nightstand (Right)',
+            position: [-2.0, 0, -4.6],
+            rotation: [0, 0, 0],
+            style: style,
+            room: 'bedroom',
+            cost: 240
+          });
+
+          items.push({
+            id: 'house_bed_lamp_l',
+            type: 'table_lamp',
+            name: 'Bedside Table Lamp (Left)',
+            position: [-5.0, 0.58, -4.6],
+            rotation: [0, 0, 0],
+            color: palette.accentColor,
+            room: 'bedroom',
+            cost: 110
+          });
+
+          items.push({
+            id: 'house_bed_lamp_r',
+            type: 'table_lamp',
+            name: 'Bedside Table Lamp (Right)',
+            position: [-2.0, 0.58, -4.6],
+            rotation: [0, 0, 0],
+            color: palette.accentColor,
+            room: 'bedroom',
+            cost: 110
+          });
+
+          items.push({
+            id: 'house_bed_wardrobe',
+            type: 'walk_in_wardrobe',
+            name: 'Full-Height Master Wardrobe System',
+            position: [-1.0, 0, -1.5],
+            rotation: [0, -Math.PI / 2, 0],
+            style: style,
+            color: palette.wardrobeColor || 0x2b2d42,
+            room: 'bedroom',
             cost: 1650
           });
 
           items.push({
-            id: 'house_bed2_nightstand_l',
-            type: 'nightstand',
-            name: 'Bedside Nightstand (Left)',
-            position: [1.7, 0, -4.9],
-            rotation: [0, 0, 0],
-            style: style,
-            room: 'bedroom2',
-            cost: 240
-          });
-
-          items.push({
-            id: 'house_bed2_nightstand_r',
-            type: 'nightstand',
-            name: 'Bedside Nightstand (Right)',
-            position: [4.8, 0, -4.9],
-            rotation: [0, 0, 0],
-            style: style,
-            room: 'bedroom2',
-            cost: 240
-          });
-
-          items.push({
-            id: 'house_bed2_lamp_l',
-            type: 'table_lamp',
-            name: 'Bedside Table Lamp',
-            position: [1.7, 0.58, -4.9],
-            rotation: [0, 0, 0],
-            color: palette.accentColor,
-            room: 'bedroom2',
-            cost: 110
-          });
-
-          items.push({
-            id: 'house_bed2_lamp_r',
-            type: 'table_lamp',
-            name: 'Bedside Table Lamp',
-            position: [4.8, 0.58, -4.9],
-            rotation: [0, 0, 0],
-            color: palette.accentColor,
-            room: 'bedroom2',
-            cost: 110
-          });
-
-          items.push({
-            id: 'house_bed2_wardrobe',
-            type: 'wardrobe',
-            name: 'Double Bedroom 2-Door Wardrobe',
-            position: [6.4, 0, -2.5],
-            rotation: [0, -Math.PI / 2, 0],
-            style: style,
-            color: palette.wardrobeColor || 0x2b2d42,
-            room: 'bedroom2',
-            cost: 1200
-          });
-
-          items.push({
-            id: 'house_bed2_vanity',
+            id: 'house_bed_vanity',
             type: 'credenza',
             name: 'Bedroom Dressing Vanity Console',
-            position: [0.4, 0, -2.5],
+            position: [-5.9, 0, 0.4],
             rotation: [0, Math.PI / 2, 0],
             style: style,
-            room: 'bedroom2',
+            room: 'bedroom',
             cost: 650
           });
 
           items.push({
-            id: 'house_bed2_chair',
+            id: 'house_bed_chair',
             type: 'armchair',
             name: 'Velvet Bedroom Vanity Lounge Chair',
-            position: [1.1, 0, -2.5],
+            position: [-5.2, 0, 0.4],
             rotation: [0, -Math.PI / 2, 0],
             style: style,
-            room: 'bedroom2',
+            room: 'bedroom',
             cost: 380
           });
 
           items.push({
-            id: 'house_bed2_rug',
+            id: 'house_bed_rug',
             type: 'rug',
-            name: 'Bedroom 2 Plush Area Rug',
-            position: [3.25, 0.005, -3.0],
+            name: 'Plush High-Pile Bedroom Rug',
+            position: [-3.5, 0.005, -2.6],
             rotation: [0, 0, 0],
-            dimensions: [3.0, 2.2],
+            dimensions: [3.2, 2.2],
             style: style,
-            room: 'bedroom2',
+            room: 'bedroom',
+            cost: 360
+          });
+
+          items.push({
+            id: 'house_bed_lounge',
+            type: 'armchair',
+            name: 'Velvet Bedroom Relaxation Armchair',
+            position: [-5.6, 0, 1.4],
+            rotation: [0, -2.4, 0],
+            style: style,
+            color: palette.sofaColor,
+            room: 'bedroom',
+            cost: 520
+          });
+
+          items.push({
+            id: 'house_bed_art',
+            type: 'wall_art',
+            name: 'Curated Gallery Wall Art',
+            position: [-3.5, 1.8, -5.74],
+            rotation: [0, 0, 0],
+            dimensions: [1.6, 1.0],
+            style: style,
+            room: 'bedroom',
             cost: 320
           });
 
           items.push({
-            id: 'house_bed2_art',
-            type: 'wall_art',
-            name: 'Curated Bedroom Gallery Art',
-            position: [0.8, 1.8, -5.44],
-            rotation: [0, 0, 0],
-            dimensions: [1.4, 0.9],
-            style: style,
-            room: 'bedroom2',
-            cost: 260
-          });
-
-          items.push({
-            id: 'house_bed2_ac',
+            id: 'house_bed_ac',
             type: 'air_conditioner',
-            name: 'Bedroom 2 Inverter Split AC',
-            position: [3.25, 2.4, -5.44],
-            rotation: [0, 0, 0],
-            room: 'bedroom2',
+            name: 'Master Bedroom Inverter Split AC',
+            position: [-5.9, 2.4, -2.0],
+            rotation: [0, Math.PI / 2, 0],
+            room: 'bedroom',
             cost: 650
           });
-        } else {
-          // ZONE 5: MASTER DRESSING & EN-SUITE BATH (1BHK)
-          items.push({
-            id: 'house_dressing_wardrobe',
-            type: 'walk_in_wardrobe',
-            name: 'Bespoke Walk-In Wardrobe System with Smoked Glass Doors',
-            position: [3.25, 0, -5.1],
-            rotation: [0, 0, 0],
-            style: style,
-            color: palette.wardrobeColor || 0x1f2937,
-            room: 'dressing',
-            cost: 2100
-          });
 
+          // ==========================================
+          // 6. MASTER BATHROOM EN-SUITE (X: -0.7 to 2.9, Z: -5.8 to -1.4)
+          // ==========================================
           items.push({
-            id: 'house_dressing_vanity',
-            type: 'credenza',
-            name: 'Floating Dressing Table with Integrated LED Mirror',
-            position: [-0.1, 0, -2.8],
-            rotation: [0, Math.PI / 2, 0],
-            style: style,
-            woodColor: palette.woodColor,
-            room: 'dressing',
-            cost: 850
-          });
-
-          items.push({
-            id: 'house_dressing_chair',
-            type: 'armchair',
-            name: 'BouclÃ© Accent Vanity Lounge Chair',
-            position: [0.85, 0, -2.8],
-            rotation: [0, -Math.PI / 2, 0],
-            style: style,
-            color: palette.accentColor,
-            room: 'dressing',
-            cost: 450
-          });
-
-          items.push({
-            id: 'house_dressing_shower',
+            id: 'house_master_shower',
             type: 'shower',
-            name: 'Frameless Walk-In Glass Rain Shower Enclosure',
-            position: [6.1, 0, -4.5],
+            name: 'Master En-Suite Walk-In Glass Shower',
+            position: [2.4, 0, -5.0],
             rotation: [0, -Math.PI / 2, 0],
-            style: style,
-            room: 'dressing',
-            cost: 1600
+            room: 'master_bath',
+            cost: 650
           });
 
           items.push({
-            id: 'house_dressing_bath_vanity',
-            type: 'bathroom_vanity',
-            name: 'Designer Double Basin En-Suite Vanity',
-            position: [6.1, 0, -2.2],
-            rotation: [0, -Math.PI / 2, 0],
-            style: style,
-            room: 'dressing',
-            cost: 1250
-          });
-
-          items.push({
-            id: 'house_dressing_toilet',
+            id: 'house_master_toilet',
             type: 'toilet',
-            name: 'Concealed Cistern Wall-Hung Toilet',
-            position: [6.3, 0, -0.6],
-            rotation: [0, -Math.PI / 2, 0],
-            room: 'dressing',
-            cost: 580
-          });
-
-          items.push({
-            id: 'house_dressing_plant',
-            type: 'plant',
-            name: 'Architectural Fiddle Leaf Fig Ceramic Planter',
-            position: [0.4, 0, -0.8],
+            name: 'Master En-Suite Wall-Hung Toilet',
+            position: [1.1, 0, -5.2],
             rotation: [0, 0, 0],
-            room: 'dressing',
-            cost: 160
+            room: 'master_bath',
+            cost: 320
           });
 
           items.push({
-            id: 'house_dressing_rug',
-            type: 'rug',
-            name: 'Plush Silk-Velvet Dressing Suite Rug',
-            position: [3.0, 0.005, -2.5],
-            rotation: [0, 0, 0],
-            dimensions: [2.8, 2.2],
-            style: style,
-            room: 'dressing',
-            cost: 380
-          });
-
-          items.push({
-            id: 'house_dressing_art',
-            type: 'wall_art',
-            name: 'Curated Haute Couture Gallery Canvas',
-            position: [0.8, 1.8, -0.44],
+            id: 'house_master_vanity',
+            type: 'bathroom_vanity',
+            name: 'Master En-Suite Vanity & Lighted Mirror',
+            position: [1.1, 0, -1.8],
             rotation: [0, Math.PI, 0],
-            dimensions: [1.2, 0.8],
-            style: style,
-            room: 'dressing',
-            cost: 310
+            room: 'master_bath',
+            cost: 540
           });
         }
       }

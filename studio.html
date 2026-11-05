@@ -89,9 +89,9 @@
               <label for="room-type">Room Type & Architecture</label>
               <select id="room-type" class="form-select">
                 <optgroup label="Complete Residence (All Connected Rooms)">
-                  <option value="modern_apartment" selected>🏙️ Modern Apartment Suite (Open Living-Dining, Straight Kitchen & Rear Master)</option>
-                  <option value="complete_house">🏠 Single Bedroom House (1 BHK - 5 Connected Rooms)</option>
+                  <option value="complete_house" selected>🏠 Single Bedroom House (1 BHK: Foyer, Living, Dining, Modular Kitchen, Master Suite & En-Suite Bath)</option>
                   <option value="complete_house_2bhk">🏛️ Architectural 2 BHK Residence (Foyer, Living, Dining, Kitchen, Master & Bath, Bed 2 & Bath)</option>
+                  <option value="modern_apartment">🏙️ Modern Apartment Suite (Open Living-Dining, Straight Kitchen & Rear Master)</option>
                 </optgroup>
                 <optgroup label="Individual Rooms">
                   <option value="bedroom">👑 Master Bedroom Suite</option>
@@ -112,16 +112,16 @@
                 <span id="house-active-room-pill" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.3);">1 BHK Active</span>
               </div>
 
-              <!-- 3 OPTIONS: MODERN APARTMENT vs SINGLE BEDROOM (1BHK) vs DOUBLE BEDROOM (2BHK) -->
+              <!-- 3 OPTIONS: SINGLE BEDROOM (1BHK) vs DOUBLE BEDROOM (2BHK) vs MODERN APARTMENT -->
               <div class="house-option-toggle" style="display: flex; gap: 4px; margin-bottom: 10px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px;">
-                <button type="button" class="btn btn-sm house-type-toggle-btn active" data-house-type="apartment" style="flex: 1; padding: 6px 3px; font-size: 10.5px; justify-content: center;">
-                  🏙️ Apartment
-                </button>
-                <button type="button" class="btn btn-sm house-type-toggle-btn" data-house-type="1bhk" style="flex: 1; padding: 6px 3px; font-size: 10.5px; justify-content: center;">
-                  🏠 1 BHK
+                <button type="button" class="btn btn-sm house-type-toggle-btn active" data-house-type="1bhk" style="flex: 1; padding: 6px 3px; font-size: 10.5px; justify-content: center;">
+                  🏠 1 BHK (Single Bed)
                 </button>
                 <button type="button" class="btn btn-sm house-type-toggle-btn" data-house-type="2bhk" style="flex: 1; padding: 6px 3px; font-size: 10.5px; justify-content: center;">
                   🏛️ 2 BHK Residence
+                </button>
+                <button type="button" class="btn btn-sm house-type-toggle-btn" data-house-type="apartment" style="flex: 1; padding: 6px 3px; font-size: 10.5px; justify-content: center;">
+                  🏙️ Apartment
                 </button>
               </div>
 

@@ -697,13 +697,18 @@ export class RoomBuilder {
   // ==========================================
   // COMPLETE HOUSE ARCHITECTURAL BUILDER
   // ==========================================
-  buildCompleteHouse(wallColorHex = 0xfaf5ee, flooringType = 'wood_oak', houseType = '1bhk') {
+  buildCompleteHouse(wallColorHex = 0xfaf5ee, flooringType = 'porcelain_tile', houseType = '1bhk') {
     this.isCompleteHouse = true;
     this.houseType = houseType || '1bhk';
     const isVilla = (this.houseType === 'villa_2bhk' || this.houseType === 'villa' || this.houseType === '2bhk' || this.houseType === 'complete_house_2bhk');
-    this.currentDimensions = isVilla ? { width: 16.0, length: 18.5, height: 2.8 } : { width: 14.0, length: 11.5, height: 2.8 };
+    this.currentDimensions = isVilla ? { width: 16.0, length: 18.5, height: 2.8 } : { width: 14.0, length: 13.0, height: 2.8 };
     this.currentWallColor = wallColorHex;
     this.currentFlooring = flooringType;
+
+    // Reset and clear any existing architectural elements
+    this.doorPlacement = { x: -4.7, z: 6.4 };
+    this.doorGroup = null;
+    this.doorHinge = null;
 
     // 1. Clear previous room geometry
     while (this.roomGroup.children.length > 0) {
@@ -726,20 +731,19 @@ export class RoomBuilder {
     const H = 2.8;
 
     if (isVilla) {
-      // Contemporary Villa Estate Architecture matching user photograph
+      // Architectural 2 BHK Residence (8 rooms)
       this.buildVillaFloors(flooringType);
       this.buildVillaWalls(H, wallColorHex);
       this.buildVillaWindowsAndDoors(H);
       this.buildVillaBadges();
       this.buildFloorGrid(16.0, 18.5);
     } else {
-      // 1BHK Classic Complete House
+      // Architectural Single Bedroom House (1 BHK - 6 rooms)
       this.buildHouseFloors(flooringType);
       this.buildHouseWalls(H, wallColorHex);
       this.buildHouseWindowsAndDoors(H);
-      this.buildHouseBaseboards(H);
       this.buildHouseRoomBadges();
-      this.buildFloorGrid(14.0, 11.5);
+      this.buildFloorGrid(15.0, 16.0);
     }
   }
 
@@ -787,13 +791,8 @@ export class RoomBuilder {
           metalness = 0.1;
           break;
         case 'tile':
-          floorTexture = TextureGenerator.createTileTexture(0xe2e8f0, 0x64748b);
-          roughness = 0.3;
-          break;
-        case 'carpet':
-          floorTexture = TextureGenerator.createFabricTexture(0xd6d3d1);
-          roughness = 0.95;
-          metalness = 0.0;
+          floorTexture = TextureGenerator.createTileTexture(0xf8fafc, 0xcfd4dc);
+          roughness = 0.25;
           break;
         case 'wood_oak':
         default:
@@ -802,7 +801,7 @@ export class RoomBuilder {
           break;
       }
 
-      floorTexture.repeat.set(W / 2, L / 2);
+      floorTexture.repeat.set(Math.max(1, Math.round(W / 2)), Math.max(1, Math.round(L / 2)));
 
       const floorMat = new THREE.MeshStandardMaterial({
         map: floorTexture,
@@ -822,35 +821,40 @@ export class RoomBuilder {
       return mesh;
     };
 
-    const isApartment = (this.houseType === 'apartment' || this.houseType === 'modern_apartment' || flooringType === 'apartment_mix');
-    const livingFlooring = isApartment ? 'porcelain_tile' : flooringType;
-    const diningFlooring = isApartment ? 'porcelain_tile' : flooringType;
-    const kitchenFlooring = isApartment ? 'porcelain_tile' : ((flooringType === 'marble') ? 'marble' : 'tile');
-    const bedroomFlooring = isApartment ? 'herringbone_wood' : flooringType;
+    // 1. Entrance Foyer (Front-Left - Polished Tiles)
+    makeFloorMesh(3.2, 3.6, -4.7, 4.6, 'tile', 'foyer');
 
-    // 1. Living Room Floor (Front-Left: Continuous Light Porcelain Tile in Apartment)
-    makeFloorMesh(6.0, 5.5, -4.0, 3.25, livingFlooring, 'living');
+    // 2. Living Room Lounge (Front-Center - Light Porcelain Tile)
+    makeFloorMesh(6.0, 4.6, -0.1, 4.1, 'tile', 'living');
 
-    // 2. Dining Room Floor (Front-Center: Continuous Light Porcelain Tile in Apartment)
-    makeFloorMesh(4.0, 5.5, 1.0, 3.25, diningFlooring, 'dining');
+    // 3. Dining Area (Front-Right - Light Porcelain Tile)
+    makeFloorMesh(4.0, 4.6, 4.9, 4.1, 'tile', 'dining');
 
-    // 3. Modular Kitchen Floor (Front-Right: Continuous Light Porcelain Tile in Apartment)
-    makeFloorMesh(4.0, 5.5, 5.0, 3.25, kitchenFlooring, 'kitchen');
+    // 4. Modular Kitchen (Rear-Right - Polished Porcelain Tile)
+    makeFloorMesh(4.0, 6.0, 4.9, -2.2, 'tile', 'kitchen');
 
-    // 4. Master Bedroom Floor (Back-Left: Herringbone Wood Flooring in Apartment)
-    makeFloorMesh(6.5, 6.0, -3.75, -2.5, bedroomFlooring, 'bedroom');
+    // 5. Master Bedroom Suite (Rear-Left - Herringbone Wood Flooring)
+    makeFloorMesh(5.6, 7.6, -3.5, -2.0, 'herringbone_wood', 'bedroom');
 
-    // 5. Rear East Room (Bedroom 2 in 2BHK, or Master Dressing & En-Suite in 1BHK / Apartment)
-    if (this.houseType === '2bhk') {
-      makeFloorMesh(7.5, 6.0, 3.25, -2.5, bedroomFlooring, 'bedroom2');
-    } else if (isApartment) {
-      makeFloorMesh(7.5, 6.0, 3.25, -2.5, 'herringbone_wood', 'dressing');
-    } else {
-      const dressingFlooring = (flooringType === 'wood_oak' || flooringType === 'dark_walnut') ? flooringType : 'dark_walnut';
-      makeFloorMesh(7.5, 6.0, 3.25, -2.5, dressingFlooring, 'dressing');
-    }
+    // 6. Master Bathroom En-Suite (Rear-Center - Sky-Blue Designer Tiles)
+    makeFloorMesh(3.6, 4.4, 1.1, -3.6, 'blue_tile', 'master_bath');
 
-    // Decorative Satin Brass Doorway Threshold Strips
+    // Outdoor Environment: Front Porch Entrance Steps
+    const stepMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.7 });
+    const step1 = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.08, 0.45), stepMat);
+    step1.position.set(-4.7, 0.04, 6.55);
+    this.roomGroup.add(step1);
+    const step2 = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.08, 0.4), stepMat);
+    step2.position.set(-4.7, 0.12, 6.45);
+    this.roomGroup.add(step2);
+
+    // Front Paved Driveway Approach & Front Lawn
+    makeFloorMesh(4.8, 2.8, -3.8, 7.8, 'paving', 'driveway');
+    makeFloorMesh(5.4, 2.8, 3.7, 7.8, 'grass', 'front_lawn');
+    makeFloorMesh(1.6, 17.0, -7.2, 0.25, 'grass', 'left_garden');
+    makeFloorMesh(1.6, 17.0, 7.2, 0.25, 'grass', 'right_garden');
+
+    // Satin Brass Doorway Threshold Transitions
     const brassMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.25 });
     const addThreshold = (w, d, x, z) => {
       const geom = new THREE.BoxGeometry(w, 0.008, d);
@@ -860,28 +864,30 @@ export class RoomBuilder {
       this.roomGroup.add(strip);
     };
 
-    // Archway transition between Living and Dining
-    addThreshold(0.08, 2.6, -1.0, 3.1);
-    // Counter pass transition between Dining and Kitchen
-    addThreshold(0.08, 3.0, 3.0, 3.1);
-    // Master Bedroom doorway threshold
-    addThreshold(1.1, 0.08, -1.85, 0.5);
-    // Master Dressing & En-Suite doorway threshold
-    addThreshold(1.1, 0.08, 1.95, 0.5);
+    // Transition from Foyer into Living Room
+    addThreshold(0.08, 1.4, -3.1, 3.4);
+    // Transition from Living Room into Dining Area
+    addThreshold(0.08, 3.2, 2.9, 4.1);
+    // Transition from Dining Area into Modular Kitchen
+    addThreshold(3.2, 0.08, 4.9, 1.8);
+    // Transition into Master Bedroom suite
+    addThreshold(1.1, 0.08, -1.0, 1.8);
+    // Transition from Master Bedroom into Master Bathroom En-Suite
+    addThreshold(0.08, 1.1, -0.7, -3.6);
   }
 
   buildHouseWalls(H, wallColorHex) {
-    const createWallMat = (isCutaway = false) => new THREE.MeshStandardMaterial({
-      color: wallColorHex,
+    const createWallMat = (isCutaway = false, colorHex = wallColorHex) => new THREE.MeshStandardMaterial({
+      color: colorHex,
       roughness: 0.85,
       side: THREE.DoubleSide,
       transparent: isCutaway,
       opacity: isCutaway ? (this.cutawayEnabled ? 0.0 : 0.95) : 1.0
     });
 
-    const addWall = (w, h, d, x, y, z, name = 'Wall', isCutaway = false) => {
+    const addWall = (w, h, d, x, y, z, name = 'Wall', isCutaway = false, customColor = null) => {
       const geom = new THREE.BoxGeometry(w, h, d);
-      const mat = createWallMat(isCutaway);
+      const mat = createWallMat(isCutaway, customColor || wallColorHex);
       const mesh = new THREE.Mesh(geom, mat);
       mesh.name = name;
       mesh.position.set(x, y, z);
@@ -897,186 +903,134 @@ export class RoomBuilder {
       return mesh;
     };
 
-    // A. EXTERIOR PERIMETER WALLS (14.0m x 11.5m Footprint)
-    // 1. Back Exterior Wall (North, Z = -5.575)
-    this.walls.back = addWall(14.3, H, 0.15, 0, H / 2, -5.575, 'Exterior Back Wall');
+    // A. EXTERIOR PERIMETER WALLS
+    // 1. North Back Exterior Wall (Z = -6.0)
+    this.walls.back = addWall(14.2, H, 0.15, 0.1, H / 2, -6.0, 'Exterior Back Wall');
 
-    // 2. Left Exterior Wall (West, X = -7.075)
-    this.walls.left = addWall(0.15, H, 11.8, -7.075, H / 2, 0.25, 'Exterior Left Wall');
+    // 2. West Left Exterior Wall (X = -6.5)
+    this.walls.left = addWall(0.15, H, 12.8, -6.5, H / 2, 0.2, 'Exterior Left Wall');
 
-    // 3. Right Exterior Wall (East, X = 7.075)
-    this.walls.right = addWall(0.15, H, 11.8, 7.075, H / 2, 0.25, 'Exterior Right Wall');
+    // 3. East Right Exterior Wall (X = 6.9)
+    this.walls.right = addWall(0.15, H, 12.8, 6.9, H / 2, 0.2, 'Exterior Right Wall');
 
-    // 4. Front Exterior Wall (South, Z = 6.075 - Cutaway View Enabled)
-    this.walls.front = addWall(14.3, H, 0.15, 0, H / 2, 6.075, 'Exterior Front Wall (Cutaway)', true);
+    // 4. South Front Exterior Walls (Z = 6.4 - Cutaway View Enabled)
+    // Foyer Front Wall Left
+    addWall(0.9, H, 0.15, -5.75, H / 2, 6.4, 'Foyer Front Wall Left', true);
+    // Foyer Front Door Lintel
+    addWall(1.2, 0.6, 0.15, -4.7, 2.5, 6.4, 'Foyer Front Door Lintel', true);
+    // Foyer Front Wall Right
+    addWall(0.9, H, 0.15, -3.65, H / 2, 6.4, 'Foyer Front Wall Right', true);
+    // Living Room Front Wall
+    addWall(6.0, H, 0.15, -0.1, H / 2, 6.4, 'Living Room Front Wall (Cutaway)', true);
+    // Dining Room Front Wall
+    addWall(4.0, H, 0.15, 4.9, H / 2, 6.4, 'Dining Room Front Wall (Cutaway)', true);
 
-    // Front Architectural Base Curb (0.12m high border always visible to frame floor)
+    // Front Architectural Floor Curb
     const curbMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.7 });
-    const curb = new THREE.Mesh(new THREE.BoxGeometry(14.3, 0.12, 0.15), curbMat);
-    curb.position.set(0, 0.06, 6.075);
+    const curb = new THREE.Mesh(new THREE.BoxGeometry(13.6, 0.12, 0.15), curbMat);
+    curb.position.set(0.1, 0.06, 6.4);
     this.roomGroup.add(curb);
 
-    // B. INTERIOR DIVIDING WALLS WITH OPENINGS & PASSAGES
-    // 1. East-West Dividing Spine Wall at Z = 0.5 (separating Front & Rear Wings)
-    // Master Bedroom South Wall (-7.0 to -2.4m)
-    addWall(4.6, H, 0.12, -4.7, H / 2, 0.5, 'Bedroom South Wall');
-    // Master Bedroom Door Lintel (overhead beam above 1.1m door opening)
-    addWall(1.1, 0.6, 0.12, -1.85, 2.5, 0.5, 'Bedroom Door Lintel');
-    // Central Hallway Corridor Arch Lintel (overhead beam above 2.7m open passage)
-    addWall(2.7, 0.45, 0.12, 0.05, 2.575, 0.5, 'Hallway Arch Lintel');
-    // Master Dressing & En-Suite Door Lintel (overhead beam above 1.1m door opening)
-    addWall(1.1, 0.6, 0.12, 1.95, 2.5, 0.5, 'Dressing Door Lintel');
-    // Modular Kitchen North Wall (2.5 to 7.0m)
-    addWall(4.5, H, 0.12, 4.75, H / 2, 0.5, 'Kitchen North Wall');
+    // B. INTERIOR DIVIDING WALLS
+    // 1. Slatted wood vertical screen between Foyer and Living Room at X = -3.1
+    const woodMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.4 });
+    for (let sz = 3.6; sz <= 5.8; sz += 0.28) {
+      const slat = new THREE.Mesh(new THREE.BoxGeometry(0.08, H, 0.08), woodMat);
+      slat.position.set(-3.1, H / 2, sz);
+      slat.castShadow = true;
+      slat.name = 'FoyerSlattedScreen';
+      this.roomGroup.add(slat);
+    }
+    // Foyer entry portal header beam
+    const portalBeam = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.35, 1.4), woodMat);
+    portalBeam.position.set(-3.1, H - 0.175, 3.4);
+    this.roomGroup.add(portalBeam);
 
-    // 2. North-South Dividing Wall in Rear Wing at X = -0.5 (Acoustic Partition Bedroom & Dressing Suite)
-    addWall(0.12, H, 6.0, -0.5, H / 2, -2.5, 'Bedroom-Dressing Acoustic Partition');
+    // 2. East-West Dividing Wall at Z = 1.8 (separating Front Living/Dining from Rear Master Suite/Bath/Kitchen)
+    // Master Bedroom South Wall
+    addWall(5.4, H, 0.12, -3.8, H / 2, 1.8, 'Master Bedroom South Wall');
+    // Master Bedroom Door Lintel
+    addWall(1.1, 0.6, 0.12, -1.0, 2.5, 1.8, 'Bedroom Door Lintel');
+    // Hallway corridor archway lintel
+    addWall(2.0, 0.45, 0.12, 0.8, 2.575, 1.8, 'Hallway Arch Lintel');
+    // Dining to Kitchen counter pass lintel
+    addWall(3.6, 0.45, 0.12, 4.9, 2.575, 1.8, 'Dining-Kitchen Pass Lintel');
 
-    // 3. North-South Dividing Wall in Front Wing at X = -1.0 (Living Room & Dining Room)
-    // Back stub wall (0.5m to 1.8m)
-    addWall(0.12, H, 1.3, -1.0, H / 2, 1.15, 'Living-Dining Partition Back');
-    // Grand Open Archway Lintel (overhead beam above 2.6m wide arch opening)
-    addWall(0.12, 0.45, 2.6, -1.0, 2.575, 3.1, 'Living-Dining Arch Lintel');
-    // Front stub wall (4.4m to 6.0m)
-    addWall(0.12, H, 1.6, -1.0, H / 2, 5.2, 'Living-Dining Partition Front');
+    // 3. North-South Dividing Wall between Master Bedroom and Master Bathroom at X = -0.7
+    // North section of dividing wall
+    addWall(0.12, H, 2.8, -0.7, H / 2, -4.6, 'Master Suite-Bath Wall North');
+    // En-Suite Door Lintel
+    addWall(0.12, 0.6, 1.1, -0.7, 2.5, -3.6, 'Master En-Suite Door Lintel');
+    // South section of dividing wall
+    addWall(0.12, H, 1.6, -0.7, H / 2, -2.4, 'Master Suite-Bath Wall South');
 
-    // 4. North-South Dividing Wall in Front Wing at X = 3.0 (Dining Room & Modular Kitchen)
-    // Back stub wall (0.5m to 1.6m)
-    addWall(0.12, H, 1.1, 3.0, H / 2, 1.05, 'Dining-Kitchen Partition Back');
-    // Open Counter / Serving Arch Lintel (overhead beam above 3.0m wide open pass)
-    addWall(0.12, 0.45, 3.0, 3.0, 2.575, 3.1, 'Dining-Kitchen Pass Lintel');
-    // Front stub wall (4.6m to 6.0m)
-    addWall(0.12, H, 1.4, 3.0, H / 2, 5.3, 'Dining-Kitchen Partition Front');
+    // 4. North-South Dividing Wall between Master Bathroom and Modular Kitchen at X = 2.9
+    addWall(0.12, H, 4.4, 2.9, H / 2, -3.6, 'Bath-Kitchen Dividing Wall');
   }
 
   buildHouseWindowsAndDoors(H) {
     const frameMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.3 });
     const glassMat = new THREE.MeshPhysicalMaterial({
-      color: 0xbae6fd,
-      transmission: 0.9,
-      opacity: 0.4,
+      color: 0x93c5fd,
+      transmission: 0.75,
+      opacity: 0.65,
       transparent: true,
-      roughness: 0.1
+      roughness: 0.05,
+      ior: 1.5,
+      thickness: 0.04
     });
-    const doorFrameMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6 });
-    const doorMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.7 });
-    const handleMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.2 });
 
-    const createArchitecturalWindow = (w, h, posX, posY, posZ, rotY) => {
+    const createArchitecturalWindow = (w, h, x, y, z, rotY = 0, hasCutaway = false) => {
       const winGroup = new THREE.Group();
       winGroup.name = 'HouseWindow';
-      // Frame
-      const frame = new THREE.Mesh(new THREE.BoxGeometry(0.06, h, w), frameMat);
+      const frameGeom = new THREE.BoxGeometry(w, h, 0.06);
+      const frame = new THREE.Mesh(frameGeom, frameMat);
       winGroup.add(frame);
-      // Glass
-      const glass = new THREE.Mesh(new THREE.BoxGeometry(0.01, h - 0.1, w - 0.1), glassMat);
+      const glass = new THREE.Mesh(new THREE.BoxGeometry(w - 0.12, h - 0.12, 0.02), glassMat);
       winGroup.add(glass);
-      // Mullions
-      const crossV = new THREE.Mesh(new THREE.BoxGeometry(0.07, h - 0.1, 0.03), frameMat);
-      const crossH = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.03, w - 0.1), frameMat);
+      const crossV = new THREE.Mesh(new THREE.BoxGeometry(0.03, h - 0.12, 0.04), frameMat);
+      const crossH = new THREE.Mesh(new THREE.BoxGeometry(w - 0.12, 0.03, 0.04), frameMat);
       winGroup.add(crossV);
       winGroup.add(crossH);
-
-      winGroup.position.set(posX, posY, posZ);
+      winGroup.position.set(x, y, z);
       winGroup.rotation.y = rotY;
+      if (hasCutaway) {
+        winGroup.userData.isCutawayWindow = true;
+        this.frontWalls.push(winGroup);
+      }
       this.roomGroup.add(winGroup);
       return winGroup;
     };
 
-    // 1. Master Bedroom Window on West Exterior Wall
-    createArchitecturalWindow(1.8, 1.4, -6.98, 1.5, -2.5, 0);
+    // 1. Master Bedroom West Picture Window
+    createArchitecturalWindow(2.2, 1.5, -6.42, 1.5, -2.0, Math.PI / 2);
 
-    // 2. Living Room Picture Window on West Exterior Wall
-    createArchitecturalWindow(2.2, 1.5, -6.98, 1.5, 3.25, 0);
+    // 2. Master Bedroom North Window (rear garden view)
+    createArchitecturalWindow(2.0, 1.3, -3.5, 1.6, -5.92, -Math.PI / 2, true);
 
-    // 3. Master Dressing Suite Panoramic Double Window on East Exterior Wall
-    createArchitecturalWindow(2.4, 1.4, 6.98, 1.5, -2.5, Math.PI);
+    // 3. Master Bathroom North Window (frosted privacy glass)
+    createArchitecturalWindow(1.2, 1.0, 1.1, 1.8, -5.92, -Math.PI / 2, true);
 
-    // 4. Modular Kitchen Casement Window on East Exterior Wall
-    createArchitecturalWindow(1.6, 1.2, 6.98, 1.65, 3.25, Math.PI);
+    // 4. Modular Kitchen Casement Window on East Wall
+    createArchitecturalWindow(1.8, 1.2, 6.82, 1.65, -2.2, -Math.PI / 2);
 
-    // 5. Bedroom Window on North Exterior Wall
-    createArchitecturalWindow(1.8, 1.3, -3.75, 1.6, -5.48, -Math.PI / 2);
+    // 5. Living Room Front Panoramic Window (Cutaway)
+    createArchitecturalWindow(3.6, 2.0, -0.1, 1.2, 6.35, -Math.PI / 2, true);
 
-    // Architectural Interior Doors with Casings and Handles
-    const createInteriorDoor = (posX, posZ, swingDeg, isLeftSwing = false) => {
-      const doorGroup = new THREE.Group();
-      doorGroup.name = 'InteriorDoor';
-      const dW = 0.95;
-      const dH = 2.15;
+    // 6. Dining Room Front Window (Cutaway)
+    createArchitecturalWindow(2.4, 1.6, 4.9, 1.4, 6.35, -Math.PI / 2, true);
 
-      // Frame
-      const fTop = new THREE.Mesh(new THREE.BoxGeometry(dW + 0.08, 0.04, 0.08), doorFrameMat);
-      fTop.position.set(0, dH + 0.02, 0);
-      const fL = new THREE.Mesh(new THREE.BoxGeometry(0.04, dH, 0.08), doorFrameMat);
-      fL.position.set(-dW / 2 - 0.02, dH / 2, 0);
-      const fR = new THREE.Mesh(new THREE.BoxGeometry(0.04, dH, 0.08), doorFrameMat);
-      fR.position.set(dW / 2 + 0.02, dH / 2, 0);
-      doorGroup.add(fTop);
-      doorGroup.add(fL);
-      doorGroup.add(fR);
-
-      // Hinged Panel
-      const hinge = new THREE.Group();
-      hinge.position.set(-dW / 2, 0, 0);
-      const panel = new THREE.Mesh(new THREE.BoxGeometry(dW - 0.02, dH - 0.02, 0.038), doorMat);
-      panel.position.set(dW / 2, (dH - 0.02) / 2, 0);
-      panel.castShadow = true;
-      hinge.add(panel);
-
-      // Brass Handle
-      const hCyl = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.12, 12), handleMat);
-      hCyl.rotation.z = Math.PI / 2;
-      hCyl.position.set(dW - 0.1, 1.0, 0.03);
-      hinge.add(hCyl);
-
-      hinge.rotation.y = (swingDeg || 0) * (Math.PI / 180);
-      doorGroup.add(hinge);
-
-      doorGroup.position.set(posX, 0, posZ);
-      this.roomGroup.add(doorGroup);
-      return doorGroup;
-    };
-
-    // Master Bedroom Door (swings 20 degrees into bedroom)
-    createInteriorDoor(-1.85, 0.5, 20);
-    // Master Dressing Suite Door (swings 20 degrees into dressing suite)
-    createInteriorDoor(1.95, 0.5, 20);
-  }
-
-  buildHouseBaseboards(H) {
-    const bbMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
-    const bbH = 0.1;
-    const bbD = 0.02;
-
-    const addBB = (w, d, x, z) => {
-      const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, bbH, d), bbMat);
-      mesh.position.set(x, bbH / 2, z);
-      this.baseboards.push(mesh);
-      this.roomGroup.add(mesh);
-    };
-
-    // Perimeter Back
-    addBB(14.0, bbD, 0, -5.5 + bbD / 2);
-    // Perimeter Left
-    addBB(bbD, 11.5, -7.0 + bbD / 2, 0.25);
-    // Perimeter Right
-    addBB(bbD, 11.5, 7.0 - bbD / 2, 0.25);
+    // 7. Architectural Adjustable Front Entrance Door at Foyer
+    this.buildVillaEntryDoor(H);
   }
 
   buildHouseRoomBadges() {
-    const isApartment = (this.houseType === 'apartment' || this.houseType === 'modern_apartment');
-    this.createRoomBadge(isApartment ? 'OPEN-CONCEPT LIVING' : 'LIVING LOUNGE', '🛋️', -4.0, 3.25, 'living');
-    this.createRoomBadge(isApartment ? 'CENTRAL DINING AREA' : 'DINING PAVILION', '🍽️', 1.0, 3.25, 'dining');
-    this.createRoomBadge(isApartment ? 'STRAIGHT MODULAR KITCHEN' : 'MODULAR KITCHEN', '🍳', 5.0, 3.25, 'kitchen');
-    this.createRoomBadge(isApartment ? 'PRIVATE MASTER SUITE' : (this.houseType === '2bhk' ? 'BEDROOM 1 (MASTER)' : 'MASTER BEDROOM'), '👑', -3.75, -2.5, 'bedroom');
-    if (this.houseType === '2bhk') {
-      this.createRoomBadge('BEDROOM 2 (DOUBLE BED)', '🛏️', 3.25, -2.5, 'bedroom2');
-    } else if (isApartment) {
-      this.createRoomBadge('MASTER DRESSING & EN-SUITE', '👗', 3.25, -2.5, 'dressing');
-    } else {
-      this.createRoomBadge('MASTER DRESSING & EN-SUITE', '👗', 3.25, -2.5, 'dressing');
-    }
+    this.createRoomBadge('ENTRANCE FOYER', '🚪', -4.7, 4.6, 'foyer');
+    this.createRoomBadge('LIVING ROOM', '🛋️', -0.1, 4.1, 'living');
+    this.createRoomBadge('DINING AREA', '🍽️', 4.9, 4.1, 'dining');
+    this.createRoomBadge('MODULAR KITCHEN', '🍳', 4.9, -2.2, 'kitchen');
+    this.createRoomBadge('MASTER BEDROOM', '👑', -3.5, -2.0, 'bedroom');
+    this.createRoomBadge('MASTER BATHROOM', '🛁', 1.1, -3.6, 'master_bath');
   }
 
   createRoomBadge(title, icon, x, z, roomKey) {
