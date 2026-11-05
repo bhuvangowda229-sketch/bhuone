@@ -5718,7 +5718,7 @@ class AIEngine {
       items.push({
         id: 'house_living_tv_unit',
         type: 'missouri_tv_unit',
-        name: `Missouri Engineered Wood TV Unit (Design ${livingType})`,
+        name: 'Missouri Engineered Wood TV Unit',
         position: [-4.5, 0, 0.85],
         rotation: [0, 0, 0],
         style: style,
@@ -6609,8 +6609,8 @@ class AIEngine {
       else if (roomType === 'living_room' && pref.livingRoomType) livingType = parseInt(pref.livingRoomType, 10) || 1;
 
       if (livingType === 1) {
-        // TYPE 1: CONTEMPORARY MEDIA & CONVERSATION LOUNGE
-        concept = `TYPE 1: CONTEMPORARY MEDIA & CONVERSATION LOUNGE (${style.toUpperCase()})`;
+        // CONTEMPORARY MEDIA & CONVERSATION LOUNGE
+        concept = `CONTEMPORARY MEDIA & CONVERSATION LOUNGE (${style.toUpperCase()})`;
         spatialRationale = `Engineered for effortless social hosting and cinematic immersion. The spacious seating zone is anchored by a deep designer sofa and accent armchair angled for face-to-face dialogue, with an expansive Missouri engineered wood TV entertainment unit providing a balanced architectural focal point.`;
         lightingPlan = `Layered ambient and bias entertainment lighting: a designer central pendant provides soft overhead warmth while a perimeter floor lamp creates glare-free mood pools for movie evenings.`;
 
@@ -6736,8 +6736,8 @@ class AIEngine {
         });
 
       } else if (livingType === 2) {
-        // TYPE 2: MINIMALIST JAPANDI ZEN LOUNGE
-        concept = `TYPE 2: MINIMALIST JAPANDI ZEN LOUNGE (${style.toUpperCase()})`;
+        // MINIMALIST JAPANDI ZEN LOUNGE
+        concept = `MINIMALIST JAPANDI ZEN LOUNGE (${style.toUpperCase()})`;
         spatialRationale = `Embraces Wabi-Sabi simplicity with low-profile horizontal silhouettes, uncluttered pathways, and rich natural organic materials. Generous open floor clearance maintains sightlines, bringing peaceful breathing room into the home.`;
         lightingPlan = `Warm 2500K-2700K indirect twilight glow: soft diffused orb illumination paired with a warm paper-shade floor accent.`;
 
@@ -6847,8 +6847,8 @@ class AIEngine {
         });
 
       } else if (livingType === 3) {
-        // TYPE 3: MODERN LUXURY PENTHOUSE SALON
-        concept = `TYPE 3: MODERN LUXURY PENTHOUSE SALON (${style.toUpperCase()})`;
+        // MODERN LUXURY PENTHOUSE SALON
+        concept = `MODERN LUXURY PENTHOUSE SALON (${style.toUpperCase()})`;
         spatialRationale = `A grand salon arrangement designed for formal hosting and luxurious relaxation. Symmetrical armchair placements form a high-end conversation quadrangle around a marble-topped coffee table, balanced by a perimeter luxury credenza and statement entertainment center.`;
         lightingPlan = `Multi-tiered architectural luxury lighting: a brilliant sculptural brass pendant acts as the room's crown jewel, complemented by warm localized accent downlights and brass floor sconces.`;
 
@@ -6980,8 +6980,8 @@ class AIEngine {
         });
 
       } else {
-        // TYPE 4: SCANDINAVIAN HYGGE FAMILY LIVING (WITH LIBRARY & LOUNGE NOOK)
-        concept = `TYPE 4: SCANDINAVIAN HYGGE FAMILY LIVING (${style.toUpperCase()})`;
+        // SCANDINAVIAN HYGGE FAMILY LIVING (WITH LIBRARY & LOUNGE NOOK)
+        concept = `SCANDINAVIAN HYGGE FAMILY LIVING (${style.toUpperCase()})`;
         spatialRationale = `A versatile, warm family sanctuary that seamlessly combines relaxed communal lounging with an integrated library and credenza storage nook. The corner reading zone invites quiet afternoon reading, while the central sofa cluster provides comfortable movie and game nights.`;
         lightingPlan = `Cozy 2700K hygge illumination: directional reading lamp by the bookshelf nook, warm timber overhead pendant, and ambient sideboard glow.`;
 
@@ -7229,9 +7229,9 @@ class AIEngine {
           cost: 160
         });
       } else if (bedType === 1) {
-        // TYPE 1: LUXURY EXECUTIVE MASTER SUITE
+        // LUXURY EXECUTIVE MASTER SUITE
         // King bed, mirrored double wardrobe, private lounge armchair & side table, brass floor lamp & chandelier
-        concept = `TYPE 1: LUXURY EXECUTIVE MASTER SUITE (${style.toUpperCase()})`;
+        concept = `LUXURY EXECUTIVE MASTER SUITE (${style.toUpperCase()})`;
         spatialRationale = `A palatial master suite anchored by an opulent King platform bed framed by symmetrical floating nightstands. The foreground features an exclusive private reading and cocktail lounge nook with a plush velvet armchair, sculpted side table, and reading floor lamp. A built-in mirrored wardrobe along the perimeter reflects ambient light to double visual room volume.`;
         lightingPlan = `Multi-layered architectural lighting: warm 2700K bedside reading accents, a central statement designer chandelier, and targeted ambient illumination over the reading lounge.`;
 
@@ -7361,9 +7361,9 @@ class AIEngine {
         });
 
       } else if (bedType === 2) {
-        // TYPE 2: MINIMALIST ZEN RETREAT
+        // MINIMALIST ZEN RETREAT
         // Low Japandi bed, low storage credenza, paper lantern lamp & orb pendant
-        concept = `TYPE 2: MINIMALIST ZEN MASTER RETREAT (${style.toUpperCase()})`;
+        concept = `MINIMALIST ZEN MASTER RETREAT (${style.toUpperCase()})`;
         spatialRationale = `Inspired by Japandi and Wabi-Sabi philosophies, this layout prioritizes uncluttered horizontal horizons and generous floor breathing room. A low-profile platform bed is complemented by a low horizontal storage credenza and sliding wardrobe, creating an organic, grounding sanctuary that calms sensory overload.`;
         lightingPlan = `Soft, indirect diffused 2700K illumination: a warm paper-lantern floor lamp and an overhead glowing sphere pendant that create gentle, shadowless ambiance.`;
 
@@ -7481,9 +7481,9 @@ class AIEngine {
         });
 
       } else if (bedType === 3) {
-        // TYPE 3: MODERN HOTEL CHIC & VANITY
+        // MODERN HOTEL CHIC & VANITY
         // Designer bed, work/vanity desk + ergonomic chair, mirrored robe, task lamp
-        concept = `TYPE 3: MODERN HOTEL CHIC & VANITY SUITE (${style.toUpperCase()})`;
+        concept = `MODERN HOTEL CHIC & VANITY SUITE (${style.toUpperCase()})`;
         spatialRationale = `A high-functioning master suite combining premium sleeping comfort with a dedicated grooming vanity and laptop workstation. By placing the bed on the left-center axis and positioning the vanity station along the opposite wall, two functional zones coexist with uninterrupted traffic flow. A full mirrored wardrobe optimizes morning preparation.`;
         lightingPlan = `Dual-zone illumination: soft dimmable ambient glow over the sleeping quarter paired with crisp 4000K daylight-balanced task illumination at the vanity workstation.`;
 
@@ -7612,9 +7612,9 @@ class AIEngine {
         });
 
       } else {
-        // TYPE 4: SCANDINAVIAN COZY HAVEN
+        // SCANDINAVIAN COZY HAVEN
         // Solid wood bed, library bookshelf, cozy reading armchair, timber table & reading lamp
-        concept = `TYPE 4: SCANDINAVIAN COZY MASTER HAVEN (${style.toUpperCase()})`;
+        concept = `SCANDINAVIAN COZY MASTER HAVEN (${style.toUpperCase()})`;
         spatialRationale = `Rooted in Nordic hygge philosophy, this layout pairs warm natural oak tones with a dedicated reading library nook. An open bookshelf, deep upholstered armchair, and timber reading lamp create an inviting corner for winding down with a book before sleep, while an expansive wool rug under the wood platform bed grounds the space in comfort.`;
         lightingPlan = `Hygge-inspired 2500K warm amber lighting: focused directional light at the reading chair, gentle nightstand glow, and a woven Scandinavian overhead pendant fixture.`;
 
@@ -7765,8 +7765,8 @@ class AIEngine {
       else if (roomType === 'dining_room' && pref.diningType) diningType = parseInt(pref.diningType, 10) || 1;
 
       if (diningType === 1) {
-        // TYPE 1: GRAND BANQUET & ENTERTAINING SUITE
-        concept = `TYPE 1: GRAND BANQUET & ENTERTAINING SUITE (${style.toUpperCase()})`;
+        // GRAND BANQUET & ENTERTAINING SUITE
+        concept = `GRAND BANQUET & ENTERTAINING SUITE (${style.toUpperCase()})`;
         spatialRationale = `A stately formal dining hall designed around a central 6-seater dining ensemble with a minimum 1.1m pull-out clearance for all guests. The long perimeter buffet sideboard ensures seamless multi-course hospitality, while the opposite open display unit provides an elegant backdrop for glassware and fine ceramics.`;
         lightingPlan = `Warm intimate 2700K overhead illumination cast downward onto the dining surface via an architectural statement chandelier, balanced by subtle perimeter mood lighting from the floor lamp and buffet accent sconces.`;
 
@@ -7884,8 +7884,8 @@ class AIEngine {
         });
 
       } else if (diningType === 2) {
-        // TYPE 2: MINIMALIST ZEN TEA & DINING PAVILION
-        concept = `TYPE 2: MINIMALIST ZEN TEA & DINING PAVILION (${style.toUpperCase()})`;
+        // MINIMALIST ZEN TEA & DINING PAVILION
+        concept = `MINIMALIST ZEN TEA & DINING PAVILION (${style.toUpperCase()})`;
         spatialRationale = `Rooted in Wabi-Sabi and Japandi values of simplicity and mindful dining. The central low-profile dining set is anchored by an organic flatweave rug, while flush perimeter credenzas preserve tranquil, unbroken sightlines throughout the dining pavilion.`;
         lightingPlan = `Soft 2500K twilight-diffused illumination: a glowing paper-lantern orb overhead paired with an ambient corner floor lantern, creating a tranquil sanctuary for slow meals and tea ceremonies.`;
 
@@ -7990,8 +7990,8 @@ class AIEngine {
         });
 
       } else if (diningType === 3) {
-        // TYPE 3: MODERN LUXURY PENTHOUSE DINING SALON
-        concept = `TYPE 3: MODERN LUXURY PENTHOUSE DINING SALON (${style.toUpperCase()})`;
+        // MODERN LUXURY PENTHOUSE DINING SALON
+        concept = `MODERN LUXURY PENTHOUSE DINING SALON (${style.toUpperCase()})`;
         spatialRationale = `A glamorous penthouse dining salon configured for bespoke culinary experiences and private wine tastings. The dining quadrangle is flanked by a dedicated sommelier buffet credenza and an intimate pre-dinner cocktail lounge nook, creating multiple experiential zones in one harmonious space.`;
         lightingPlan = `Dramatic multi-tiered architectural lighting: a brilliant brass chandelier serves as the dining room's visual centerpiece, supported by warm dimmable accent downlighting and perimeter floor lamps.`;
 
@@ -8122,8 +8122,8 @@ class AIEngine {
         });
 
       } else {
-        // TYPE 4: SCANDINAVIAN HYGGE FARMHOUSE DINING
-        concept = `TYPE 4: SCANDINAVIAN HYGGE FARMHOUSE DINING (${style.toUpperCase()})`;
+        // SCANDINAVIAN HYGGE FARMHOUSE DINING
+        concept = `SCANDINAVIAN HYGGE FARMHOUSE DINING (${style.toUpperCase()})`;
         spatialRationale = `Celebrates Nordic communal dining and authentic hygge hospitality. Combines a solid oak dining table with an open pottery display hutch and perimeter serving sideboard, plus an integrated corner relaxation chair for conversational lingerings long after dessert.`;
         lightingPlan = `Cozy 2700K warm amber lighting: focused downward glow from a woven timber pendant directly over the dining table, accented by soft atmospheric corner illumination.`;
 
@@ -8261,8 +8261,8 @@ class AIEngine {
       else if (roomType === 'kitchen' && pref.kitchenType) kitchenType = parseInt(pref.kitchenType, 10) || 1;
 
       if (kitchenType === 1) {
-        // TYPE 1: ISLAND CHEF'S GOURMET KITCHEN (OPEN-CONCEPT ISLAND LAYOUT)
-        concept = `TYPE 1: ISLAND CHEF'S GOURMET KITCHEN (${style.toUpperCase()})`;
+        // ISLAND CHEF'S GOURMET KITCHEN (OPEN-CONCEPT ISLAND LAYOUT)
+        concept = `ISLAND CHEF'S GOURMET KITCHEN (${style.toUpperCase()})`;
         spatialRationale = `Open-concept culinary showcase engineered around a golden work triangle: the smart refrigerator on the perimeter wall, the primary sink along the back wall, and an expansive waterfall island with cooktop facing into the room. 1.1m circulation aisles allow multiple cooks to collaborate smoothly.`;
         lightingPlan = `Bright 4000K daylight-balanced task illumination over prep surfaces with warm 2700K ambient statement pendants above the breakfast bar.`;
 
@@ -8390,8 +8390,8 @@ class AIEngine {
         });
 
       } else if (kitchenType === 2) {
-        // TYPE 2: L-SHAPED FAMILY KITCHEN WITH BREAKFAST NOOK
-        concept = `TYPE 2: L-SHAPED FAMILY KITCHEN & BREAKFAST NOOK (${style.toUpperCase()})`;
+        // L-SHAPED FAMILY KITCHEN WITH BREAKFAST NOOK
+        concept = `L-SHAPED FAMILY KITCHEN & BREAKFAST NOOK (${style.toUpperCase()})`;
         spatialRationale = `Classic architectural L-layout consolidating wet prep and cooking across two perpendicular walls, freeing substantial open floor space for a dedicated family breakfast dining nook for morning meals and tea.`;
         lightingPlan = `Warm 2700K ambient illumination over the breakfast table paired with crisp 3500K LED task glow beneath perimeter wall cabinets.`;
 
@@ -8520,8 +8520,8 @@ class AIEngine {
         });
 
       } else if (kitchenType === 3) {
-        // TYPE 3: PARALLEL GALLEY PROFESSIONAL KITCHEN (DOUBLE-BANK CHEF STUDIO)
-        concept = `TYPE 3: PARALLEL GALLEY PROFESSIONAL KITCHEN (${style.toUpperCase()})`;
+        // PARALLEL GALLEY PROFESSIONAL KITCHEN (DOUBLE-BANK CHEF STUDIO)
+        concept = `PARALLEL GALLEY PROFESSIONAL KITCHEN (${style.toUpperCase()})`;
         spatialRationale = `High-efficiency corridor layout favored by Michelin-starred culinary professionals. Two parallel counter banks establish an ergonomic 1.2m runway: the wet prep and refrigeration bank along the back wall directly opposes a dedicated cooking and plating island bank.`;
         lightingPlan = `Linear shadow-free 4500K daylight track pendants illuminating both prep banks simultaneously with warm toe-kick ambiance.`;
 
@@ -8653,8 +8653,8 @@ class AIEngine {
         });
 
       } else {
-        // TYPE 4: U-SHAPED LUXURY PENINSULA KITCHEN (CONTINUOUS WRAP & COCKTAIL BAR)
-        concept = `TYPE 4: U-SHAPED LUXURY PENINSULA KITCHEN (${style.toUpperCase()})`;
+        // U-SHAPED LUXURY PENINSULA KITCHEN (CONTINUOUS WRAP & COCKTAIL BAR)
+        concept = `U-SHAPED LUXURY PENINSULA KITCHEN (${style.toUpperCase()})`;
         spatialRationale = `Three-wall continuous culinary envelope delivering maximum contiguous preparation surface. Back wall wet sink connects to the left wall induction range, while a right-wing peninsula island counter projects into the space to create an integrated breakfast bar and evening cocktail lounge.`;
         lightingPlan = `Multi-zone 2800K dimmable pendant trio suspended above the peninsula bar with diffused warm under-cabinet cove LEDs.`;
 
@@ -10028,119 +10028,6 @@ class App {
       });
     });
 
-    // Master Bedroom 4 Design Types Selector Buttons
-    document.querySelectorAll('.bedroom-type-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const targetType = btn.getAttribute('data-bedroom-type');
-        const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
-
-        let vNum = 1;
-        if (targetType === 'bedroom_zen') vNum = 2;
-        else if (targetType === 'bedroom_hotel') vNum = 3;
-        else if (targetType === 'bedroom_scandi') vNum = 4;
-
-        if (isHouse) {
-          this.currentHouseRoomTypes.bedroom = vNum;
-          this.currentHouseZone = 'bedroom';
-          this.syncRoomVariantsUI(roomSelect.value);
-          this.triggerAIGeneration();
-          this.focusRoom('bedroom');
-        } else {
-          if (roomSelect) roomSelect.value = targetType;
-          this.syncRoomVariantsUI(targetType);
-          this.triggerAIGeneration();
-        }
-        const typeTitle = btn.querySelector('strong')?.textContent || 'Master Bedroom Type';
-        this.showToast(`✨ Switched to ${typeTitle}`);
-      });
-    });
-
-    // Living Room 4 Design Types Selector Buttons
-    document.querySelectorAll('.living-type-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const targetType = btn.getAttribute('data-living-type');
-        const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
-
-        let vNum = 1;
-        if (targetType === 'living_room_zen') vNum = 2;
-        else if (targetType === 'living_room_luxury') vNum = 3;
-        else if (targetType === 'living_room_cozy') vNum = 4;
-
-        if (isHouse) {
-          this.currentHouseRoomTypes.living = vNum;
-          this.currentHouseZone = 'living';
-          this.syncRoomVariantsUI(roomSelect.value);
-          this.triggerAIGeneration();
-          this.focusRoom('living');
-        } else {
-          if (roomSelect) roomSelect.value = targetType;
-          this.syncRoomVariantsUI(targetType);
-          this.triggerAIGeneration();
-        }
-        const typeTitle = btn.querySelector('strong')?.textContent || 'Living Room Type';
-        this.showToast(`✨ Switched to ${typeTitle}`);
-      });
-    });
-
-
-    // Dining Room 4 Design Types Selector Buttons
-    document.querySelectorAll('.dining-type-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const targetType = btn.getAttribute('data-dining-type');
-        const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
-
-        let vNum = 1;
-        if (targetType === 'dining_room_minimal') vNum = 2;
-        else if (targetType === 'dining_room_luxury') vNum = 3;
-        else if (targetType === 'dining_room_scandi') vNum = 4;
-
-        if (isHouse) {
-          this.currentHouseRoomTypes.dining = vNum;
-          this.currentHouseZone = 'dining';
-          this.syncRoomVariantsUI(roomSelect.value);
-          this.triggerAIGeneration();
-          this.focusRoom('dining');
-        } else {
-          if (roomSelect) roomSelect.value = targetType;
-          this.syncRoomVariantsUI(targetType);
-          this.triggerAIGeneration();
-        }
-        const typeTitle = btn.querySelector('strong')?.textContent || 'Dining Room Type';
-        this.showToast(`✨ Switched to ${typeTitle}`);
-      });
-    });
-
-    // Modular Kitchen 4 Design Types Selector Buttons
-    document.querySelectorAll('.kitchen-type-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const targetType = btn.getAttribute('data-kitchen-type');
-        const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
-
-        let vNum = 1;
-        if (targetType === 'kitchen_lshape') vNum = 2;
-        else if (targetType === 'kitchen_galley') vNum = 3;
-        else if (targetType === 'kitchen_ushape') vNum = 4;
-
-        if (isHouse) {
-          this.currentHouseRoomTypes.kitchen = vNum;
-          this.currentHouseZone = 'kitchen';
-          this.syncRoomVariantsUI(roomSelect.value);
-          this.triggerAIGeneration();
-          this.focusRoom('kitchen');
-        } else {
-          if (roomSelect) roomSelect.value = targetType;
-          this.syncRoomVariantsUI(targetType);
-          this.triggerAIGeneration();
-        }
-        const typeTitle = btn.querySelector('strong')?.textContent || 'Modular Kitchen Type';
-        this.showToast(`✨ Switched to ${typeTitle}`);
-      });
-    });
-
     // Instant Room Type Switching
     document.getElementById('room-type')?.addEventListener('change', (e) => {
       const selectedType = e.target.value;
@@ -10916,49 +10803,28 @@ class App {
     this.syncRoomVariantsUI(document.getElementById('room-type')?.value || 'bedroom');
   }
 
-  // Master Bedroom & Living Room Variants UI Synchronizer
+  // Complete House Navigation & Active Room Synchronizer
   syncRoomVariantsUI(currentRoomType) {
-    const isHouse = currentRoomType === 'complete_house' || currentRoomType === 'complete_house_2bhk';
-    const is2BHK = currentRoomType === 'complete_house_2bhk' || this.currentHouseType === '2bhk';
+    const isApartment = (currentRoomType === 'modern_apartment' || currentRoomType === 'apartment' || this.currentHouseType === 'apartment');
+    const is2BHK = (currentRoomType === 'complete_house_2bhk' || this.currentHouseType === '2bhk');
+    const isHouse = (currentRoomType === 'complete_house' || is2BHK || isApartment);
     if (isHouse) {
-      this.currentHouseType = is2BHK ? '2bhk' : '1bhk';
+      this.currentHouseType = isApartment ? 'apartment' : (is2BHK ? '2bhk' : '1bhk');
     }
     const houseHub = document.getElementById('house-hub-wrapper');
     const houseNav = document.getElementById('house-navigator-bar');
     if (houseHub) houseHub.style.display = isHouse ? 'block' : 'none';
     if (houseNav) houseNav.style.display = isHouse ? 'flex' : 'none';
 
-    // 1. Bedroom Variants
-    const bedWrapper = document.getElementById('bedroom-variants-wrapper');
-    const bedPill = document.getElementById('bedroom-type-pill');
-    const bedButtons = document.querySelectorAll('.bedroom-type-btn');
-    const isBedroom = currentRoomType === 'bedroom' || currentRoomType === 'bedroom_single' || (currentRoomType && currentRoomType.startsWith('bedroom_'));
-
-    // 2. Living Room Variants
-    const livingWrapper = document.getElementById('living-variants-wrapper');
-    const livingPill = document.getElementById('living-type-pill');
-    const livingButtons = document.querySelectorAll('.living-type-btn');
-    const isLiving = currentRoomType === 'living_room' || (currentRoomType && currentRoomType.startsWith('living_room_'));
-
-    // 4. Dining Room Variants
-    const diningWrapper = document.getElementById('dining-variants-wrapper');
-    const diningPill = document.getElementById('dining-type-pill');
-    const diningButtons = document.querySelectorAll('.dining-type-btn');
-    const isDining = currentRoomType === 'dining_room' || (currentRoomType && currentRoomType.startsWith('dining_room_'));
-
-    // 5. Modular Kitchen Variants
-    const kitchenWrapper = document.getElementById('kitchen-variants-wrapper');
-    const kitchenPill = document.getElementById('kitchen-type-pill');
-    const kitchenButtons = document.querySelectorAll('.kitchen-type-btn');
-    const isKitchen = currentRoomType === 'kitchen' || (currentRoomType && currentRoomType.startsWith('kitchen_'));
-
     if (isHouse) {
       document.querySelectorAll('.house-type-toggle-btn').forEach(b => {
-        b.classList.toggle('active', b.getAttribute('data-house-type') === (is2BHK ? '2bhk' : '1bhk'));
+        b.classList.toggle('active', b.getAttribute('data-house-type') === (is2BHK ? '2bhk' : (this.currentHouseType === 'apartment' ? 'apartment' : '1bhk')));
       });
       const housePill = document.getElementById('house-active-room-pill');
       if (housePill) {
-        housePill.textContent = is2BHK ? 'Contemporary Villa (2 BHK) Active' : '1 BHK (Single Bed) Active';
+        housePill.textContent = (this.currentHouseType === 'apartment' || currentRoomType === 'modern_apartment')
+          ? 'Modern Apartment Suite Active'
+          : (is2BHK ? 'Contemporary Villa (2 BHK) Active' : '1 BHK (Single Bed) Active');
       }
       const hubRearBtn = document.getElementById('hub-zone-rear');
       if (hubRearBtn) {
@@ -10970,95 +10836,6 @@ class App {
         navRearBtn.innerHTML = is2BHK ? '<span>🛏️</span> Bed 2' : '<span>👗</span> Dressing';
         navRearBtn.setAttribute('data-target-room', is2BHK ? 'bedroom2' : 'dressing');
         navRearBtn.setAttribute('title', is2BHK ? 'Focus Second Bedroom (Twin Suite)' : 'Focus Master Dressing & En-Suite Bath');
-      }
-
-      const activeZone = this.currentHouseZone || 'living';
-      if (bedWrapper) bedWrapper.style.display = (activeZone === 'bedroom' || activeZone === 'bedroom2') ? 'block' : 'none';
-      if (livingWrapper) livingWrapper.style.display = (activeZone === 'living' || activeZone === 'all') ? 'block' : 'none';
-      if (diningWrapper) diningWrapper.style.display = (activeZone === 'dining') ? 'block' : 'none';
-      if (kitchenWrapper) kitchenWrapper.style.display = (activeZone === 'kitchen') ? 'block' : 'none';
-
-      // Highlight active design buttons in the active room
-      const bedNum = this.currentHouseRoomTypes.bedroom;
-      bedButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === bedNum));
-      if (bedPill) bedPill.textContent = `Type ${bedNum} Active`;
-
-      const livingNum = this.currentHouseRoomTypes.living;
-      livingButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === livingNum));
-      if (livingPill) livingPill.textContent = `Type ${livingNum} Active`;
-
-      const diningNum = this.currentHouseRoomTypes.dining;
-      diningButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === diningNum));
-      if (diningPill) diningPill.textContent = `Type ${diningNum} Active`;
-
-      const kitchenNum = this.currentHouseRoomTypes.kitchen;
-      kitchenButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === kitchenNum));
-      if (kitchenPill) kitchenPill.textContent = `Type ${kitchenNum} Active`;
-      return;
-    }
-
-    if (bedWrapper) {
-      bedWrapper.style.display = isBedroom ? 'block' : 'none';
-      if (isBedroom) {
-        bedButtons.forEach(btn => {
-          const type = btn.getAttribute('data-bedroom-type');
-          btn.classList.toggle('active', type === currentRoomType);
-        });
-        if (bedPill) {
-          if (currentRoomType === 'bedroom_single') bedPill.textContent = 'Single Bed Active';
-          else if (currentRoomType === 'bedroom_zen') bedPill.textContent = 'Type 2 Active';
-          else if (currentRoomType === 'bedroom_hotel') bedPill.textContent = 'Type 3 Active';
-          else if (currentRoomType === 'bedroom_scandi') bedPill.textContent = 'Type 4 Active';
-          else bedPill.textContent = 'Type 1 Active';
-        }
-      }
-    }
-
-    if (livingWrapper) {
-      livingWrapper.style.display = isLiving ? 'block' : 'none';
-      if (isLiving) {
-        livingButtons.forEach(btn => {
-          const type = btn.getAttribute('data-living-type');
-          btn.classList.toggle('active', type === currentRoomType);
-        });
-        if (livingPill) {
-          if (currentRoomType === 'living_room_zen') livingPill.textContent = 'Type 2 Active';
-          else if (currentRoomType === 'living_room_luxury') livingPill.textContent = 'Type 3 Active';
-          else if (currentRoomType === 'living_room_cozy') livingPill.textContent = 'Type 4 Active';
-          else livingPill.textContent = 'Type 1 Active';
-        }
-      }
-    }
-
-    if (diningWrapper) {
-      diningWrapper.style.display = isDining ? 'block' : 'none';
-      if (isDining) {
-        diningButtons.forEach(btn => {
-          const type = btn.getAttribute('data-dining-type');
-          btn.classList.toggle('active', type === currentRoomType);
-        });
-        if (diningPill) {
-          if (currentRoomType === 'dining_room_minimal') diningPill.textContent = 'Type 2 Active';
-          else if (currentRoomType === 'dining_room_luxury') diningPill.textContent = 'Type 3 Active';
-          else if (currentRoomType === 'dining_room_scandi') diningPill.textContent = 'Type 4 Active';
-          else diningPill.textContent = 'Type 1 Active';
-        }
-      }
-    }
-
-    if (kitchenWrapper) {
-      kitchenWrapper.style.display = isKitchen ? 'block' : 'none';
-      if (isKitchen) {
-        kitchenButtons.forEach(btn => {
-          const type = btn.getAttribute('data-kitchen-type');
-          btn.classList.toggle('active', type === currentRoomType);
-        });
-        if (kitchenPill) {
-          if (currentRoomType === 'kitchen_lshape') kitchenPill.textContent = 'Type 2 Active';
-          else if (currentRoomType === 'kitchen_galley') kitchenPill.textContent = 'Type 3 Active';
-          else if (currentRoomType === 'kitchen_ushape') kitchenPill.textContent = 'Type 4 Active';
-          else kitchenPill.textContent = 'Type 1 Active';
-        }
       }
     }
   }
@@ -11702,25 +11479,14 @@ class App {
     const conceptTitle = `${this.currentStyle.toUpperCase()} Interior Layout`;
     const roomType = document.getElementById('room-type')?.value || 'bedroom';
     const roomLabels = {
-      complete_house: 'Complete House (1 BHK: Master Suite + Dressing)',
-      complete_house_2bhk: 'Complete House (2 BHK: Master Suite + Bed 2)',
-      bedroom_single: 'Single Bedroom (Twin Platform Suite)',
-      bedroom: 'Master Bedroom (Type 1: Luxury Suite)',
-      bedroom_zen: 'Master Bedroom (Type 2: Minimalist Zen)',
-      bedroom_hotel: 'Master Bedroom (Type 3: Hotel Chic & Vanity)',
-      bedroom_scandi: 'Master Bedroom (Type 4: Scandinavian Haven)',
-      living_room: 'Living Room (Type 1: Media Lounge)',
-      living_room_zen: 'Living Room (Type 2: Japandi Zen)',
-      living_room_luxury: 'Living Room (Type 3: Luxury Penthouse)',
-      living_room_cozy: 'Living Room (Type 4: Scandi Hygge)',
-      dining_room: 'Dining Room (Type 1: Grand Banquet)',
-      dining_room_minimal: 'Dining Room (Type 2: Zen Tea Pavilion)',
-      dining_room_luxury: 'Dining Room (Type 3: Luxury Penthouse Salon)',
-      dining_room_scandi: 'Dining Room (Type 4: Scandi Farmhouse)',
-      kitchen: "Modular Kitchen (Type 1: Island Chef's Gourmet)",
-      kitchen_lshape: "Modular Kitchen (Type 2: L-Shaped Family Nook)",
-      kitchen_galley: "Modular Kitchen (Type 3: Parallel Galley Studio)",
-      kitchen_ushape: "Modular Kitchen (Type 4: U-Shaped Luxury Peninsula)"
+      modern_apartment: 'Modern Apartment Suite',
+      complete_house: 'Single Bedroom House (1 BHK)',
+      complete_house_2bhk: 'Contemporary Villa (2 BHK Estate)',
+      bedroom: 'Master Bedroom Suite',
+      bedroom_single: 'Single Bedroom (Compact Suite)',
+      living_room: 'Living Room Lounge',
+      dining_room: 'Dining Room Pavilion',
+      kitchen: 'Modular Kitchen'
     };
     const roomTypeLabel = roomLabels[roomType] || roomType.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
     const w = parseFloat(document.getElementById('room-w')?.value) || 5.0;

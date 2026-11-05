@@ -93,32 +93,12 @@
                   <option value="complete_house">🏠 Single Bedroom House (1 BHK - 5 Connected Rooms)</option>
                   <option value="complete_house_2bhk">🏡 Contemporary Villa (2 BHK Estate - Garden & Patio)</option>
                 </optgroup>
-                <optgroup label="Double Bedroom / Master Suite (4 Designs)">
-                  <option value="bedroom">Double Bedroom - Type 1: Luxury Suite</option>
-                  <option value="bedroom_zen">Double Bedroom - Type 2: Minimalist Zen</option>
-                  <option value="bedroom_hotel">Double Bedroom - Type 3: Hotel Chic & Vanity</option>
-                  <option value="bedroom_scandi">Double Bedroom - Type 4: Scandinavian Haven</option>
-                </optgroup>
-                <optgroup label="Single Bedroom (Compact / Guest / Kids)">
-                  <option value="bedroom_single">Single Bedroom - Compact Suite & Single Bed</option>
-                </optgroup>
-                <optgroup label="Living Room (4 Designs)">
-                  <option value="living_room">Living Room - Type 1: Media Lounge</option>
-                  <option value="living_room_zen">Living Room - Type 2: Japandi Zen</option>
-                  <option value="living_room_luxury">Living Room - Type 3: Luxury Penthouse</option>
-                  <option value="living_room_cozy">Living Room - Type 4: Scandi Hygge</option>
-                </optgroup>
-                <optgroup label="Dining Room (4 Designs)">
-                  <option value="dining_room">Dining Room - Type 1: Grand Banquet</option>
-                  <option value="dining_room_minimal">Dining Room - Type 2: Zen Pavilion</option>
-                  <option value="dining_room_luxury">Dining Room - Type 3: Luxury Penthouse</option>
-                  <option value="dining_room_scandi">Dining Room - Type 4: Scandi Farmhouse</option>
-                </optgroup>
-                <optgroup label="Modular Kitchen (4 Designs)">
-                  <option value="kitchen">Modular Kitchen - Type 1: Island Chef's Gourmet</option>
-                  <option value="kitchen_lshape">Modular Kitchen - Type 2: L-Shaped Family Nook</option>
-                  <option value="kitchen_galley">Modular Kitchen - Type 3: Parallel Galley Studio</option>
-                  <option value="kitchen_ushape">Modular Kitchen - Type 4: U-Shaped Luxury Peninsula</option>
+                <optgroup label="Individual Rooms">
+                  <option value="bedroom">👑 Master Bedroom Suite</option>
+                  <option value="bedroom_single">🛏️ Single Bedroom (Compact Suite)</option>
+                  <option value="living_room">🛋️ Living Room</option>
+                  <option value="dining_room">🍽️ Dining Room</option>
+                  <option value="kitchen">🍳 Modular Kitchen</option>
                 </optgroup>
               </select>
             </div>
@@ -150,171 +130,11 @@
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="dining" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🍽️ Dining</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="kitchen" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🍳 Kitchen</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="bedroom" id="hub-zone-bed1" style="font-size: 11px; padding: 6px 4px; justify-content: center;">👑 Master</button>
-                <button type="button" class="btn btn-sm house-zone-btn" data-zone="bedroom2" id="hub-zone-rear" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🛏️ Bed 2</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="bedroom2" id="hub-zone-rear" style="font-size: 11px; padding: 6px 4px; justify-content: center;">👗 Dressing</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="foyer" id="hub-zone-foyer" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🚪 Foyer</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="common_bath" id="hub-zone-bath" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🚿 Baths</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="backyard" id="hub-zone-yard" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🌿 Yard</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="all" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🌐 Whole Villa</button>
-              </div>
-            </div>
-
-            <!-- MASTER BEDROOM 4 DESIGN TYPES SELECTOR -->
-            <div class="form-group" id="bedroom-variants-wrapper" style="margin-top: 10px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-primary); display: flex; align-items: center; gap: 4px; margin-bottom: 0;">
-                  <span>🛏️</span> Master Bedroom: 4 Design Types
-                </label>
-                <span id="bedroom-type-pill" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.3);">Type 1 Active</span>
-              </div>
-              <div class="bedroom-type-grid" id="bedroom-type-selector">
-                <button type="button" class="bedroom-type-btn active" data-bedroom-type="bedroom" title="Type 1: Luxury Executive Suite">
-                  <div class="btype-icon">👑</div>
-                  <div class="btype-meta">
-                    <strong>Type 1: Luxury Suite</strong>
-                    <span>King Bed, Lounge & Robe</span>
-                  </div>
-                </button>
-                <button type="button" class="bedroom-type-btn" data-bedroom-type="bedroom_zen" title="Type 2: Minimalist Zen Retreat">
-                  <div class="btype-icon">🧘</div>
-                  <div class="btype-meta">
-                    <strong>Type 2: Minimalist Zen</strong>
-                    <span>Low Bed, Credenza & Wardrobe</span>
-                  </div>
-                </button>
-                <button type="button" class="bedroom-type-btn" data-bedroom-type="bedroom_hotel" title="Type 3: Hotel Chic & Vanity">
-                  <div class="btype-icon">💼</div>
-                  <div class="btype-meta">
-                    <strong>Type 3: Hotel Chic</strong>
-                    <span>Plush Bed, Vanity / Desk</span>
-                  </div>
-                </button>
-                <button type="button" class="bedroom-type-btn" data-bedroom-type="bedroom_scandi" title="Type 4: Scandinavian Haven">
-                  <div class="btype-icon">📖</div>
-                  <div class="btype-meta">
-                    <strong>Type 4: Scandi Haven</strong>
-                    <span>Wood Bed, Bookshelf & Nook</span>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            <!-- LIVING ROOM 4 DESIGN TYPES SELECTOR -->
-            <div class="form-group" id="living-variants-wrapper" style="margin-top: 10px; display: none;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-primary); display: flex; align-items: center; gap: 4px; margin-bottom: 0;">
-                  <span>🛋️</span> Living Room: 4 Design Types
-                </label>
-                <span id="living-type-pill" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.3);">Type 1 Active</span>
-              </div>
-              <div class="bedroom-type-grid" id="living-type-selector">
-                <button type="button" class="living-type-btn active" data-living-type="living_room" title="Type 1: Contemporary Media & Conversation Lounge">
-                  <div class="btype-icon">🎬</div>
-                  <div class="btype-meta">
-                    <strong>Type 1: Media Lounge</strong>
-                    <span>Sofa, TV Unit & Credenza</span>
-                  </div>
-                </button>
-                <button type="button" class="living-type-btn" data-living-type="living_room_zen" title="Type 2: Minimalist Japandi Zen">
-                  <div class="btype-icon">🪴</div>
-                  <div class="btype-meta">
-                    <strong>Type 2: Japandi Zen</strong>
-                    <span>Low Sofa, Credenza & Chair</span>
-                  </div>
-                </button>
-                <button type="button" class="living-type-btn" data-living-type="living_room_luxury" title="Type 3: Modern Luxury Penthouse Salon">
-                  <div class="btype-icon">👑</div>
-                  <div class="btype-meta">
-                    <strong>Type 3: Luxury Penthouse</strong>
-                    <span>Dual Chairs, Marble & TV</span>
-                  </div>
-                </button>
-                <button type="button" class="living-type-btn" data-living-type="living_room_cozy" title="Type 4: Scandinavian Hygge Family">
-                  <div class="btype-icon">📚</div>
-                  <div class="btype-meta">
-                    <strong>Type 4: Scandi Hygge</strong>
-                    <span>Sofa, Bookshelf & Lounge Credenza</span>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            <!-- DINING ROOM 4 DESIGN TYPES SELECTOR -->
-            <div class="form-group" id="dining-variants-wrapper" style="margin-top: 10px; display: none;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-primary); display: flex; align-items: center; gap: 4px; margin-bottom: 0;">
-                  <span>🍽️</span> Dining Room: 4 Design Types
-                </label>
-                <span id="dining-type-pill" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.3);">Type 1 Active</span>
-              </div>
-              <div class="bedroom-type-grid" id="dining-type-selector">
-                <button type="button" class="dining-type-btn active" data-dining-type="dining_room" title="Type 1: Grand Banquet & Entertaining Suite">
-                  <div class="btype-icon">🍷</div>
-                  <div class="btype-meta">
-                    <strong>Type 1: Grand Banquet</strong>
-                    <span>6-Chairs, Sideboard & China Shelf</span>
-                  </div>
-                </button>
-                <button type="button" class="dining-type-btn" data-dining-type="dining_room_minimal" title="Type 2: Minimalist Zen Tea & Dining Pavilion">
-                  <div class="btype-icon">🪴</div>
-                  <div class="btype-meta">
-                    <strong>Type 2: Zen Pavilion</strong>
-                    <span>Low Table, Credenza & Canvas</span>
-                  </div>
-                </button>
-                <button type="button" class="dining-type-btn" data-dining-type="dining_room_luxury" title="Type 3: Modern Luxury Penthouse Dining Salon">
-                  <div class="btype-icon">👑</div>
-                  <div class="btype-meta">
-                    <strong>Type 3: Luxury Penthouse</strong>
-                    <span>Marble Table, Velvet & Bar Lounge</span>
-                  </div>
-                </button>
-                <button type="button" class="dining-type-btn" data-dining-type="dining_room_scandi" title="Type 4: Scandinavian Hygge Farmhouse Dining">
-                  <div class="btype-icon">🌾</div>
-                  <div class="btype-meta">
-                    <strong>Type 4: Scandi Farmhouse</strong>
-                    <span>Oak Table, Hutch & Reading Nook</span>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            <!-- MODULAR KITCHEN 4 DESIGN TYPES SELECTOR -->
-            <div class="form-group" id="kitchen-variants-wrapper" style="margin-top: 10px; display: none;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-primary); display: flex; align-items: center; gap: 4px; margin-bottom: 0;">
-                  <span>🍳</span> Modular Kitchen: 4 Design Types
-                </label>
-                <span id="kitchen-type-pill" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.3);">Type 1 Active</span>
-              </div>
-              <div class="bedroom-type-grid" id="kitchen-type-selector">
-                <button type="button" class="kitchen-type-btn active" data-kitchen-type="kitchen" title="Type 1: Island Chef's Gourmet Kitchen">
-                  <div class="btype-icon">🍳</div>
-                  <div class="btype-meta">
-                    <strong>Type 1: Island Gourmet</strong>
-                    <span>Island, Stools & Work Triangle</span>
-                  </div>
-                </button>
-                <button type="button" class="kitchen-type-btn" data-kitchen-type="kitchen_lshape" title="Type 2: L-Shaped Family Kitchen with Breakfast Nook">
-                  <div class="btype-icon">☕</div>
-                  <div class="btype-meta">
-                    <strong>Type 2: L-Shaped Family</strong>
-                    <span>Corner Layout & Breakfast Table</span>
-                  </div>
-                </button>
-                <button type="button" class="kitchen-type-btn" data-kitchen-type="kitchen_galley" title="Type 3: Parallel Galley Professional Kitchen">
-                  <div class="btype-icon">🔪</div>
-                  <div class="btype-meta">
-                    <strong>Type 3: Parallel Galley</strong>
-                    <span>Dual Banks & Chef Runway</span>
-                  </div>
-                </button>
-                <button type="button" class="kitchen-type-btn" data-kitchen-type="kitchen_ushape" title="Type 4: U-Shaped Luxury Peninsula Kitchen">
-                  <div class="btype-icon">🍸</div>
-                  <div class="btype-meta">
-                    <strong>Type 4: Luxury Peninsula</strong>
-                    <span>Wrap-Around & Cocktail Bar</span>
-                  </div>
-                </button>
               </div>
             </div>
 

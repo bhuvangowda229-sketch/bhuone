@@ -1093,119 +1093,6 @@ class App {
       });
     });
 
-    // Master Bedroom 4 Design Types Selector Buttons
-    document.querySelectorAll('.bedroom-type-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const targetType = btn.getAttribute('data-bedroom-type');
-        const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
-
-        let vNum = 1;
-        if (targetType === 'bedroom_zen') vNum = 2;
-        else if (targetType === 'bedroom_hotel') vNum = 3;
-        else if (targetType === 'bedroom_scandi') vNum = 4;
-
-        if (isHouse) {
-          this.currentHouseRoomTypes.bedroom = vNum;
-          this.currentHouseZone = 'bedroom';
-          this.syncRoomVariantsUI(roomSelect.value);
-          this.triggerAIGeneration();
-          this.focusRoom('bedroom');
-        } else {
-          if (roomSelect) roomSelect.value = targetType;
-          this.syncRoomVariantsUI(targetType);
-          this.triggerAIGeneration();
-        }
-        const typeTitle = btn.querySelector('strong')?.textContent || 'Master Bedroom Type';
-        this.showToast(`✨ Switched to ${typeTitle}`);
-      });
-    });
-
-    // Living Room 4 Design Types Selector Buttons
-    document.querySelectorAll('.living-type-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const targetType = btn.getAttribute('data-living-type');
-        const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
-
-        let vNum = 1;
-        if (targetType === 'living_room_zen') vNum = 2;
-        else if (targetType === 'living_room_luxury') vNum = 3;
-        else if (targetType === 'living_room_cozy') vNum = 4;
-
-        if (isHouse) {
-          this.currentHouseRoomTypes.living = vNum;
-          this.currentHouseZone = 'living';
-          this.syncRoomVariantsUI(roomSelect.value);
-          this.triggerAIGeneration();
-          this.focusRoom('living');
-        } else {
-          if (roomSelect) roomSelect.value = targetType;
-          this.syncRoomVariantsUI(targetType);
-          this.triggerAIGeneration();
-        }
-        const typeTitle = btn.querySelector('strong')?.textContent || 'Living Room Type';
-        this.showToast(`✨ Switched to ${typeTitle}`);
-      });
-    });
-
-
-    // Dining Room 4 Design Types Selector Buttons
-    document.querySelectorAll('.dining-type-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const targetType = btn.getAttribute('data-dining-type');
-        const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
-
-        let vNum = 1;
-        if (targetType === 'dining_room_minimal') vNum = 2;
-        else if (targetType === 'dining_room_luxury') vNum = 3;
-        else if (targetType === 'dining_room_scandi') vNum = 4;
-
-        if (isHouse) {
-          this.currentHouseRoomTypes.dining = vNum;
-          this.currentHouseZone = 'dining';
-          this.syncRoomVariantsUI(roomSelect.value);
-          this.triggerAIGeneration();
-          this.focusRoom('dining');
-        } else {
-          if (roomSelect) roomSelect.value = targetType;
-          this.syncRoomVariantsUI(targetType);
-          this.triggerAIGeneration();
-        }
-        const typeTitle = btn.querySelector('strong')?.textContent || 'Dining Room Type';
-        this.showToast(`✨ Switched to ${typeTitle}`);
-      });
-    });
-
-    // Modular Kitchen 4 Design Types Selector Buttons
-    document.querySelectorAll('.kitchen-type-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const targetType = btn.getAttribute('data-kitchen-type');
-        const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
-
-        let vNum = 1;
-        if (targetType === 'kitchen_lshape') vNum = 2;
-        else if (targetType === 'kitchen_galley') vNum = 3;
-        else if (targetType === 'kitchen_ushape') vNum = 4;
-
-        if (isHouse) {
-          this.currentHouseRoomTypes.kitchen = vNum;
-          this.currentHouseZone = 'kitchen';
-          this.syncRoomVariantsUI(roomSelect.value);
-          this.triggerAIGeneration();
-          this.focusRoom('kitchen');
-        } else {
-          if (roomSelect) roomSelect.value = targetType;
-          this.syncRoomVariantsUI(targetType);
-          this.triggerAIGeneration();
-        }
-        const typeTitle = btn.querySelector('strong')?.textContent || 'Modular Kitchen Type';
-        this.showToast(`✨ Switched to ${typeTitle}`);
-      });
-    });
-
     // Instant Room Type Switching
     document.getElementById('room-type')?.addEventListener('change', (e) => {
       const selectedType = e.target.value;
@@ -1981,49 +1868,28 @@ class App {
     this.syncRoomVariantsUI(document.getElementById('room-type')?.value || 'bedroom');
   }
 
-  // Master Bedroom & Living Room Variants UI Synchronizer
+  // Complete House Navigation & Active Room Synchronizer
   syncRoomVariantsUI(currentRoomType) {
-    const isHouse = currentRoomType === 'complete_house' || currentRoomType === 'complete_house_2bhk';
-    const is2BHK = currentRoomType === 'complete_house_2bhk' || this.currentHouseType === '2bhk';
+    const isApartment = (currentRoomType === 'modern_apartment' || currentRoomType === 'apartment' || this.currentHouseType === 'apartment');
+    const is2BHK = (currentRoomType === 'complete_house_2bhk' || this.currentHouseType === '2bhk');
+    const isHouse = (currentRoomType === 'complete_house' || is2BHK || isApartment);
     if (isHouse) {
-      this.currentHouseType = is2BHK ? '2bhk' : '1bhk';
+      this.currentHouseType = isApartment ? 'apartment' : (is2BHK ? '2bhk' : '1bhk');
     }
     const houseHub = document.getElementById('house-hub-wrapper');
     const houseNav = document.getElementById('house-navigator-bar');
     if (houseHub) houseHub.style.display = isHouse ? 'block' : 'none';
     if (houseNav) houseNav.style.display = isHouse ? 'flex' : 'none';
 
-    // 1. Bedroom Variants
-    const bedWrapper = document.getElementById('bedroom-variants-wrapper');
-    const bedPill = document.getElementById('bedroom-type-pill');
-    const bedButtons = document.querySelectorAll('.bedroom-type-btn');
-    const isBedroom = currentRoomType === 'bedroom' || currentRoomType === 'bedroom_single' || (currentRoomType && currentRoomType.startsWith('bedroom_'));
-
-    // 2. Living Room Variants
-    const livingWrapper = document.getElementById('living-variants-wrapper');
-    const livingPill = document.getElementById('living-type-pill');
-    const livingButtons = document.querySelectorAll('.living-type-btn');
-    const isLiving = currentRoomType === 'living_room' || (currentRoomType && currentRoomType.startsWith('living_room_'));
-
-    // 4. Dining Room Variants
-    const diningWrapper = document.getElementById('dining-variants-wrapper');
-    const diningPill = document.getElementById('dining-type-pill');
-    const diningButtons = document.querySelectorAll('.dining-type-btn');
-    const isDining = currentRoomType === 'dining_room' || (currentRoomType && currentRoomType.startsWith('dining_room_'));
-
-    // 5. Modular Kitchen Variants
-    const kitchenWrapper = document.getElementById('kitchen-variants-wrapper');
-    const kitchenPill = document.getElementById('kitchen-type-pill');
-    const kitchenButtons = document.querySelectorAll('.kitchen-type-btn');
-    const isKitchen = currentRoomType === 'kitchen' || (currentRoomType && currentRoomType.startsWith('kitchen_'));
-
     if (isHouse) {
       document.querySelectorAll('.house-type-toggle-btn').forEach(b => {
-        b.classList.toggle('active', b.getAttribute('data-house-type') === (is2BHK ? '2bhk' : '1bhk'));
+        b.classList.toggle('active', b.getAttribute('data-house-type') === (is2BHK ? '2bhk' : (this.currentHouseType === 'apartment' ? 'apartment' : '1bhk')));
       });
       const housePill = document.getElementById('house-active-room-pill');
       if (housePill) {
-        housePill.textContent = is2BHK ? 'Contemporary Villa (2 BHK) Active' : '1 BHK (Single Bed) Active';
+        housePill.textContent = (this.currentHouseType === 'apartment' || currentRoomType === 'modern_apartment')
+          ? 'Modern Apartment Suite Active'
+          : (is2BHK ? 'Contemporary Villa (2 BHK) Active' : '1 BHK (Single Bed) Active');
       }
       const hubRearBtn = document.getElementById('hub-zone-rear');
       if (hubRearBtn) {
@@ -2035,95 +1901,6 @@ class App {
         navRearBtn.innerHTML = is2BHK ? '<span>🛏️</span> Bed 2' : '<span>👗</span> Dressing';
         navRearBtn.setAttribute('data-target-room', is2BHK ? 'bedroom2' : 'dressing');
         navRearBtn.setAttribute('title', is2BHK ? 'Focus Second Bedroom (Twin Suite)' : 'Focus Master Dressing & En-Suite Bath');
-      }
-
-      const activeZone = this.currentHouseZone || 'living';
-      if (bedWrapper) bedWrapper.style.display = (activeZone === 'bedroom' || activeZone === 'bedroom2') ? 'block' : 'none';
-      if (livingWrapper) livingWrapper.style.display = (activeZone === 'living' || activeZone === 'all') ? 'block' : 'none';
-      if (diningWrapper) diningWrapper.style.display = (activeZone === 'dining') ? 'block' : 'none';
-      if (kitchenWrapper) kitchenWrapper.style.display = (activeZone === 'kitchen') ? 'block' : 'none';
-
-      // Highlight active design buttons in the active room
-      const bedNum = this.currentHouseRoomTypes.bedroom;
-      bedButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === bedNum));
-      if (bedPill) bedPill.textContent = `Type ${bedNum} Active`;
-
-      const livingNum = this.currentHouseRoomTypes.living;
-      livingButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === livingNum));
-      if (livingPill) livingPill.textContent = `Type ${livingNum} Active`;
-
-      const diningNum = this.currentHouseRoomTypes.dining;
-      diningButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === diningNum));
-      if (diningPill) diningPill.textContent = `Type ${diningNum} Active`;
-
-      const kitchenNum = this.currentHouseRoomTypes.kitchen;
-      kitchenButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === kitchenNum));
-      if (kitchenPill) kitchenPill.textContent = `Type ${kitchenNum} Active`;
-      return;
-    }
-
-    if (bedWrapper) {
-      bedWrapper.style.display = isBedroom ? 'block' : 'none';
-      if (isBedroom) {
-        bedButtons.forEach(btn => {
-          const type = btn.getAttribute('data-bedroom-type');
-          btn.classList.toggle('active', type === currentRoomType);
-        });
-        if (bedPill) {
-          if (currentRoomType === 'bedroom_single') bedPill.textContent = 'Single Bed Active';
-          else if (currentRoomType === 'bedroom_zen') bedPill.textContent = 'Type 2 Active';
-          else if (currentRoomType === 'bedroom_hotel') bedPill.textContent = 'Type 3 Active';
-          else if (currentRoomType === 'bedroom_scandi') bedPill.textContent = 'Type 4 Active';
-          else bedPill.textContent = 'Type 1 Active';
-        }
-      }
-    }
-
-    if (livingWrapper) {
-      livingWrapper.style.display = isLiving ? 'block' : 'none';
-      if (isLiving) {
-        livingButtons.forEach(btn => {
-          const type = btn.getAttribute('data-living-type');
-          btn.classList.toggle('active', type === currentRoomType);
-        });
-        if (livingPill) {
-          if (currentRoomType === 'living_room_zen') livingPill.textContent = 'Type 2 Active';
-          else if (currentRoomType === 'living_room_luxury') livingPill.textContent = 'Type 3 Active';
-          else if (currentRoomType === 'living_room_cozy') livingPill.textContent = 'Type 4 Active';
-          else livingPill.textContent = 'Type 1 Active';
-        }
-      }
-    }
-
-    if (diningWrapper) {
-      diningWrapper.style.display = isDining ? 'block' : 'none';
-      if (isDining) {
-        diningButtons.forEach(btn => {
-          const type = btn.getAttribute('data-dining-type');
-          btn.classList.toggle('active', type === currentRoomType);
-        });
-        if (diningPill) {
-          if (currentRoomType === 'dining_room_minimal') diningPill.textContent = 'Type 2 Active';
-          else if (currentRoomType === 'dining_room_luxury') diningPill.textContent = 'Type 3 Active';
-          else if (currentRoomType === 'dining_room_scandi') diningPill.textContent = 'Type 4 Active';
-          else diningPill.textContent = 'Type 1 Active';
-        }
-      }
-    }
-
-    if (kitchenWrapper) {
-      kitchenWrapper.style.display = isKitchen ? 'block' : 'none';
-      if (isKitchen) {
-        kitchenButtons.forEach(btn => {
-          const type = btn.getAttribute('data-kitchen-type');
-          btn.classList.toggle('active', type === currentRoomType);
-        });
-        if (kitchenPill) {
-          if (currentRoomType === 'kitchen_lshape') kitchenPill.textContent = 'Type 2 Active';
-          else if (currentRoomType === 'kitchen_galley') kitchenPill.textContent = 'Type 3 Active';
-          else if (currentRoomType === 'kitchen_ushape') kitchenPill.textContent = 'Type 4 Active';
-          else kitchenPill.textContent = 'Type 1 Active';
-        }
       }
     }
   }
@@ -2767,25 +2544,14 @@ class App {
     const conceptTitle = `${this.currentStyle.toUpperCase()} Interior Layout`;
     const roomType = document.getElementById('room-type')?.value || 'bedroom';
     const roomLabels = {
-      complete_house: 'Complete House (1 BHK: Master Suite + Dressing)',
-      complete_house_2bhk: 'Complete House (2 BHK: Master Suite + Bed 2)',
-      bedroom_single: 'Single Bedroom (Twin Platform Suite)',
-      bedroom: 'Master Bedroom (Type 1: Luxury Suite)',
-      bedroom_zen: 'Master Bedroom (Type 2: Minimalist Zen)',
-      bedroom_hotel: 'Master Bedroom (Type 3: Hotel Chic & Vanity)',
-      bedroom_scandi: 'Master Bedroom (Type 4: Scandinavian Haven)',
-      living_room: 'Living Room (Type 1: Media Lounge)',
-      living_room_zen: 'Living Room (Type 2: Japandi Zen)',
-      living_room_luxury: 'Living Room (Type 3: Luxury Penthouse)',
-      living_room_cozy: 'Living Room (Type 4: Scandi Hygge)',
-      dining_room: 'Dining Room (Type 1: Grand Banquet)',
-      dining_room_minimal: 'Dining Room (Type 2: Zen Tea Pavilion)',
-      dining_room_luxury: 'Dining Room (Type 3: Luxury Penthouse Salon)',
-      dining_room_scandi: 'Dining Room (Type 4: Scandi Farmhouse)',
-      kitchen: "Modular Kitchen (Type 1: Island Chef's Gourmet)",
-      kitchen_lshape: "Modular Kitchen (Type 2: L-Shaped Family Nook)",
-      kitchen_galley: "Modular Kitchen (Type 3: Parallel Galley Studio)",
-      kitchen_ushape: "Modular Kitchen (Type 4: U-Shaped Luxury Peninsula)"
+      modern_apartment: 'Modern Apartment Suite',
+      complete_house: 'Single Bedroom House (1 BHK)',
+      complete_house_2bhk: 'Contemporary Villa (2 BHK Estate)',
+      bedroom: 'Master Bedroom Suite',
+      bedroom_single: 'Single Bedroom (Compact Suite)',
+      living_room: 'Living Room Lounge',
+      dining_room: 'Dining Room Pavilion',
+      kitchen: 'Modular Kitchen'
     };
     const roomTypeLabel = roomLabels[roomType] || roomType.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
     const w = parseFloat(document.getElementById('room-w')?.value) || 5.0;
