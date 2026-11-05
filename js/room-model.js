@@ -627,14 +627,14 @@ export class RoomBuilder {
     // 4. Master Bedroom Floor (Back-Left: Herringbone Wood Flooring in Apartment)
     makeFloorMesh(6.5, 6.0, -3.75, -2.5, bedroomFlooring, 'bedroom');
 
-    // 5. Rear East Room (Bedroom 2 in 2BHK, Home Office in 1BHK, or Suite Retreat in Apartment)
+    // 5. Rear East Room (Bedroom 2 in 2BHK, or Master Dressing & En-Suite in 1BHK / Apartment)
     if (this.houseType === '2bhk') {
       makeFloorMesh(7.5, 6.0, 3.25, -2.5, bedroomFlooring, 'bedroom2');
     } else if (isApartment) {
-      makeFloorMesh(7.5, 6.0, 3.25, -2.5, 'herringbone_wood', 'office');
+      makeFloorMesh(7.5, 6.0, 3.25, -2.5, 'herringbone_wood', 'dressing');
     } else {
-      const officeFlooring = (flooringType === 'wood_oak' || flooringType === 'dark_walnut') ? flooringType : 'dark_walnut';
-      makeFloorMesh(7.5, 6.0, 3.25, -2.5, officeFlooring, 'office');
+      const dressingFlooring = (flooringType === 'wood_oak' || flooringType === 'dark_walnut') ? flooringType : 'dark_walnut';
+      makeFloorMesh(7.5, 6.0, 3.25, -2.5, dressingFlooring, 'dressing');
     }
 
     // Decorative Satin Brass Doorway Threshold Strips
@@ -653,7 +653,7 @@ export class RoomBuilder {
     addThreshold(0.08, 3.0, 3.0, 3.1);
     // Master Bedroom doorway threshold
     addThreshold(1.1, 0.08, -1.85, 0.5);
-    // Home Office doorway threshold
+    // Master Dressing & En-Suite doorway threshold
     addThreshold(1.1, 0.08, 1.95, 0.5);
   }
 
@@ -711,13 +711,13 @@ export class RoomBuilder {
     addWall(1.1, 0.6, 0.12, -1.85, 2.5, 0.5, 'Bedroom Door Lintel');
     // Central Hallway Corridor Arch Lintel (overhead beam above 2.7m open passage)
     addWall(2.7, 0.45, 0.12, 0.05, 2.575, 0.5, 'Hallway Arch Lintel');
-    // Home Office Door Lintel (overhead beam above 1.1m door opening)
-    addWall(1.1, 0.6, 0.12, 1.95, 2.5, 0.5, 'Office Door Lintel');
+    // Master Dressing & En-Suite Door Lintel (overhead beam above 1.1m door opening)
+    addWall(1.1, 0.6, 0.12, 1.95, 2.5, 0.5, 'Dressing Door Lintel');
     // Modular Kitchen North Wall (2.5 to 7.0m)
     addWall(4.5, H, 0.12, 4.75, H / 2, 0.5, 'Kitchen North Wall');
 
-    // 2. North-South Dividing Wall in Rear Wing at X = -0.5 (Acoustic Partition Bedroom & Office)
-    addWall(0.12, H, 6.0, -0.5, H / 2, -2.5, 'Bedroom-Office Acoustic Partition');
+    // 2. North-South Dividing Wall in Rear Wing at X = -0.5 (Acoustic Partition Bedroom & Dressing Suite)
+    addWall(0.12, H, 6.0, -0.5, H / 2, -2.5, 'Bedroom-Dressing Acoustic Partition');
 
     // 3. North-South Dividing Wall in Front Wing at X = -1.0 (Living Room & Dining Room)
     // Back stub wall (0.5m to 1.8m)
@@ -776,7 +776,7 @@ export class RoomBuilder {
     // 2. Living Room Picture Window on West Exterior Wall
     createArchitecturalWindow(2.2, 1.5, -6.98, 1.5, 3.25, 0);
 
-    // 3. Home Office Panoramic Double Window on East Exterior Wall
+    // 3. Master Dressing Suite Panoramic Double Window on East Exterior Wall
     createArchitecturalWindow(2.4, 1.4, 6.98, 1.5, -2.5, Math.PI);
 
     // 4. Modular Kitchen Casement Window on East Exterior Wall
@@ -827,7 +827,7 @@ export class RoomBuilder {
 
     // Master Bedroom Door (swings 20 degrees into bedroom)
     createInteriorDoor(-1.85, 0.5, 20);
-    // Home Office Door (swings 20 degrees into office)
+    // Master Dressing Suite Door (swings 20 degrees into dressing suite)
     createInteriorDoor(1.95, 0.5, 20);
   }
 
@@ -860,9 +860,9 @@ export class RoomBuilder {
     if (this.houseType === '2bhk') {
       this.createRoomBadge('BEDROOM 2 (DOUBLE BED)', '🛏️', 3.25, -2.5, 'bedroom2');
     } else if (isApartment) {
-      this.createRoomBadge('MASTER WALK-IN CLOSET & STUDY', '💼', 3.25, -2.5, 'office');
+      this.createRoomBadge('MASTER DRESSING & EN-SUITE', '👗', 3.25, -2.5, 'dressing');
     } else {
-      this.createRoomBadge('HOME OFFICE & STUDY', '💼', 3.25, -2.5, 'office');
+      this.createRoomBadge('MASTER DRESSING & EN-SUITE', '👗', 3.25, -2.5, 'dressing');
     }
   }
 

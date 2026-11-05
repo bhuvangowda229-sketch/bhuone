@@ -40,7 +40,7 @@ class App {
     // Complete House Multi-Room Navigation & State
     this.currentHouseZone = 'all';
     this.currentHouseType = '1bhk'; // '1bhk' (Single Bedroom House) or '2bhk' (Double Bedroom House)
-    this.currentHouseRoomTypes = { living: 1, dining: 1, kitchen: 1, bedroom: 1, office: 1 };
+    this.currentHouseRoomTypes = { living: 1, dining: 1, kitchen: 1, bedroom: 1, dressing: 1 };
     this.cameraAnimation = null;
 
     this.initScene();
@@ -1030,7 +1030,7 @@ class App {
       });
     });
 
-    // Complete House Navigator Bar buttons (Whole House, Living, Dining, Kitchen, Bedroom, Bed 2 / Office)
+    // Complete House Navigator Bar buttons (Whole House, Living, Dining, Kitchen, Bedroom, Bed 2 / Dressing)
     document.querySelectorAll('.house-nav-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const roomSelect = document.getElementById('room-type');
@@ -1149,33 +1149,6 @@ class App {
       });
     });
 
-    // Home Office 4 Design Types Selector Buttons
-    document.querySelectorAll('.office-type-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const targetType = btn.getAttribute('data-office-type');
-        const roomSelect = document.getElementById('room-type');
-        const isHouse = roomSelect && (roomSelect.value === 'complete_house' || roomSelect.value === 'complete_house_2bhk');
-
-        let vNum = 1;
-        if (targetType === 'home_office_minimal') vNum = 2;
-        else if (targetType === 'home_office_creative') vNum = 3;
-        else if (targetType === 'home_office_academic') vNum = 4;
-
-        if (isHouse) {
-          this.currentHouseRoomTypes.office = vNum;
-          this.currentHouseZone = 'office';
-          this.syncRoomVariantsUI(roomSelect.value);
-          this.triggerAIGeneration();
-          this.focusRoom('office');
-        } else {
-          if (roomSelect) roomSelect.value = targetType;
-          this.syncRoomVariantsUI(targetType);
-          this.triggerAIGeneration();
-        }
-        const typeTitle = btn.querySelector('strong')?.textContent || 'Home Office Type';
-        this.showToast(`✨ Switched to ${typeTitle}`);
-      });
-    });
 
     // Dining Room 4 Design Types Selector Buttons
     document.querySelectorAll('.dining-type-btn').forEach(btn => {
@@ -2032,12 +2005,6 @@ class App {
     const livingButtons = document.querySelectorAll('.living-type-btn');
     const isLiving = currentRoomType === 'living_room' || (currentRoomType && currentRoomType.startsWith('living_room_'));
 
-    // 3. Home Office Variants
-    const officeWrapper = document.getElementById('office-variants-wrapper');
-    const officePill = document.getElementById('office-type-pill');
-    const officeButtons = document.querySelectorAll('.office-type-btn');
-    const isOffice = currentRoomType === 'home_office' || (currentRoomType && currentRoomType.startsWith('home_office_'));
-
     // 4. Dining Room Variants
     const diningWrapper = document.getElementById('dining-variants-wrapper');
     const diningPill = document.getElementById('dining-type-pill');
@@ -2060,20 +2027,19 @@ class App {
       }
       const hubRearBtn = document.getElementById('hub-zone-rear');
       if (hubRearBtn) {
-        hubRearBtn.innerHTML = is2BHK ? '🛏️ Bed 2' : '💼 Office';
-        hubRearBtn.setAttribute('data-zone', is2BHK ? 'bedroom2' : 'office');
+        hubRearBtn.innerHTML = is2BHK ? '🛏️ Bed 2' : '👗 Dressing';
+        hubRearBtn.setAttribute('data-zone', is2BHK ? 'bedroom2' : 'dressing');
       }
       const navRearBtn = document.getElementById('nav-btn-rear');
       if (navRearBtn) {
-        navRearBtn.innerHTML = is2BHK ? '<span>🛏️</span> Bed 2' : '<span>💼</span> Office';
-        navRearBtn.setAttribute('data-target-room', is2BHK ? 'bedroom2' : 'office');
-        navRearBtn.setAttribute('title', is2BHK ? 'Focus Second Bedroom (Twin Suite)' : 'Focus Home Office & Study');
+        navRearBtn.innerHTML = is2BHK ? '<span>🛏️</span> Bed 2' : '<span>👗</span> Dressing';
+        navRearBtn.setAttribute('data-target-room', is2BHK ? 'bedroom2' : 'dressing');
+        navRearBtn.setAttribute('title', is2BHK ? 'Focus Second Bedroom (Twin Suite)' : 'Focus Master Dressing & En-Suite Bath');
       }
 
       const activeZone = this.currentHouseZone || 'living';
       if (bedWrapper) bedWrapper.style.display = (activeZone === 'bedroom' || activeZone === 'bedroom2') ? 'block' : 'none';
       if (livingWrapper) livingWrapper.style.display = (activeZone === 'living' || activeZone === 'all') ? 'block' : 'none';
-      if (officeWrapper) officeWrapper.style.display = (activeZone === 'office') ? 'block' : 'none';
       if (diningWrapper) diningWrapper.style.display = (activeZone === 'dining') ? 'block' : 'none';
       if (kitchenWrapper) kitchenWrapper.style.display = (activeZone === 'kitchen') ? 'block' : 'none';
 
@@ -2085,10 +2051,6 @@ class App {
       const livingNum = this.currentHouseRoomTypes.living;
       livingButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === livingNum));
       if (livingPill) livingPill.textContent = `Type ${livingNum} Active`;
-
-      const officeNum = this.currentHouseRoomTypes.office;
-      officeButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === officeNum));
-      if (officePill) officePill.textContent = `Type ${officeNum} Active`;
 
       const diningNum = this.currentHouseRoomTypes.dining;
       diningButtons.forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === diningNum));
@@ -2129,22 +2091,6 @@ class App {
           else if (currentRoomType === 'living_room_luxury') livingPill.textContent = 'Type 3 Active';
           else if (currentRoomType === 'living_room_cozy') livingPill.textContent = 'Type 4 Active';
           else livingPill.textContent = 'Type 1 Active';
-        }
-      }
-    }
-
-    if (officeWrapper) {
-      officeWrapper.style.display = isOffice ? 'block' : 'none';
-      if (isOffice) {
-        officeButtons.forEach(btn => {
-          const type = btn.getAttribute('data-office-type');
-          btn.classList.toggle('active', type === currentRoomType);
-        });
-        if (officePill) {
-          if (currentRoomType === 'home_office_minimal') officePill.textContent = 'Type 2 Active';
-          else if (currentRoomType === 'home_office_creative') officePill.textContent = 'Type 3 Active';
-          else if (currentRoomType === 'home_office_academic') officePill.textContent = 'Type 4 Active';
-          else officePill.textContent = 'Type 1 Active';
         }
       }
     }
@@ -2215,7 +2161,8 @@ class App {
       master_bath: 'Master En-Suite Bathroom',
       walk_in_closet: 'Walk-In Wardrobe Dressing',
       backyard: 'Backyard Garden & Patio',
-      office: 'Home Office & Study'
+      dressing: 'Master Dressing & En-Suite Bath',
+      office: 'Master Dressing & En-Suite Bath'
     };
     if (pill) pill.textContent = (titles[zoneKey] || 'Room') + ' Active';
 
@@ -2275,10 +2222,11 @@ class App {
         targetLook = new THREE.Vector3(4.4, 1.0, -7.5);
         this.showToast('📍 Viewing Backyard Garden & Patio');
         break;
+      case 'dressing':
       case 'office':
         targetPos = new THREE.Vector3(3.25, 4.2, 3.0);
         targetLook = new THREE.Vector3(3.25, 1.2, -2.5);
-        this.showToast('📍 Viewing Home Office & Study');
+        this.showToast('👗 Viewing Master Dressing & En-Suite Bath');
         break;
       case 'all':
       default:
@@ -2452,11 +2400,6 @@ class App {
     else if (currentRoomType === 'living_room_luxury') livingType = 3;
     else if (currentRoomType === 'living_room_cozy') livingType = 4;
 
-    let officeType = isHouse ? (this.currentHouseRoomTypes.office || 1) : 1;
-    if (currentRoomType === 'home_office_minimal') officeType = 2;
-    else if (currentRoomType === 'home_office_creative') officeType = 3;
-    else if (currentRoomType === 'home_office_academic') officeType = 4;
-
     let diningType = isHouse ? (this.currentHouseRoomTypes.dining || 1) : 1;
     if (currentRoomType === 'dining_room_minimal') diningType = 2;
     else if (currentRoomType === 'dining_room_luxury') diningType = 3;
@@ -2482,7 +2425,6 @@ class App {
       houseType: this.currentHouseType || (is2BHK ? '2bhk' : '1bhk'),
       bedroomType: bedType,
       livingRoomType: livingType,
-      officeType: officeType,
       diningType: diningType,
       kitchenType: kitchenType,
       dimensions: isHouse ? houseDims : singleDims,
@@ -2825,7 +2767,7 @@ class App {
     const conceptTitle = `${this.currentStyle.toUpperCase()} Interior Layout`;
     const roomType = document.getElementById('room-type')?.value || 'bedroom';
     const roomLabels = {
-      complete_house: 'Complete House (1 BHK: Master Suite + Office)',
+      complete_house: 'Complete House (1 BHK: Master Suite + Dressing)',
       complete_house_2bhk: 'Complete House (2 BHK: Master Suite + Bed 2)',
       bedroom_single: 'Single Bedroom (Twin Platform Suite)',
       bedroom: 'Master Bedroom (Type 1: Luxury Suite)',
@@ -2836,10 +2778,6 @@ class App {
       living_room_zen: 'Living Room (Type 2: Japandi Zen)',
       living_room_luxury: 'Living Room (Type 3: Luxury Penthouse)',
       living_room_cozy: 'Living Room (Type 4: Scandi Hygge)',
-      home_office: 'Home Office (Type 1: Executive Suite)',
-      home_office_minimal: 'Home Office (Type 2: Zen Focus Studio)',
-      home_office_creative: 'Home Office (Type 3: Tech Battlestation)',
-      home_office_academic: 'Home Office (Type 4: Academic Scholar Nook)',
       dining_room: 'Dining Room (Type 1: Grand Banquet)',
       dining_room_minimal: 'Dining Room (Type 2: Zen Tea Pavilion)',
       dining_room_luxury: 'Dining Room (Type 3: Luxury Penthouse Salon)',

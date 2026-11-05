@@ -1085,14 +1085,14 @@ class RoomBuilder {
     // 4. Master Bedroom Floor (Back-Left: Herringbone Wood Flooring in Apartment)
     makeFloorMesh(6.5, 6.0, -3.75, -2.5, bedroomFlooring, 'bedroom');
 
-    // 5. Rear East Room (Bedroom 2 in 2BHK, Home Office in 1BHK, or Suite Retreat in Apartment)
+    // 5. Rear East Room (Bedroom 2 in 2BHK, or Master Dressing & En-Suite in 1BHK / Apartment)
     if (this.houseType === '2bhk') {
       makeFloorMesh(7.5, 6.0, 3.25, -2.5, bedroomFlooring, 'bedroom2');
     } else if (isApartment) {
-      makeFloorMesh(7.5, 6.0, 3.25, -2.5, 'herringbone_wood', 'office');
+      makeFloorMesh(7.5, 6.0, 3.25, -2.5, 'herringbone_wood', 'dressing');
     } else {
-      const officeFlooring = (flooringType === 'wood_oak' || flooringType === 'dark_walnut') ? flooringType : 'dark_walnut';
-      makeFloorMesh(7.5, 6.0, 3.25, -2.5, officeFlooring, 'office');
+      const dressingFlooring = (flooringType === 'wood_oak' || flooringType === 'dark_walnut') ? flooringType : 'dark_walnut';
+      makeFloorMesh(7.5, 6.0, 3.25, -2.5, dressingFlooring, 'dressing');
     }
 
     // Decorative Satin Brass Doorway Threshold Strips
@@ -1111,7 +1111,7 @@ class RoomBuilder {
     addThreshold(0.08, 3.0, 3.0, 3.1);
     // Master Bedroom doorway threshold
     addThreshold(1.1, 0.08, -1.85, 0.5);
-    // Home Office doorway threshold
+    // Master Dressing & En-Suite doorway threshold
     addThreshold(1.1, 0.08, 1.95, 0.5);
   }
 
@@ -1169,13 +1169,13 @@ class RoomBuilder {
     addWall(1.1, 0.6, 0.12, -1.85, 2.5, 0.5, 'Bedroom Door Lintel');
     // Central Hallway Corridor Arch Lintel (overhead beam above 2.7m open passage)
     addWall(2.7, 0.45, 0.12, 0.05, 2.575, 0.5, 'Hallway Arch Lintel');
-    // Home Office Door Lintel (overhead beam above 1.1m door opening)
-    addWall(1.1, 0.6, 0.12, 1.95, 2.5, 0.5, 'Office Door Lintel');
+    // Master Dressing & En-Suite Door Lintel (overhead beam above 1.1m door opening)
+    addWall(1.1, 0.6, 0.12, 1.95, 2.5, 0.5, 'Dressing Door Lintel');
     // Modular Kitchen North Wall (2.5 to 7.0m)
     addWall(4.5, H, 0.12, 4.75, H / 2, 0.5, 'Kitchen North Wall');
 
-    // 2. North-South Dividing Wall in Rear Wing at X = -0.5 (Acoustic Partition Bedroom & Office)
-    addWall(0.12, H, 6.0, -0.5, H / 2, -2.5, 'Bedroom-Office Acoustic Partition');
+    // 2. North-South Dividing Wall in Rear Wing at X = -0.5 (Acoustic Partition Bedroom & Dressing Suite)
+    addWall(0.12, H, 6.0, -0.5, H / 2, -2.5, 'Bedroom-Dressing Acoustic Partition');
 
     // 3. North-South Dividing Wall in Front Wing at X = -1.0 (Living Room & Dining Room)
     // Back stub wall (0.5m to 1.8m)
@@ -1234,7 +1234,7 @@ class RoomBuilder {
     // 2. Living Room Picture Window on West Exterior Wall
     createArchitecturalWindow(2.2, 1.5, -6.98, 1.5, 3.25, 0);
 
-    // 3. Home Office Panoramic Double Window on East Exterior Wall
+    // 3. Master Dressing Suite Panoramic Double Window on East Exterior Wall
     createArchitecturalWindow(2.4, 1.4, 6.98, 1.5, -2.5, Math.PI);
 
     // 4. Modular Kitchen Casement Window on East Exterior Wall
@@ -1285,7 +1285,7 @@ class RoomBuilder {
 
     // Master Bedroom Door (swings 20 degrees into bedroom)
     createInteriorDoor(-1.85, 0.5, 20);
-    // Home Office Door (swings 20 degrees into office)
+    // Master Dressing Suite Door (swings 20 degrees into dressing suite)
     createInteriorDoor(1.95, 0.5, 20);
   }
 
@@ -1318,9 +1318,9 @@ class RoomBuilder {
     if (this.houseType === '2bhk') {
       this.createRoomBadge('BEDROOM 2 (DOUBLE BED)', '🛏️', 3.25, -2.5, 'bedroom2');
     } else if (isApartment) {
-      this.createRoomBadge('MASTER WALK-IN CLOSET & STUDY', '💼', 3.25, -2.5, 'office');
+      this.createRoomBadge('MASTER DRESSING & EN-SUITE', '👗', 3.25, -2.5, 'dressing');
     } else {
-      this.createRoomBadge('HOME OFFICE & STUDY', '💼', 3.25, -2.5, 'office');
+      this.createRoomBadge('MASTER DRESSING & EN-SUITE', '👗', 3.25, -2.5, 'dressing');
     }
   }
 
@@ -5690,7 +5690,7 @@ class AIEngine {
       const isApartment = (roomType === 'modern_apartment' || roomType === 'apartment' || pref.houseType === 'apartment' || pref.houseType === 'modern_apartment');
       if (isVilla) {
         concept = `CONTEMPORARY LUXURY VILLA (2 BHK ESTATE ${style.toUpperCase()})`;
-        spatialRationale = `A master-crafted 16m × 18.5m contemporary villa estate with perimeter boundary garden, front driveway & porch, entrance foyer with pivot door & console, sunken living lounge with cognac leather sectional & Missouri TV unit, open dining area, U-shaped modular kitchen, terracotta second bedroom suite with twin beds & study, walk-in closet, common & master en-suite designer bathrooms, and private backyard garden.`;
+        spatialRationale = `A master-crafted 16m × 18.5m contemporary villa estate with perimeter boundary garden, front driveway & porch, entrance foyer with pivot door & console, sunken living lounge with cognac leather sectional & Missouri TV unit, open dining area, U-shaped modular kitchen, terracotta second bedroom suite with twin beds & vanity dressing lounge, walk-in closet, common & master en-suite designer bathrooms, and private backyard garden.`;
         lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips in kitchen, illuminated LED mirrors in bathrooms, and independent dimmable bedside luminaires in both bedrooms.`;
       } else if (isApartment) {
         concept = `MODERN APARTMENT SUITE (REAL-TIME FLOW ${style.toUpperCase()})`;
@@ -5698,19 +5698,18 @@ class AIEngine {
         lightingPlan = `Warm 3000K interior illumination with natural morning daylight. Warm 3000K LED under-cabinet kitchen task lighting, overhead linear brass dining chandelier, recessed living cove glows, and natural morning sunlight streaming through wide balcony glazing with soft morning shadows.`;
       } else if (is2BHK) {
         concept = `COMPLETE DOUBLE BEDROOM RESIDENCE (2 BHK ${style.toUpperCase()})`;
-        spatialRationale = `A unified, continuous 14m × 11.5m 2-Bedroom residential floor plan with fully connected living, dining, kitchen, and two dedicated bedroom suites. The front wing houses the great-room living lounge with Missouri TV entertainment center, interconnected dining pavilion, and modular kitchen. The rear wing features the Master Bedroom Suite (Bedroom 1) and a fully appointed Second Bedroom (Bedroom 2 / Double Bed & Study Suite) with private hallway access.`;
+        spatialRationale = `A unified, continuous 14m × 11.5m 2-Bedroom residential floor plan with fully connected living, dining, kitchen, and two dedicated bedroom suites. The front wing houses the great-room living lounge with Missouri TV entertainment center, interconnected dining pavilion, and modular kitchen. The rear wing features the Master Bedroom Suite (Bedroom 1) and a fully appointed Second Bedroom (Bedroom 2 / Double Bed & Dressing Suite) with private hallway access.`;
         lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips in kitchen, and independent dimmable bedside luminaires and split ACs in both Master Bedroom 1 and Bedroom 2.`;
       } else {
         concept = `COMPLETE SINGLE BEDROOM RESIDENCE (1 BHK ${style.toUpperCase()})`;
-        spatialRationale = `A unified, continuous 14m × 11.5m complete home layout where all rooms are situated seamlessly adjacent to each other with shared architectural walls, open archways, and connecting corridors. The sunlit front wing combines an expansive Living Lounge with Missouri TV Entertainment Center, an interconnected Formal Dining Pavilion, and an Open-Concept Modular Kitchen. The private rear wing features a secluded Master Bedroom Suite and an Executive Home Office & Library Sanctuary.`;
-        lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips and pendant glow in kitchen, dimmable bedside luminaires in master bedroom, and focused glare-free task light in executive study.`;
+        spatialRationale = `A unified, continuous 14m × 11.5m complete home layout where all rooms are situated seamlessly adjacent to each other with shared architectural walls, open archways, and connecting corridors. The sunlit front wing combines an expansive Living Lounge with Missouri TV Entertainment Center, an interconnected Formal Dining Pavilion, and an Open-Concept Modular Kitchen. The private rear wing features a secluded Master Bedroom Suite and a Master Dressing & En-Suite Luxury Suite.`;
+        lightingPlan = `Harmonious multi-zone architectural illumination: layered warm LED cove lighting in the living lounge, statement linear brass chandelier above dining, under-cabinet task strips and pendant glow in kitchen, dimmable bedside luminaires in master bedroom, and flattering vanity mirror glow in master dressing en-suite.`;
       }
 
       const livingType = pref.livingRoomType || 1;
       const diningType = pref.diningType || 1;
       const kitchenType = pref.kitchenType || 1;
       const bedType = pref.bedroomType || 1;
-      const officeType = pref.officeType || 1;
 
       // ==========================================
       // ZONE 1: LIVING ROOM (X: -7.0 to -1.0, Z: 0.5 to 6.0)
@@ -6266,11 +6265,11 @@ class AIEngine {
           cost: 1200
         });
 
-        // 40. Study Desk (West acoustic wall)
+        // 40. Bedroom Vanity Dressing Console (West acoustic wall)
         items.push({
-          id: 'house_bed2_desk',
-          type: 'desk',
-          name: 'Integrated Bedroom Study & Work Desk',
+          id: 'house_bed2_vanity',
+          type: 'credenza',
+          name: 'Bedroom Dressing Vanity Console',
           position: [0.4, 0, -2.5],
           rotation: [0, Math.PI / 2, 0],
           style: style,
@@ -6278,11 +6277,11 @@ class AIEngine {
           cost: 650
         });
 
-        // 41. Study Chair
+        // 41. Velvet Accent Vanity Chair
         items.push({
           id: 'house_bed2_chair',
-          type: 'office_chair',
-          name: 'Ergonomic Bedroom Study Chair',
+          type: 'armchair',
+          name: 'Velvet Bedroom Vanity Lounge Chair',
           position: [1.1, 0, -2.5],
           rotation: [0, -Math.PI / 2, 0],
           room: 'bedroom2',
@@ -6487,116 +6486,117 @@ class AIEngine {
 
       } else {
         // ==========================================
-        // ZONE 5: HOME OFFICE & STUDY (1BHK SINGLE BEDROOM HOUSE)
+        // ZONE 5: MASTER DRESSING & EN-SUITE BATH SUITE (1BHK / MODERN APARTMENT)
         // ==========================================
-        // 34. Executive Studio Desk
+        // 34. Custom Floor-to-Ceiling Walk-In Wardrobe Suite (North Wall)
         items.push({
-          id: 'house_office_desk',
-          type: 'desk',
-          name: 'Executive Studio Desk with Cable Bay',
-          position: [3.25, 0, -2.5],
+          id: 'house_dressing_wardrobe',
+          type: 'walk_in_wardrobe',
+          name: 'Bespoke Walk-In Wardrobe System with Smoked Glass Doors',
+          position: [3.25, 0, -5.1],
           rotation: [0, 0, 0],
           style: style,
-          room: 'office',
-          cost: 950
+          color: palette.wardrobeColor || 0x1f2937,
+          room: 'dressing',
+          cost: 2100
         });
 
-        // 35. High-Back Ergonomic Mesh Office Chair
+        // 35. Vanity Dressing Table & Mirror (West dividing wall)
         items.push({
-          id: 'house_office_chair',
-          type: 'office_chair',
-          name: 'Ergonomic High-Back Executive Mesh Chair',
-          position: [3.25, 0, -3.3],
-          rotation: [0, 0, 0],
-          room: 'office',
-          cost: 540
-        });
-
-        // 36. Floor-to-Ceiling Library Bookshelf (North wall)
-        items.push({
-          id: 'house_office_bookshelf',
-          type: 'bookshelf',
-          name: 'Floor-to-Ceiling Architectural Bookshelf',
-          position: [3.25, 0, -5.15],
-          rotation: [0, 0, 0],
-          style: style,
-          room: 'office',
-          cost: 820
-        });
-
-        // 37. Resource Storage Credenza (West wall)
-        items.push({
-          id: 'house_office_credenza',
+          id: 'house_dressing_vanity',
           type: 'credenza',
-          name: 'Executive File Storage & Resource Credenza',
-          position: [-0.1, 0, -3.5],
+          name: 'Floating Dressing Table with Integrated LED Mirror',
+          position: [-0.1, 0, -2.8],
           rotation: [0, Math.PI / 2, 0],
           style: style,
           woodColor: palette.woodColor,
-          room: 'office',
-          cost: 680
+          room: 'dressing',
+          cost: 850
         });
 
-        // 38. Client Visitor Armchair
+        // 36. Bouclé Dressing Lounge Armchair
         items.push({
-          id: 'house_office_visitor',
+          id: 'house_dressing_chair',
           type: 'armchair',
-          name: 'Executive Client Armchair',
-          position: [2.3, 0, -1.6],
-          rotation: [0, Math.PI, 0],
+          name: 'Bouclé Accent Vanity Lounge Chair',
+          position: [0.85, 0, -2.8],
+          rotation: [0, -Math.PI / 2, 0],
           style: style,
           color: palette.accentColor,
-          room: 'office',
-          cost: 480
+          room: 'dressing',
+          cost: 450
         });
 
-        // 39. Desk LED Task Lamp
+        // 37. Luxury En-Suite Glass Shower Enclosure (East Wall)
         items.push({
-          id: 'house_office_lamp',
-          type: 'table_lamp',
-          name: 'Architectural LED Task Lamp',
-          position: [2.3, 0.78, -2.5],
-          rotation: [0, 0, 0],
-          color: palette.accentColor,
-          room: 'office',
-          cost: 120
+          id: 'house_dressing_shower',
+          type: 'shower',
+          name: 'Frameless Walk-In Glass Rain Shower Enclosure',
+          position: [6.1, 0, -4.5],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          room: 'dressing',
+          cost: 1600
         });
 
-        // 40. Indoor Monstera Plant
+        // 38. Modern Bathroom Vanity with Vessel Sink
         items.push({
-          id: 'house_office_plant',
+          id: 'house_dressing_bath_vanity',
+          type: 'bathroom_vanity',
+          name: 'Designer Double Basin En-Suite Vanity',
+          position: [6.1, 0, -2.2],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          room: 'dressing',
+          cost: 1250
+        });
+
+        // 39. En-Suite Wall-Hung Toilet
+        items.push({
+          id: 'house_dressing_toilet',
+          type: 'toilet',
+          name: 'Concealed Cistern Wall-Hung Toilet',
+          position: [6.3, 0, -0.6],
+          rotation: [0, -Math.PI / 2, 0],
+          room: 'dressing',
+          cost: 580
+        });
+
+        // 40. Indoor Fiddle Leaf Fig Planter
+        items.push({
+          id: 'house_dressing_plant',
           type: 'plant',
-          name: 'Architectural Monstera Ceramic Planter',
-          position: [6.4, 0, -5.0],
+          name: 'Architectural Fiddle Leaf Fig Ceramic Planter',
+          position: [0.4, 0, -0.8],
           rotation: [0, 0, 0],
-          room: 'office',
-          cost: 150
+          room: 'dressing',
+          cost: 160
         });
 
-        // 41. Office Geometric Area Rug
+        // 41. Plush Velvet Dressing Runner Rug
         items.push({
-          id: 'house_office_rug',
+          id: 'house_dressing_rug',
           type: 'rug',
-          name: 'Office Geometric Low-Profile Rug',
-          position: [3.25, 0.005, -2.5],
+          name: 'Plush Silk-Velvet Dressing Suite Rug',
+          position: [3.0, 0.005, -2.5],
           rotation: [0, 0, 0],
-          dimensions: [3.0, 2.4],
+          dimensions: [2.8, 2.2],
           style: style,
-          room: 'office',
-          cost: 340
+          room: 'dressing',
+          cost: 380
         });
 
-        // 42. Framed Architectural Blueprint Art (North wall)
+        // 42. Minimalist Fashion Gallery Art (South entrance wall)
         items.push({
-          id: 'house_office_art',
+          id: 'house_dressing_art',
           type: 'wall_art',
-          name: 'Framed Architectural Blueprint Art',
-          position: [0.8, 1.8, -5.44],
-          rotation: [0, 0, 0],
-          dimensions: [1.4, 0.9],
+          name: 'Curated Haute Couture Gallery Canvas',
+          position: [0.8, 1.8, -0.44],
+          rotation: [0, Math.PI, 0],
+          dimensions: [1.2, 0.8],
           style: style,
-          room: 'office',
-          cost: 290
+          room: 'dressing',
+          cost: 310
         });
       }
 
@@ -6980,10 +6980,10 @@ class AIEngine {
         });
 
       } else {
-        // TYPE 4: SCANDINAVIAN HYGGE FAMILY LIVING (WITH LIBRARY & STUDY NOOK)
+        // TYPE 4: SCANDINAVIAN HYGGE FAMILY LIVING (WITH LIBRARY & LOUNGE NOOK)
         concept = `TYPE 4: SCANDINAVIAN HYGGE FAMILY LIVING (${style.toUpperCase()})`;
-        spatialRationale = `A versatile, warm family sanctuary that seamlessly combines relaxed communal lounging with an integrated library and laptop work nook. The corner reading zone invites quiet afternoon reading, while the central sofa cluster provides comfortable movie and game nights.`;
-        lightingPlan = `Cozy 2700K hygge illumination: directional reading lamp by the bookshelf nook, warm timber overhead pendant, and soft task lighting at the study desk.`;
+        spatialRationale = `A versatile, warm family sanctuary that seamlessly combines relaxed communal lounging with an integrated library and credenza storage nook. The corner reading zone invites quiet afternoon reading, while the central sofa cluster provides comfortable movie and game nights.`;
+        lightingPlan = `Cozy 2700K hygge illumination: directional reading lamp by the bookshelf nook, warm timber overhead pendant, and ambient sideboard glow.`;
 
         // Cozy Hygge Family Sofa
         const sofaZ = -L / 2 + 1.15;
@@ -7068,27 +7068,28 @@ class AIEngine {
           cost: 460
         });
 
-        // Integrated Work & Study Desk along right wall
+        // Nordic Sideboard Credenza along right wall
         items.push({
-          id: 'desk_1',
-          type: 'desk',
-          name: 'Integrated Work / Study Desk',
+          id: 'credenza_1',
+          type: 'credenza',
+          name: 'Nordic Lowline Sideboard Credenza',
           position: [W / 2 - 0.75, 0, 0.3],
           rotation: [0, -Math.PI / 2, 0],
           style: style,
-          color: palette.woodColor,
+          woodColor: palette.woodColor,
           cost: 560
         });
 
-        // Ergonomic Desk Chair
+        // Cozy Accent Ottoman
         items.push({
-          id: 'office_chair_1',
-          type: 'office_chair',
-          name: 'Ergonomic Desk Chair',
+          id: 'ottoman_1',
+          type: 'ottoman',
+          name: 'Bouclé Scandinavian Footstool Ottoman',
           position: [W / 2 - 1.45, 0, 0.3],
-          rotation: [0, Math.PI / 2, 0],
+          rotation: [0, 0, 0],
           style: style,
-          cost: 280
+          color: palette.accentColor,
+          cost: 240
         });
 
         // Timber Directional Reading Lamp
@@ -7133,9 +7134,9 @@ class AIEngine {
       else if (roomType === 'bedroom' && pref.bedroomType) bedType = parseInt(pref.bedroomType, 10) || 1;
 
       if (roomType === 'bedroom_single') {
-        concept = `COZY SINGLE BEDROOM & STUDY SUITE (${style.toUpperCase()})`;
-        spatialRationale = `A high-efficiency single bedroom tailored for students, guests, or compact modern living. Anchored by a comfortable single/twin platform bed against the perimeter, a dedicated ergonomic study and laptop desk, bedside nightstand with task lamp, and an integrated wardrobe.`;
-        lightingPlan = `Focused task lighting at the study desk paired with warm bedside illumination and soft ambient overhead lighting.`;
+        concept = `COZY COMPACT SUITE & SINGLE BED (${style.toUpperCase()})`;
+        spatialRationale = `A high-efficiency single bedroom tailored for guests or compact modern living. Anchored by a comfortable single/twin platform bed against the perimeter, a chic vanity dressing table with accent armchair, bedside nightstand with reading lamp, and an integrated wardrobe.`;
+        lightingPlan = `Warm flattering illumination at the vanity mirror paired with cozy bedside reading lamp and soft ambient overhead lighting.`;
 
         // Single Bed against back wall
         items.push({
@@ -7170,24 +7171,25 @@ class AIEngine {
           cost: 95
         });
 
-        // Study Desk
+        // Vanity Dressing Table
         items.push({
-          id: 'desk_1',
-          type: 'desk',
-          name: 'Compact Study Desk',
+          id: 'vanity_1',
+          type: 'credenza',
+          name: 'Compact Dressing Vanity Table',
           position: [W / 2 - 1.2, 0, -L / 2 + 1.0],
           rotation: [0, 0, 0],
           style: style,
           cost: 580
         });
 
-        // Office Chair
+        // Velvet Vanity Accent Chair
         items.push({
-          id: 'office_chair_1',
-          type: 'office_chair',
-          name: 'Ergonomic Desk Chair',
+          id: 'vanity_chair_1',
+          type: 'armchair',
+          name: 'Velvet Vanity Lounge Chair',
           position: [W / 2 - 1.2, 0, -L / 2 + 1.7],
           rotation: [0, 0, 0],
+          color: palette.accentColor,
           cost: 320
         });
 
@@ -7219,7 +7221,7 @@ class AIEngine {
         items.push({
           id: 'art_1',
           type: 'wall_art',
-          name: 'Inspirational Study Art',
+          name: 'Curated Gallery Art Canvas',
           position: [0, 1.8, -L / 2 + 0.06],
           rotation: [0, 0, 0],
           dimensions: [1.2, 0.8],
@@ -7541,26 +7543,27 @@ class AIEngine {
           cost: 310
         });
 
-        // Executive Vanity / Laptop Desk along right wall
+        // Floating Dressing Vanity along right wall
         items.push({
-          id: 'desk_1',
-          type: 'desk',
-          name: 'Executive Vanity & Laptop Desk',
+          id: 'vanity_1',
+          type: 'credenza',
+          name: 'Floating Dressing Vanity Table',
           position: [W / 2 - 0.75, 0, 0.4],
           rotation: [0, -Math.PI / 2, 0],
           style: style,
-          color: palette.woodColor,
+          woodColor: palette.woodColor,
           cost: 580
         });
 
-        // Velvet Ergonomic Vanity Chair
+        // Velvet Vanity Lounge Chair
         items.push({
-          id: 'office_chair_1',
-          type: 'office_chair',
-          name: 'Ergonomic Vanity Chair',
+          id: 'vanity_chair_1',
+          type: 'armchair',
+          name: 'Velvet Bouclé Vanity Lounge Chair',
           position: [W / 2 - 1.45, 0, 0.4],
           rotation: [0, Math.PI / 2, 0],
           style: style,
+          color: palette.accentColor,
           cost: 290
         });
 
@@ -7751,481 +7754,8 @@ class AIEngine {
         });
       }
     } else if (roomType === 'home_office' || roomType.startsWith('home_office_')) {
-      // Determine which of the 4 Home Office / Study Design Types is selected
-      let officeType = pref.officeType || 1;
-      if (roomType === 'home_office_minimal' || roomType === 'home_office_type2') officeType = 2;
-      else if (roomType === 'home_office_creative' || roomType === 'home_office_type3') officeType = 3;
-      else if (roomType === 'home_office_academic' || roomType === 'home_office_type4') officeType = 4;
-      else if (roomType === 'home_office' && pref.officeType) officeType = parseInt(pref.officeType, 10) || 1;
-
-      if (officeType === 1) {
-        // TYPE 1: EXECUTIVE SUITE & LIBRARY
-        concept = `TYPE 1: EXECUTIVE SUITE & LIBRARY (${style.toUpperCase()})`;
-        spatialRationale = `Follows the classic 'Commanding Position' principle with an executive desk facing the room entrance backed by expansive library shelving. A dedicated visitor/reading armchair and storage credenza create a professional, authoritative environment for high-level decision making.`;
-        lightingPlan = `Dual-circuit illumination: balanced 4000K shadowless task lighting across the executive desk surface complemented by 3000K warm vertical book-washing illumination across reference shelves.`;
-
-        // Executive Workstation Desk in commanding position
-        items.push({
-          id: 'desk_1',
-          type: 'desk',
-          name: 'Executive Workstation Desk',
-          position: [0, 0, 0.1],
-          rotation: [0, 0, 0],
-          style: style,
-          color: palette.woodColor,
-          cost: 850
-        });
-
-        // Ergonomic High-Back Executive Chair behind desk
-        items.push({
-          id: 'office_chair_1',
-          type: 'office_chair',
-          name: 'High-Back Ergonomic Executive Chair',
-          position: [0, 0, -0.65],
-          rotation: [0, 0, 0],
-          style: style,
-          cost: 390
-        });
-
-        // Floor-to-Ceiling Reference Library Bookshelf
-        items.push({
-          id: 'bookshelf_1',
-          type: 'bookshelf',
-          name: 'Reference Library Shelving',
-          position: [0, 0, -L / 2 + 0.35],
-          rotation: [0, 0, 0],
-          style: style,
-          cost: 520
-        });
-
-        // Executive Filing & Storage Credenza along right wall
-        items.push({
-          id: 'credenza_1',
-          type: 'credenza',
-          name: 'Executive Storage Credenza',
-          position: [W / 2 - 0.35, 0, 0.3],
-          rotation: [0, -Math.PI / 2, 0],
-          style: style,
-          color: palette.woodColor,
-          cost: 680
-        });
-
-        // Visitor / Client Lounge Accent Armchair
-        items.push({
-          id: 'chair_1',
-          type: 'armchair',
-          name: 'Executive Lounge Club Chair',
-          position: [-W / 2 + 1.2, 0, 0.85],
-          rotation: [0, Math.PI / 3, 0],
-          style: style,
-          color: palette.accentColor,
-          cost: 480
-        });
-
-        // Low Round Side Table next to armchair
-        items.push({
-          id: 'table_1',
-          type: 'coffee_table',
-          name: 'Marble & Brass Side Table',
-          position: [-W / 2 + 1.85, 0, 0.55],
-          rotation: [0, 0, 0],
-          style: style,
-          color: palette.woodColor,
-          cost: 260
-        });
-
-        // Wall Art above credenza
-        items.push({
-          id: 'art_1',
-          type: 'wall_art',
-          name: 'Executive Fine Art Canvas',
-          position: [-W / 2 + 0.05, 1.9, -0.2],
-          rotation: [0, Math.PI / 2, 0],
-          style: style,
-          cost: 190
-        });
-
-        // Brass Task Floor Lamp
-        items.push({
-          id: 'lamp_1',
-          type: 'floor_lamp',
-          name: 'Sculptural Brass Task Lamp',
-          position: [W / 2 - 0.75, 0, -L / 2 + 0.8],
-          rotation: [0, 0, 0],
-          style: style,
-          cost: 230
-        });
-
-        // Overhead Pendant Light
-        items.push({
-          id: 'pendant_1',
-          type: 'pendant_light',
-          name: 'Architectural Linear Pendant',
-          position: [0, 0, 0.1],
-          rotation: [0, 0, 0],
-          style: style,
-          cost: 210
-        });
-
-        // Potted Fiddle Leaf Fig
-        items.push({
-          id: 'plant_1',
-          type: 'plant',
-          name: 'Potted Fiddle Leaf Fig',
-          position: [-W / 2 + 0.65, 0, -L / 2 + 0.7],
-          rotation: [0, 0, 0],
-          style: style,
-          cost: 95
-        });
-
-        // Low-pile Executive Area Rug
-        items.push({
-          id: 'rug_1',
-          type: 'rug',
-          name: 'Executive Wool Area Rug',
-          position: [0, 0, -0.15],
-          rotation: [0, 0, 0],
-          style: style,
-          dimensions: [2.6, 2.0],
-          cost: 290
-        });
-
-      } else if (officeType === 2) {
-        // TYPE 2: MINIMALIST ZEN FOCUS STUDIO
-        concept = `TYPE 2: MINIMALIST ZEN FOCUS STUDIO (${style.toUpperCase()})`;
-        spatialRationale = `Optimized for deep unbroken focus and cognitive tranquility. Employs low-horizon storage and floating lines to minimize visual clutter. Unobstructed sightlines and ample negative floor space prevent mental fatigue during long working sprints.`;
-        lightingPlan = `Gentle, indirect daylight-balanced illumination (3500K) that reduces eye strain, paired with a warm twilight paper-lantern floor lamp for calm evening reflection.`;
-
-        // Clean-lined Minimalist Desk
-        items.push({
-          id: 'desk_1',
-          type: 'desk',
-          name: 'Minimalist Japandi Work Desk',
-          position: [0, 0, -L / 2 + 0.95],
-          rotation: [0, 0, 0],
-          style: 'minimalist',
-          color: palette.woodColor,
-          cost: 580
-        });
-
-        // Sleek Ergonomic Chair
-        items.push({
-          id: 'office_chair_1',
-          type: 'office_chair',
-          name: 'Sleek Ergonomic Task Chair',
-          position: [0, 0, -L / 2 + 1.6],
-          rotation: [0, Math.PI, 0],
-          style: 'minimalist',
-          cost: 320
-        });
-
-        // Low Horizontal Floating Storage Credenza along left wall
-        items.push({
-          id: 'credenza_1',
-          type: 'credenza',
-          name: 'Low Horizon Storage Credenza',
-          position: [-W / 2 + 0.38, 0, 0.2],
-          rotation: [0, Math.PI / 2, 0],
-          style: 'minimalist',
-          color: palette.woodColor,
-          cost: 590
-        });
-
-        // Minimalist Bauhaus Canvas
-        items.push({
-          id: 'art_1',
-          type: 'wall_art',
-          name: 'Zen Bauhaus Minimal Canvas',
-          position: [0, 1.9, -L / 2 + 0.05],
-          rotation: [0, 0, 0],
-          style: 'minimalist',
-          cost: 160
-        });
-
-        // Paper Lantern Floor Lamp
-        items.push({
-          id: 'lamp_1',
-          type: 'floor_lamp',
-          name: 'Zen Paper Lantern Lamp',
-          position: [-W / 2 + 0.65, 0, -L / 2 + 0.75],
-          rotation: [0, 0, 0],
-          style: 'minimalist',
-          cost: 160
-        });
-
-        // Diffused Orb Pendant Light
-        items.push({
-          id: 'pendant_1',
-          type: 'pendant_light',
-          name: 'Diffused Orb Pendant Light',
-          position: [0, 0, -L / 2 + 1.25],
-          rotation: [0, 0, 0],
-          style: 'minimalist',
-          cost: 175
-        });
-
-        // Potted Zen Bamboo
-        items.push({
-          id: 'plant_1',
-          type: 'plant',
-          name: 'Potted Zen Bamboo',
-          position: [W / 2 - 0.6, 0, -L / 2 + 0.75],
-          rotation: [0, 0, 0],
-          style: 'minimalist',
-          cost: 85
-        });
-
-        // Organic Jute & Wool Low-pile Rug
-        items.push({
-          id: 'rug_1',
-          type: 'rug',
-          name: 'Organic Jute & Wool Rug',
-          position: [0, 0, -L / 2 + 1.3],
-          rotation: [0, 0, 0],
-          style: 'minimalist',
-          dimensions: [2.5, 1.9],
-          cost: 220
-        });
-
-      } else if (officeType === 3) {
-        // TYPE 3: CREATIVE DUAL-SCREEN TECH BATTLESTATION
-        concept = `TYPE 3: CREATIVE TECH BATTLESTATION (${style.toUpperCase()})`;
-        spatialRationale = `Specially calibrated for software engineers, designers, and multimedia creators. Centers on a wide-format dual-monitor battlestation with ergonomic caster clearances, supplemented by a secondary breakout armchair for creative brainstorming away from screens.`;
-        lightingPlan = `Crisp 4000K-4500K circadian-tuned task lighting designed to banish screen glare, backed by warm ambient fill lighting to eliminate contrast eye fatigue during nighttime builds.`;
-
-        // Dual Monitor Battlestation
-        items.push({
-          id: 'desk_1',
-          type: 'gaming_desk',
-          name: 'Dual-Monitor Battlestation Desk',
-          position: [0, 0, -L / 2 + 0.95],
-          rotation: [0, 0, 0],
-          style: style,
-          cost: 1050
-        });
-
-        // High-Performance Ergonomic Task Chair
-        items.push({
-          id: 'office_chair_1',
-          type: 'office_chair',
-          name: 'Pro Mesh Ergonomic Task Chair',
-          position: [0, 0, -L / 2 + 1.65],
-          rotation: [0, Math.PI, 0],
-          style: style,
-          cost: 380
-        });
-
-        // Tech Bookshelf & Component Tower along right wall
-        items.push({
-          id: 'bookshelf_1',
-          type: 'bookshelf',
-          name: 'Tech Reference & Component Shelf',
-          position: [W / 2 - 0.35, 0, -0.2],
-          rotation: [0, -Math.PI / 2, 0],
-          style: style,
-          cost: 460
-        });
-
-        // Hardware & Media Credenza along left wall
-        items.push({
-          id: 'credenza_1',
-          type: 'credenza',
-          name: 'Hardware & Media Credenza',
-          position: [-W / 2 + 0.35, 0, -0.2],
-          rotation: [0, Math.PI / 2, 0],
-          style: style,
-          color: palette.woodColor,
-          cost: 640
-        });
-
-        // Creative Breakout Lounge Armchair
-        items.push({
-          id: 'chair_1',
-          type: 'armchair',
-          name: 'Creative Breakout Lounge Chair',
-          position: [-W / 2 + 1.15, 0, L / 2 - 1.1],
-          rotation: [0, Math.PI / 4, 0],
-          style: style,
-          color: palette.accentColor,
-          cost: 440
-        });
-
-        // Contemporary Geometric Wall Art
-        items.push({
-          id: 'art_1',
-          type: 'wall_art',
-          name: 'Geometric Modern Tech Canvas',
-          position: [0, 1.9, -L / 2 + 0.05],
-          rotation: [0, 0, 0],
-          style: style,
-          cost: 180
-        });
-
-        // Articulated Arc Floor Task Lamp
-        items.push({
-          id: 'lamp_1',
-          type: 'floor_lamp',
-          name: 'Articulated Arc Task Lamp',
-          position: [W / 2 - 0.65, 0, L / 2 - 1.2],
-          rotation: [0, 0, 0],
-          style: style,
-          cost: 230
-        });
-
-        // Modern Articulated Overhead Pendant Light
-        items.push({
-          id: 'pendant_1',
-          type: 'pendant_light',
-          name: 'Modern Articulated Pendant',
-          position: [0, 0, -L / 2 + 1.25],
-          rotation: [0, 0, 0],
-          style: style,
-          cost: 210
-        });
-
-        // Low-friction Tech Area Rug
-        items.push({
-          id: 'rug_1',
-          type: 'rug',
-          name: 'Low-Friction Caster Office Rug',
-          position: [0, 0, -L / 2 + 1.3],
-          rotation: [0, 0, 0],
-          style: style,
-          dimensions: [2.6, 2.0],
-          cost: 240
-        });
-
-        // Air-Purifying Snake Plant
-        items.push({
-          id: 'plant_1',
-          type: 'plant',
-          name: 'Air-Filtering Snake Plant',
-          position: [W / 2 - 0.6, 0, -L / 2 + 0.7],
-          rotation: [0, 0, 0],
-          style: style,
-          cost: 85
-        });
-
-      } else {
-        // TYPE 4: ACADEMIC SCHOLAR & READING SANCTUARY
-        concept = `TYPE 4: ACADEMIC SCHOLAR & READING SANCTUARY (${style.toUpperCase()})`;
-        spatialRationale = `A quiet, reflective intellectual haven inspired by historic university libraries. Features expansive reference wall shelving, a dedicated writing desk oriented for natural daylight, and an intimate reading armchair corner for immersive study and deep literature review.`;
-        lightingPlan = `Warm, atmospheric 2700K incandescent-style lighting: dedicated directional reading illumination beside the wing armchair, soft vertical shelf uplighting, and a cozy central timber pendant fixture.`;
-
-        // Solid Natural Wood Writing Desk along right wall
-        items.push({
-          id: 'desk_1',
-          type: 'desk',
-          name: 'Solid Oak Scholar Writing Desk',
-          position: [W / 2 - 0.85, 0, 0.0],
-          rotation: [0, -Math.PI / 2, 0],
-          style: 'traditional',
-          color: palette.woodColor,
-          cost: 780
-        });
-
-        // Ergonomic Scholar Desk Chair
-        items.push({
-          id: 'office_chair_1',
-          type: 'office_chair',
-          name: 'Classic Ergonomic Study Chair',
-          position: [W / 2 - 1.55, 0, 0.0],
-          rotation: [0, Math.PI / 2, 0],
-          style: 'traditional',
-          cost: 340
-        });
-
-        // Expansive Open Library Bookshelf along back wall
-        items.push({
-          id: 'bookshelf_1',
-          type: 'bookshelf',
-          name: 'Grand Scholar Library Bookshelf',
-          position: [0, 0, -L / 2 + 0.35],
-          rotation: [0, 0, 0],
-          style: 'traditional',
-          cost: 580
-        });
-
-        // Deep Hygge Reading Armchair in left corner
-        items.push({
-          id: 'chair_1',
-          type: 'armchair',
-          name: 'Scholar Wingback Reading Chair',
-          position: [-W / 2 + 1.15, 0, 0.5],
-          rotation: [0, Math.PI / 4, 0],
-          style: 'traditional',
-          color: palette.accentColor,
-          cost: 490
-        });
-
-        // Round Timber Reading Table
-        items.push({
-          id: 'table_1',
-          type: 'coffee_table',
-          name: 'Round Timber Reading Table',
-          position: [-W / 2 + 1.8, 0, 0.25],
-          rotation: [0, 0, 0],
-          style: 'traditional',
-          color: palette.woodColor,
-          cost: 220
-        });
-
-        // Directional Timber Reading Floor Lamp
-        items.push({
-          id: 'lamp_1',
-          type: 'floor_lamp',
-          name: 'Nordic Timber Reading Lamp',
-          position: [-W / 2 + 0.6, 0, 1.2],
-          rotation: [0, 0, 0],
-          style: 'traditional',
-          cost: 210
-        });
-
-        // Botanical Historical Canvas
-        items.push({
-          id: 'art_1',
-          type: 'wall_art',
-          name: 'Botanical Scholar Canvas',
-          position: [W / 2 - 0.05, 1.9, 0.0],
-          rotation: [0, -Math.PI / 2, 0],
-          style: 'traditional',
-          cost: 180
-        });
-
-        // Woven Timber Overhead Pendant
-        items.push({
-          id: 'pendant_1',
-          type: 'pendant_light',
-          name: 'Woven Timber Pendant Light',
-          position: [0, 0, 0.1],
-          rotation: [0, 0, 0],
-          style: 'traditional',
-          cost: 190
-        });
-
-        // Plush Wool Scholar Area Rug
-        items.push({
-          id: 'rug_1',
-          type: 'rug',
-          name: 'Plush Wool Scholar Rug',
-          position: [0, 0, 0.1],
-          rotation: [0, 0, 0],
-          style: 'traditional',
-          dimensions: [2.8, 2.2],
-          cost: 320
-        });
-
-        // Potted Ficus Tree
-        items.push({
-          id: 'plant_1',
-          type: 'plant',
-          name: 'Potted Scholar Ficus Tree',
-          position: [-W / 2 + 0.65, 0, -L / 2 + 0.7],
-          rotation: [0, 0, 0],
-          style: 'traditional',
-          cost: 95
-        });
-      }
+      // Home office / study room has been removed from platform; fallback cleanly to living room
+      return this.generateAlgorithmicDesign({ ...pref, roomType: 'living_room' });
     } else if (roomType === 'dining_room' || roomType.startsWith('dining_room_')) {
       // Determine which of the 4 Dining Room Design Types is selected
       let diningType = pref.diningType || 1;
@@ -9345,10 +8875,6 @@ class AIEngine {
       : pref.roomType === 'living_room_luxury' ? 'Modern Luxury Penthouse Living Salon'
       : pref.roomType === 'living_room_cozy' ? 'Scandinavian Hygge Family Living Room'
       : pref.roomType.startsWith('living_room') ? 'Contemporary Media & Conversation Living Room'
-      : pref.roomType === 'home_office_minimal' ? 'Minimalist Zen Focus Home Office'
-      : pref.roomType === 'home_office_creative' ? 'Creative Tech Battlestation Studio'
-      : pref.roomType === 'home_office_academic' ? 'Academic Scholar & Reading Sanctuary Study'
-      : pref.roomType.startsWith('home_office') ? 'Executive Suite & Library Home Office'
       : pref.roomType === 'dining_room_minimal' ? 'Minimalist Zen Tea & Dining Pavilion'
       : pref.roomType === 'dining_room_luxury' ? 'Modern Luxury Penthouse Dining Salon'
       : pref.roomType === 'dining_room_scandi' ? 'Scandinavian Hygge Farmhouse Dining Room'

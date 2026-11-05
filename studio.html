@@ -100,19 +100,13 @@
                   <option value="bedroom_scandi">Double Bedroom - Type 4: Scandinavian Haven</option>
                 </optgroup>
                 <optgroup label="Single Bedroom (Compact / Guest / Kids)">
-                  <option value="bedroom_single">Single Bedroom - Cozy Study & Single Bed</option>
+                  <option value="bedroom_single">Single Bedroom - Compact Suite & Single Bed</option>
                 </optgroup>
                 <optgroup label="Living Room (4 Designs)">
                   <option value="living_room">Living Room - Type 1: Media Lounge</option>
                   <option value="living_room_zen">Living Room - Type 2: Japandi Zen</option>
                   <option value="living_room_luxury">Living Room - Type 3: Luxury Penthouse</option>
                   <option value="living_room_cozy">Living Room - Type 4: Scandi Hygge</option>
-                </optgroup>
-                <optgroup label="Home Office / Study (4 Designs)">
-                  <option value="home_office">Home Office - Type 1: Executive Suite</option>
-                  <option value="home_office_minimal">Home Office - Type 2: Zen Focus</option>
-                  <option value="home_office_creative">Home Office - Type 3: Tech Studio</option>
-                  <option value="home_office_academic">Home Office - Type 4: Scholar Nook</option>
                 </optgroup>
                 <optgroup label="Dining Room (4 Designs)">
                   <option value="dining_room">Dining Room - Type 1: Grand Banquet</option>
@@ -238,47 +232,7 @@
                   <div class="btype-icon">📚</div>
                   <div class="btype-meta">
                     <strong>Type 4: Scandi Hygge</strong>
-                    <span>Sofa, Bookshelf & Study Desk</span>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            <!-- HOME OFFICE / STUDY 4 DESIGN TYPES SELECTOR -->
-            <div class="form-group" id="office-variants-wrapper" style="margin-top: 10px; display: none;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-primary); display: flex; align-items: center; gap: 4px; margin-bottom: 0;">
-                  <span>💻</span> Home Office: 4 Design Types
-                </label>
-                <span id="office-type-pill" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.3);">Type 1 Active</span>
-              </div>
-              <div class="bedroom-type-grid" id="office-type-selector">
-                <button type="button" class="office-type-btn active" data-office-type="home_office" title="Type 1: Executive Suite & Library">
-                  <div class="btype-icon">💼</div>
-                  <div class="btype-meta">
-                    <strong>Type 1: Executive Suite</strong>
-                    <span>Desk, Bookshelf & Lounge</span>
-                  </div>
-                </button>
-                <button type="button" class="office-type-btn" data-office-type="home_office_minimal" title="Type 2: Minimalist Zen Focus Studio">
-                  <div class="btype-icon">🧘</div>
-                  <div class="btype-meta">
-                    <strong>Type 2: Zen Focus</strong>
-                    <span>Clean Desk, Credenza & Canvas</span>
-                  </div>
-                </button>
-                <button type="button" class="office-type-btn" data-office-type="home_office_creative" title="Type 3: Creative Tech Battlestation">
-                  <div class="btype-icon">🖥️</div>
-                  <div class="btype-meta">
-                    <strong>Type 3: Tech Studio</strong>
-                    <span>Gaming Desk, Credenza & Breakout</span>
-                  </div>
-                </button>
-                <button type="button" class="office-type-btn" data-office-type="home_office_academic" title="Type 4: Academic Scholar & Reading Sanctuary">
-                  <div class="btype-icon">📖</div>
-                  <div class="btype-meta">
-                    <strong>Type 4: Scholar Nook</strong>
-                    <span>Wood Desk, Bookshelf & Armchair</span>
+                    <span>Sofa, Bookshelf & Lounge Credenza</span>
                   </div>
                 </button>
               </div>
@@ -658,9 +612,9 @@
               <button type="button" class="catalog-filter-pill active" data-filter="all">All (45)</button>
               <button type="button" class="catalog-filter-pill" data-filter="utilities">⚡ Daily Appliances (10)</button>
               <button type="button" class="catalog-filter-pill" data-filter="living">🛋️ Living (11)</button>
-              <button type="button" class="catalog-filter-pill" data-filter="bedroom">🛏️ Bedroom (6)</button>
+              <button type="button" class="catalog-filter-pill" data-filter="bedroom">🛏️ Bedroom (7)</button>
               <button type="button" class="catalog-filter-pill" data-filter="kitchen">🍽️ Kitchen & Dining (10)</button>
-              <button type="button" class="catalog-filter-pill" data-filter="office">💻 Office (5)</button>
+              <button type="button" class="catalog-filter-pill" data-filter="storage">🗄️ Storage & Shelving (5)</button>
               <button type="button" class="catalog-filter-pill" data-filter="decor">💡 Lighting & Decor (7)</button>
             </div>
 
@@ -742,18 +696,18 @@
               </div>
             </div>
 
-            <!-- 5. OFFICE & STUDY -->
-            <div class="catalog-category-group" data-category="office">
+            <!-- 5. STORAGE, SHELVING & CREDENZAS -->
+            <div class="catalog-category-group" data-category="storage">
               <div class="catalog-category-title">
-                <span>💻 Office & Study</span>
+                <span>🗄️ Storage, Shelving & Credenzas</span>
                 <span class="count-badge">5</span>
               </div>
               <div class="style-selector" style="grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 12px;">
-                <button class="btn btn-sm add-catalog-item" data-type="desk">💻 Executive Desk</button>
-                <button class="btn btn-sm add-catalog-item" data-type="gaming_desk">🖥️ Gaming Battlestation</button>
-                <button class="btn btn-sm add-catalog-item" data-type="office_chair">💺 Ergonomic Chair</button>
-                <button class="btn btn-sm add-catalog-item" data-type="bookshelf">📚 Library Bookshelf</button>
+                <button class="btn btn-sm add-catalog-item" data-type="bookshelf">📚 Display Bookshelf</button>
                 <button class="btn btn-sm add-catalog-item" data-type="credenza">🗄️ Storage Credenza</button>
+                <button class="btn btn-sm add-catalog-item" data-type="shoe_rack">👞 Shoe Rack & Console</button>
+                <button class="btn btn-sm add-catalog-item" data-type="wardrobe">🚪 Multi-Tier Wardrobe</button>
+                <button class="btn btn-sm add-catalog-item" data-type="mirrored_wardrobe">🪞 Mirrored Wardrobe</button>
               </div>
             </div>
 
