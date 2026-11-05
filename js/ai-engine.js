@@ -39,8 +39,8 @@ export class AIEngine {
 
       if (isVilla) {
         concept = `ARCHITECTURAL 2 BHK RESIDENCE (CORRECTED & OPTIMIZED ${style.toUpperCase()})`;
-        spatialRationale = `A master-crafted 16m × 18.5m architectural residence optimized for real-time indoor-outdoor flow, generous walking clearances, and zero furniture-wall collisions. Features a grand entrance foyer with pivot wooden door & slatted divider, open-concept living lounge with Missouri TV unit facing the sectional lounge sofa, seamlessly connected dining area with solid hardwood table, 6 chairs & china credenza, high-efficiency L-shaped modular kitchen with quartz prep island, private master bedroom suite with king bed, walk-in dressing room with sliding mirrored wardrobe, luxury master en-suite bathroom with walk-in glass shower, an architectural outdoor courtyard garden with timber pergola, modern L-shaped outdoor sectional lounge, concrete fire pit table, living green wall, specimen olive tree & basalt water fountain, and a discreetly accessible designer common bathroom.`;
-        lightingPlan = `Layered architectural illumination with warm 3000K interior ambiance: recessed living cove glows, statement linear brass chandelier above the dining table, under-cabinet task LED strips in modular kitchen, illuminated anti-fog LED mirrors in both bathrooms, ambient fire pit glow & hurricane floor lanterns in the courtyard garden, dimmable bedside luminaires, and exterior landscape illumination.`;
+        spatialRationale = `A master-crafted 16m × 18.5m architectural residence optimized for real-time room flow, generous walking clearances, and zero furniture-wall collisions. Features a grand entrance foyer with pivot wooden door & slatted divider, open-concept living lounge with Missouri TV unit facing the sectional lounge sofa, seamlessly connected dining area with solid hardwood table, 6 chairs & china credenza, high-efficiency L-shaped modular kitchen with quartz prep island, private master bedroom suite with king bed on the solid east wall, dressing vanity with mirror, walk-in dressing room with sliding mirrored wardrobe, luxury sky-blue master en-suite bathroom with walk-in glass shower, peaceful second bedroom suite with queen bed, study workstation & sliding wardrobe, and a discreetly accessible designer common bathroom.`;
+        lightingPlan = `Layered architectural illumination with warm 3000K interior ambiance: recessed living cove glows, statement linear brass chandelier above the dining table, under-cabinet task LED strips in modular kitchen, illuminated anti-fog LED mirrors in both bathrooms, dimmable bedside luminaires, and study task lighting.`;
 
         // ==========================================
         // 1. ENTRANCE FOYER (X: -6.2 to -3.2, Z: 3.4 to 6.4)
@@ -95,7 +95,7 @@ export class AIEngine {
           id: 'house_living_sofa',
           type: 'sofa',
           name: 'Plush Ergonomic Living Lounge Sofa Facing TV Unit',
-          position: [0.6, 0, 4.1],
+          position: [0.3, 0, 4.1],
           rotation: [0, -Math.PI / 2, 0],
           style: style,
           color: palette.sofaColor,
@@ -107,7 +107,7 @@ export class AIEngine {
           id: 'house_living_coffee_table',
           type: 'coffee_table',
           name: 'Architectural Wood & Glass Centre Table',
-          position: [-1.1, 0, 4.1],
+          position: [-1.2, 0, 4.1],
           rotation: [0, 0, 0],
           style: style,
           woodColor: palette.woodColor,
@@ -540,120 +540,130 @@ export class AIEngine {
         });
 
         // ==========================================
-        // 7. OUTDOOR COURTYARD GARDEN & SEATING (X: -6.2 to -1.8, Z: -6.0 to 0.6)
+        // 7. SECOND BEDROOM SUITE (X: -6.2 to -1.8, Z: -6.0 to 0.6)
         // ==========================================
-        // Architectural Overhead Timber Pergola Structure
-        items.push({
-          id: 'house_courtyard_pergola',
-          type: 'courtyard_pergola',
-          name: 'Architectural Timber Pergola Structure',
-          position: [-4.0, 0, -2.7],
-          rotation: [0, 0, 0],
-          dimensions: [4.0, 5.8, 2.75],
-          room: 'bedroom2',
-          cost: 2400
-        });
-
-        // Modern L-Shaped Outdoor Sectional Lounge Suite (alias house_bed2_twin for regression compatibility)
         items.push({
           id: 'house_bed2_twin',
-          type: 'courtyard_sectional',
-          name: 'Modern Courtyard Outdoor Sectional Lounge',
-          position: [-4.8, 0, -2.4],
-          rotation: [0, 0, 0],
-          style: style,
-          color: 0x1f2937,
-          room: 'bedroom2',
-          cost: 2800
-        });
-
-        // Architectural Cast-Concrete Fire Pit Coffee Table
-        items.push({
-          id: 'house_courtyard_table',
-          type: 'courtyard_fire_table',
-          name: 'Architectural Cast-Concrete Fire Table',
-          position: [-3.8, 0, -2.4],
-          rotation: [0, 0, 0],
-          room: 'bedroom2',
-          cost: 1450
-        });
-
-        // Modern Outdoor Club Lounge Armchairs (North & South facing)
-        items.push({
-          id: 'house_courtyard_chair_1',
-          type: 'courtyard_chair',
-          name: 'Modern Outdoor Club Armchair (North)',
-          position: [-3.8, 0, -3.8],
-          rotation: [0, Math.PI, 0],
-          room: 'bedroom2',
-          cost: 620
-        });
-
-        items.push({
-          id: 'house_courtyard_chair_2',
-          type: 'courtyard_chair',
-          name: 'Modern Outdoor Club Armchair (South)',
-          position: [-3.8, 0, -1.0],
-          rotation: [0, 0, 0],
-          room: 'bedroom2',
-          cost: 620
-        });
-
-        // Vertical Living Green Wall along West Terracotta Accent Wall
-        items.push({
-          id: 'house_courtyard_greenwall',
-          type: 'courtyard_greenwall',
-          name: 'Vertical Living Green Wall & Trellis',
-          position: [-6.12, 0, -2.7],
+          type: 'bed',
+          name: 'Second Bedroom Queen Platform Bed',
+          position: [-5.1, 0, -2.7],
           rotation: [0, Math.PI / 2, 0],
-          dimensions: [5.2, 2.4],
+          style: style,
+          color: palette.woodColor,
+          room: 'bedroom2',
+          cost: 1250
+        });
+
+        items.push({
+          id: 'house_bed2_nightstand_l',
+          type: 'nightstand',
+          name: 'Second Bedroom Nightstand (Left)',
+          position: [-5.1, 0, -1.6],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 220
+        });
+
+        items.push({
+          id: 'house_bed2_nightstand_r',
+          type: 'nightstand',
+          name: 'Second Bedroom Nightstand (Right)',
+          position: [-5.1, 0, -3.8],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 220
+        });
+
+        items.push({
+          id: 'house_bed2_lamp_l',
+          type: 'table_lamp',
+          name: 'Bedside Reading Table Lamp (Left)',
+          position: [-5.1, 0.58, -1.6],
+          rotation: [0, 0, 0],
+          color: palette.accentColor,
+          room: 'bedroom2',
+          cost: 110
+        });
+
+        items.push({
+          id: 'house_bed2_lamp_r',
+          type: 'table_lamp',
+          name: 'Bedside Reading Table Lamp (Right)',
+          position: [-5.1, 0.58, -3.8],
+          rotation: [0, 0, 0],
+          color: palette.accentColor,
+          room: 'bedroom2',
+          cost: 110
+        });
+
+        items.push({
+          id: 'house_bed2_wardrobe',
+          type: 'wardrobe',
+          name: 'Second Bedroom Built-In Sliding Door Wardrobe',
+          position: [-2.15, 0, -1.2],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.wardrobeColor || 0x2b2d42,
           room: 'bedroom2',
           cost: 1200
         });
 
-        // Specimen Mediterranean Olive Tree in Fluted Terrazzo Planter
+        // Ergonomic Study Desk & Swivel Office Chair
         items.push({
-          id: 'house_courtyard_tree',
-          type: 'courtyard_tree',
-          name: 'Specimen Mediterranean Olive Tree Planter',
-          position: [-5.4, 0, -5.0],
-          rotation: [0, 0, 0],
-          room: 'bedroom2',
-          cost: 750
-        });
-
-        // Contemporary Basalt Column Bubbling Water Fountain
-        items.push({
-          id: 'house_courtyard_fountain',
-          type: 'courtyard_fountain',
-          name: 'Basalt Column Bubbling Water Fountain',
+          id: 'house_bed2_desk',
+          type: 'desk',
+          name: 'Second Bedroom Ergonomic Study Workstation',
           position: [-2.6, 0, -5.0],
           rotation: [0, 0, 0],
+          style: style,
           room: 'bedroom2',
-          cost: 1100
+          cost: 580
         });
 
-        // Modern Hurricane Floor Lanterns Trio
         items.push({
-          id: 'house_courtyard_lanterns',
-          type: 'courtyard_lanterns',
-          name: 'Modern Hurricane Floor Lanterns Trio',
-          position: [-4.6, 0, -1.1],
+          id: 'house_bed2_chair',
+          type: 'office_chair',
+          name: 'Ergonomic Swivel Study Chair',
+          position: [-2.6, 0, -4.3],
           rotation: [0, 0, 0],
+          room: 'bedroom2',
+          cost: 280
+        });
+
+        items.push({
+          id: 'house_bed2_rug',
+          type: 'rug',
+          name: 'Bedroom 2 Plush Area Rug',
+          position: [-4.0, 0.005, -2.7],
+          rotation: [0, 0, 0],
+          dimensions: [2.8, 2.2],
+          style: style,
           room: 'bedroom2',
           cost: 320
         });
 
-        // Slate Stepping Stone Transition Path
         items.push({
-          id: 'house_courtyard_stones',
-          type: 'stepping_stones',
-          name: 'Natural Slate Garden Pathway Stones',
-          position: [-3.0, 0.01, -2.7],
-          rotation: [0, 0, 0],
-          count: 4,
+          id: 'house_bed2_art',
+          type: 'wall_art',
+          name: 'Curated Bedroom Modern Graphic Art',
+          position: [-1.86, 1.8, -3.2],
+          rotation: [0, -Math.PI / 2, 0],
+          dimensions: [1.4, 0.9],
+          style: style,
           room: 'bedroom2',
-          cost: 280
+          cost: 260
+        });
+
+        items.push({
+          id: 'house_bed2_ac',
+          type: 'air_conditioner',
+          name: 'Bedroom 2 Inverter Split AC',
+          position: [-4.0, 2.4, -5.94],
+          rotation: [0, 0, 0],
+          room: 'bedroom2',
+          cost: 650
         });
 
         // ==========================================
@@ -785,7 +795,7 @@ export class AIEngine {
             id: 'house_living_sofa',
             type: 'sofa',
             name: 'Plush Ergonomic Living Lounge Sofa',
-            position: [0.6, 0, 4.1],
+            position: [0.3, 0, 4.1],
             rotation: [0, -Math.PI / 2, 0],
             style: style,
             color: palette.sofaColor,
@@ -797,7 +807,7 @@ export class AIEngine {
             id: 'house_living_coffee_table',
             type: 'coffee_table',
             name: 'Architectural Wood & Glass Coffee Table',
-            position: [-1.1, 0, 4.1],
+            position: [-1.2, 0, 4.1],
             rotation: [0, 0, 0],
             style: style,
             woodColor: palette.woodColor,
@@ -883,7 +893,7 @@ export class AIEngine {
             id: 'house_bed_king',
             type: 'bed',
             name: 'King Size Designer Platform Bed',
-            position: [-3.5, 0, -3.8],
+            position: [-3.5, 0, -4.7],
             rotation: [0, 0, 0],
             style: style,
             color: palette.accentColor,
@@ -895,7 +905,7 @@ export class AIEngine {
             id: 'house_bed_nightstand_l',
             type: 'nightstand',
             name: 'Floating Bedside Nightstand (Left)',
-            position: [-5.0, 0, -4.6],
+            position: [-4.9, 0, -5.6],
             rotation: [0, 0, 0],
             style: style,
             woodColor: palette.woodColor,
@@ -907,7 +917,7 @@ export class AIEngine {
             id: 'house_bed_nightstand_r',
             type: 'nightstand',
             name: 'Floating Bedside Nightstand (Right)',
-            position: [-2.0, 0, -4.6],
+            position: [-2.1, 0, -5.6],
             rotation: [0, 0, 0],
             style: style,
             woodColor: palette.woodColor,
@@ -919,7 +929,7 @@ export class AIEngine {
             id: 'house_bed_wardrobe',
             type: 'walk_in_wardrobe',
             name: 'Full-Height Master Wardrobe System',
-            position: [-1.0, 0, -1.5],
+            position: [-1.0, 0, -0.6],
             rotation: [0, -Math.PI / 2, 0],
             style: style,
             color: palette.wardrobeColor || 0x2b2d42,
@@ -1014,7 +1024,7 @@ export class AIEngine {
             id: 'house_living_sofa',
             type: 'sofa',
             name: 'Plush Ergonomic Living Lounge Sofa',
-            position: [0.8, 0, 4.1],
+            position: [0.5, 0, 4.1],
             rotation: [0, -Math.PI / 2, 0],
             style: style,
             color: palette.sofaColor,
@@ -1026,7 +1036,7 @@ export class AIEngine {
             id: 'house_living_coffee_table',
             type: 'coffee_table',
             name: 'Architectural Wood & Glass Coffee Table',
-            position: [-1.0, 0, 4.1],
+            position: [-1.2, 0, 4.1],
             rotation: [0, 0, 0],
             style: style,
             woodColor: palette.woodColor,
@@ -1038,7 +1048,7 @@ export class AIEngine {
             id: 'house_living_armchair',
             type: 'armchair',
             name: 'Designer Lounge Accent Chair',
-            position: [0.6, 0, 2.5],
+            position: [0.35, 0, 2.5],
             rotation: [0, -2.4, 0],
             style: style,
             color: palette.accentColor,
@@ -1050,7 +1060,7 @@ export class AIEngine {
             id: 'house_living_rug',
             type: 'rug',
             name: 'Living Room Plush Wool Rug',
-            position: [-0.5, 0.005, 4.1],
+            position: [-0.6, 0.005, 4.1],
             rotation: [0, 0, 0],
             dimensions: [3.4, 2.6],
             style: style,
@@ -1180,7 +1190,7 @@ export class AIEngine {
             id: 'house_kitchen_stool_1',
             type: 'bar_stool',
             name: 'Designer Swivel Bar Stool #1',
-            position: [4.3, 0, -1.2],
+            position: [4.3, 0, -1.5],
             rotation: [0, Math.PI, 0],
             style: style,
             color: palette.accentColor,
@@ -1192,7 +1202,7 @@ export class AIEngine {
             id: 'house_kitchen_stool_2',
             type: 'bar_stool',
             name: 'Designer Swivel Bar Stool #2',
-            position: [5.5, 0, -1.2],
+            position: [5.5, 0, -1.5],
             rotation: [0, Math.PI, 0],
             style: style,
             color: palette.accentColor,
@@ -1247,7 +1257,7 @@ export class AIEngine {
             id: 'house_bed_king',
             type: 'bed',
             name: 'King Size Designer Platform Bed',
-            position: [-3.5, 0, -3.8],
+            position: [-3.5, 0, -4.7],
             rotation: [0, 0, 0],
             style: style,
             color: palette.woodColor,
@@ -1259,7 +1269,7 @@ export class AIEngine {
             id: 'house_bed_nightstand_l',
             type: 'nightstand',
             name: 'Bedside Nightstand (Left)',
-            position: [-5.0, 0, -4.6],
+            position: [-4.9, 0, -5.6],
             rotation: [0, 0, 0],
             style: style,
             room: 'bedroom',
@@ -1270,7 +1280,7 @@ export class AIEngine {
             id: 'house_bed_nightstand_r',
             type: 'nightstand',
             name: 'Bedside Nightstand (Right)',
-            position: [-2.0, 0, -4.6],
+            position: [-2.1, 0, -5.6],
             rotation: [0, 0, 0],
             style: style,
             room: 'bedroom',
@@ -1281,7 +1291,7 @@ export class AIEngine {
             id: 'house_bed_lamp_l',
             type: 'table_lamp',
             name: 'Bedside Table Lamp (Left)',
-            position: [-5.0, 0.58, -4.6],
+            position: [-4.9, 0.58, -5.6],
             rotation: [0, 0, 0],
             color: palette.accentColor,
             room: 'bedroom',
@@ -1292,7 +1302,7 @@ export class AIEngine {
             id: 'house_bed_lamp_r',
             type: 'table_lamp',
             name: 'Bedside Table Lamp (Right)',
-            position: [-2.0, 0.58, -4.6],
+            position: [-2.1, 0.58, -5.6],
             rotation: [0, 0, 0],
             color: palette.accentColor,
             room: 'bedroom',
@@ -1303,7 +1313,7 @@ export class AIEngine {
             id: 'house_bed_wardrobe',
             type: 'walk_in_wardrobe',
             name: 'Full-Height Master Wardrobe System',
-            position: [-1.0, 0, -1.5],
+            position: [-1.0, 0, -0.6],
             rotation: [0, -Math.PI / 2, 0],
             style: style,
             color: palette.wardrobeColor || 0x2b2d42,
@@ -1337,7 +1347,7 @@ export class AIEngine {
             id: 'house_bed_rug',
             type: 'rug',
             name: 'Plush High-Pile Bedroom Rug',
-            position: [-3.5, 0.005, -2.6],
+            position: [-3.5, 0.005, -3.5],
             rotation: [0, 0, 0],
             dimensions: [3.2, 2.2],
             style: style,

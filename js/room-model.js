@@ -601,6 +601,95 @@ export class RoomBuilder {
     this.roomGroup.add(this.doorGroup);
   }
 
+  createInteriorDoor(w, h, depth, x, y, z, rotY = 0, name = 'Interior Door', isBath = false) {
+    const doorGroup = new THREE.Group();
+    doorGroup.name = name;
+    doorGroup.userData = { isArchitecture: true, type: 'door', name: name };
+
+    const frameColor = 0x3e2723;
+    const frameMat = new THREE.MeshStandardMaterial({ color: frameColor, roughness: 0.5 });
+    const leafColor = isBath ? 0xf8fafc : 0x5c4033;
+    const leafMat = new THREE.MeshStandardMaterial({
+      color: leafColor,
+      roughness: isBath ? 0.2 : 0.45,
+      metalness: isBath ? 0.05 : 0.0
+    });
+    const brassMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.2 });
+    const sillMat = new THREE.MeshStandardMaterial({ color: 0xb49144, metalness: 0.8, roughness: 0.25 });
+
+    // 1. Satin brass sill threshold
+    const sill = new THREE.Mesh(new THREE.BoxGeometry(w + 0.08, 0.012, depth + 0.04), sillMat);
+    sill.position.set(0, 0.006, 0);
+    doorGroup.add(sill);
+
+    // 2. Door Frame Jambs
+    const jambT = 0.04;
+    const header = new THREE.Mesh(new THREE.BoxGeometry(w + 0.08, jambT, depth), frameMat);
+    header.position.set(0, h - jambT / 2, 0);
+    doorGroup.add(header);
+
+    const stileL = new THREE.Mesh(new THREE.BoxGeometry(jambT, h, depth), frameMat);
+    stileL.position.set(-w / 2 - jambT / 2, h / 2, 0);
+    doorGroup.add(stileL);
+
+    const stileR = new THREE.Mesh(new THREE.BoxGeometry(jambT, h, depth), frameMat);
+    stileR.position.set(w / 2 + jambT / 2, h / 2, 0);
+    doorGroup.add(stileR);
+
+    // 3. Hinged Door Leaf (set invitingly ajar at ~20 degrees)
+    const hinge = new THREE.Group();
+    hinge.name = `${name} Hinge`;
+    hinge.position.set(-w / 2 + 0.02, 0, 0);
+    hinge.rotation.y = isBath ? 0.35 : -0.35;
+
+    const leafW = w - 0.04;
+    const leafH = h - 0.04;
+    const leafT = 0.045;
+    const leaf = new THREE.Mesh(new THREE.BoxGeometry(leafW, leafH, leafT), leafMat);
+    leaf.position.set(leafW / 2, leafH / 2 + 0.01, 0);
+    leaf.castShadow = true;
+    hinge.add(leaf);
+
+    // Architectural Door Panel Molding Insets
+    const insetMat = new THREE.MeshStandardMaterial({ color: isBath ? 0xe2e8f0 : 0x4a3525, roughness: 0.5 });
+    [-leafH * 0.22, leafH * 0.22].forEach(py => {
+      const inset = new THREE.Mesh(new THREE.BoxGeometry(leafW * 0.75, leafH * 0.35, 0.008), insetMat);
+      inset.position.set(leafW / 2, leafH / 2 + py + 0.01, leafT / 2 + 0.004);
+      hinge.add(inset);
+    });
+
+    // Satin Brass Lever Handle with Rosette on Both Sides
+    const handleH = 0.95;
+    const rosetteGeom = new THREE.CylinderGeometry(0.028, 0.028, 0.01, 16);
+    rosetteGeom.rotateX(Math.PI / 2);
+    const leverGeom = new THREE.BoxGeometry(0.12, 0.02, 0.02);
+
+    [-1, 1].forEach(side => {
+      const zOffset = side * (leafT / 2 + 0.015);
+      const rosette = new THREE.Mesh(rosetteGeom, brassMat);
+      rosette.position.set(leafW - 0.08, handleH, side * (leafT / 2 + 0.005));
+      hinge.add(rosette);
+
+      const lever = new THREE.Mesh(leverGeom, brassMat);
+      lever.position.set(leafW - 0.08 - 0.04, handleH, zOffset);
+      hinge.add(lever);
+    });
+
+    doorGroup.add(hinge);
+    doorGroup.position.set(x, y, z);
+    doorGroup.rotation.y = rotY;
+
+    doorGroup.traverse(child => {
+      child.userData.isDoor = true;
+      child.userData.isArchitecture = true;
+      child.userData.type = 'door';
+      child.userData.rootGroup = doorGroup;
+    });
+
+    this.roomGroup.add(doorGroup);
+    return doorGroup;
+  }
+
   setDoorSwing(angleDegrees) {
     this.doorConfig.openAngle = angleDegrees;
     if (this.doorHinge) {
@@ -843,6 +932,12 @@ export class RoomBuilder {
     // 6. Master Bathroom En-Suite (Rear-Center - Sky-Blue Designer Tiles)
     makeFloorMesh(3.6, 4.4, 1.1, -3.6, 'blue_tile', 'master_bath');
 
+    // 7. Central Hallway Circulation Floor (Light Porcelain Tile / Wood)
+    makeFloorMesh(3.6, 3.2, 1.1, 0.2, commonFlooring, 'hallway');
+
+    // 8. Foyer-Living Vestibule Floor
+    makeFloorMesh(3.2, 1.0, -4.7, 2.3, commonFlooring, 'foyer_hallway');
+
     // Outdoor Environment: Front Porch Entrance Steps
     const stepMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.7 });
     const step1 = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.08, 0.45), stepMat);
@@ -852,11 +947,26 @@ export class RoomBuilder {
     step2.position.set(-4.7, 0.12, 6.45);
     this.roomGroup.add(step2);
 
-    // Front Paved Driveway Approach & Front Lawn
+    // Front Paved Driveway Approach, Front Lawn & Gardens
     makeFloorMesh(4.8, 2.8, -3.8, 7.8, 'paving', 'driveway');
     makeFloorMesh(5.4, 2.8, 3.7, 7.8, 'grass', 'front_lawn');
     makeFloorMesh(1.6, 17.0, -7.2, 0.25, 'grass', 'left_garden');
     makeFloorMesh(1.6, 17.0, 7.2, 0.25, 'grass', 'right_garden');
+
+    // Front Entrance Path from lawn/green area to foyer door with defined boundary
+    makeFloorMesh(2.2, 3.2, -4.7, 8.0, 'paving', 'entrance_path');
+
+    // Defined Stone Border Curbs flanking the Entrance Path
+    const curbMat2 = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.8 });
+    const curbL = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 3.2), curbMat2);
+    curbL.position.set(-5.85, 0.07, 8.0);
+    curbL.name = 'Entrance Path Border Left';
+    this.roomGroup.add(curbL);
+
+    const curbR = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 3.2), curbMat2);
+    curbR.position.set(-3.55, 0.07, 8.0);
+    curbR.name = 'Entrance Path Border Right';
+    this.roomGroup.add(curbR);
 
     // Satin Brass Doorway Threshold Transitions
     const brassMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.25 });
@@ -907,27 +1017,45 @@ export class RoomBuilder {
       return mesh;
     };
 
-    // A. EXTERIOR PERIMETER WALLS
-    // 1. North Back Exterior Wall (Z = -6.0)
-    this.walls.back = addWall(14.2, H, 0.15, 0.1, H / 2, -6.0, 'Exterior Back Wall');
+    // A. EXTERIOR PERIMETER WALLS (Continuous enclosure, zero corner gaps, embedded window cutouts)
+    // 1. North Back Exterior Wall (Z = -6.0) with cutouts for Master Bedroom and Master Bathroom windows
+    addWall(2.0, H, 0.15, -5.5, H / 2, -6.0, 'Exterior Back Wall Left');
+    addWall(2.0, 0.95, 0.15, -3.5, 0.475, -6.0, 'Master Bed North Window Sill');
+    addWall(2.0, 0.55, 0.15, -3.5, 2.525, -6.0, 'Master Bed North Window Lintel');
+    this.walls.back = addWall(3.0, H, 0.15, -1.0, H / 2, -6.0, 'Exterior Back Wall');
+    addWall(1.2, 1.3, 0.15, 1.1, 0.65, -6.0, 'Master Bath North Window Sill');
+    addWall(1.2, 0.5, 0.15, 1.1, 2.55, -6.0, 'Master Bath North Window Lintel');
+    addWall(5.2, H, 0.15, 4.3, H / 2, -6.0, 'Exterior Back Wall Right');
 
-    // 2. West Left Exterior Wall (X = -6.5)
-    this.walls.left = addWall(0.15, H, 12.8, -6.5, H / 2, 0.2, 'Exterior Left Wall');
+    // 2. West Left Exterior Wall (X = -6.5) with cutout for Master Bedroom picture window
+    addWall(0.15, H, 2.9, -6.5, H / 2, -4.55, 'Exterior Left Wall North');
+    addWall(0.15, 0.75, 2.2, -6.5, 0.375, -2.0, 'Master Bed West Window Sill');
+    addWall(0.15, 0.55, 2.2, -6.5, 2.525, -2.0, 'Master Bed West Window Lintel');
+    this.walls.left = addWall(0.15, H, 7.3, -6.5, H / 2, 2.75, 'Exterior Left Wall');
 
-    // 3. East Right Exterior Wall (X = 6.9)
-    this.walls.right = addWall(0.15, H, 12.8, 6.9, H / 2, 0.2, 'Exterior Right Wall');
+    // 3. East Right Exterior Wall (X = 6.9) with cutout for Kitchen casement window
+    addWall(0.15, H, 2.9, 6.9, H / 2, -4.55, 'Exterior Right Wall North');
+    addWall(0.15, 1.05, 1.8, 6.9, 0.525, -2.2, 'Kitchen East Window Sill');
+    addWall(0.15, 0.55, 1.8, 6.9, 2.525, -2.2, 'Kitchen East Window Lintel');
+    this.walls.right = addWall(0.15, H, 7.7, 6.9, H / 2, 2.55, 'Exterior Right Wall');
 
-    // 4. South Front Exterior Walls (Z = 6.4 - Cutaway View Enabled)
-    // Foyer Front Wall Left
-    addWall(0.9, H, 0.15, -5.75, H / 2, 6.4, 'Foyer Front Wall Left', true);
-    // Foyer Front Door Lintel
+    // 4. South Front Exterior Walls (Z = 6.4 - Cutaway View Enabled, closed perimeter corners)
+    // Foyer Front Wall Left (extends from X = -6.5 to X = -5.3, closing corner gap)
+    addWall(1.2, H, 0.15, -5.9, H / 2, 6.4, 'Foyer Front Wall Left', true);
+    // Foyer Front Door Lintel (X = -5.3 to -4.1)
     addWall(1.2, 0.6, 0.15, -4.7, 2.5, 6.4, 'Foyer Front Door Lintel', true);
-    // Foyer Front Wall Right
-    addWall(0.9, H, 0.15, -3.65, H / 2, 6.4, 'Foyer Front Wall Right', true);
-    // Living Room Front Wall
-    addWall(6.0, H, 0.15, -0.1, H / 2, 6.4, 'Living Room Front Wall (Cutaway)', true);
-    // Dining Room Front Wall
-    addWall(4.0, H, 0.15, 4.9, H / 2, 6.4, 'Dining Room Front Wall (Cutaway)', true);
+    // Foyer Front Wall Right (X = -4.1 to -3.1)
+    addWall(1.0, H, 0.15, -3.6, H / 2, 6.4, 'Foyer Front Wall Right', true);
+    // Living Room Front Wall with window cutout
+    addWall(1.2, H, 0.15, -2.5, H / 2, 6.4, 'Living Front Wall Left', true);
+    addWall(3.6, 0.2, 0.15, -0.1, 0.1, 6.4, 'Living Front Window Sill', true);
+    addWall(3.6, 0.6, 0.15, -0.1, 2.5, 6.4, 'Living Front Window Lintel', true);
+    addWall(1.2, H, 0.15, 2.3, H / 2, 6.4, 'Living Front Wall Right', true);
+    // Dining Room Front Wall with window cutout (meets East wall at X = 6.9, closing corner gap)
+    addWall(0.8, H, 0.15, 3.3, H / 2, 6.4, 'Dining Front Wall Left', true);
+    addWall(2.4, 0.6, 0.15, 4.9, 0.3, 6.4, 'Dining Front Window Sill', true);
+    addWall(2.4, 0.6, 0.15, 4.9, 2.5, 6.4, 'Dining Front Window Lintel', true);
+    addWall(0.8, H, 0.15, 6.5, H / 2, 6.4, 'Dining Front Wall Right', true);
 
     // Front Architectural Floor Curb
     const curbMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.7 });
@@ -935,7 +1063,7 @@ export class RoomBuilder {
     curb.position.set(0.1, 0.06, 6.4);
     this.roomGroup.add(curb);
 
-    // B. INTERIOR DIVIDING WALLS
+    // B. INTERIOR DIVIDING WALLS (Connected with zero loose ends)
     // 1. Slatted wood vertical screen between Foyer and Living Room at X = -3.1
     const woodMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.4 });
     for (let sz = 3.6; sz <= 5.8; sz += 0.28) {
@@ -962,14 +1090,33 @@ export class RoomBuilder {
 
     // 3. North-South Dividing Wall between Master Bedroom and Master Bathroom at X = -0.7
     // North section of dividing wall
-    addWall(0.12, H, 2.8, -0.7, H / 2, -4.6, 'Master Suite-Bath Wall North');
+    addWall(0.12, H, 2.4, -0.7, H / 2, -4.8, 'Master Suite-Bath Wall North');
     // En-Suite Door Lintel
     addWall(0.12, 0.6, 1.1, -0.7, 2.5, -3.6, 'Master En-Suite Door Lintel');
-    // South section of dividing wall
-    addWall(0.12, H, 1.6, -0.7, H / 2, -2.4, 'Master Suite-Bath Wall South');
+    // South section of dividing wall (meets Z = 1.8 dividing wall)
+    addWall(0.12, H, 4.8, -0.7, H / 2, -0.6, 'Master Suite-Bath Wall South');
 
-    // 4. North-South Dividing Wall between Master Bathroom and Modular Kitchen at X = 2.9
-    addWall(0.12, H, 4.4, 2.9, H / 2, -3.6, 'Bath-Kitchen Dividing Wall');
+    // 4. North-South Dividing Wall between Master Bathroom and Modular Kitchen at X = 2.9 (Extended to Z = 1.8, no loose ends)
+    addWall(0.12, H, 4.4, 2.9, H / 2, -3.8, 'Bath-Kitchen Dividing Wall North');
+    addWall(0.12, 0.6, 1.2, 2.9, 2.5, -1.0, 'Kitchen Entrance Lintel');
+    addWall(0.12, H, 2.2, 2.9, H / 2, 0.7, 'Bath-Kitchen Dividing Wall South');
+
+    // 5. Covered Architectural Pergola Structure over Living Room (providing overhead support for ceiling fan)
+    const timberMat = new THREE.MeshStandardMaterial({ color: 0x4a3728, roughness: 0.5 });
+    for (let rz = 2.1; rz <= 6.1; rz += 0.8) {
+      const rafter = new THREE.Mesh(new THREE.BoxGeometry(6.0, 0.12, 0.08), timberMat);
+      rafter.position.set(-0.1, H - 0.06, rz);
+      rafter.name = 'LivingPergolaRafter';
+      rafter.castShadow = true;
+      this.roomGroup.add(rafter);
+    }
+    for (let rx = -2.7; rx <= 2.5; rx += 1.3) {
+      const purlin = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 4.4), timberMat);
+      purlin.position.set(rx, H + 0.04, 4.1);
+      purlin.name = 'LivingPergolaPurlin';
+      purlin.castShadow = true;
+      this.roomGroup.add(purlin);
+    }
   }
 
   buildHouseWindowsAndDoors(H) {
@@ -1006,26 +1153,32 @@ export class RoomBuilder {
       return winGroup;
     };
 
-    // 1. Master Bedroom West Picture Window
-    createArchitecturalWindow(2.2, 1.5, -6.42, 1.5, -2.0, Math.PI / 2);
+    // 1. Master Bedroom West Picture Window (embedded in West Wall cutout)
+    createArchitecturalWindow(2.2, 1.5, -6.5, 1.5, -2.0, Math.PI / 2);
 
-    // 2. Master Bedroom North Window (rear garden view)
-    createArchitecturalWindow(2.0, 1.3, -3.5, 1.6, -5.92, -Math.PI / 2, true);
+    // 2. Master Bedroom North Window (embedded in North Wall cutout)
+    createArchitecturalWindow(2.0, 1.3, -3.5, 1.6, -6.0, 0, false);
 
-    // 3. Master Bathroom North Window (frosted privacy glass)
-    createArchitecturalWindow(1.2, 1.0, 1.1, 1.8, -5.92, -Math.PI / 2, true);
+    // 3. Master Bathroom North Window (embedded in North Wall cutout)
+    createArchitecturalWindow(1.2, 1.0, 1.1, 1.8, -6.0, 0, false);
 
-    // 4. Modular Kitchen Casement Window on East Wall
-    createArchitecturalWindow(1.8, 1.2, 6.82, 1.65, -2.2, -Math.PI / 2);
+    // 4. Modular Kitchen Casement Window on East Wall (embedded in East Wall cutout)
+    createArchitecturalWindow(1.8, 1.2, 6.9, 1.65, -2.2, Math.PI / 2);
 
-    // 5. Living Room Front Panoramic Window (Cutaway)
-    createArchitecturalWindow(3.6, 2.0, -0.1, 1.2, 6.35, -Math.PI / 2, true);
+    // 5. Living Room Front Panoramic Window (embedded in Front Wall cutout)
+    createArchitecturalWindow(3.6, 2.0, -0.1, 1.2, 6.4, 0, true);
 
-    // 6. Dining Room Front Window (Cutaway)
-    createArchitecturalWindow(2.4, 1.6, 4.9, 1.4, 6.35, -Math.PI / 2, true);
+    // 6. Dining Room Front Window (embedded in Front Wall cutout)
+    createArchitecturalWindow(2.4, 1.6, 4.9, 1.4, 6.4, 0, true);
 
     // 7. Architectural Adjustable Front Entrance Door at Foyer
     this.buildVillaEntryDoor(H);
+
+    // 8. Proper Door from Hallway into Master Bedroom
+    this.createInteriorDoor(1.0, 2.2, 0.12, -1.0, 0, 1.8, 0, 'Master Bedroom Entry Door', false);
+
+    // 9. Proper Privacy Door between Master Bedroom and Master Bathroom
+    this.createInteriorDoor(0.9, 2.2, 0.12, -0.7, 0, -3.6, Math.PI / 2, 'Master Bathroom Privacy Door', true);
   }
 
   buildHouseRoomBadges() {
@@ -1044,8 +1197,8 @@ export class RoomBuilder {
     const ctx = canvas.getContext('2d');
 
     // Rounded rectangle dark glass pill background
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
-    ctx.strokeStyle = 'rgba(99, 102, 241, 0.75)';
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+    ctx.strokeStyle = 'rgba(99, 102, 241, 0.85)';
     ctx.lineWidth = 6;
 
     const r = 26;
@@ -1072,17 +1225,17 @@ export class RoomBuilder {
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.minFilter = THREE.LinearFilter;
-    const badgeMat = new THREE.MeshBasicMaterial({
+    const spriteMat = new THREE.SpriteMaterial({
       map: texture,
       transparent: true,
       depthWrite: false,
-      side: THREE.DoubleSide
+      depthTest: false
     });
 
-    const badgeGeom = new THREE.PlaneGeometry(1.6, 0.44);
-    const badge = new THREE.Mesh(badgeGeom, badgeMat);
-    badge.rotation.x = -Math.PI / 2;
-    badge.position.set(x, 0.04, z);
+    const badge = new THREE.Sprite(spriteMat);
+    badge.scale.set(1.9, 0.52, 1.0);
+    badge.position.set(x, 0.45, z);
+    badge.renderOrder = 999;
     badge.name = `RoomBadge_${roomKey}`;
     badge.userData = { isRoomBadge: true, roomZone: roomKey, title: title };
     this.roomBadges.push(badge);
@@ -1165,8 +1318,8 @@ export class RoomBuilder {
     // 2. Common Bathroom 1 (Mid-Left - Sky Blue Designer Tiles)
     makeFloorMesh(3.0, 2.8, -4.7, 2.0, 'blue_tile', 'common_bath');
 
-    // 3. Outdoor Courtyard Garden (Back-Left - Rich Teak Wood Decking)
-    makeFloorMesh(4.4, 6.6, -4.0, -2.7, 'wood_teak', 'bedroom2');
+    // 3. Second Bedroom (Back-Left - Warm Oak Wood)
+    makeFloorMesh(4.4, 6.6, -4.0, -2.7, bedFlooring, 'bedroom2');
 
     // 4. Living Room Lounge (Center-Front - Polished Ivory Tile)
     makeFloorMesh(5.6, 4.6, -0.4, 4.1, commonFlooring, 'living');
@@ -1203,6 +1356,21 @@ export class RoomBuilder {
 
     // 15. Rear Garden Buffer (Behind Second Bed & Kitchen)
     makeFloorMesh(8.6, 3.0, -1.9, -7.5, 'grass', 'rear_garden');
+
+    // Front Entrance Path from lawn/green area to foyer door with defined boundary
+    makeFloorMesh(2.2, 3.2, -4.7, 8.0, 'paving', 'entrance_path');
+
+    // Defined Stone Border Curbs flanking the Entrance Path
+    const curbMat2 = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.8 });
+    const curbL = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 3.2), curbMat2);
+    curbL.position.set(-5.85, 0.07, 8.0);
+    curbL.name = 'Entrance Path Border Left';
+    this.roomGroup.add(curbL);
+
+    const curbR = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 3.2), curbMat2);
+    curbR.position.set(-3.55, 0.07, 8.0);
+    curbR.name = 'Entrance Path Border Right';
+    this.roomGroup.add(curbR);
 
     // Front Porch Concrete Entrance Steps (at Entrance Foyer Door)
     const stepMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.7 });
@@ -1278,26 +1446,14 @@ export class RoomBuilder {
     addCap(0.2, 18.35, -8.0, 0.25);
     addCap(0.2, 18.35, 8.0, 0.25);
 
-    // B. VILLA EXTERIOR BUILDING WALLS (Height H = 2.8m)
-    // Modular Kitchen North Exterior Wall (from X = -1.8 to X = +2.6)
-    addWall(4.4, H, 0.15, 0.4, H / 2, -6.0, 'Modular Kitchen North Wall');
-
-    // Courtyard Garden North Vista Opening (Connecting directly to Rear Landscape & Grounds)
-    // Flanked by architectural piers with a 2.8m wide open panoramic garden vista & lintel
-    addWall(0.8, H, 0.15, -5.8, H / 2, -6.0, 'Courtyard North Wall West');
-    addWall(2.8, 0.6, 0.15, -4.0, 2.5, -6.0, 'Courtyard Garden Vista Lintel');
-    addWall(0.8, H, 0.15, -2.2, H / 2, -6.0, 'Courtyard North Wall East');
-
-    // Architectural Thresholds for Courtyard Transitions
-    const threshMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.5 });
-    const addThreshold = (w, d, x, z) => {
-      const thresh = new THREE.Mesh(new THREE.BoxGeometry(w, 0.04, d), threshMat);
-      thresh.position.set(x, 0.02, z);
-      thresh.name = 'CourtyardTransitionThreshold';
-      this.roomGroup.add(thresh);
-    };
-    addThreshold(2.8, 0.18, -4.0, -6.0); // Garden vista threshold
-    addThreshold(1.4, 0.18, -2.5, 0.6);  // Hallway entry threshold
+    // B. VILLA EXTERIOR BUILDING WALLS (Height H = 2.8m, with embedded window openings)
+    addWall(1.2, H, 0.15, -5.6, H / 2, -6.0, 'Second Bed North Wall West');
+    addWall(2.0, 0.95, 0.15, -4.0, 0.475, -6.0, 'Second Bed North Window Sill');
+    addWall(2.0, 0.55, 0.15, -4.0, 2.525, -6.0, 'Second Bed North Window Lintel');
+    addWall(2.5, H, 0.15, -1.75, H / 2, -6.0, 'Second Bed & Kitchen North Wall');
+    addWall(1.8, 1.1, 0.15, 0.3, 0.55, -6.0, 'Modular Kitchen North Window Sill');
+    addWall(1.8, 0.5, 0.15, 0.3, 2.55, -6.0, 'Modular Kitchen North Window Lintel');
+    addWall(1.5, H, 0.15, 1.95, H / 2, -6.0, 'Modular Kitchen North Wall East');
     // Master Suite Backyard Wall at Z = -2.0 with 1.8m Sliding Glass Door Opening
     addWall(1.2, H, 0.15, 2.9, H / 2, -2.0, 'Master Suite Backyard Wall West');
     addWall(1.8, 0.6, 0.15, 4.4, 2.5, -2.0, 'Master Suite Backyard Sliding Door Lintel');
@@ -1310,8 +1466,8 @@ export class RoomBuilder {
     addWall(0.15, H, 5.8, -6.2, H / 2, 3.5, 'Common Bath & Foyer West Wall');
     addWall(0.15, H, 5.4, 6.4, H / 2, 3.7, 'Master Bedroom East Exterior Wall');
 
-    // Front Exterior Walls (Cutaway View Enabled)
-    addWall(0.9, H, 0.15, -5.75, H / 2, 6.4, 'Foyer Front Wall Left', true);
+    // Front Exterior Walls (Cutaway View Enabled, closed perimeter corners)
+    addWall(1.35, H, 0.15, -5.525, H / 2, 6.4, 'Foyer Front Wall Left', true);
     addWall(1.2, 0.6, 0.15, -4.7, 2.5, 6.4, 'Foyer Front Door Lintel', true);
     addWall(0.9, H, 0.15, -3.65, H / 2, 6.4, 'Foyer Front Wall Right', true);
     addWall(5.6, H, 0.15, -0.4, H / 2, 6.4, 'Living Room Front Wall (Cutaway)', true);
@@ -1402,8 +1558,8 @@ export class RoomBuilder {
       return winGroup;
     };
 
-    // 1. Courtyard Garden Sliding Glass Door / Open Portal (overlooking rear garden)
-    createArchitecturalWindow(2.8, 2.2, -4.0, 1.15, -5.95, -Math.PI / 2, false);
+    // 1. Second Bedroom North Window (overlooking rear garden)
+    createArchitecturalWindow(2.0, 1.3, -4.0, 1.6, -5.92, -Math.PI / 2, true);
 
     // 2. Modular Kitchen North Window (above counter)
     createArchitecturalWindow(1.8, 1.2, 0.3, 1.7, -5.92, -Math.PI / 2, true);
@@ -1432,7 +1588,7 @@ export class RoomBuilder {
     this.createRoomBadge('LIVING ROOM', '🛋️', -0.4, 4.1, 'living');
     this.createRoomBadge('DINING AREA', '🍽️', 0.3, 0.1, 'dining');
     this.createRoomBadge('MODULAR KITCHEN', '🍳', 0.3, -3.8, 'kitchen');
-    this.createRoomBadge('COURTYARD GARDEN', '🌿', -4.0, -2.7, 'bedroom2');
+    this.createRoomBadge('SECOND BEDROOM', '🛏️', -4.0, -2.7, 'bedroom2');
     this.createRoomBadge('COMMON BATHROOM', '🚿', -4.7, 2.0, 'common_bath');
     this.createRoomBadge('MASTER BEDROOM', '👑', 4.4, 3.7, 'bedroom');
     this.createRoomBadge('MASTER BATHROOM', '🛁', 5.4, -0.5, 'master_bath');

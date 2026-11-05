@@ -1059,6 +1059,95 @@ class RoomBuilder {
     this.roomGroup.add(this.doorGroup);
   }
 
+  createInteriorDoor(w, h, depth, x, y, z, rotY = 0, name = 'Interior Door', isBath = false) {
+    const doorGroup = new THREE.Group();
+    doorGroup.name = name;
+    doorGroup.userData = { isArchitecture: true, type: 'door', name: name };
+
+    const frameColor = 0x3e2723;
+    const frameMat = new THREE.MeshStandardMaterial({ color: frameColor, roughness: 0.5 });
+    const leafColor = isBath ? 0xf8fafc : 0x5c4033;
+    const leafMat = new THREE.MeshStandardMaterial({
+      color: leafColor,
+      roughness: isBath ? 0.2 : 0.45,
+      metalness: isBath ? 0.05 : 0.0
+    });
+    const brassMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.2 });
+    const sillMat = new THREE.MeshStandardMaterial({ color: 0xb49144, metalness: 0.8, roughness: 0.25 });
+
+    // 1. Satin brass sill threshold
+    const sill = new THREE.Mesh(new THREE.BoxGeometry(w + 0.08, 0.012, depth + 0.04), sillMat);
+    sill.position.set(0, 0.006, 0);
+    doorGroup.add(sill);
+
+    // 2. Door Frame Jambs
+    const jambT = 0.04;
+    const header = new THREE.Mesh(new THREE.BoxGeometry(w + 0.08, jambT, depth), frameMat);
+    header.position.set(0, h - jambT / 2, 0);
+    doorGroup.add(header);
+
+    const stileL = new THREE.Mesh(new THREE.BoxGeometry(jambT, h, depth), frameMat);
+    stileL.position.set(-w / 2 - jambT / 2, h / 2, 0);
+    doorGroup.add(stileL);
+
+    const stileR = new THREE.Mesh(new THREE.BoxGeometry(jambT, h, depth), frameMat);
+    stileR.position.set(w / 2 + jambT / 2, h / 2, 0);
+    doorGroup.add(stileR);
+
+    // 3. Hinged Door Leaf (set invitingly ajar at ~20 degrees)
+    const hinge = new THREE.Group();
+    hinge.name = `${name} Hinge`;
+    hinge.position.set(-w / 2 + 0.02, 0, 0);
+    hinge.rotation.y = isBath ? 0.35 : -0.35;
+
+    const leafW = w - 0.04;
+    const leafH = h - 0.04;
+    const leafT = 0.045;
+    const leaf = new THREE.Mesh(new THREE.BoxGeometry(leafW, leafH, leafT), leafMat);
+    leaf.position.set(leafW / 2, leafH / 2 + 0.01, 0);
+    leaf.castShadow = true;
+    hinge.add(leaf);
+
+    // Architectural Door Panel Molding Insets
+    const insetMat = new THREE.MeshStandardMaterial({ color: isBath ? 0xe2e8f0 : 0x4a3525, roughness: 0.5 });
+    [-leafH * 0.22, leafH * 0.22].forEach(py => {
+      const inset = new THREE.Mesh(new THREE.BoxGeometry(leafW * 0.75, leafH * 0.35, 0.008), insetMat);
+      inset.position.set(leafW / 2, leafH / 2 + py + 0.01, leafT / 2 + 0.004);
+      hinge.add(inset);
+    });
+
+    // Satin Brass Lever Handle with Rosette on Both Sides
+    const handleH = 0.95;
+    const rosetteGeom = new THREE.CylinderGeometry(0.028, 0.028, 0.01, 16);
+    rosetteGeom.rotateX(Math.PI / 2);
+    const leverGeom = new THREE.BoxGeometry(0.12, 0.02, 0.02);
+
+    [-1, 1].forEach(side => {
+      const zOffset = side * (leafT / 2 + 0.015);
+      const rosette = new THREE.Mesh(rosetteGeom, brassMat);
+      rosette.position.set(leafW - 0.08, handleH, side * (leafT / 2 + 0.005));
+      hinge.add(rosette);
+
+      const lever = new THREE.Mesh(leverGeom, brassMat);
+      lever.position.set(leafW - 0.08 - 0.04, handleH, zOffset);
+      hinge.add(lever);
+    });
+
+    doorGroup.add(hinge);
+    doorGroup.position.set(x, y, z);
+    doorGroup.rotation.y = rotY;
+
+    doorGroup.traverse(child => {
+      child.userData.isDoor = true;
+      child.userData.isArchitecture = true;
+      child.userData.type = 'door';
+      child.userData.rootGroup = doorGroup;
+    });
+
+    this.roomGroup.add(doorGroup);
+    return doorGroup;
+  }
+
   setDoorSwing(angleDegrees) {
     this.doorConfig.openAngle = angleDegrees;
     if (this.doorHinge) {
@@ -1301,6 +1390,12 @@ class RoomBuilder {
     // 6. Master Bathroom En-Suite (Rear-Center - Sky-Blue Designer Tiles)
     makeFloorMesh(3.6, 4.4, 1.1, -3.6, 'blue_tile', 'master_bath');
 
+    // 7. Central Hallway Circulation Floor (Light Porcelain Tile / Wood)
+    makeFloorMesh(3.6, 3.2, 1.1, 0.2, commonFlooring, 'hallway');
+
+    // 8. Foyer-Living Vestibule Floor
+    makeFloorMesh(3.2, 1.0, -4.7, 2.3, commonFlooring, 'foyer_hallway');
+
     // Outdoor Environment: Front Porch Entrance Steps
     const stepMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.7 });
     const step1 = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.08, 0.45), stepMat);
@@ -1310,11 +1405,26 @@ class RoomBuilder {
     step2.position.set(-4.7, 0.12, 6.45);
     this.roomGroup.add(step2);
 
-    // Front Paved Driveway Approach & Front Lawn
+    // Front Paved Driveway Approach, Front Lawn & Gardens
     makeFloorMesh(4.8, 2.8, -3.8, 7.8, 'paving', 'driveway');
     makeFloorMesh(5.4, 2.8, 3.7, 7.8, 'grass', 'front_lawn');
     makeFloorMesh(1.6, 17.0, -7.2, 0.25, 'grass', 'left_garden');
     makeFloorMesh(1.6, 17.0, 7.2, 0.25, 'grass', 'right_garden');
+
+    // Front Entrance Path from lawn/green area to foyer door with defined boundary
+    makeFloorMesh(2.2, 3.2, -4.7, 8.0, 'paving', 'entrance_path');
+
+    // Defined Stone Border Curbs flanking the Entrance Path
+    const curbMat2 = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.8 });
+    const curbL = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 3.2), curbMat2);
+    curbL.position.set(-5.85, 0.07, 8.0);
+    curbL.name = 'Entrance Path Border Left';
+    this.roomGroup.add(curbL);
+
+    const curbR = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 3.2), curbMat2);
+    curbR.position.set(-3.55, 0.07, 8.0);
+    curbR.name = 'Entrance Path Border Right';
+    this.roomGroup.add(curbR);
 
     // Satin Brass Doorway Threshold Transitions
     const brassMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.25 });
@@ -1365,27 +1475,45 @@ class RoomBuilder {
       return mesh;
     };
 
-    // A. EXTERIOR PERIMETER WALLS
-    // 1. North Back Exterior Wall (Z = -6.0)
-    this.walls.back = addWall(14.2, H, 0.15, 0.1, H / 2, -6.0, 'Exterior Back Wall');
+    // A. EXTERIOR PERIMETER WALLS (Continuous enclosure, zero corner gaps, embedded window cutouts)
+    // 1. North Back Exterior Wall (Z = -6.0) with cutouts for Master Bedroom and Master Bathroom windows
+    addWall(2.0, H, 0.15, -5.5, H / 2, -6.0, 'Exterior Back Wall Left');
+    addWall(2.0, 0.95, 0.15, -3.5, 0.475, -6.0, 'Master Bed North Window Sill');
+    addWall(2.0, 0.55, 0.15, -3.5, 2.525, -6.0, 'Master Bed North Window Lintel');
+    this.walls.back = addWall(3.0, H, 0.15, -1.0, H / 2, -6.0, 'Exterior Back Wall');
+    addWall(1.2, 1.3, 0.15, 1.1, 0.65, -6.0, 'Master Bath North Window Sill');
+    addWall(1.2, 0.5, 0.15, 1.1, 2.55, -6.0, 'Master Bath North Window Lintel');
+    addWall(5.2, H, 0.15, 4.3, H / 2, -6.0, 'Exterior Back Wall Right');
 
-    // 2. West Left Exterior Wall (X = -6.5)
-    this.walls.left = addWall(0.15, H, 12.8, -6.5, H / 2, 0.2, 'Exterior Left Wall');
+    // 2. West Left Exterior Wall (X = -6.5) with cutout for Master Bedroom picture window
+    addWall(0.15, H, 2.9, -6.5, H / 2, -4.55, 'Exterior Left Wall North');
+    addWall(0.15, 0.75, 2.2, -6.5, 0.375, -2.0, 'Master Bed West Window Sill');
+    addWall(0.15, 0.55, 2.2, -6.5, 2.525, -2.0, 'Master Bed West Window Lintel');
+    this.walls.left = addWall(0.15, H, 7.3, -6.5, H / 2, 2.75, 'Exterior Left Wall');
 
-    // 3. East Right Exterior Wall (X = 6.9)
-    this.walls.right = addWall(0.15, H, 12.8, 6.9, H / 2, 0.2, 'Exterior Right Wall');
+    // 3. East Right Exterior Wall (X = 6.9) with cutout for Kitchen casement window
+    addWall(0.15, H, 2.9, 6.9, H / 2, -4.55, 'Exterior Right Wall North');
+    addWall(0.15, 1.05, 1.8, 6.9, 0.525, -2.2, 'Kitchen East Window Sill');
+    addWall(0.15, 0.55, 1.8, 6.9, 2.525, -2.2, 'Kitchen East Window Lintel');
+    this.walls.right = addWall(0.15, H, 7.7, 6.9, H / 2, 2.55, 'Exterior Right Wall');
 
-    // 4. South Front Exterior Walls (Z = 6.4 - Cutaway View Enabled)
-    // Foyer Front Wall Left
-    addWall(0.9, H, 0.15, -5.75, H / 2, 6.4, 'Foyer Front Wall Left', true);
-    // Foyer Front Door Lintel
+    // 4. South Front Exterior Walls (Z = 6.4 - Cutaway View Enabled, closed perimeter corners)
+    // Foyer Front Wall Left (extends from X = -6.5 to X = -5.3, closing corner gap)
+    addWall(1.2, H, 0.15, -5.9, H / 2, 6.4, 'Foyer Front Wall Left', true);
+    // Foyer Front Door Lintel (X = -5.3 to -4.1)
     addWall(1.2, 0.6, 0.15, -4.7, 2.5, 6.4, 'Foyer Front Door Lintel', true);
-    // Foyer Front Wall Right
-    addWall(0.9, H, 0.15, -3.65, H / 2, 6.4, 'Foyer Front Wall Right', true);
-    // Living Room Front Wall
-    addWall(6.0, H, 0.15, -0.1, H / 2, 6.4, 'Living Room Front Wall (Cutaway)', true);
-    // Dining Room Front Wall
-    addWall(4.0, H, 0.15, 4.9, H / 2, 6.4, 'Dining Room Front Wall (Cutaway)', true);
+    // Foyer Front Wall Right (X = -4.1 to -3.1)
+    addWall(1.0, H, 0.15, -3.6, H / 2, 6.4, 'Foyer Front Wall Right', true);
+    // Living Room Front Wall with window cutout
+    addWall(1.2, H, 0.15, -2.5, H / 2, 6.4, 'Living Front Wall Left', true);
+    addWall(3.6, 0.2, 0.15, -0.1, 0.1, 6.4, 'Living Front Window Sill', true);
+    addWall(3.6, 0.6, 0.15, -0.1, 2.5, 6.4, 'Living Front Window Lintel', true);
+    addWall(1.2, H, 0.15, 2.3, H / 2, 6.4, 'Living Front Wall Right', true);
+    // Dining Room Front Wall with window cutout (meets East wall at X = 6.9, closing corner gap)
+    addWall(0.8, H, 0.15, 3.3, H / 2, 6.4, 'Dining Front Wall Left', true);
+    addWall(2.4, 0.6, 0.15, 4.9, 0.3, 6.4, 'Dining Front Window Sill', true);
+    addWall(2.4, 0.6, 0.15, 4.9, 2.5, 6.4, 'Dining Front Window Lintel', true);
+    addWall(0.8, H, 0.15, 6.5, H / 2, 6.4, 'Dining Front Wall Right', true);
 
     // Front Architectural Floor Curb
     const curbMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.7 });
@@ -1393,7 +1521,7 @@ class RoomBuilder {
     curb.position.set(0.1, 0.06, 6.4);
     this.roomGroup.add(curb);
 
-    // B. INTERIOR DIVIDING WALLS
+    // B. INTERIOR DIVIDING WALLS (Connected with zero loose ends)
     // 1. Slatted wood vertical screen between Foyer and Living Room at X = -3.1
     const woodMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.4 });
     for (let sz = 3.6; sz <= 5.8; sz += 0.28) {
@@ -1420,14 +1548,33 @@ class RoomBuilder {
 
     // 3. North-South Dividing Wall between Master Bedroom and Master Bathroom at X = -0.7
     // North section of dividing wall
-    addWall(0.12, H, 2.8, -0.7, H / 2, -4.6, 'Master Suite-Bath Wall North');
+    addWall(0.12, H, 2.4, -0.7, H / 2, -4.8, 'Master Suite-Bath Wall North');
     // En-Suite Door Lintel
     addWall(0.12, 0.6, 1.1, -0.7, 2.5, -3.6, 'Master En-Suite Door Lintel');
-    // South section of dividing wall
-    addWall(0.12, H, 1.6, -0.7, H / 2, -2.4, 'Master Suite-Bath Wall South');
+    // South section of dividing wall (meets Z = 1.8 dividing wall)
+    addWall(0.12, H, 4.8, -0.7, H / 2, -0.6, 'Master Suite-Bath Wall South');
 
-    // 4. North-South Dividing Wall between Master Bathroom and Modular Kitchen at X = 2.9
-    addWall(0.12, H, 4.4, 2.9, H / 2, -3.6, 'Bath-Kitchen Dividing Wall');
+    // 4. North-South Dividing Wall between Master Bathroom and Modular Kitchen at X = 2.9 (Extended to Z = 1.8, no loose ends)
+    addWall(0.12, H, 4.4, 2.9, H / 2, -3.8, 'Bath-Kitchen Dividing Wall North');
+    addWall(0.12, 0.6, 1.2, 2.9, 2.5, -1.0, 'Kitchen Entrance Lintel');
+    addWall(0.12, H, 2.2, 2.9, H / 2, 0.7, 'Bath-Kitchen Dividing Wall South');
+
+    // 5. Covered Architectural Pergola Structure over Living Room (providing overhead support for ceiling fan)
+    const timberMat = new THREE.MeshStandardMaterial({ color: 0x4a3728, roughness: 0.5 });
+    for (let rz = 2.1; rz <= 6.1; rz += 0.8) {
+      const rafter = new THREE.Mesh(new THREE.BoxGeometry(6.0, 0.12, 0.08), timberMat);
+      rafter.position.set(-0.1, H - 0.06, rz);
+      rafter.name = 'LivingPergolaRafter';
+      rafter.castShadow = true;
+      this.roomGroup.add(rafter);
+    }
+    for (let rx = -2.7; rx <= 2.5; rx += 1.3) {
+      const purlin = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 4.4), timberMat);
+      purlin.position.set(rx, H + 0.04, 4.1);
+      purlin.name = 'LivingPergolaPurlin';
+      purlin.castShadow = true;
+      this.roomGroup.add(purlin);
+    }
   }
 
   buildHouseWindowsAndDoors(H) {
@@ -1464,26 +1611,32 @@ class RoomBuilder {
       return winGroup;
     };
 
-    // 1. Master Bedroom West Picture Window
-    createArchitecturalWindow(2.2, 1.5, -6.42, 1.5, -2.0, Math.PI / 2);
+    // 1. Master Bedroom West Picture Window (embedded in West Wall cutout)
+    createArchitecturalWindow(2.2, 1.5, -6.5, 1.5, -2.0, Math.PI / 2);
 
-    // 2. Master Bedroom North Window (rear garden view)
-    createArchitecturalWindow(2.0, 1.3, -3.5, 1.6, -5.92, -Math.PI / 2, true);
+    // 2. Master Bedroom North Window (embedded in North Wall cutout)
+    createArchitecturalWindow(2.0, 1.3, -3.5, 1.6, -6.0, 0, false);
 
-    // 3. Master Bathroom North Window (frosted privacy glass)
-    createArchitecturalWindow(1.2, 1.0, 1.1, 1.8, -5.92, -Math.PI / 2, true);
+    // 3. Master Bathroom North Window (embedded in North Wall cutout)
+    createArchitecturalWindow(1.2, 1.0, 1.1, 1.8, -6.0, 0, false);
 
-    // 4. Modular Kitchen Casement Window on East Wall
-    createArchitecturalWindow(1.8, 1.2, 6.82, 1.65, -2.2, -Math.PI / 2);
+    // 4. Modular Kitchen Casement Window on East Wall (embedded in East Wall cutout)
+    createArchitecturalWindow(1.8, 1.2, 6.9, 1.65, -2.2, Math.PI / 2);
 
-    // 5. Living Room Front Panoramic Window (Cutaway)
-    createArchitecturalWindow(3.6, 2.0, -0.1, 1.2, 6.35, -Math.PI / 2, true);
+    // 5. Living Room Front Panoramic Window (embedded in Front Wall cutout)
+    createArchitecturalWindow(3.6, 2.0, -0.1, 1.2, 6.4, 0, true);
 
-    // 6. Dining Room Front Window (Cutaway)
-    createArchitecturalWindow(2.4, 1.6, 4.9, 1.4, 6.35, -Math.PI / 2, true);
+    // 6. Dining Room Front Window (embedded in Front Wall cutout)
+    createArchitecturalWindow(2.4, 1.6, 4.9, 1.4, 6.4, 0, true);
 
     // 7. Architectural Adjustable Front Entrance Door at Foyer
     this.buildVillaEntryDoor(H);
+
+    // 8. Proper Door from Hallway into Master Bedroom
+    this.createInteriorDoor(1.0, 2.2, 0.12, -1.0, 0, 1.8, 0, 'Master Bedroom Entry Door', false);
+
+    // 9. Proper Privacy Door between Master Bedroom and Master Bathroom
+    this.createInteriorDoor(0.9, 2.2, 0.12, -0.7, 0, -3.6, Math.PI / 2, 'Master Bathroom Privacy Door', true);
   }
 
   buildHouseRoomBadges() {
@@ -1502,8 +1655,8 @@ class RoomBuilder {
     const ctx = canvas.getContext('2d');
 
     // Rounded rectangle dark glass pill background
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
-    ctx.strokeStyle = 'rgba(99, 102, 241, 0.75)';
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+    ctx.strokeStyle = 'rgba(99, 102, 241, 0.85)';
     ctx.lineWidth = 6;
 
     const r = 26;
@@ -1530,17 +1683,17 @@ class RoomBuilder {
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.minFilter = THREE.LinearFilter;
-    const badgeMat = new THREE.MeshBasicMaterial({
+    const spriteMat = new THREE.SpriteMaterial({
       map: texture,
       transparent: true,
       depthWrite: false,
-      side: THREE.DoubleSide
+      depthTest: false
     });
 
-    const badgeGeom = new THREE.PlaneGeometry(1.6, 0.44);
-    const badge = new THREE.Mesh(badgeGeom, badgeMat);
-    badge.rotation.x = -Math.PI / 2;
-    badge.position.set(x, 0.04, z);
+    const badge = new THREE.Sprite(spriteMat);
+    badge.scale.set(1.9, 0.52, 1.0);
+    badge.position.set(x, 0.45, z);
+    badge.renderOrder = 999;
     badge.name = `RoomBadge_${roomKey}`;
     badge.userData = { isRoomBadge: true, roomZone: roomKey, title: title };
     this.roomBadges.push(badge);
@@ -1623,8 +1776,8 @@ class RoomBuilder {
     // 2. Common Bathroom 1 (Mid-Left - Sky Blue Designer Tiles)
     makeFloorMesh(3.0, 2.8, -4.7, 2.0, 'blue_tile', 'common_bath');
 
-    // 3. Outdoor Courtyard Garden (Back-Left - Rich Teak Wood Decking)
-    makeFloorMesh(4.4, 6.6, -4.0, -2.7, 'wood_teak', 'bedroom2');
+    // 3. Second Bedroom (Back-Left - Warm Oak Wood)
+    makeFloorMesh(4.4, 6.6, -4.0, -2.7, bedFlooring, 'bedroom2');
 
     // 4. Living Room Lounge (Center-Front - Polished Ivory Tile)
     makeFloorMesh(5.6, 4.6, -0.4, 4.1, commonFlooring, 'living');
@@ -1661,6 +1814,21 @@ class RoomBuilder {
 
     // 15. Rear Garden Buffer (Behind Second Bed & Kitchen)
     makeFloorMesh(8.6, 3.0, -1.9, -7.5, 'grass', 'rear_garden');
+
+    // Front Entrance Path from lawn/green area to foyer door with defined boundary
+    makeFloorMesh(2.2, 3.2, -4.7, 8.0, 'paving', 'entrance_path');
+
+    // Defined Stone Border Curbs flanking the Entrance Path
+    const curbMat2 = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.8 });
+    const curbL = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 3.2), curbMat2);
+    curbL.position.set(-5.85, 0.07, 8.0);
+    curbL.name = 'Entrance Path Border Left';
+    this.roomGroup.add(curbL);
+
+    const curbR = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 3.2), curbMat2);
+    curbR.position.set(-3.55, 0.07, 8.0);
+    curbR.name = 'Entrance Path Border Right';
+    this.roomGroup.add(curbR);
 
     // Front Porch Concrete Entrance Steps (at Entrance Foyer Door)
     const stepMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.7 });
@@ -1736,26 +1904,14 @@ class RoomBuilder {
     addCap(0.2, 18.35, -8.0, 0.25);
     addCap(0.2, 18.35, 8.0, 0.25);
 
-    // B. VILLA EXTERIOR BUILDING WALLS (Height H = 2.8m)
-    // Modular Kitchen North Exterior Wall (from X = -1.8 to X = +2.6)
-    addWall(4.4, H, 0.15, 0.4, H / 2, -6.0, 'Modular Kitchen North Wall');
-
-    // Courtyard Garden North Vista Opening (Connecting directly to Rear Landscape & Grounds)
-    // Flanked by architectural piers with a 2.8m wide open panoramic garden vista & lintel
-    addWall(0.8, H, 0.15, -5.8, H / 2, -6.0, 'Courtyard North Wall West');
-    addWall(2.8, 0.6, 0.15, -4.0, 2.5, -6.0, 'Courtyard Garden Vista Lintel');
-    addWall(0.8, H, 0.15, -2.2, H / 2, -6.0, 'Courtyard North Wall East');
-
-    // Architectural Thresholds for Courtyard Transitions
-    const threshMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.5 });
-    const addThreshold = (w, d, x, z) => {
-      const thresh = new THREE.Mesh(new THREE.BoxGeometry(w, 0.04, d), threshMat);
-      thresh.position.set(x, 0.02, z);
-      thresh.name = 'CourtyardTransitionThreshold';
-      this.roomGroup.add(thresh);
-    };
-    addThreshold(2.8, 0.18, -4.0, -6.0); // Garden vista threshold
-    addThreshold(1.4, 0.18, -2.5, 0.6);  // Hallway entry threshold
+    // B. VILLA EXTERIOR BUILDING WALLS (Height H = 2.8m, with embedded window openings)
+    addWall(1.2, H, 0.15, -5.6, H / 2, -6.0, 'Second Bed North Wall West');
+    addWall(2.0, 0.95, 0.15, -4.0, 0.475, -6.0, 'Second Bed North Window Sill');
+    addWall(2.0, 0.55, 0.15, -4.0, 2.525, -6.0, 'Second Bed North Window Lintel');
+    addWall(2.5, H, 0.15, -1.75, H / 2, -6.0, 'Second Bed & Kitchen North Wall');
+    addWall(1.8, 1.1, 0.15, 0.3, 0.55, -6.0, 'Modular Kitchen North Window Sill');
+    addWall(1.8, 0.5, 0.15, 0.3, 2.55, -6.0, 'Modular Kitchen North Window Lintel');
+    addWall(1.5, H, 0.15, 1.95, H / 2, -6.0, 'Modular Kitchen North Wall East');
     // Master Suite Backyard Wall at Z = -2.0 with 1.8m Sliding Glass Door Opening
     addWall(1.2, H, 0.15, 2.9, H / 2, -2.0, 'Master Suite Backyard Wall West');
     addWall(1.8, 0.6, 0.15, 4.4, 2.5, -2.0, 'Master Suite Backyard Sliding Door Lintel');
@@ -1768,8 +1924,8 @@ class RoomBuilder {
     addWall(0.15, H, 5.8, -6.2, H / 2, 3.5, 'Common Bath & Foyer West Wall');
     addWall(0.15, H, 5.4, 6.4, H / 2, 3.7, 'Master Bedroom East Exterior Wall');
 
-    // Front Exterior Walls (Cutaway View Enabled)
-    addWall(0.9, H, 0.15, -5.75, H / 2, 6.4, 'Foyer Front Wall Left', true);
+    // Front Exterior Walls (Cutaway View Enabled, closed perimeter corners)
+    addWall(1.35, H, 0.15, -5.525, H / 2, 6.4, 'Foyer Front Wall Left', true);
     addWall(1.2, 0.6, 0.15, -4.7, 2.5, 6.4, 'Foyer Front Door Lintel', true);
     addWall(0.9, H, 0.15, -3.65, H / 2, 6.4, 'Foyer Front Wall Right', true);
     addWall(5.6, H, 0.15, -0.4, H / 2, 6.4, 'Living Room Front Wall (Cutaway)', true);
@@ -1860,8 +2016,8 @@ class RoomBuilder {
       return winGroup;
     };
 
-    // 1. Courtyard Garden Sliding Glass Door / Open Portal (overlooking rear garden)
-    createArchitecturalWindow(2.8, 2.2, -4.0, 1.15, -5.95, -Math.PI / 2, false);
+    // 1. Second Bedroom North Window (overlooking rear garden)
+    createArchitecturalWindow(2.0, 1.3, -4.0, 1.6, -5.92, -Math.PI / 2, true);
 
     // 2. Modular Kitchen North Window (above counter)
     createArchitecturalWindow(1.8, 1.2, 0.3, 1.7, -5.92, -Math.PI / 2, true);
@@ -1890,7 +2046,7 @@ class RoomBuilder {
     this.createRoomBadge('LIVING ROOM', '🛋️', -0.4, 4.1, 'living');
     this.createRoomBadge('DINING AREA', '🍽️', 0.3, 0.1, 'dining');
     this.createRoomBadge('MODULAR KITCHEN', '🍳', 0.3, -3.8, 'kitchen');
-    this.createRoomBadge('COURTYARD GARDEN', '🌿', -4.0, -2.7, 'bedroom2');
+    this.createRoomBadge('SECOND BEDROOM', '🛏️', -4.0, -2.7, 'bedroom2');
     this.createRoomBadge('COMMON BATHROOM', '🚿', -4.7, 2.0, 'common_bath');
     this.createRoomBadge('MASTER BEDROOM', '👑', 4.4, 3.7, 'bedroom');
     this.createRoomBadge('MASTER BATHROOM', '🛁', 5.4, -0.5, 'master_bath');
@@ -4224,6 +4380,21 @@ class FurnitureFactory {
     faucetArch.rotation.z = Math.PI;
     group.add(faucetArch);
 
+    // Designer Ceramic Induction Cooktop with Countertop Clearance
+    const cooktopMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.1, metalness: 0.6 });
+    const cooktop = this.createMesh(new THREE.BoxGeometry(0.72, 0.008, 0.46), cooktopMat, 'Counter Cooktop');
+    cooktop.position.set(0.85, counterH + 0.005, 0.01);
+    group.add(cooktop);
+
+    // Cooktop Burner Ring Accents
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x64748b });
+    [[-0.18, -0.1], [0.18, -0.1], [-0.18, 0.1], [0.18, 0.1]].forEach(([rx, rz]) => {
+      const ring = new THREE.Mesh(new THREE.RingGeometry(0.055, 0.07, 24), ringMat);
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.set(0.85 + rx, counterH + 0.01, 0.01 + rz);
+      group.add(ring);
+    });
+
     // Cabinet Handles
     const handleGeom = new THREE.BoxGeometry(0.14, 0.02, 0.02);
     [-1.0, -0.5, 0.5, 1.0].forEach((x, idx) => {
@@ -5911,462 +6082,6 @@ class FurnitureFactory {
 
     return group;
   }
-
-  // 50. MODERN OUTDOOR COURTYARD L-SECTIONAL LOUNGE SOFA
-  static createCourtyardSectional() {
-    const group = new THREE.Group();
-    group.name = 'Courtyard Modular Sectional Sofa';
-    group.userData = { type: 'courtyard_sectional', name: 'Modern Outdoor Teak & Charcoal Sectional', cost: 1850 };
-
-    const teakMat = new THREE.MeshStandardMaterial({ color: 0x925e36, roughness: 0.55 });
-    const metalMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.45, metalness: 0.75 });
-    const cushionMat = new THREE.MeshStandardMaterial({ color: 0xf3f4f6, roughness: 0.85 });
-    const pillowMat1 = new THREE.MeshStandardMaterial({ color: 0xc2410c, roughness: 0.85 }); // Terracotta
-    const pillowMat2 = new THREE.MeshStandardMaterial({ color: 0x365314, roughness: 0.85 }); // Olive Green
-
-    // 1. Charcoal Aluminum Frame Legs & Perimeter
-    const baseFrame = this.createMesh(new THREE.BoxGeometry(2.4, 0.08, 0.86), metalMat, 'Sectional Main Base');
-    baseFrame.position.set(0, 0.14, 0);
-    group.add(baseFrame);
-
-    const chaiseBase = this.createMesh(new THREE.BoxGeometry(0.86, 0.08, 1.4), metalMat, 'Chaise Return Base');
-    chaiseBase.position.set(0.77, 0.14, 0.85);
-    group.add(chaiseBase);
-
-    // Legs
-    [[-1.1, -0.36], [1.1, -0.36], [-1.1, 0.36], [0.4, 0.36], [0.4, 1.45], [1.1, 1.45]].forEach(([lx, lz]) => {
-      const leg = this.createMesh(new THREE.CylinderGeometry(0.02, 0.016, 0.14, 8), metalMat, 'Frame Leg');
-      leg.position.set(lx, 0.07, lz);
-      group.add(leg);
-    });
-
-    // 2. Teak Wood Slats Platform Accent
-    const teakPlank = this.createMesh(new THREE.BoxGeometry(2.44, 0.025, 0.90), teakMat, 'Teak Base Deck');
-    teakPlank.position.set(0, 0.19, 0);
-    group.add(teakPlank);
-
-    const chaisePlank = this.createMesh(new THREE.BoxGeometry(0.90, 0.025, 1.44), teakMat, 'Teak Chaise Deck');
-    chaisePlank.position.set(0.77, 0.19, 0.85);
-    group.add(chaisePlank);
-
-    // Extended Teak Side Shelf on Left
-    const shelf = this.createMesh(new THREE.BoxGeometry(0.40, 0.025, 0.86), teakMat, 'Teak Integrated Side Table');
-    shelf.position.set(-1.35, 0.19, 0);
-    group.add(shelf);
-
-    // 3. Deep Outdoor Seat Cushions (Height 0.18m)
-    const seat1 = this.createMesh(new THREE.BoxGeometry(1.0, 0.16, 0.80), cushionMat, 'Main Seat Cushion Left');
-    seat1.position.set(-0.6, 0.28, 0);
-    group.add(seat1);
-
-    const seat2 = this.createMesh(new THREE.BoxGeometry(1.0, 0.16, 0.80), cushionMat, 'Main Seat Cushion Center');
-    seat2.position.set(0.35, 0.28, 0);
-    group.add(seat2);
-
-    const chaiseSeat = this.createMesh(new THREE.BoxGeometry(0.80, 0.16, 1.35), cushionMat, 'Chaise Seat Cushion');
-    chaiseSeat.position.set(0.77, 0.28, 0.82);
-    group.add(chaiseSeat);
-
-    // 4. Backrest & Support Rails
-    const backRail = this.createMesh(new THREE.BoxGeometry(2.4, 0.35, 0.06), metalMat, 'Backrest Metal Rail');
-    backRail.position.set(0, 0.48, -0.38);
-    group.add(backRail);
-
-    const sideRail = this.createMesh(new THREE.BoxGeometry(0.06, 0.35, 1.7), metalMat, 'Chaise Side Rail');
-    sideRail.position.set(1.18, 0.48, 0.60);
-    group.add(sideRail);
-
-    // Angled Back Cushions
-    [-0.6, 0.35].forEach(x => {
-      const bCush = this.createMesh(new THREE.BoxGeometry(0.92, 0.34, 0.14), cushionMat, 'Back Cushion');
-      bCush.position.set(x, 0.46, -0.28);
-      bCush.rotation.x = -0.1;
-      group.add(bCush);
-    });
-
-    [0.35, 1.15].forEach(z => {
-      const sCush = this.createMesh(new THREE.BoxGeometry(0.14, 0.34, 0.75), cushionMat, 'Side Cushion');
-      sCush.position.set(1.08, 0.46, z);
-      sCush.rotation.z = 0.1;
-      group.add(sCush);
-    });
-
-    // 5. Lumbar Pillows
-    const p1 = this.createMesh(new THREE.BoxGeometry(0.35, 0.25, 0.10), pillowMat1, 'Accent Pillow Terracotta');
-    p1.position.set(-0.8, 0.42, -0.22);
-    p1.rotation.y = 0.15;
-    group.add(p1);
-
-    const p2 = this.createMesh(new THREE.BoxGeometry(0.35, 0.25, 0.10), pillowMat2, 'Accent Pillow Olive');
-    p2.position.set(0.1, 0.42, -0.22);
-    p2.rotation.y = -0.1;
-    group.add(p2);
-
-    const p3 = this.createMesh(new THREE.BoxGeometry(0.35, 0.25, 0.10), pillowMat1, 'Accent Pillow Chaise');
-    p3.position.set(1.0, 0.42, 0.5);
-    p3.rotation.y = 1.4;
-    group.add(p3);
-
-    return group;
-  }
-
-  // 51. MODERN OUTDOOR ARCHITECTURAL CONCRETE FIRE TABLE
-  static createCourtyardFireTable() {
-    const group = new THREE.Group();
-    group.name = 'Courtyard Concrete Fire Table';
-    group.userData = { type: 'courtyard_fire_table', name: 'Cast Concrete Fire Pit & Coffee Table', cost: 780 };
-
-    const concreteMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.9, metalness: 0.05 });
-    const trayMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.85, roughness: 0.25 });
-    const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.9, transparent: true, opacity: 0.35, roughness: 0.1 });
-    const lavaMat = new THREE.MeshStandardMaterial({ color: 0x27272a, roughness: 0.95 });
-    const flameMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
-
-    // Main Concrete Plinth (1.3m x 0.75m x 0.36m)
-    const base = this.createMesh(new THREE.BoxGeometry(1.30, 0.34, 0.75), concreteMat, 'Concrete Body');
-    base.position.set(0, 0.17, 0);
-    group.add(base);
-
-    // Recessed Burner Tray
-    const tray = this.createMesh(new THREE.BoxGeometry(0.82, 0.03, 0.36), trayMat, 'Burner Tray');
-    tray.position.set(0, 0.33, 0);
-    group.add(tray);
-
-    // Lava Stones Bed
-    const lava = this.createMesh(new THREE.BoxGeometry(0.78, 0.04, 0.32), lavaMat, 'Lava Rock Bed');
-    lava.position.set(0, 0.35, 0);
-    group.add(lava);
-
-    // Glowing Fire Glass Center
-    const flameCore = this.createMesh(new THREE.BoxGeometry(0.55, 0.03, 0.12), flameMat, 'Fire Flame Core');
-    flameCore.position.set(0, 0.375, 0);
-    group.add(flameCore);
-
-    // Subtle Warm Flickering Fire Glow Light
-    const fireLight = new THREE.PointLight(0xffa726, 0.85, 4.0, 1.8);
-    fireLight.position.set(0, 0.45, 0);
-    fireLight.name = 'FirePitGlow';
-    group.add(fireLight);
-
-    // Tempered Glass Wind Screen
-    const glassN = this.createMesh(new THREE.BoxGeometry(0.84, 0.12, 0.01), glassMat, 'Glass Screen North');
-    glassN.position.set(0, 0.40, -0.19);
-    group.add(glassN);
-
-    const glassS = this.createMesh(new THREE.BoxGeometry(0.84, 0.12, 0.01), glassMat, 'Glass Screen South');
-    glassS.position.set(0, 0.40, 0.19);
-    group.add(glassS);
-
-    const glassW = this.createMesh(new THREE.BoxGeometry(0.01, 0.12, 0.39), glassMat, 'Glass Screen West');
-    glassW.position.set(-0.42, 0.40, 0);
-    group.add(glassW);
-
-    const glassE = this.createMesh(new THREE.BoxGeometry(0.01, 0.12, 0.39), glassMat, 'Glass Screen East');
-    glassE.position.set(0.42, 0.40, 0);
-    group.add(glassE);
-
-    return group;
-  }
-
-  // 52. MODERN OUTDOOR ROPE & TEAK CLUB ARMCHAIR
-  static createCourtyardLoungeChair() {
-    const group = new THREE.Group();
-    group.name = 'Courtyard Club Armchair';
-    group.userData = { type: 'courtyard_chair', name: 'Modern Outdoor Rope & Teak Club Chair', cost: 420 };
-
-    const teakMat = new THREE.MeshStandardMaterial({ color: 0x925e36, roughness: 0.55 });
-    const metalMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4, metalness: 0.8 });
-    const cushionMat = new THREE.MeshStandardMaterial({ color: 0xf3f4f6, roughness: 0.85 });
-    const ropeMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.9 });
-
-    // Legs
-    const w = 0.82, d = 0.80;
-    [[-w / 2 + 0.08, -d / 2 + 0.08], [w / 2 - 0.08, -d / 2 + 0.08], [-w / 2 + 0.08, d / 2 - 0.08], [w / 2 - 0.08, d / 2 - 0.08]].forEach(([lx, lz]) => {
-      const leg = this.createMesh(new THREE.CylinderGeometry(0.016, 0.012, 0.28, 8), metalMat, 'Chair Leg');
-      leg.position.set(lx, 0.14, lz);
-      group.add(leg);
-    });
-
-    // Teak Armrests
-    [-w / 2 + 0.03, w / 2 - 0.03].forEach(x => {
-      const arm = this.createMesh(new THREE.BoxGeometry(0.06, 0.03, d - 0.1), teakMat, 'Teak Armrest');
-      arm.position.set(x, 0.52, 0);
-      group.add(arm);
-      const post = this.createMesh(new THREE.CylinderGeometry(0.014, 0.014, 0.25, 8), metalMat, 'Arm Post');
-      post.position.set(x, 0.39, d / 2 - 0.1);
-      group.add(post);
-    });
-
-    // Seat Platform & Cushion
-    const seatBase = this.createMesh(new THREE.BoxGeometry(w - 0.1, 0.04, d - 0.1), metalMat, 'Seat Base');
-    seatBase.position.set(0, 0.27, 0);
-    group.add(seatBase);
-
-    const seatCush = this.createMesh(new THREE.BoxGeometry(w - 0.12, 0.12, d - 0.12), cushionMat, 'Chair Seat Cushion');
-    seatCush.position.set(0, 0.35, 0);
-    group.add(seatCush);
-
-    // Curved Rope-Weave Back
-    const backCush = this.createMesh(new THREE.BoxGeometry(w - 0.16, 0.32, 0.10), cushionMat, 'Chair Back Pillow');
-    backCush.position.set(0, 0.52, -d / 2 + 0.14);
-    backCush.rotation.x = -0.12;
-    group.add(backCush);
-
-    // Rope Weave Strands
-    for (let rx = -w / 2 + 0.12; rx <= w / 2 - 0.12; rx += 0.06) {
-      const rope = this.createMesh(new THREE.CylinderGeometry(0.005, 0.005, 0.40, 6), ropeMat, 'Rope Strand');
-      rope.position.set(rx, 0.46, -d / 2 + 0.08);
-      group.add(rope);
-    }
-
-    return group;
-  }
-
-  // 53. ARCHITECTURAL SLATTED TIMBER PERGOLA
-  static createPergolaStructure(w = 3.6, d = 3.4, h = 2.75) {
-    const group = new THREE.Group();
-    group.name = 'Courtyard Architectural Pergola';
-    group.userData = { type: 'courtyard_pergola', name: 'Slatted Timber Architectural Pergola', cost: 1650 };
-
-    const metalMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4, metalness: 0.8 });
-    const woodMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.5 }); // Cedar/Teak
-
-    // 4 Upright Aluminum Corner Posts
-    const postSize = 0.10;
-    const halfW = w / 2 - postSize / 2;
-    const halfD = d / 2 - postSize / 2;
-    [[-halfW, -halfD], [halfW, -halfD], [-halfW, halfD], [halfW, halfD]].forEach(([px, pz], idx) => {
-      const post = this.createMesh(new THREE.BoxGeometry(postSize, h, postSize), metalMat, 'Pergola Post ' + (idx + 1));
-      post.position.set(px, h / 2, pz);
-      group.add(post);
-      // Footing Plinth
-      const plinth = this.createMesh(new THREE.BoxGeometry(0.18, 0.06, 0.18), metalMat, 'Post Plinth ' + (idx + 1));
-      plinth.position.set(px, 0.03, pz);
-      group.add(plinth);
-    });
-
-    // 2 Main Side Support Beams
-    [-halfD, halfD].forEach((pz, idx) => {
-      const beam = this.createMesh(new THREE.BoxGeometry(w + 0.2, 0.18, 0.08), metalMat, 'Main Beam ' + (idx + 1));
-      beam.position.set(0, h - 0.09, pz);
-      group.add(beam);
-    });
-
-    // 9 Horizontal Cedar/Teak Cross Rafters (Spaced evenly, casting gorgeous dappled shadows)
-    const rafterCount = 9;
-    const rafterSpacing = (w - 0.2) / (rafterCount - 1);
-    for (let i = 0; i < rafterCount; i++) {
-      const rx = -w / 2 + 0.1 + i * rafterSpacing;
-      const rafter = this.createMesh(new THREE.BoxGeometry(0.045, 0.12, d + 0.35), woodMat, 'Cedar Rafter ' + (i + 1));
-      rafter.position.set(rx, h + 0.06, 0);
-      group.add(rafter);
-    }
-
-    return group;
-  }
-
-  // 54. VERTICAL LIVING GREEN WALL & ACCENT TRELLIS
-  static createVerticalGreenWall(w = 2.4, h = 2.0) {
-    const group = new THREE.Group();
-    group.name = 'Vertical Living Green Wall';
-    group.userData = { type: 'courtyard_greenwall', name: 'Vertical Foliage Garden Wall', cost: 580 };
-
-    const frameMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5 });
-    const leafMat1 = new THREE.MeshStandardMaterial({ color: 0x166534, roughness: 0.85 });
-    const leafMat2 = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.8 });
-    const leafMat3 = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.9 });
-
-    // Metal Frame Backing Panel
-    const panel = this.createMesh(new THREE.BoxGeometry(0.04, h, w), frameMat, 'Green Wall Frame');
-    panel.position.set(0, h / 2, 0);
-    group.add(panel);
-
-    // Clusters of Organic Foliage Masses
-    const rows = 5;
-    const cols = 6;
-    const cellH = (h - 0.2) / rows;
-    const cellW = (w - 0.2) / cols;
-
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        const py = 0.2 + r * cellH + (Math.random() - 0.5) * 0.05;
-        const pz = -w / 2 + 0.15 + c * cellW + (Math.random() - 0.5) * 0.05;
-        const m = (r + c) % 3 === 0 ? leafMat1 : ((r + c) % 3 === 1 ? leafMat2 : leafMat3);
-        const radius = 0.12 + Math.random() * 0.06;
-        const clump = this.createMesh(new THREE.SphereGeometry(radius, 8, 8), m, `Foliage Clump ${r}_${c}`);
-        clump.scale.set(0.6, 1.0, 1.2);
-        clump.position.set(0.08 + (Math.random() * 0.04), py, pz);
-        group.add(clump);
-      }
-    }
-
-    return group;
-  }
-
-  // 55. SPECIMEN MEDITERRANEAN OLIVE TREE IN FLUTED PLANTER
-  static createCourtyardPlanterTree() {
-    const group = new THREE.Group();
-    group.name = 'Courtyard Olive Tree Planter';
-    group.userData = { type: 'courtyard_tree', name: 'Sculptural Specimen Olive Tree', cost: 480 };
-
-    const planterMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.75 });
-    const soilMat = new THREE.MeshStandardMaterial({ color: 0x27272a, roughness: 0.95 });
-    const woodMat = new THREE.MeshStandardMaterial({ color: 0x4a3b32, roughness: 0.9 });
-    const leafMat = new THREE.MeshStandardMaterial({ color: 0x4d7c0f, roughness: 0.85 });
-
-    // Fluted Cylindrical Planter (Height 0.75m, Radius 0.32m)
-    const pot = this.createMesh(new THREE.CylinderGeometry(0.34, 0.26, 0.75, 24), planterMat, 'Fluted Planter');
-    pot.position.set(0, 0.375, 0);
-    group.add(pot);
-
-    const soil = this.createMesh(new THREE.CylinderGeometry(0.32, 0.32, 0.04, 16), soilMat, 'Planter Soil');
-    soil.position.set(0, 0.73, 0);
-    group.add(soil);
-
-    // Gnarled Trunk
-    const trunk = this.createMesh(new THREE.CylinderGeometry(0.045, 0.07, 1.1, 10), woodMat, 'Tree Trunk');
-    trunk.position.set(0, 1.25, 0);
-    trunk.rotation.z = 0.08;
-    group.add(trunk);
-
-    // Branch Clusters
-    const branch1 = this.createMesh(new THREE.CylinderGeometry(0.025, 0.035, 0.6, 8), woodMat, 'Branch Left');
-    branch1.position.set(-0.16, 1.6, 0.1);
-    branch1.rotation.z = 0.65;
-    group.add(branch1);
-
-    const branch2 = this.createMesh(new THREE.CylinderGeometry(0.025, 0.035, 0.65, 8), woodMat, 'Branch Right');
-    branch2.position.set(0.18, 1.65, -0.08);
-    branch2.rotation.z = -0.6;
-    group.add(branch2);
-
-    // Canopy Foliage Spheres
-    const canopyOffsets = [
-      [0, 2.05, 0, 0.45],
-      [-0.32, 1.9, 0.15, 0.38],
-      [0.34, 1.95, -0.12, 0.36],
-      [0.1, 2.25, 0.1, 0.32],
-      [-0.15, 1.85, -0.22, 0.30]
-    ];
-    canopyOffsets.forEach(([ox, oy, oz, r], idx) => {
-      const f = this.createMesh(new THREE.SphereGeometry(r, 10, 10), leafMat, 'Canopy Cluster ' + (idx + 1));
-      f.position.set(ox, oy, oz);
-      f.scale.set(1.2, 0.85, 1.1);
-      group.add(f);
-    });
-
-    return group;
-  }
-
-  // 56. CONTEMPORARY BASALT WATER FOUNTAIN
-  static createBasaltWaterFeature() {
-    const group = new THREE.Group();
-    group.name = 'Basalt Water Fountain';
-    group.userData = { type: 'courtyard_fountain', name: 'Contemporary Basalt Column Fountain', cost: 650 };
-
-    const stoneMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.9 });
-    const waterMat = new THREE.MeshPhysicalMaterial({ color: 0x38bdf8, transmission: 0.85, transparent: true, opacity: 0.6, roughness: 0.1 });
-    const pebbleMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.85 });
-
-    // Square Ground Basin (0.85m x 0.85m, height 0.22m)
-    const basin = this.createMesh(new THREE.BoxGeometry(0.85, 0.22, 0.85), stoneMat, 'Fountain Basin');
-    basin.position.set(0, 0.11, 0);
-    group.add(basin);
-
-    // Pebble Bed
-    const pebbles = this.createMesh(new THREE.BoxGeometry(0.75, 0.04, 0.75), pebbleMat, 'Basin Pebbles');
-    pebbles.position.set(0, 0.21, 0);
-    group.add(pebbles);
-
-    // 3 Tiered Natural Basalt Rock Columns
-    const cols = [
-      [0, 0.55, 0, 0.16, 0.68],
-      [-0.20, 0.42, 0.18, 0.14, 0.48],
-      [0.22, 0.35, -0.16, 0.13, 0.36]
-    ];
-    cols.forEach(([cx, cy, cz, rad, h], idx) => {
-      const column = this.createMesh(new THREE.CylinderGeometry(rad, rad * 1.1, h, 6), stoneMat, 'Basalt Column ' + (idx + 1));
-      column.position.set(cx, cy, cz);
-      group.add(column);
-
-      // Bubbling Water Dome on Top
-      const waterDome = this.createMesh(new THREE.SphereGeometry(rad * 0.9, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), waterMat, 'Water Dome ' + (idx + 1));
-      waterDome.position.set(cx, cy + h / 2, cz);
-      group.add(waterDome);
-    });
-
-    return group;
-  }
-
-  // 57. MODERN OUTDOOR FLOOR HURRICANE LANTERNS (TRIO)
-  static createOutdoorFloorLanterns() {
-    const group = new THREE.Group();
-    group.name = 'Courtyard Floor Lanterns';
-    group.userData = { type: 'courtyard_lanterns', name: 'Modern Black Metal Floor Lanterns Trio', cost: 160 };
-
-    const metalMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.35, metalness: 0.85 });
-    const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.92, transparent: true, opacity: 0.25, roughness: 0.05 });
-    const candleMat = new THREE.MeshStandardMaterial({ color: 0xffedd5, roughness: 0.9 });
-    const flameMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
-
-    const lanterns = [
-      [-0.18, 0.52, -0.08, 0.18, 0.35],
-      [0.16, 0.40, 0.10, 0.15, 0.26],
-      [0.02, 0.30, -0.22, 0.13, 0.18]
-    ];
-
-    lanterns.forEach(([lx, lh, lz, lw, ch], idx) => {
-      const lGroup = new THREE.Group();
-      lGroup.name = 'Lantern ' + (idx + 1);
-
-      // Base & Top Caps
-      const base = this.createMesh(new THREE.BoxGeometry(lw, 0.02, lw), metalMat, 'Base');
-      base.position.set(0, 0.01, 0);
-      lGroup.add(base);
-
-      const top = this.createMesh(new THREE.BoxGeometry(lw, 0.02, lw), metalMat, 'Top');
-      top.position.set(0, lh - 0.01, 0);
-      lGroup.add(top);
-
-      // Glass Enclosure
-      const glass = this.createMesh(new THREE.BoxGeometry(lw - 0.02, lh - 0.04, lw - 0.02), glassMat, 'Glass');
-      glass.position.set(0, lh / 2, 0);
-      lGroup.add(glass);
-
-      // Metal Corner Struts
-      const halfW = lw / 2 - 0.008;
-      [[-halfW, -halfW], [halfW, -halfW], [-halfW, halfW], [halfW, halfW]].forEach(([sx, sz]) => {
-        const strut = this.createMesh(new THREE.BoxGeometry(0.012, lh, 0.012), metalMat, 'Corner Strut');
-        strut.position.set(sx, lh / 2, sz);
-        lGroup.add(strut);
-      });
-
-      // Top Ring Handle
-      const ring = this.createMesh(new THREE.TorusGeometry(0.035, 0.006, 8, 16), metalMat, 'Handle');
-      ring.position.set(0, lh + 0.035, 0);
-      lGroup.add(ring);
-
-      // Pillar Candle Inside
-      const candle = this.createMesh(new THREE.CylinderGeometry(0.035, 0.035, ch, 16), candleMat, 'Candle');
-      candle.position.set(0, 0.02 + ch / 2, 0);
-      lGroup.add(candle);
-
-      const flame = this.createMesh(new THREE.SphereGeometry(0.008, 8, 8), flameMat, 'Flame');
-      flame.scale.set(0.8, 1.8, 0.8);
-      flame.position.set(0, 0.02 + ch + 0.015, 0);
-      lGroup.add(flame);
-
-      lGroup.position.set(lx, 0, lz);
-      group.add(lGroup);
-    });
-
-    // Ambient Candle Glow
-    const candleGlow = new THREE.PointLight(0xffb74d, 0.55, 3.0, 2);
-    candleGlow.position.set(0, 0.35, 0);
-    group.add(candleGlow);
-
-    return group;
-  }
 }
 
   window.FurnitureFactory = FurnitureFactory;
@@ -6412,8 +6127,8 @@ class AIEngine {
 
       if (isVilla) {
         concept = `ARCHITECTURAL 2 BHK RESIDENCE (CORRECTED & OPTIMIZED ${style.toUpperCase()})`;
-        spatialRationale = `A master-crafted 16m × 18.5m architectural residence optimized for real-time indoor-outdoor flow, generous walking clearances, and zero furniture-wall collisions. Features a grand entrance foyer with pivot wooden door & slatted divider, open-concept living lounge with Missouri TV unit facing the sectional lounge sofa, seamlessly connected dining area with solid hardwood table, 6 chairs & china credenza, high-efficiency L-shaped modular kitchen with quartz prep island, private master bedroom suite with king bed, walk-in dressing room with sliding mirrored wardrobe, luxury master en-suite bathroom with walk-in glass shower, an architectural outdoor courtyard garden with timber pergola, modern L-shaped outdoor sectional lounge, concrete fire pit table, living green wall, specimen olive tree & basalt water fountain, and a discreetly accessible designer common bathroom.`;
-        lightingPlan = `Layered architectural illumination with warm 3000K interior ambiance: recessed living cove glows, statement linear brass chandelier above the dining table, under-cabinet task LED strips in modular kitchen, illuminated anti-fog LED mirrors in both bathrooms, ambient fire pit glow & hurricane floor lanterns in the courtyard garden, dimmable bedside luminaires, and exterior landscape illumination.`;
+        spatialRationale = `A master-crafted 16m × 18.5m architectural residence optimized for real-time room flow, generous walking clearances, and zero furniture-wall collisions. Features a grand entrance foyer with pivot wooden door & slatted divider, open-concept living lounge with Missouri TV unit facing the sectional lounge sofa, seamlessly connected dining area with solid hardwood table, 6 chairs & china credenza, high-efficiency L-shaped modular kitchen with quartz prep island, private master bedroom suite with king bed on the solid east wall, dressing vanity with mirror, walk-in dressing room with sliding mirrored wardrobe, luxury sky-blue master en-suite bathroom with walk-in glass shower, peaceful second bedroom suite with queen bed, study workstation & sliding wardrobe, and a discreetly accessible designer common bathroom.`;
+        lightingPlan = `Layered architectural illumination with warm 3000K interior ambiance: recessed living cove glows, statement linear brass chandelier above the dining table, under-cabinet task LED strips in modular kitchen, illuminated anti-fog LED mirrors in both bathrooms, dimmable bedside luminaires, and study task lighting.`;
 
         // ==========================================
         // 1. ENTRANCE FOYER (X: -6.2 to -3.2, Z: 3.4 to 6.4)
@@ -6468,7 +6183,7 @@ class AIEngine {
           id: 'house_living_sofa',
           type: 'sofa',
           name: 'Plush Ergonomic Living Lounge Sofa Facing TV Unit',
-          position: [0.6, 0, 4.1],
+          position: [0.3, 0, 4.1],
           rotation: [0, -Math.PI / 2, 0],
           style: style,
           color: palette.sofaColor,
@@ -6480,7 +6195,7 @@ class AIEngine {
           id: 'house_living_coffee_table',
           type: 'coffee_table',
           name: 'Architectural Wood & Glass Centre Table',
-          position: [-1.1, 0, 4.1],
+          position: [-1.2, 0, 4.1],
           rotation: [0, 0, 0],
           style: style,
           woodColor: palette.woodColor,
@@ -6913,120 +6628,130 @@ class AIEngine {
         });
 
         // ==========================================
-        // 7. OUTDOOR COURTYARD GARDEN & SEATING (X: -6.2 to -1.8, Z: -6.0 to 0.6)
+        // 7. SECOND BEDROOM SUITE (X: -6.2 to -1.8, Z: -6.0 to 0.6)
         // ==========================================
-        // Architectural Overhead Timber Pergola Structure
-        items.push({
-          id: 'house_courtyard_pergola',
-          type: 'courtyard_pergola',
-          name: 'Architectural Timber Pergola Structure',
-          position: [-4.0, 0, -2.7],
-          rotation: [0, 0, 0],
-          dimensions: [4.0, 5.8, 2.75],
-          room: 'bedroom2',
-          cost: 2400
-        });
-
-        // Modern L-Shaped Outdoor Sectional Lounge Suite (alias house_bed2_twin for regression compatibility)
         items.push({
           id: 'house_bed2_twin',
-          type: 'courtyard_sectional',
-          name: 'Modern Courtyard Outdoor Sectional Lounge',
-          position: [-4.8, 0, -2.4],
-          rotation: [0, 0, 0],
-          style: style,
-          color: 0x1f2937,
-          room: 'bedroom2',
-          cost: 2800
-        });
-
-        // Architectural Cast-Concrete Fire Pit Coffee Table
-        items.push({
-          id: 'house_courtyard_table',
-          type: 'courtyard_fire_table',
-          name: 'Architectural Cast-Concrete Fire Table',
-          position: [-3.8, 0, -2.4],
-          rotation: [0, 0, 0],
-          room: 'bedroom2',
-          cost: 1450
-        });
-
-        // Modern Outdoor Club Lounge Armchairs (North & South facing)
-        items.push({
-          id: 'house_courtyard_chair_1',
-          type: 'courtyard_chair',
-          name: 'Modern Outdoor Club Armchair (North)',
-          position: [-3.8, 0, -3.8],
-          rotation: [0, Math.PI, 0],
-          room: 'bedroom2',
-          cost: 620
-        });
-
-        items.push({
-          id: 'house_courtyard_chair_2',
-          type: 'courtyard_chair',
-          name: 'Modern Outdoor Club Armchair (South)',
-          position: [-3.8, 0, -1.0],
-          rotation: [0, 0, 0],
-          room: 'bedroom2',
-          cost: 620
-        });
-
-        // Vertical Living Green Wall along West Terracotta Accent Wall
-        items.push({
-          id: 'house_courtyard_greenwall',
-          type: 'courtyard_greenwall',
-          name: 'Vertical Living Green Wall & Trellis',
-          position: [-6.12, 0, -2.7],
+          type: 'bed',
+          name: 'Second Bedroom Queen Platform Bed',
+          position: [-5.1, 0, -2.7],
           rotation: [0, Math.PI / 2, 0],
-          dimensions: [5.2, 2.4],
+          style: style,
+          color: palette.woodColor,
+          room: 'bedroom2',
+          cost: 1250
+        });
+
+        items.push({
+          id: 'house_bed2_nightstand_l',
+          type: 'nightstand',
+          name: 'Second Bedroom Nightstand (Left)',
+          position: [-5.1, 0, -1.6],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 220
+        });
+
+        items.push({
+          id: 'house_bed2_nightstand_r',
+          type: 'nightstand',
+          name: 'Second Bedroom Nightstand (Right)',
+          position: [-5.1, 0, -3.8],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 220
+        });
+
+        items.push({
+          id: 'house_bed2_lamp_l',
+          type: 'table_lamp',
+          name: 'Bedside Reading Table Lamp (Left)',
+          position: [-5.1, 0.58, -1.6],
+          rotation: [0, 0, 0],
+          color: palette.accentColor,
+          room: 'bedroom2',
+          cost: 110
+        });
+
+        items.push({
+          id: 'house_bed2_lamp_r',
+          type: 'table_lamp',
+          name: 'Bedside Reading Table Lamp (Right)',
+          position: [-5.1, 0.58, -3.8],
+          rotation: [0, 0, 0],
+          color: palette.accentColor,
+          room: 'bedroom2',
+          cost: 110
+        });
+
+        items.push({
+          id: 'house_bed2_wardrobe',
+          type: 'wardrobe',
+          name: 'Second Bedroom Built-In Sliding Door Wardrobe',
+          position: [-2.15, 0, -1.2],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.wardrobeColor || 0x2b2d42,
           room: 'bedroom2',
           cost: 1200
         });
 
-        // Specimen Mediterranean Olive Tree in Fluted Terrazzo Planter
+        // Ergonomic Study Desk & Swivel Office Chair
         items.push({
-          id: 'house_courtyard_tree',
-          type: 'courtyard_tree',
-          name: 'Specimen Mediterranean Olive Tree Planter',
-          position: [-5.4, 0, -5.0],
-          rotation: [0, 0, 0],
-          room: 'bedroom2',
-          cost: 750
-        });
-
-        // Contemporary Basalt Column Bubbling Water Fountain
-        items.push({
-          id: 'house_courtyard_fountain',
-          type: 'courtyard_fountain',
-          name: 'Basalt Column Bubbling Water Fountain',
+          id: 'house_bed2_desk',
+          type: 'desk',
+          name: 'Second Bedroom Ergonomic Study Workstation',
           position: [-2.6, 0, -5.0],
           rotation: [0, 0, 0],
+          style: style,
           room: 'bedroom2',
-          cost: 1100
+          cost: 580
         });
 
-        // Modern Hurricane Floor Lanterns Trio
         items.push({
-          id: 'house_courtyard_lanterns',
-          type: 'courtyard_lanterns',
-          name: 'Modern Hurricane Floor Lanterns Trio',
-          position: [-4.6, 0, -1.1],
+          id: 'house_bed2_chair',
+          type: 'office_chair',
+          name: 'Ergonomic Swivel Study Chair',
+          position: [-2.6, 0, -4.3],
           rotation: [0, 0, 0],
+          room: 'bedroom2',
+          cost: 280
+        });
+
+        items.push({
+          id: 'house_bed2_rug',
+          type: 'rug',
+          name: 'Bedroom 2 Plush Area Rug',
+          position: [-4.0, 0.005, -2.7],
+          rotation: [0, 0, 0],
+          dimensions: [2.8, 2.2],
+          style: style,
           room: 'bedroom2',
           cost: 320
         });
 
-        // Slate Stepping Stone Transition Path
         items.push({
-          id: 'house_courtyard_stones',
-          type: 'stepping_stones',
-          name: 'Natural Slate Garden Pathway Stones',
-          position: [-3.0, 0.01, -2.7],
-          rotation: [0, 0, 0],
-          count: 4,
+          id: 'house_bed2_art',
+          type: 'wall_art',
+          name: 'Curated Bedroom Modern Graphic Art',
+          position: [-1.86, 1.8, -3.2],
+          rotation: [0, -Math.PI / 2, 0],
+          dimensions: [1.4, 0.9],
+          style: style,
           room: 'bedroom2',
-          cost: 280
+          cost: 260
+        });
+
+        items.push({
+          id: 'house_bed2_ac',
+          type: 'air_conditioner',
+          name: 'Bedroom 2 Inverter Split AC',
+          position: [-4.0, 2.4, -5.94],
+          rotation: [0, 0, 0],
+          room: 'bedroom2',
+          cost: 650
         });
 
         // ==========================================
@@ -7158,7 +6883,7 @@ class AIEngine {
             id: 'house_living_sofa',
             type: 'sofa',
             name: 'Plush Ergonomic Living Lounge Sofa',
-            position: [0.6, 0, 4.1],
+            position: [0.3, 0, 4.1],
             rotation: [0, -Math.PI / 2, 0],
             style: style,
             color: palette.sofaColor,
@@ -7170,7 +6895,7 @@ class AIEngine {
             id: 'house_living_coffee_table',
             type: 'coffee_table',
             name: 'Architectural Wood & Glass Coffee Table',
-            position: [-1.1, 0, 4.1],
+            position: [-1.2, 0, 4.1],
             rotation: [0, 0, 0],
             style: style,
             woodColor: palette.woodColor,
@@ -7256,7 +6981,7 @@ class AIEngine {
             id: 'house_bed_king',
             type: 'bed',
             name: 'King Size Designer Platform Bed',
-            position: [-3.5, 0, -3.8],
+            position: [-3.5, 0, -4.7],
             rotation: [0, 0, 0],
             style: style,
             color: palette.accentColor,
@@ -7268,7 +6993,7 @@ class AIEngine {
             id: 'house_bed_nightstand_l',
             type: 'nightstand',
             name: 'Floating Bedside Nightstand (Left)',
-            position: [-5.0, 0, -4.6],
+            position: [-4.9, 0, -5.6],
             rotation: [0, 0, 0],
             style: style,
             woodColor: palette.woodColor,
@@ -7280,7 +7005,7 @@ class AIEngine {
             id: 'house_bed_nightstand_r',
             type: 'nightstand',
             name: 'Floating Bedside Nightstand (Right)',
-            position: [-2.0, 0, -4.6],
+            position: [-2.1, 0, -5.6],
             rotation: [0, 0, 0],
             style: style,
             woodColor: palette.woodColor,
@@ -7292,7 +7017,7 @@ class AIEngine {
             id: 'house_bed_wardrobe',
             type: 'walk_in_wardrobe',
             name: 'Full-Height Master Wardrobe System',
-            position: [-1.0, 0, -1.5],
+            position: [-1.0, 0, -0.6],
             rotation: [0, -Math.PI / 2, 0],
             style: style,
             color: palette.wardrobeColor || 0x2b2d42,
@@ -7387,7 +7112,7 @@ class AIEngine {
             id: 'house_living_sofa',
             type: 'sofa',
             name: 'Plush Ergonomic Living Lounge Sofa',
-            position: [0.8, 0, 4.1],
+            position: [0.5, 0, 4.1],
             rotation: [0, -Math.PI / 2, 0],
             style: style,
             color: palette.sofaColor,
@@ -7399,7 +7124,7 @@ class AIEngine {
             id: 'house_living_coffee_table',
             type: 'coffee_table',
             name: 'Architectural Wood & Glass Coffee Table',
-            position: [-1.0, 0, 4.1],
+            position: [-1.2, 0, 4.1],
             rotation: [0, 0, 0],
             style: style,
             woodColor: palette.woodColor,
@@ -7411,7 +7136,7 @@ class AIEngine {
             id: 'house_living_armchair',
             type: 'armchair',
             name: 'Designer Lounge Accent Chair',
-            position: [0.6, 0, 2.5],
+            position: [0.35, 0, 2.5],
             rotation: [0, -2.4, 0],
             style: style,
             color: palette.accentColor,
@@ -7423,7 +7148,7 @@ class AIEngine {
             id: 'house_living_rug',
             type: 'rug',
             name: 'Living Room Plush Wool Rug',
-            position: [-0.5, 0.005, 4.1],
+            position: [-0.6, 0.005, 4.1],
             rotation: [0, 0, 0],
             dimensions: [3.4, 2.6],
             style: style,
@@ -7553,7 +7278,7 @@ class AIEngine {
             id: 'house_kitchen_stool_1',
             type: 'bar_stool',
             name: 'Designer Swivel Bar Stool #1',
-            position: [4.3, 0, -1.2],
+            position: [4.3, 0, -1.5],
             rotation: [0, Math.PI, 0],
             style: style,
             color: palette.accentColor,
@@ -7565,7 +7290,7 @@ class AIEngine {
             id: 'house_kitchen_stool_2',
             type: 'bar_stool',
             name: 'Designer Swivel Bar Stool #2',
-            position: [5.5, 0, -1.2],
+            position: [5.5, 0, -1.5],
             rotation: [0, Math.PI, 0],
             style: style,
             color: palette.accentColor,
@@ -7620,7 +7345,7 @@ class AIEngine {
             id: 'house_bed_king',
             type: 'bed',
             name: 'King Size Designer Platform Bed',
-            position: [-3.5, 0, -3.8],
+            position: [-3.5, 0, -4.7],
             rotation: [0, 0, 0],
             style: style,
             color: palette.woodColor,
@@ -7632,7 +7357,7 @@ class AIEngine {
             id: 'house_bed_nightstand_l',
             type: 'nightstand',
             name: 'Bedside Nightstand (Left)',
-            position: [-5.0, 0, -4.6],
+            position: [-4.9, 0, -5.6],
             rotation: [0, 0, 0],
             style: style,
             room: 'bedroom',
@@ -7643,7 +7368,7 @@ class AIEngine {
             id: 'house_bed_nightstand_r',
             type: 'nightstand',
             name: 'Bedside Nightstand (Right)',
-            position: [-2.0, 0, -4.6],
+            position: [-2.1, 0, -5.6],
             rotation: [0, 0, 0],
             style: style,
             room: 'bedroom',
@@ -7654,7 +7379,7 @@ class AIEngine {
             id: 'house_bed_lamp_l',
             type: 'table_lamp',
             name: 'Bedside Table Lamp (Left)',
-            position: [-5.0, 0.58, -4.6],
+            position: [-4.9, 0.58, -5.6],
             rotation: [0, 0, 0],
             color: palette.accentColor,
             room: 'bedroom',
@@ -7665,7 +7390,7 @@ class AIEngine {
             id: 'house_bed_lamp_r',
             type: 'table_lamp',
             name: 'Bedside Table Lamp (Right)',
-            position: [-2.0, 0.58, -4.6],
+            position: [-2.1, 0.58, -5.6],
             rotation: [0, 0, 0],
             color: palette.accentColor,
             room: 'bedroom',
@@ -7676,7 +7401,7 @@ class AIEngine {
             id: 'house_bed_wardrobe',
             type: 'walk_in_wardrobe',
             name: 'Full-Height Master Wardrobe System',
-            position: [-1.0, 0, -1.5],
+            position: [-1.0, 0, -0.6],
             rotation: [0, -Math.PI / 2, 0],
             style: style,
             color: palette.wardrobeColor || 0x2b2d42,
@@ -7710,7 +7435,7 @@ class AIEngine {
             id: 'house_bed_rug',
             type: 'rug',
             name: 'Plush High-Pile Bedroom Rug',
-            position: [-3.5, 0.005, -2.6],
+            position: [-3.5, 0.005, -3.5],
             rotation: [0, 0, 0],
             dimensions: [3.2, 2.2],
             style: style,
