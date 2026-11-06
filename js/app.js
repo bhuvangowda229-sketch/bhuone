@@ -1498,22 +1498,37 @@ class App {
     });
 
     const tabCutaway = document.getElementById('tab-render-cutaway');
+    const tabTopdown = document.getElementById('tab-render-topdown');
     const tabEyelevel = document.getElementById('tab-render-eyelevel');
     const viewCutaway = document.getElementById('view-render-cutaway');
+    const viewTopdown = document.getElementById('view-render-topdown');
     const viewEyelevel = document.getElementById('view-render-eyelevel');
 
     tabCutaway?.addEventListener('click', () => {
       tabCutaway.classList.add('active');
+      tabTopdown?.classList.remove('active');
       tabEyelevel?.classList.remove('active');
       if (viewCutaway) viewCutaway.style.display = 'block';
+      if (viewTopdown) viewTopdown.style.display = 'none';
+      if (viewEyelevel) viewEyelevel.style.display = 'none';
+    });
+
+    tabTopdown?.addEventListener('click', () => {
+      tabTopdown.classList.add('active');
+      tabCutaway?.classList.remove('active');
+      tabEyelevel?.classList.remove('active');
+      if (viewTopdown) viewTopdown.style.display = 'block';
+      if (viewCutaway) viewCutaway.style.display = 'none';
       if (viewEyelevel) viewEyelevel.style.display = 'none';
     });
 
     tabEyelevel?.addEventListener('click', () => {
       tabEyelevel.classList.add('active');
       tabCutaway?.classList.remove('active');
+      tabTopdown?.classList.remove('active');
       if (viewEyelevel) viewEyelevel.style.display = 'block';
       if (viewCutaway) viewCutaway.style.display = 'none';
+      if (viewTopdown) viewTopdown.style.display = 'none';
     });
 
     // 1-Click Load Presets from Renders Modal

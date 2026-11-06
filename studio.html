@@ -1065,42 +1065,73 @@
       <!-- Render Tabs / Toggle -->
       <div style="display: flex; gap: 8px; margin-bottom: 16px; background: rgba(0, 0, 0, 0.4); padding: 5px; border-radius: 8px;">
         <button type="button" class="btn btn-sm render-tab-btn active" id="tab-render-cutaway" style="flex: 1; justify-content: center; font-weight: 600; padding: 8px 12px;">
-          📐 3D Cutaway Floor Plan Render
+          📐 3D Cutaway 3BHK Plan
+        </button>
+        <button type="button" class="btn btn-sm render-tab-btn" id="tab-render-topdown" style="flex: 1; justify-content: center; font-weight: 600; padding: 8px 12px;">
+          🗺️ Top-Down Circulation Route
         </button>
         <button type="button" class="btn btn-sm render-tab-btn" id="tab-render-eyelevel" style="flex: 1; justify-content: center; font-weight: 600; padding: 8px 12px;">
-          👁️ Eye-Level Interior Flow Render
+          👁️ Eye-Level Interior Walkthrough
         </button>
       </div>
 
       <!-- VIEW 1: 3D Cutaway Floor Plan -->
       <div id="view-render-cutaway" class="render-view-pane">
         <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.12); background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-          <img src="renders/apartment_3d_cutaway_render.jpg" alt="Architectural 3D Cutaway Render of Residence Floor Plan" style="width: 100%; height: auto; display: block; object-fit: contain;">
+          <img src="renders/3bhk_corrected_3d_cutaway.jpg" alt="Architectural 3D Cutaway Render of 3BHK Residence Floor Plan" style="width: 100%; height: auto; display: block; object-fit: contain;">
           <div style="position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4);">
-            ✦ Architectural 3D Cutaway Isometric Perspective
+            ✦ Corrected 3D Cutaway Perspective (3BHK Residence)
           </div>
-          <a href="renders/apartment_3d_cutaway_render.jpg" download="residence_3d_cutaway_render.jpg" class="btn btn-sm" style="position: absolute; bottom: 12px; right: 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); color: #fff; text-decoration: none;">
+          <a href="renders/3bhk_corrected_3d_cutaway.jpg" download="3bhk_corrected_3d_cutaway.jpg" class="btn btn-sm" style="position: absolute; bottom: 12px; right: 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); color: #fff; text-decoration: none;">
             <span>⬇️</span> Download Cutaway Render (HD)
           </a>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px;">
           <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 12px;">
-            <div style="font-size: 11px; color: #f59e0b; font-weight: 700; text-transform: uppercase;">Open Living & Dining Flow</div>
-            <div style="font-size: 12px; color: #e2e8f0; margin-top: 4px; line-height: 1.4;">Unobstructed living lounge transitioning to central dining table anchored by linear brass chandelier.</div>
+            <div style="font-size: 11px; color: #f59e0b; font-weight: 700; text-transform: uppercase;">Unobstructed Balcony Access</div>
+            <div style="font-size: 12px; color: #e2e8f0; margin-top: 4px; line-height: 1.4;">Black-framed sliding glass doors open smoothly to the green balcony with zero furniture interference.</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 12px;">
-            <div style="font-size: 11px; color: #f59e0b; font-weight: 700; text-transform: uppercase;">Right-Wall Straight Kitchen</div>
-            <div style="font-size: 12px; color: #e2e8f0; margin-top: 4px; line-height: 1.4;">Single-wall modular run with induction cooktop, dual sink, under-cabinet 3000K LED, and fridge.</div>
+            <div style="font-size: 11px; color: #f59e0b; font-weight: 700; text-transform: uppercase;">Foyer Slat Partition</div>
+            <div style="font-size: 12px; color: #e2e8f0; margin-top: 4px; line-height: 1.4;">Vertical timber slat screen provides entrance privacy while maintaining a generous, clear walking lane into the living hall.</div>
           </div>
           <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 12px;">
-            <div style="font-size: 11px; color: #f59e0b; font-weight: 700; text-transform: uppercase;">Dual Flooring Transition</div>
-            <div style="font-size: 12px; color: #e2e8f0; margin-top: 4px; line-height: 1.4;">Continuous light porcelain tiles in living spaces; rich herringbone hardwood in master suite.</div>
+            <div style="font-size: 11px; color: #f59e0b; font-weight: 700; text-transform: uppercase;">Enclosed Common Bath</div>
+            <div style="font-size: 12px; color: #e2e8f0; margin-top: 4px; line-height: 1.4;">Fully enclosed bathroom vestibule completely shields toilet sightlines from living and dining areas.</div>
           </div>
         </div>
       </div>
 
-      <!-- VIEW 2: Eye-Level Interior Flow -->
+      <!-- VIEW 2: Top-Down Circulation Plan -->
+      <div id="view-render-topdown" class="render-view-pane" style="display: none;">
+        <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.12); background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <img src="renders/3bhk_top_down_circulation_plan.jpg" alt="Architectural Top-Down Circulation Plan of 3BHK Residence" style="width: 100%; height: auto; display: block; object-fit: contain;">
+          <div style="position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4);">
+            ✦ Orthographic Top-Down Layout & Circulation Pathway
+          </div>
+          <a href="renders/3bhk_top_down_circulation_plan.jpg" download="3bhk_top_down_circulation_plan.jpg" class="btn btn-sm" style="position: absolute; bottom: 12px; right: 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); color: #fff; text-decoration: none;">
+            <span>⬇️</span> Download Plan Render (HD)
+          </a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px;">
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 12px;">
+            <div style="font-size: 11px; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Door Clearances & Swings</div>
+            <div style="font-size: 12px; color: #e2e8f0; margin-top: 4px; line-height: 1.4;">Every bedroom, bathroom, and kitchen entry has unobstructed swing arcs with zero collision against furniture.</div>
+          </div>
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 12px;">
+            <div style="font-size: 11px; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Continuous Circulation Route</div>
+            <div style="font-size: 12px; color: #e2e8f0; margin-top: 4px; line-height: 1.4;">Seamless central corridor links Foyer ➔ Living ➔ Balcony ➔ Dining ➔ 3 Bedroom Suites & Bath without bottlenecks.</div>
+          </div>
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 12px;">
+            <div style="font-size: 11px; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Non-Overlapping Room Badges</div>
+            <div style="font-size: 12px; color: #e2e8f0; margin-top: 4px; line-height: 1.4;">High-contrast architectural typography positioned squarely within room centers away from walls and fixtures.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 3: Eye-Level Interior Flow -->
       <div id="view-render-eyelevel" class="render-view-pane" style="display: none;">
         <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.12); background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
           <img src="renders/apartment_eye_level_interior_render.jpg" alt="Photorealistic Eye-Level Interior Render of Residence" style="width: 100%; height: auto; display: block; object-fit: contain;">
