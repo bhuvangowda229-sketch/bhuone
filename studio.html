@@ -100,7 +100,8 @@
                 <optgroup label="Complete Residence (All Connected Rooms)">
                   <option value="complete_house" selected>🏠 Single Bedroom House (1 BHK: Foyer, Living, Dining, Modular Kitchen, Master Suite & En-Suite Bath)</option>
                   <option value="complete_house_2bhk">🏛️ Architectural 2 BHK Residence (Foyer, Living, Dining, Kitchen, Master & Bath, Bed 2 & Bath)</option>
-                  <option value="modern_apartment">🏙️ Modern Apartment Suite (Open Living-Dining, Straight Kitchen & Rear Master)</option>
+                  <option value="complete_house_3bhk">🏰 Luxury 3 BHK Residence (Foyer, Living, Dining, Kitchen, Master & Bath, Bed 2, Bed 3 & Balcony)</option>
+                  <option value="duplex">🏙️ Modern Duplex Villa (Double-Height Living, Floating Staircase & Mezzanine Master)</option>
                 </optgroup>
                 <optgroup label="Individual Rooms">
                   <option value="bedroom">👑 Master Bedroom Suite</option>
@@ -121,29 +122,38 @@
                 <span id="house-active-room-pill" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.3);">1 BHK Active</span>
               </div>
 
-              <!-- 3 OPTIONS: SINGLE BEDROOM (1BHK) vs DOUBLE BEDROOM (2BHK) vs MODERN APARTMENT -->
+              <!-- 4 OPTIONS: 1 BHK vs 2 BHK vs 3 BHK vs DUPLEX -->
               <div class="house-option-toggle" style="display: flex; gap: 4px; margin-bottom: 10px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px;">
-                <button type="button" class="btn btn-sm house-type-toggle-btn active" data-house-type="1bhk" style="flex: 1; padding: 6px 3px; font-size: 10.5px; justify-content: center;">
-                  🏠 1 BHK (Single Bed)
+                <button type="button" class="btn btn-sm house-type-toggle-btn active" data-house-type="1bhk" style="flex: 1; padding: 6px 2px; font-size: 10px; justify-content: center;">
+                  🏠 1 BHK
                 </button>
-                <button type="button" class="btn btn-sm house-type-toggle-btn" data-house-type="2bhk" style="flex: 1; padding: 6px 3px; font-size: 10.5px; justify-content: center;">
-                  🏛️ 2 BHK Residence
+                <button type="button" class="btn btn-sm house-type-toggle-btn" data-house-type="2bhk" style="flex: 1; padding: 6px 2px; font-size: 10px; justify-content: center;">
+                  🏛️ 2 BHK
                 </button>
-                <button type="button" class="btn btn-sm house-type-toggle-btn" data-house-type="apartment" style="flex: 1; padding: 6px 3px; font-size: 10.5px; justify-content: center;">
-                  🏙️ Apartment
+                <button type="button" class="btn btn-sm house-type-toggle-btn" data-house-type="3bhk" style="flex: 1; padding: 6px 2px; font-size: 10px; justify-content: center;">
+                  🏰 3 BHK
+                </button>
+                <button type="button" class="btn btn-sm house-type-toggle-btn" data-house-type="duplex" style="flex: 1; padding: 6px 2px; font-size: 10px; justify-content: center;">
+                  🏙️ Duplex
                 </button>
               </div>
 
               <div class="house-zone-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;">
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="foyer" id="hub-zone-foyer" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🚪 Foyer</button>
-                <button type="button" class="btn btn-sm house-zone-btn active" data-zone="living" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🛋️ Living</button>
-                <button type="button" class="btn btn-sm house-zone-btn" data-zone="dining" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🍽️ Dining</button>
-                <button type="button" class="btn btn-sm house-zone-btn" data-zone="kitchen" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🍳 Kitchen</button>
+                <button type="button" class="btn btn-sm house-zone-btn active" data-zone="living" id="hub-zone-living" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🛋️ Living</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="dining" id="hub-zone-dining" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🍽️ Dining</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="kitchen" id="hub-zone-kitchen" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🍳 Kitchen</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="bedroom" id="hub-zone-bed1" style="font-size: 11px; padding: 6px 4px; justify-content: center;">👑 Master Bed</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="master_bath" id="hub-zone-master-bath" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🛁 Master Bath</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="bedroom2" id="hub-zone-rear" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🛏️ Bed 2</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="bedroom3" id="hub-zone-bed3" style="font-size: 11px; padding: 6px 4px; justify-content: center; display: none;">🧸 Bed 3</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="common_bath" id="hub-zone-bath" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🚿 Common Bath</button>
-                <button type="button" class="btn btn-sm house-zone-btn" data-zone="all" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🌐 Whole House</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="balcony" id="hub-zone-balcony" style="font-size: 11px; padding: 6px 4px; justify-content: center; display: none;">🌅 Balcony</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="staircase" id="hub-zone-staircase" style="font-size: 11px; padding: 6px 4px; justify-content: center; display: none;">🪜 Stairs</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="mezzanine" id="hub-zone-mezzanine" style="font-size: 11px; padding: 6px 4px; justify-content: center; display: none;">✨ Mezzanine</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="sky_lounge" id="hub-zone-skylounge" style="font-size: 11px; padding: 6px 4px; justify-content: center; display: none;">🌆 Sky Lounge</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="terrace" id="hub-zone-terrace" style="font-size: 11px; padding: 6px 4px; justify-content: center; display: none;">🌿 Terrace</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="all" id="hub-zone-all" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🌐 Whole House</button>
               </div>
             </div>
 
@@ -204,7 +214,7 @@
               <select id="flooring-select" class="form-select">
                 <option value="porcelain_tile" selected>Continuous Light Porcelain Tile</option>
                 <option value="herringbone_wood">Herringbone Wood Parquet</option>
-                <option value="apartment_mix">Apartment Suite Mix (Porcelain + Herringbone)</option>
+                <option value="residence_mix">Designer Residence Mix (Porcelain + Herringbone)</option>
                 <option value="wood_oak">Light Oak Wood</option>
                 <option value="dark_walnut">Dark Walnut Wood</option>
                 <option value="marble">Polished Marble</option>
@@ -615,7 +625,7 @@
               <select id="catalog-flooring" class="form-select">
                 <option value="porcelain_tile" selected>Continuous Light Porcelain Tile</option>
                 <option value="herringbone_wood">Herringbone Wood Parquet</option>
-                <option value="apartment_mix">Apartment Suite Mix (Porcelain + Herringbone)</option>
+                <option value="residence_mix">Designer Residence Mix (Porcelain + Herringbone)</option>
                 <option value="wood_oak">Light Oak Wood</option>
                 <option value="dark_walnut">Dark Walnut Wood</option>
                 <option value="marble">Polished Marble</option>
@@ -677,8 +687,23 @@
           <button type="button" class="tool-btn house-nav-btn" data-target-room="bedroom2" id="nav-btn-rear" title="Focus Second Bedroom">
             <span>🛏️</span> Bed 2
           </button>
+          <button type="button" class="tool-btn house-nav-btn" data-target-room="bedroom3" id="nav-btn-bed3" title="Focus Third Bedroom / Study" style="display: none;">
+            <span>🧸</span> Bed 3
+          </button>
           <button type="button" class="tool-btn house-nav-btn" data-target-room="common_bath" id="nav-btn-bath" title="Focus Common Bathroom">
             <span>🚿</span> Common Bath
+          </button>
+          <button type="button" class="tool-btn house-nav-btn" data-target-room="balcony" id="nav-btn-balcony" title="Focus Balcony Deck" style="display: none;">
+            <span>🌅</span> Balcony
+          </button>
+          <button type="button" class="tool-btn house-nav-btn" data-target-room="staircase" id="nav-btn-stairs" title="Focus Floating Staircase" style="display: none;">
+            <span>🪜</span> Stairs
+          </button>
+          <button type="button" class="tool-btn house-nav-btn" data-target-room="mezzanine" id="nav-btn-mezzanine" title="Focus Mezzanine Gallery" style="display: none;">
+            <span>✨</span> Mezzanine
+          </button>
+          <button type="button" class="tool-btn house-nav-btn" data-target-room="sky_lounge" id="nav-btn-sky-lounge" title="Focus Upper Sky Lounge" style="display: none;">
+            <span>🌆</span> Sky Lounge
           </button>
           <button type="button" class="tool-btn house-nav-btn" data-target-room="backyard" id="nav-btn-yard" title="Focus Backyard & Patio">
             <span>🌿</span> Yard
@@ -1020,8 +1045,11 @@
           </p>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
-          <button class="btn btn-sm btn-primary" id="btn-apply-apartment-preset" style="background: linear-gradient(135deg, #f59e0b, #d97706); border: none; font-weight: 600;">
-            <span>✨</span> Load Layout in 3D Studio
+          <button class="btn btn-sm btn-primary" id="btn-apply-3bhk-preset" style="background: linear-gradient(135deg, #f59e0b, #d97706); border: none; font-weight: 600;">
+            <span>🏰</span> Load 3 BHK
+          </button>
+          <button class="btn btn-sm btn-primary" id="btn-apply-duplex-preset" style="background: linear-gradient(135deg, #6366f1, #4f46e5); border: none; font-weight: 600;">
+            <span>🏙️</span> Load Duplex
           </button>
           <button class="btn btn-sm" id="btn-close-renders" style="font-size: 18px; line-height: 1; padding: 4px 10px;">&times;</button>
         </div>
@@ -1040,11 +1068,11 @@
       <!-- VIEW 1: 3D Cutaway Floor Plan -->
       <div id="view-render-cutaway" class="render-view-pane">
         <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.12); background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-          <img src="renders/apartment_3d_cutaway_render.jpg" alt="Architectural 3D Cutaway Render of Modern Apartment Floor Plan" style="width: 100%; height: auto; display: block; object-fit: contain;">
+          <img src="renders/apartment_3d_cutaway_render.jpg" alt="Architectural 3D Cutaway Render of Residence Floor Plan" style="width: 100%; height: auto; display: block; object-fit: contain;">
           <div style="position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4);">
             ✦ Architectural 3D Cutaway Isometric Perspective
           </div>
-          <a href="renders/apartment_3d_cutaway_render.jpg" download="apartment_3d_cutaway_render.jpg" class="btn btn-sm" style="position: absolute; bottom: 12px; right: 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); color: #fff; text-decoration: none;">
+          <a href="renders/apartment_3d_cutaway_render.jpg" download="residence_3d_cutaway_render.jpg" class="btn btn-sm" style="position: absolute; bottom: 12px; right: 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); color: #fff; text-decoration: none;">
             <span>⬇️</span> Download Cutaway Render (HD)
           </a>
         </div>
@@ -1060,7 +1088,7 @@
           </div>
           <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 12px;">
             <div style="font-size: 11px; color: #f59e0b; font-weight: 700; text-transform: uppercase;">Dual Flooring Transition</div>
-            <div style="font-size: 12px; color: #e2e8f0; margin-top: 4px; line-height: 1.4;">Continuous light porcelain tiles in living spaces; rich herringbone hardwood in rear master suite.</div>
+            <div style="font-size: 12px; color: #e2e8f0; margin-top: 4px; line-height: 1.4;">Continuous light porcelain tiles in living spaces; rich herringbone hardwood in master suite.</div>
           </div>
         </div>
       </div>
@@ -1068,11 +1096,11 @@
       <!-- VIEW 2: Eye-Level Interior Flow -->
       <div id="view-render-eyelevel" class="render-view-pane" style="display: none;">
         <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.12); background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-          <img src="renders/apartment_eye_level_interior_render.jpg" alt="Photorealistic Eye-Level Interior Render of Apartment" style="width: 100%; height: auto; display: block; object-fit: contain;">
+          <img src="renders/apartment_eye_level_interior_render.jpg" alt="Photorealistic Eye-Level Interior Render of Residence" style="width: 100%; height: auto; display: block; object-fit: contain;">
           <div style="position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4);">
             ✦ Eye-Level Walkthrough Interior Perspective
           </div>
-          <a href="renders/apartment_eye_level_interior_render.jpg" download="apartment_eye_level_interior_render.jpg" class="btn btn-sm" style="position: absolute; bottom: 12px; right: 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); color: #fff; text-decoration: none;">
+          <a href="renders/apartment_eye_level_interior_render.jpg" download="residence_eye_level_interior_render.jpg" class="btn btn-sm" style="position: absolute; bottom: 12px; right: 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); color: #fff; text-decoration: none;">
             <span>⬇️</span> Download Eye-Level Render (HD)
           </a>
         </div>

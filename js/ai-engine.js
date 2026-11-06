@@ -32,12 +32,900 @@ export class AIEngine {
     let spatialRationale = '';
     let lightingPlan = '';
 
-    if (roomType === 'complete_house' || roomType === 'complete_house_2bhk' || roomType === 'villa_2bhk' || roomType === 'modern_apartment' || roomType === 'apartment' || roomType === 'whole_house' || roomType === 'house') {
+    if (roomType === 'complete_house' || roomType === 'complete_house_2bhk' || roomType === 'villa_2bhk' || roomType === 'complete_house_3bhk' || roomType === '3bhk' || roomType === 'duplex' || roomType === 'duplex_villa' || roomType === 'whole_house' || roomType === 'house') {
+      const isDuplex = (roomType === 'duplex' || roomType === 'duplex_villa' || pref.houseType === 'duplex' || pref.houseType === 'duplex_villa');
+      const is3BHK = (roomType === 'complete_house_3bhk' || roomType === '3bhk' || pref.houseType === '3bhk' || pref.houseType === 'complete_house_3bhk');
       const isVilla = (roomType === 'villa_2bhk' || roomType === 'complete_house_2bhk' || pref.houseType === 'villa_2bhk' || pref.houseType === 'villa' || pref.houseType === '2bhk');
-      const isApartment = (roomType === 'modern_apartment' || roomType === 'apartment' || pref.houseType === 'apartment' || pref.houseType === 'modern_apartment');
-      const is2BHK = isVilla || (roomType === 'complete_house_2bhk' || pref.houseType === '2bhk');
+      const is2BHK = isVilla;
 
-      if (isVilla) {
+      if (isDuplex) {
+        concept = `MODERN DUPLEX VILLA WITH DOUBLE-HEIGHT LIVING & MEZZANINE (${style.toUpperCase()})`;
+        spatialRationale = `A prestigious multi-level architectural Duplex Villa featuring a dramatic 5.6m double-height Grand Living Lounge with monumental floor-to-ceiling glass, an architectural floating cantilevered staircase with solid oak steps and tempered glass railings, an open-concept formal dining room and gourmet kitchen with waterfall island and counter bar stools, a private ground-level guest bedroom suite with dedicated guest bathroom, a sunken outdoor terrace pool deck, and an upper mezzanine level featuring an elevated walkway gallery overlooking the living room below, a penthouse master suite with private views, a luxury spa master bathroom, and an upper loft sky lounge and executive study.`;
+        lightingPlan = `Dramatic multi-tier architectural illumination: grand multi-ring celestial pendant chandelier suspended through the 5.6m double-height living void, under-step LED glow channels along the floating staircase, recessed mezzanine ceiling washes, illuminated anti-fog mirrors in all bathrooms, and under-cabinet warm 3000K kitchen task lighting.`;
+
+        // ==========================================
+        // DUPLEX: 1. GRAND ENTRANCE FOYER (GROUND)
+        // ==========================================
+        items.push({
+          id: 'duplex_foyer_console',
+          type: 'foyer_console',
+          name: 'Grand Foyer Fluted Marble Console Table',
+          position: [-4.6, 0, 3.5],
+          rotation: [0, 0, 0],
+          room: 'foyer',
+          cost: 620
+        });
+        items.push({
+          id: 'duplex_foyer_plant',
+          type: 'plant',
+          name: 'Grand Foyer Architectural Fiddle Leaf Fig',
+          position: [-3.6, 0, 5.8],
+          rotation: [0, 0, 0],
+          room: 'foyer',
+          cost: 180
+        });
+        items.push({
+          id: 'duplex_foyer_rug',
+          type: 'rug',
+          name: 'Grand Foyer Geometric Welcome Runner',
+          position: [-4.6, 0.005, 4.8],
+          rotation: [0, 0, 0],
+          dimensions: [2.0, 1.4],
+          style: style,
+          room: 'foyer',
+          cost: 240
+        });
+
+        // ==========================================
+        // DUPLEX: 2. DOUBLE-HEIGHT LIVING LOUNGE (GROUND)
+        // ==========================================
+        items.push({
+          id: 'duplex_living_tv_unit',
+          type: 'missouri_tv_unit',
+          name: 'Missouri Engineered Wood TV Unit with Slat Accents',
+          position: [-3.0, 0, 3.7],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          room: 'living',
+          cost: 1550
+        });
+        items.push({
+          id: 'duplex_living_sofa',
+          type: 'sofa',
+          name: 'Luxury Modular Deep Lounge Sectional Sofa',
+          position: [0.2, 0, 3.7],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.sofaColor,
+          room: 'living',
+          cost: 1850
+        });
+        items.push({
+          id: 'duplex_living_coffee_table',
+          type: 'coffee_table',
+          name: 'Sculptural Marble & Smoked Glass Coffee Table',
+          position: [-1.2, 0, 3.7],
+          rotation: [0, 0, 0],
+          style: style,
+          woodColor: palette.woodColor,
+          room: 'living',
+          cost: 520
+        });
+        items.push({
+          id: 'duplex_living_rug',
+          type: 'rug',
+          name: 'Double-Height Living Large Plush Area Rug',
+          position: [-0.8, 0.005, 3.7],
+          rotation: [0, 0, 0],
+          dimensions: [3.8, 3.0],
+          style: style,
+          room: 'living',
+          cost: 480
+        });
+        items.push({
+          id: 'duplex_living_armchair',
+          type: 'armchair',
+          name: 'Designer Swivel Accent Armchair',
+          position: [-0.5, 0, 1.6],
+          rotation: [0, Math.PI, 0],
+          style: style,
+          room: 'living',
+          cost: 410
+        });
+        items.push({
+          id: 'duplex_living_lamp',
+          type: 'floor_lamp',
+          name: 'Curved Brass Architectural Floor Lamp',
+          position: [-2.6, 0, 5.8],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'living',
+          cost: 320
+        });
+
+        // ==========================================
+        // DUPLEX: 3. FORMAL DINING ROOM (GROUND)
+        // ==========================================
+        items.push({
+          id: 'duplex_dining_table',
+          type: 'dining_set',
+          name: 'Solid Walnut Dining Table with 6 Velvet Chairs',
+          position: [4.35, 0, 4.1],
+          rotation: [0, 0, 0],
+          style: style,
+          woodColor: palette.woodColor,
+          room: 'dining',
+          cost: 1800
+        });
+        items.push({
+          id: 'duplex_dining_credenza',
+          type: 'credenza',
+          name: 'Modern Fluted Buffet Credenza',
+          position: [6.2, 0, 4.1],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          woodColor: palette.woodColor,
+          room: 'dining',
+          cost: 720
+        });
+
+        // ==========================================
+        // DUPLEX: 4. GOURMET MODULAR KITCHEN (GROUND)
+        // ==========================================
+        items.push({
+          id: 'duplex_kitchen_main',
+          type: 'kitchen_counter',
+          name: 'Gourmet Kitchen Quartz Counter & Under-Mount Sink',
+          position: [4.35, 0, -2.4],
+          rotation: [0, 0, 0],
+          room: 'kitchen',
+          cost: 2100
+        });
+        items.push({
+          id: 'duplex_kitchen_island',
+          type: 'kitchen_island',
+          name: 'Calacatta Marble Waterfall Island & Induction Cooktop',
+          position: [4.35, 0, -0.2],
+          rotation: [0, 0, 0],
+          room: 'kitchen',
+          cost: 1650
+        });
+        items.push({
+          id: 'duplex_kitchen_stools',
+          type: 'bar_stool',
+          name: 'Contemporary Velvet Bar Stools (Trio)',
+          position: [4.35, 0, 0.8],
+          rotation: [0, 0, 0],
+          room: 'kitchen',
+          cost: 390
+        });
+        items.push({
+          id: 'duplex_kitchen_fridge',
+          type: 'refrigerator',
+          name: 'French Door Smart Stainless Refrigerator',
+          position: [6.1, 0, -2.3],
+          rotation: [0, -Math.PI / 2, 0],
+          room: 'kitchen',
+          cost: 1400
+        });
+
+        // ==========================================
+        // DUPLEX: 5. GROUND GUEST BEDROOM SUITE
+        // ==========================================
+        items.push({
+          id: 'duplex_guest_bed',
+          type: 'bed',
+          name: 'Guest Suite Upholstered Queen Bed',
+          position: [-4.15, 0, -5.5],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'bedroom',
+          cost: 1100
+        });
+        items.push({
+          id: 'duplex_guest_nightstand',
+          type: 'nightstand',
+          name: 'Floating Bedside Nightstand',
+          position: [-5.6, 0, -5.5],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'bedroom',
+          cost: 220
+        });
+        items.push({
+          id: 'duplex_guest_wardrobe',
+          type: 'walk_in_wardrobe',
+          name: 'Built-In Sliding Mirror Wardrobe',
+          position: [-6.2, 0, -3.5],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          room: 'bedroom',
+          cost: 1200
+        });
+        items.push({
+          id: 'duplex_guest_rug',
+          type: 'rug',
+          name: 'Guest Bedroom Plush Wool Rug',
+          position: [-4.15, 0.005, -3.5],
+          rotation: [0, 0, 0],
+          dimensions: [2.6, 2.0],
+          style: style,
+          room: 'bedroom',
+          cost: 290
+        });
+
+        // ==========================================
+        // DUPLEX: 6. GROUND GUEST BATHROOM
+        // ==========================================
+        items.push({
+          id: 'duplex_guest_shower',
+          type: 'shower',
+          name: 'Ground Bath Frameless Glass Shower',
+          position: [-1.4, 0, -3.8],
+          rotation: [0, 0, 0],
+          room: 'common_bath',
+          cost: 620
+        });
+        items.push({
+          id: 'duplex_guest_vanity',
+          type: 'bathroom_vanity',
+          name: 'Floating Vanity with Lighted LED Mirror',
+          position: [-0.5, 0, -1.8],
+          rotation: [0, Math.PI, 0],
+          room: 'common_bath',
+          cost: 510
+        });
+        items.push({
+          id: 'duplex_guest_toilet',
+          type: 'toilet',
+          name: 'Modern Wall-Hung Ceramic Toilet',
+          position: [0.3, 0, -3.8],
+          rotation: [0, 0, 0],
+          room: 'common_bath',
+          cost: 310
+        });
+
+        // ==========================================
+        // DUPLEX: 7. OUTDOOR SUNKEN TERRACE & DECK
+        // ==========================================
+        items.push({
+          id: 'duplex_terrace_loungers',
+          type: 'armchair',
+          name: 'Teak Wood Outdoor Sun Lounger Pair',
+          position: [4.35, 0, 7.4],
+          rotation: [0, Math.PI, 0],
+          room: 'terrace',
+          cost: 450
+        });
+        items.push({
+          id: 'duplex_terrace_plant',
+          type: 'plant',
+          name: 'Terrace Architectural Bird of Paradise',
+          position: [6.1, 0, 7.4],
+          rotation: [0, 0, 0],
+          room: 'terrace',
+          cost: 190
+        });
+
+        // ==========================================
+        // DUPLEX: 8. UPPER PENTHOUSE MASTER SUITE (LEVEL 2, Y = 2.8)
+        // ==========================================
+        items.push({
+          id: 'duplex_master_bed',
+          type: 'bed',
+          name: 'Penthouse Master Platform King Bed',
+          position: [4.35, 2.8, -2.3],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 1950
+        });
+        items.push({
+          id: 'duplex_master_nightstand_l',
+          type: 'nightstand',
+          name: 'Designer Nightstand (Left)',
+          position: [2.8, 2.8, -2.3],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 260
+        });
+        items.push({
+          id: 'duplex_master_nightstand_r',
+          type: 'nightstand',
+          name: 'Designer Nightstand (Right)',
+          position: [5.9, 2.8, -2.3],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 260
+        });
+        items.push({
+          id: 'duplex_master_wardrobe',
+          type: 'walk_in_wardrobe',
+          name: 'Penthouse Full-Span Glass Dressing Wardrobe',
+          position: [6.1, 2.8, 0.5],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 1800
+        });
+        items.push({
+          id: 'duplex_master_rug',
+          type: 'rug',
+          name: 'Penthouse Master Plush Silk & Wool Rug',
+          position: [4.35, 2.805, -0.8],
+          rotation: [0, 0, 0],
+          dimensions: [3.4, 2.6],
+          style: style,
+          room: 'bedroom2',
+          cost: 440
+        });
+
+        // ==========================================
+        // DUPLEX: 9. UPPER MASTER SPA BATHROOM (LEVEL 2, Y = 2.8)
+        // ==========================================
+        items.push({
+          id: 'duplex_spa_shower',
+          type: 'shower',
+          name: 'Master Spa Double Glass Rain Shower',
+          position: [5.8, 2.8, -5.4],
+          rotation: [0, 0, 0],
+          room: 'master_bath',
+          cost: 850
+        });
+        items.push({
+          id: 'duplex_spa_vanity',
+          type: 'bathroom_vanity',
+          name: 'Master Spa Dual Basin Floating Vanity',
+          position: [3.2, 2.8, -3.3],
+          rotation: [0, Math.PI, 0],
+          room: 'master_bath',
+          cost: 680
+        });
+        items.push({
+          id: 'duplex_spa_toilet',
+          type: 'toilet',
+          name: 'Smart Bidet Master Ceramic Toilet',
+          position: [5.5, 2.8, -3.3],
+          rotation: [0, Math.PI, 0],
+          room: 'master_bath',
+          cost: 420
+        });
+
+        // ==========================================
+        // DUPLEX: 10. UPPER LOFT SKY LOUNGE & STUDY (LEVEL 2, Y = 2.8)
+        // ==========================================
+        items.push({
+          id: 'duplex_sky_sofa',
+          type: 'sofa',
+          name: 'Sky Lounge Low-Profile Velvet Sofa',
+          position: [-3.5, 2.8, -4.5],
+          rotation: [0, 0, 0],
+          style: style,
+          color: palette.sofaColor,
+          room: 'sky_lounge',
+          cost: 1200
+        });
+        items.push({
+          id: 'duplex_sky_coffee_table',
+          type: 'coffee_table',
+          name: 'Sky Lounge Minimalist Oak Coffee Table',
+          position: [-3.5, 2.8, -3.2],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'sky_lounge',
+          cost: 340
+        });
+        items.push({
+          id: 'duplex_sky_desk',
+          type: 'desk',
+          name: 'Executive Mezzanine Workstation Desk',
+          position: [-6.0, 2.8, -1.5],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          room: 'sky_lounge',
+          cost: 650
+        });
+        items.push({
+          id: 'duplex_sky_bookshelf',
+          type: 'bookshelf',
+          name: 'Sky Lounge Architectural Library Bookshelf',
+          position: [-6.0, 2.8, -4.0],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          room: 'sky_lounge',
+          cost: 580
+        });
+        items.push({
+          id: 'duplex_sky_rug',
+          type: 'rug',
+          name: 'Sky Lounge Geometric Low-Pile Rug',
+          position: [-3.5, 2.805, -3.5],
+          rotation: [0, 0, 0],
+          dimensions: [3.2, 2.4],
+          style: style,
+          room: 'sky_lounge',
+          cost: 360
+        });
+
+      } else if (is3BHK) {
+        concept = `LUXURY 3 BHK RESIDENCE (10 CONNECTED SPACES & BALCONY) (${style.toUpperCase()})`;
+        spatialRationale = `A prestigious 19m × 18.5m architectural 3 BHK layout master-engineered with flawless circular circulation flow. Features a welcoming Entrance Foyer with slatted teak divider screen, expansive Open Living Room Lounge with Missouri 4K TV backdrop and deep sectional sofa, interconnected Formal Dining Pavilion with 6-seater dining table & credenza, modern Modular Kitchen with quartz prep island and bar stools, private Master Bedroom Suite (Bed 1) with King bed, dressing vanity, walk-in wardrobe and en-suite designer bathroom, a peaceful Second Bedroom Suite (Bed 2) with Queen bed, study desk and wardrobe, an agile Third Bedroom Suite (Bed 3) tailored for kids or executive remote study, central designer Common Bathroom, and a front Private Balcony Deck with teak outdoor leisure seating.`;
+        lightingPlan = `Harmonious 3000K multi-zone lighting scheme: soft living ambient coves, statement pendant dining chandelier, recessed under-cabinet LED task strips in kitchen, backlit bathroom mirrors, study task illumination, and exterior balcony warm downlights.`;
+
+        // ==========================================
+        // 3 BHK: 1. ENTRANCE FOYER
+        // ==========================================
+        items.push({
+          id: 'threebhk_foyer_console',
+          type: 'foyer_console',
+          name: 'Entrance Foyer Console Table & Vanity Mirror',
+          position: [-5.0, 0, 3.65],
+          rotation: [0, 0, 0],
+          room: 'foyer',
+          cost: 510
+        });
+        items.push({
+          id: 'threebhk_foyer_plant',
+          type: 'plant',
+          name: 'Entrance Foyer Potted Olive Tree',
+          position: [-3.8, 0, 6.0],
+          rotation: [0, 0, 0],
+          room: 'foyer',
+          cost: 170
+        });
+        items.push({
+          id: 'threebhk_foyer_rug',
+          type: 'rug',
+          name: 'Entrance Foyer Welcome Runner',
+          position: [-5.0, 0.005, 4.9],
+          rotation: [0, 0, 0],
+          dimensions: [2.0, 1.2],
+          style: style,
+          room: 'foyer',
+          cost: 220
+        });
+
+        // ==========================================
+        // 3 BHK: 2. LIVING ROOM LOUNGE
+        // ==========================================
+        items.push({
+          id: 'threebhk_living_tv_unit',
+          type: 'missouri_tv_unit',
+          name: 'Missouri Engineered Wood TV Unit with Fluted Slat Backdrop',
+          position: [-3.25, 0, 4.15],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          room: 'living',
+          cost: 1450
+        });
+        items.push({
+          id: 'threebhk_living_sofa',
+          type: 'sofa',
+          name: 'Plush Ergonomic Living Lounge Sectional Sofa',
+          position: [0.6, 0, 4.15],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          color: palette.sofaColor,
+          room: 'living',
+          cost: 1600
+        });
+        items.push({
+          id: 'threebhk_living_coffee_table',
+          type: 'coffee_table',
+          name: 'Architectural Wood & Glass Coffee Table',
+          position: [-1.2, 0, 4.15],
+          rotation: [0, 0, 0],
+          style: style,
+          woodColor: palette.woodColor,
+          room: 'living',
+          cost: 450
+        });
+        items.push({
+          id: 'threebhk_living_rug',
+          type: 'rug',
+          name: 'Living Room Plush Wool Area Rug',
+          position: [-0.6, 0.005, 4.15],
+          rotation: [0, 0, 0],
+          dimensions: [3.6, 2.8],
+          style: style,
+          room: 'living',
+          cost: 410
+        });
+        items.push({
+          id: 'threebhk_living_armchair',
+          type: 'armchair',
+          name: 'Scandinavian Accent Armchair',
+          position: [-0.5, 0, 2.4],
+          rotation: [0, Math.PI, 0],
+          style: style,
+          room: 'living',
+          cost: 380
+        });
+        items.push({
+          id: 'threebhk_living_lamp',
+          type: 'floor_lamp',
+          name: 'Sculptural Brass Arc Floor Lamp',
+          position: [1.8, 0, 5.8],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'living',
+          cost: 290
+        });
+
+        // ==========================================
+        // 3 BHK: 3. DINING PAVILION
+        // ==========================================
+        items.push({
+          id: 'threebhk_dining_table',
+          type: 'dining_set',
+          name: 'Solid Hardwood Dining Table & 6 Designer Chairs',
+          position: [5.0, 0, 4.15],
+          rotation: [0, 0, 0],
+          style: style,
+          woodColor: palette.woodColor,
+          room: 'dining',
+          cost: 1550
+        });
+        items.push({
+          id: 'threebhk_dining_credenza',
+          type: 'credenza',
+          name: 'Dining Buffet Credenza & Crockery Cabinet',
+          position: [7.2, 0, 4.15],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          woodColor: palette.woodColor,
+          room: 'dining',
+          cost: 650
+        });
+        items.push({
+          id: 'threebhk_dining_plant',
+          type: 'plant',
+          name: 'Dining Room Potted Palm Plant',
+          position: [2.8, 0, 5.8],
+          rotation: [0, 0, 0],
+          room: 'dining',
+          cost: 150
+        });
+
+        // ==========================================
+        // 3 BHK: 4. MODULAR KITCHEN & BREAKFAST ISLAND
+        // ==========================================
+        items.push({
+          id: 'threebhk_kitchen_main',
+          type: 'kitchen_counter',
+          name: 'Modular Kitchen Cabinets & Counter with Double Sink',
+          position: [5.0, 0, -2.2],
+          rotation: [0, 0, 0],
+          room: 'kitchen',
+          cost: 1950
+        });
+        items.push({
+          id: 'threebhk_kitchen_island',
+          type: 'kitchen_island',
+          name: 'Quartz Countertop Prep Island & Induction Range',
+          position: [5.0, 0, 0.2],
+          rotation: [0, 0, 0],
+          room: 'kitchen',
+          cost: 1450
+        });
+        items.push({
+          id: 'threebhk_kitchen_stools',
+          type: 'bar_stool',
+          name: 'Counter-Height Bar Stools (Trio)',
+          position: [5.0, 0, 1.2],
+          rotation: [0, 0, 0],
+          room: 'kitchen',
+          cost: 360
+        });
+        items.push({
+          id: 'threebhk_kitchen_fridge',
+          type: 'refrigerator',
+          name: 'Smart French-Door Refrigerator',
+          position: [7.1, 0, -2.1],
+          rotation: [0, -Math.PI / 2, 0],
+          room: 'kitchen',
+          cost: 1350
+        });
+
+        // ==========================================
+        // 3 BHK: 5. MASTER BEDROOM SUITE (BED 1)
+        // ==========================================
+        items.push({
+          id: 'threebhk_master_bed',
+          type: 'bed',
+          name: 'Master Suite Luxury King Platform Bed',
+          position: [5.0, 0, -7.1],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'bedroom',
+          cost: 1750
+        });
+        items.push({
+          id: 'threebhk_master_nightstand_l',
+          type: 'nightstand',
+          name: 'Master Nightstand (Left)',
+          position: [3.3, 0, -7.1],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'bedroom',
+          cost: 240
+        });
+        items.push({
+          id: 'threebhk_master_nightstand_r',
+          type: 'nightstand',
+          name: 'Master Nightstand (Right)',
+          position: [6.7, 0, -7.1],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'bedroom',
+          cost: 240
+        });
+        items.push({
+          id: 'threebhk_master_wardrobe',
+          type: 'walk_in_wardrobe',
+          name: 'Master Built-In Mirrored Wardrobe System',
+          position: [2.8, 0, -5.25],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          room: 'bedroom',
+          cost: 1600
+        });
+        items.push({
+          id: 'threebhk_master_vanity',
+          type: 'bathroom_vanity',
+          name: 'Master Dressing Vanity Console & Mirror',
+          position: [7.2, 0, -5.25],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          room: 'bedroom',
+          cost: 590
+        });
+        items.push({
+          id: 'threebhk_master_rug',
+          type: 'rug',
+          name: 'Master Bedroom Plush Wool Rug',
+          position: [5.0, 0.005, -5.4],
+          rotation: [0, 0, 0],
+          dimensions: [3.4, 2.6],
+          style: style,
+          room: 'bedroom',
+          cost: 420
+        });
+
+        // ==========================================
+        // 3 BHK: 6. MASTER EN-SUITE BATHROOM
+        // ==========================================
+        items.push({
+          id: 'threebhk_master_shower',
+          type: 'shower',
+          name: 'Master En-Suite Frameless Glass Rain Shower',
+          position: [6.9, 0, -2.0],
+          rotation: [0, -Math.PI / 2, 0],
+          room: 'master_bath',
+          cost: 720
+        });
+        items.push({
+          id: 'threebhk_master_vanity_bath',
+          type: 'bathroom_vanity',
+          name: 'Master Floating Basin Vanity with LED Mirror',
+          position: [5.6, 0, -0.4],
+          rotation: [0, Math.PI, 0],
+          room: 'master_bath',
+          cost: 560
+        });
+        items.push({
+          id: 'threebhk_master_toilet',
+          type: 'toilet',
+          name: 'Master Wall-Hung Smart Ceramic Toilet',
+          position: [7.0, 0, -0.4],
+          rotation: [0, Math.PI, 0],
+          room: 'master_bath',
+          cost: 340
+        });
+
+        // ==========================================
+        // 3 BHK: 7. SECOND BEDROOM SUITE (BED 2)
+        // ==========================================
+        items.push({
+          id: 'threebhk_bed2_bed',
+          type: 'bed',
+          name: 'Second Bedroom Queen Upholstered Bed',
+          position: [-5.0, 0, -7.1],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 1250
+        });
+        items.push({
+          id: 'threebhk_bed2_nightstand_l',
+          type: 'nightstand',
+          name: 'Nightstand Left',
+          position: [-6.4, 0, -7.1],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 210
+        });
+        items.push({
+          id: 'threebhk_bed2_nightstand_r',
+          type: 'nightstand',
+          name: 'Nightstand Right',
+          position: [-3.6, 0, -7.1],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 210
+        });
+        items.push({
+          id: 'threebhk_bed2_wardrobe',
+          type: 'walk_in_wardrobe',
+          name: 'Sliding Wardrobe System',
+          position: [-7.2, 0, -5.25],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 1100
+        });
+        items.push({
+          id: 'threebhk_bed2_desk',
+          type: 'desk',
+          name: 'Study Workstation & Chair',
+          position: [-3.8, 0, -3.2],
+          rotation: [0, Math.PI, 0],
+          style: style,
+          room: 'bedroom2',
+          cost: 490
+        });
+        items.push({
+          id: 'threebhk_bed2_rug',
+          type: 'rug',
+          name: 'Bed 2 Cozy Wool Rug',
+          position: [-5.0, 0.005, -5.5],
+          rotation: [0, 0, 0],
+          dimensions: [2.8, 2.2],
+          style: style,
+          room: 'bedroom2',
+          cost: 320
+        });
+
+        // ==========================================
+        // 3 BHK: 8. THIRD BEDROOM / KIDS / STUDY (BED 3)
+        // ==========================================
+        items.push({
+          id: 'threebhk_bed3_bed',
+          type: 'bed',
+          name: 'Bed 3 Contemporary Daybed Suite',
+          position: [-5.5, 0, -2.0],
+          rotation: [0, 0, 0],
+          style: style,
+          room: 'bedroom3',
+          cost: 950
+        });
+        items.push({
+          id: 'threebhk_bed3_desk',
+          type: 'desk',
+          name: 'Ergonomic Executive Study Desk & Task Chair',
+          position: [-7.1, 0, -0.35],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          room: 'bedroom3',
+          cost: 540
+        });
+        items.push({
+          id: 'threebhk_bed3_bookshelf',
+          type: 'bookshelf',
+          name: 'Study Bookshelf & Display Storage',
+          position: [-7.1, 0, 1.2],
+          rotation: [0, Math.PI / 2, 0],
+          style: style,
+          room: 'bedroom3',
+          cost: 420
+        });
+        items.push({
+          id: 'threebhk_bed3_wardrobe',
+          type: 'walk_in_wardrobe',
+          name: 'Double Wardrobe Closet',
+          position: [-3.8, 0, -0.35],
+          rotation: [0, -Math.PI / 2, 0],
+          style: style,
+          room: 'bedroom3',
+          cost: 980
+        });
+        items.push({
+          id: 'threebhk_bed3_rug',
+          type: 'rug',
+          name: 'Study Low-Pile Pattern Rug',
+          position: [-5.5, 0.005, -0.35],
+          rotation: [0, 0, 0],
+          dimensions: [2.4, 1.8],
+          style: style,
+          room: 'bedroom3',
+          cost: 260
+        });
+
+        // ==========================================
+        // 3 BHK: 9. COMMON FAMILY BATHROOM
+        // ==========================================
+        items.push({
+          id: 'threebhk_common_shower',
+          type: 'shower',
+          name: 'Common Bath Walk-In Shower',
+          position: [-3.0, 0, -2.1],
+          rotation: [0, 0, 0],
+          room: 'common_bath',
+          cost: 580
+        });
+        items.push({
+          id: 'threebhk_common_vanity',
+          type: 'bathroom_vanity',
+          name: 'Common Bath Vanity & Mirror',
+          position: [-1.5, 0, -0.4],
+          rotation: [0, Math.PI, 0],
+          room: 'common_bath',
+          cost: 480
+        });
+        items.push({
+          id: 'threebhk_common_toilet',
+          type: 'toilet',
+          name: 'Wall-Hung Ceramic Toilet',
+          position: [-2.5, 0, -0.4],
+          rotation: [0, Math.PI, 0],
+          room: 'common_bath',
+          cost: 290
+        });
+
+        // ==========================================
+        // 3 BHK: 10. FRONT BALCONY DECK
+        // ==========================================
+        items.push({
+          id: 'threebhk_balcony_chair1',
+          type: 'armchair',
+          name: 'Outdoor Teak & Rope Lounge Armchair',
+          position: [-1.4, 0, 7.45],
+          rotation: [0, Math.PI / 2, 0],
+          room: 'balcony',
+          cost: 310
+        });
+        items.push({
+          id: 'threebhk_balcony_chair2',
+          type: 'armchair',
+          name: 'Outdoor Teak & Rope Lounge Armchair',
+          position: [0.4, 0, 7.45],
+          rotation: [0, -Math.PI / 2, 0],
+          room: 'balcony',
+          cost: 310
+        });
+        items.push({
+          id: 'threebhk_balcony_table',
+          type: 'coffee_table',
+          name: 'Outdoor Terrazzo Bistro Table',
+          position: [-0.5, 0, 7.45],
+          rotation: [0, 0, 0],
+          room: 'balcony',
+          cost: 240
+        });
+        items.push({
+          id: 'threebhk_balcony_planter1',
+          type: 'plant',
+          name: 'Balcony Architectural Planter Box',
+          position: [-3.1, 0, 7.45],
+          rotation: [0, 0, 0],
+          room: 'balcony',
+          cost: 140
+        });
+        items.push({
+          id: 'threebhk_balcony_planter2',
+          type: 'plant',
+          name: 'Balcony Architectural Planter Box',
+          position: [2.1, 0, 7.45],
+          rotation: [0, 0, 0],
+          room: 'balcony',
+          cost: 140
+        });
+
+      } else if (isVilla) {
         concept = `ARCHITECTURAL 2 BHK RESIDENCE (CORRECTED & OPTIMIZED ${style.toUpperCase()})`;
         spatialRationale = `A master-crafted 16m × 18.5m architectural residence optimized for real-time room flow, generous walking clearances, and zero furniture-wall collisions. Features a grand entrance foyer with pivot wooden door & slatted divider, open-concept living lounge with Missouri TV unit facing the sectional lounge sofa, seamlessly connected dining area with solid hardwood table, 6 chairs & china credenza, high-efficiency L-shaped modular kitchen with quartz prep island, private master bedroom suite with king bed on the solid east wall, dressing vanity with mirror, walk-in dressing room with sliding mirrored wardrobe, luxury sky-blue master en-suite bathroom with walk-in glass shower, peaceful second bedroom suite with queen bed, study workstation & sliding wardrobe, and a discreetly accessible designer common bathroom.`;
         lightingPlan = `Layered architectural illumination with warm 3000K interior ambiance: recessed living cove glows, statement linear brass chandelier above the dining table, under-cabinet task LED strips in modular kitchen, illuminated anti-fog LED mirrors in both bathrooms, dimmable bedside luminaires, and study task lighting.`;
@@ -772,202 +1660,7 @@ export class AIEngine {
           cost: 110
         });
       } else {
-        if (isApartment) {
-          concept = `MODERN APARTMENT SUITE (REAL-TIME FLOW ${style.toUpperCase()})`;
-          spatialRationale = `A full modern apartment floor plan engineered with real-time room flow. An open-concept living room transitions fluidly to a central dining area and a streamlined single-wall straight modular kitchen mounted flush along the right wall. The private master bedroom suite is peacefully situated in the rear wing. Continuous light porcelain floor tiles run throughout the open living, dining, and kitchen zones, transitioning via a satin brass threshold to rich herringbone wood flooring in the master suite.`;
-          lightingPlan = `Warm 3000K interior illumination with natural morning daylight. Warm 3000K LED under-cabinet kitchen task lighting, overhead linear brass dining chandelier, recessed living cove glows, and natural morning sunlight streaming through wide balcony glazing with soft morning shadows.`;
-
-          // ==========================================
-          // APARTMENT: 1. OPEN-CONCEPT LIVING ROOM
-          // ==========================================
-          items.push({
-            id: 'house_living_tv_unit',
-            type: 'missouri_tv_unit',
-            name: 'Missouri Engineered Wood TV Unit',
-            position: [-2.85, 0, 4.1],
-            rotation: [0, Math.PI / 2, 0],
-            style: style,
-            room: 'living',
-            cost: 1350
-          });
-
-          items.push({
-            id: 'house_living_sofa',
-            type: 'sofa',
-            name: 'Plush Ergonomic Living Lounge Sofa',
-            position: [0.3, 0, 4.1],
-            rotation: [0, -Math.PI / 2, 0],
-            style: style,
-            color: palette.sofaColor,
-            room: 'living',
-            cost: 1400
-          });
-
-          items.push({
-            id: 'house_living_coffee_table',
-            type: 'coffee_table',
-            name: 'Architectural Wood & Glass Coffee Table',
-            position: [-1.2, 0, 4.1],
-            rotation: [0, 0, 0],
-            style: style,
-            woodColor: palette.woodColor,
-            room: 'living',
-            cost: 420
-          });
-
-          items.push({
-            id: 'house_living_rug',
-            type: 'rug',
-            name: 'Living Room Plush Wool Rug',
-            position: [-0.4, 0.005, 4.1],
-            rotation: [0, 0, 0],
-            dimensions: [3.4, 2.6],
-            style: style,
-            room: 'living',
-            cost: 380
-          });
-
-          items.push({
-            id: 'house_living_lamp',
-            type: 'floor_lamp',
-            name: 'Sculptural Brass Arc Floor Lamp',
-            position: [1.8, 0, 5.8],
-            rotation: [0, 0, 0],
-            style: style,
-            room: 'living',
-            cost: 290
-          });
-
-          // ==========================================
-          // APARTMENT: 2. CENTRAL DINING AREA
-          // ==========================================
-          items.push({
-            id: 'house_dining_set',
-            type: 'dining_set',
-            name: 'Solid Hardwood Dining Table & 6 Chairs',
-            position: [1.0, 0, 1.2],
-            rotation: [0, 0, 0],
-            style: style,
-            woodColor: palette.woodColor,
-            room: 'dining',
-            cost: 1650
-          });
-
-          items.push({
-            id: 'house_dining_pendant',
-            type: 'pendant_light',
-            name: 'Linear Brass Dining Chandelier',
-            position: [1.0, 2.7, 1.2],
-            rotation: [0, 0, 0],
-            room: 'dining',
-            cost: 320
-          });
-
-          // ==========================================
-          // APARTMENT: 3. STRAIGHT MODULAR KITCHEN (RIGHT WALL)
-          // ==========================================
-          items.push({
-            id: 'house_kitchen_cabinets',
-            type: 'straight_kitchen',
-            name: 'Single-Wall Straight Modular Kitchen',
-            position: [6.4, 0, 1.2],
-            rotation: [0, -Math.PI / 2, 0],
-            room: 'kitchen',
-            cost: 4200
-          });
-
-          items.push({
-            id: 'house_kitchen_fridge',
-            type: 'refrigerator',
-            name: 'Stainless Steel French-Door Refrigerator',
-            position: [6.4, 0, -1.8],
-            rotation: [0, -Math.PI / 2, 0],
-            room: 'kitchen',
-            cost: 1450
-          });
-
-          // ==========================================
-          // APARTMENT: 4. REAR MASTER BEDROOM SUITE
-          // ==========================================
-          items.push({
-            id: 'house_bed_king',
-            type: 'bed',
-            name: 'King Size Designer Platform Bed',
-            position: [-3.5, 0, -4.7],
-            rotation: [0, 0, 0],
-            style: style,
-            color: palette.accentColor,
-            room: 'bedroom',
-            cost: 1850
-          });
-
-          items.push({
-            id: 'house_bed_nightstand_l',
-            type: 'nightstand',
-            name: 'Floating Bedside Nightstand (Left)',
-            position: [-4.9, 0, -5.6],
-            rotation: [0, 0, 0],
-            style: style,
-            woodColor: palette.woodColor,
-            room: 'bedroom',
-            cost: 240
-          });
-
-          items.push({
-            id: 'house_bed_nightstand_r',
-            type: 'nightstand',
-            name: 'Floating Bedside Nightstand (Right)',
-            position: [-2.1, 0, -5.6],
-            rotation: [0, 0, 0],
-            style: style,
-            woodColor: palette.woodColor,
-            room: 'bedroom',
-            cost: 240
-          });
-
-          items.push({
-            id: 'house_bed_wardrobe',
-            type: 'walk_in_wardrobe',
-            name: 'Full-Height Master Wardrobe System',
-            position: [-1.0, 0, -0.6],
-            rotation: [0, -Math.PI / 2, 0],
-            style: style,
-            color: palette.wardrobeColor || 0x2b2d42,
-            room: 'bedroom',
-            cost: 1650
-          });
-
-          items.push({
-            id: 'house_master_shower',
-            type: 'shower',
-            name: 'Master En-Suite Walk-In Glass Shower',
-            position: [2.4, 0, -5.0],
-            rotation: [0, -Math.PI / 2, 0],
-            room: 'master_bath',
-            cost: 650
-          });
-
-          items.push({
-            id: 'house_master_toilet',
-            type: 'toilet',
-            name: 'Master En-Suite Wall-Hung Toilet',
-            position: [1.1, 0, -5.2],
-            rotation: [0, 0, 0],
-            room: 'master_bath',
-            cost: 320
-          });
-
-          items.push({
-            id: 'house_master_vanity',
-            type: 'bathroom_vanity',
-            name: 'Master En-Suite Vanity & Lighted Mirror',
-            position: [1.1, 0, -1.8],
-            rotation: [0, Math.PI, 0],
-            room: 'master_bath',
-            cost: 540
-          });
-        } else {
-          concept = `ARCHITECTURAL 1 BHK SINGLE BEDROOM RESIDENCE (${style.toUpperCase()})`;
+        concept = `ARCHITECTURAL 1 BHK SINGLE BEDROOM RESIDENCE (${style.toUpperCase()})`;
           spatialRationale = `A perfectly planned 14m × 13m architectural Single Bedroom House featuring a dedicated Entrance Foyer with customizable fluted entry door & slatted wooden divider, an open-concept Living Room lounge with Missouri TV entertainment center, interconnected Formal Dining Area with linear brass chandelier, high-efficiency Modular Kitchen with waterfall prep island and breakfast counter bar stools, private secluded Master Bedroom Suite with king platform bed, built-in wardrobe, and vanity console, and a luxury direct En-Suite Master Bathroom with frameless glass walk-in shower, floating vanity, and lighted mirror.`;
           lightingPlan = `Layered warm 3000K architectural illumination: warm LED ambient cove lighting in the living lounge, suspended linear multi-pendant dining chandelier, high-CRI under-cabinet task lighting in the kitchen, illuminated LED anti-fog mirror in the master bathroom, and dual dimmable bedside reading sconces in the master suite.`;
 
@@ -1422,7 +2115,6 @@ export class AIEngine {
             cost: 540
           });
         }
-      }
     } else if (roomType === 'living_room' || roomType.startsWith('living_room_')) {
       // Determine which of the 4 Living Room Design Types is selected
       let livingType = pref.livingRoomType || 1;

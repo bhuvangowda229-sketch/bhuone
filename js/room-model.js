@@ -789,8 +789,19 @@ export class RoomBuilder {
   buildCompleteHouse(wallColorHex = 0xfaf5ee, flooringType = 'porcelain_tile', houseType = '1bhk') {
     this.isCompleteHouse = true;
     this.houseType = houseType || '1bhk';
+    const isDuplex = (this.houseType === 'duplex' || this.houseType === 'duplex_villa');
+    const is3BHK = (this.houseType === '3bhk' || this.houseType === 'complete_house_3bhk');
     const isVilla = (this.houseType === 'villa_2bhk' || this.houseType === 'villa' || this.houseType === '2bhk' || this.houseType === 'complete_house_2bhk');
-    this.currentDimensions = isVilla ? { width: 16.0, length: 18.5, height: 2.8 } : { width: 14.0, length: 13.0, height: 2.8 };
+    
+    if (isDuplex) {
+      this.currentDimensions = { width: 16.0, length: 16.0, height: 5.6 };
+    } else if (is3BHK) {
+      this.currentDimensions = { width: 19.0, length: 18.5, height: 2.8 };
+    } else if (isVilla) {
+      this.currentDimensions = { width: 16.0, length: 18.5, height: 2.8 };
+    } else {
+      this.currentDimensions = { width: 14.0, length: 13.0, height: 2.8 };
+    }
     this.currentWallColor = wallColorHex;
     this.currentFlooring = flooringType;
 
@@ -819,7 +830,21 @@ export class RoomBuilder {
 
     const H = 2.8;
 
-    if (isVilla) {
+    if (isDuplex) {
+      // Modern Duplex Villa (Double-Height living, floating stairs, mezzanine)
+      this.buildDuplexFloors(flooringType);
+      this.buildDuplexWalls(H, wallColorHex);
+      this.buildDuplexWindowsAndDoors(H);
+      this.buildDuplexBadges();
+      this.buildFloorGrid(16.0, 16.0);
+    } else if (is3BHK) {
+      // Luxury 3 BHK Residence (10 connected zones + balcony)
+      this.buildThreeBhkFloors(flooringType);
+      this.buildThreeBhkWalls(H, wallColorHex);
+      this.buildThreeBhkWindowsAndDoors(H);
+      this.buildThreeBhkBadges();
+      this.buildFloorGrid(19.0, 18.5);
+    } else if (isVilla) {
       // Architectural 2 BHK Residence (8 rooms)
       this.buildVillaFloors(flooringType);
       this.buildVillaWalls(H, wallColorHex);
@@ -1593,5 +1618,522 @@ export class RoomBuilder {
     this.createRoomBadge('MASTER BEDROOM', '👑', 4.4, 3.7, 'bedroom');
     this.createRoomBadge('MASTER BATHROOM', '🛁', 5.4, -0.5, 'master_bath');
     this.createRoomBadge('BACKYARD GARDEN', '🌿', 4.4, -7.5, 'backyard');
+  }
+
+  // ==========================================
+  // LUXURY 3 BHK RESIDENCE ARCHITECTURE
+  // ==========================================
+  buildThreeBhkFloors(flooringType) {
+    const makeFloorMesh = (W, L, posX, posZ, floorType, zoneKey, posY = 0) => {
+      let floorTexture;
+      let roughness = 0.4;
+      let metalness = 0.05;
+
+      switch (floorType) {
+        case 'blue_tile':
+          floorTexture = TextureGenerator.createBlueTileTexture(0x38bdf8, 0x0284c7);
+          roughness = 0.2;
+          metalness = 0.05;
+          break;
+        case 'grass':
+          floorTexture = TextureGenerator.createGrassTexture();
+          roughness = 0.95;
+          metalness = 0.0;
+          break;
+        case 'paving':
+          floorTexture = TextureGenerator.createPavingTexture(0xd1d5db);
+          roughness = 0.65;
+          metalness = 0.05;
+          break;
+        case 'dark_walnut':
+          floorTexture = TextureGenerator.createWoodTexture(0x4a2e18);
+          roughness = 0.5;
+          break;
+        case 'herringbone_wood':
+        case 'herringbone':
+          floorTexture = TextureGenerator.createHerringboneWoodTexture(0xb8824f, 0x6e4321);
+          roughness = 0.42;
+          metalness = 0.04;
+          break;
+        case 'porcelain_tile':
+        case 'porcelain':
+          floorTexture = TextureGenerator.createPorcelainTileTexture(0xf8f9fa, 0xd1d5db);
+          roughness = 0.16;
+          metalness = 0.08;
+          break;
+        case 'marble':
+          floorTexture = TextureGenerator.createMarbleTexture(0xf8fafc, 0x94a3b8);
+          roughness = 0.15;
+          metalness = 0.1;
+          break;
+        case 'tile':
+          floorTexture = TextureGenerator.createTileTexture(0xf8fafc, 0xcfd4dc);
+          roughness = 0.25;
+          break;
+        case 'wood_oak':
+        default:
+          floorTexture = TextureGenerator.createWoodTexture(0xd4a373);
+          roughness = 0.5;
+          break;
+      }
+
+      floorTexture.repeat.set(Math.max(1, Math.round(W / 2)), Math.max(1, Math.round(L / 2)));
+
+      const floorMat = new THREE.MeshStandardMaterial({
+        map: floorTexture,
+        roughness: roughness,
+        metalness: metalness
+      });
+
+      const floorGeom = new THREE.PlaneGeometry(W, L);
+      const mesh = new THREE.Mesh(floorGeom, floorMat);
+      mesh.rotation.x = -Math.PI / 2;
+      mesh.position.set(posX, posY, posZ);
+      mesh.receiveShadow = true;
+      mesh.name = `HouseFloor_${zoneKey}`;
+      mesh.userData = { isFloor: true, roomZone: zoneKey, zone: zoneKey };
+      this.houseFloors.push(mesh);
+      this.roomGroup.add(mesh);
+      return mesh;
+    };
+
+    const isTileVariant = ['porcelain_tile', 'marble_white', 'tile', 'terrazzo', 'paving'].includes(flooringType);
+    const commonFlooring = isTileVariant ? flooringType : 'porcelain_tile';
+    const bedFlooring = (!isTileVariant && flooringType) ? flooringType : 'wood_oak';
+
+    // 1. Entrance Foyer (Front-Left)
+    makeFloorMesh(3.0, 3.0, -5.0, 4.95, commonFlooring, 'foyer');
+
+    // 2. Living Room Lounge (Front-Center)
+    makeFloorMesh(6.0, 4.6, -0.5, 4.15, commonFlooring, 'living');
+
+    // 3. Dining Room Pavilion (Front-Right)
+    makeFloorMesh(5.0, 4.6, 5.0, 4.15, commonFlooring, 'dining');
+
+    // 4. Modular Kitchen & Breakfast Bar (Mid-Right)
+    makeFloorMesh(5.0, 4.4, 5.0, -0.35, commonFlooring, 'kitchen');
+
+    // 5. Master Bedroom Suite (Bed 1 - Rear-Right)
+    makeFloorMesh(5.0, 5.4, 5.0, -5.25, 'herringbone_wood', 'bedroom');
+
+    // 6. Master En-Suite Bathroom (Mid-Far-Right)
+    makeFloorMesh(2.4, 2.8, 6.3, -1.15, 'blue_tile', 'master_bath');
+
+    // 7. Second Bedroom Suite (Bed 2 - Rear-Left)
+    makeFloorMesh(5.0, 5.4, -5.0, -5.25, bedFlooring, 'bedroom2');
+
+    // 8. Third Bedroom Suite (Bed 3 - Mid-Left)
+    makeFloorMesh(4.0, 4.4, -5.5, -0.35, bedFlooring, 'bedroom3');
+
+    // 9. Common Bathroom (Central Corridor)
+    makeFloorMesh(2.5, 2.8, -2.25, -1.15, 'blue_tile', 'common_bath');
+
+    // 10. Central Hallway Circulation
+    makeFloorMesh(3.5, 4.4, 0.75, -0.35, commonFlooring, 'hallway');
+
+    // 11. Front Balcony Deck
+    makeFloorMesh(6.0, 2.0, -0.5, 7.45, 'dark_walnut', 'balcony');
+
+    // 12. Exterior Lawn & Garden Buffers
+    makeFloorMesh(5.0, 2.0, 5.0, 7.45, 'grass', 'front_lawn');
+    makeFloorMesh(3.0, 2.0, -5.0, 7.45, 'paving', 'driveway');
+    makeFloorMesh(17.0, 3.0, 0, -8.2, 'grass', 'backyard');
+  }
+
+  buildThreeBhkWalls(H, wallColorHex) {
+    const createWallMat = (isCutaway = false, customColor = null) => new THREE.MeshStandardMaterial({
+      color: customColor || wallColorHex,
+      roughness: 0.85,
+      side: THREE.DoubleSide,
+      transparent: isCutaway,
+      opacity: isCutaway ? (this.cutawayEnabled ? 0.0 : 0.95) : 1.0
+    });
+
+    const addWall = (w, h, d, x, y, z, name = 'Wall', isCutaway = false, customColor = null) => {
+      const geom = new THREE.BoxGeometry(w, h, d);
+      const mat = createWallMat(isCutaway, customColor);
+      const mesh = new THREE.Mesh(geom, mat);
+      mesh.name = name;
+      mesh.position.set(x, y, z);
+      mesh.castShadow = !isCutaway;
+      mesh.receiveShadow = true;
+      mesh.userData = { type: 'wall', isCutawayWall: isCutaway, name: name };
+      if (isCutaway) {
+        this.frontWalls.push(mesh);
+      } else {
+        this.houseWalls.push(mesh);
+      }
+      this.roomGroup.add(mesh);
+      return mesh;
+    };
+
+    // Exterior Perimeter Walls
+    addWall(17.2, H, 0.18, 0, H / 2, -7.95, 'Back Exterior Wall North');
+    addWall(0.18, H, 14.4, -7.5, H / 2, -0.75, 'Left Exterior Wall West');
+    addWall(0.18, H, 14.4, 7.5, H / 2, -0.75, 'Right Exterior Wall East');
+
+    // South Front Cutaway Walls (Z = 6.45)
+    addWall(3.2, H, 0.18, -5.0, H / 2, 6.45, 'Foyer Front Wall (Doorway)', false);
+    addWall(6.0, H, 0.18, -0.5, H / 2, 6.45, 'Living Front Wall Cutaway', true);
+    addWall(5.0, H, 0.18, 5.0, H / 2, 6.45, 'Dining Front Wall Cutaway', true);
+
+    // Interior Dividing Walls
+    addWall(4.0, H, 0.14, -5.5, H / 2, 1.85, 'Bed3 Front Wall');
+    addWall(5.0, H, 0.14, 5.0, H / 2, 1.85, 'Kitchen Dining Open Divider Wall');
+    addWall(5.0, H, 0.14, -5.0, H / 2, -2.55, 'Bed2 Front Wall');
+    addWall(5.0, H, 0.14, 5.0, H / 2, -2.55, 'Master Bed Front Wall');
+
+    // North-South Dividing Walls
+    addWall(0.14, H, 10.5, -3.5, H / 2, -2.7, 'Bed3 & Bed2 East Divider Wall');
+    addWall(0.14, H, 10.5, 2.5, H / 2, -2.7, 'Kitchen & Master West Divider Wall');
+    addWall(0.14, H, 5.4, 0, H / 2, -5.25, 'Bed2 & Master Center Rear Wall');
+
+    // Slatted wood divider between Foyer & Living
+    const slatMat = new THREE.MeshStandardMaterial({ color: 0x854d0e, roughness: 0.5 });
+    for (let s = 0; s < 7; s++) {
+      const slat = new THREE.Mesh(new THREE.BoxGeometry(0.05, H - 0.2, 0.08), slatMat);
+      slat.position.set(-3.5, H / 2, 3.8 + s * 0.35);
+      this.roomGroup.add(slat);
+    }
+
+    // Balcony modern glass railing
+    const railMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.4, roughness: 0.1 });
+    const railFrameMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.2 });
+    const bRail = new THREE.Mesh(new THREE.BoxGeometry(6.0, 1.05, 0.04), railMat);
+    bRail.position.set(-0.5, 0.55, 8.45);
+    this.roomGroup.add(bRail);
+    const bCap = new THREE.Mesh(new THREE.BoxGeometry(6.04, 0.05, 0.08), railFrameMat);
+    bCap.position.set(-0.5, 1.1, 8.45);
+    this.roomGroup.add(bCap);
+  }
+
+  buildThreeBhkWindowsAndDoors(H) {
+    const createArchitecturalWindow = (w, h, posX, posY, posZ, rotY = 0, isCutaway = false) => {
+      const winGroup = new THREE.Group();
+      const fMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.7 });
+      const gMat = new THREE.MeshStandardMaterial({ color: 0x93c5fd, roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.45 });
+      const frameTop = new THREE.Mesh(new THREE.BoxGeometry(w, 0.08, 0.12), fMat);
+      frameTop.position.set(0, h / 2 - 0.04, 0);
+      winGroup.add(frameTop);
+      const frameBot = new THREE.Mesh(new THREE.BoxGeometry(w, 0.08, 0.12), fMat);
+      frameBot.position.set(0, -h / 2 + 0.04, 0);
+      winGroup.add(frameBot);
+      const frameL = new THREE.Mesh(new THREE.BoxGeometry(0.08, h, 0.12), fMat);
+      frameL.position.set(-w / 2 + 0.04, 0, 0);
+      winGroup.add(frameL);
+      const frameR = new THREE.Mesh(new THREE.BoxGeometry(0.08, h, 0.12), fMat);
+      frameR.position.set(w / 2 - 0.04, 0, 0);
+      winGroup.add(frameR);
+      const glass = new THREE.Mesh(new THREE.BoxGeometry(w - 0.16, h - 0.16, 0.02), gMat);
+      winGroup.add(glass);
+      winGroup.position.set(posX, posY, posZ);
+      winGroup.rotation.y = rotY;
+      this.roomGroup.add(winGroup);
+      return winGroup;
+    };
+
+    // Master Bedroom Rear North Window
+    createArchitecturalWindow(2.4, 1.4, 5.0, 1.6, -7.88, -Math.PI / 2, false);
+    // Bed 2 Rear North Window
+    createArchitecturalWindow(2.4, 1.4, -5.0, 1.6, -7.88, -Math.PI / 2, false);
+    // Bed 3 West Window
+    createArchitecturalWindow(2.0, 1.3, -7.42, 1.6, -0.35, 0, false);
+    // Kitchen East Window
+    createArchitecturalWindow(2.0, 1.2, 7.42, 1.6, -0.35, 0, false);
+    // Balcony Sliding Glass Door from Living
+    createArchitecturalWindow(3.4, 2.2, -0.5, 1.15, 6.42, -Math.PI / 2, false);
+
+    // Foyer Front Door
+    this.buildVillaEntryDoor(H);
+  }
+
+  buildThreeBhkBadges() {
+    this.createRoomBadge('ENTRANCE FOYER', '🚪', -5.0, 4.95, 'foyer');
+    this.createRoomBadge('LIVING ROOM', '🛋️', -0.5, 4.15, 'living');
+    this.createRoomBadge('DINING PAVILION', '🍽️', 5.0, 4.15, 'dining');
+    this.createRoomBadge('MODULAR KITCHEN', '🍳', 5.0, -0.35, 'kitchen');
+    this.createRoomBadge('MASTER SUITE (BED 1)', '👑', 5.0, -5.25, 'bedroom');
+    this.createRoomBadge('MASTER EN-SUITE', '🛁', 6.3, -1.15, 'master_bath');
+    this.createRoomBadge('SECOND BEDROOM (BED 2)', '🛏️', -5.0, -5.25, 'bedroom2');
+    this.createRoomBadge('THIRD BEDROOM (BED 3)', '🧸', -5.5, -0.35, 'bedroom3');
+    this.createRoomBadge('COMMON BATHROOM', '🚿', -2.25, -1.15, 'common_bath');
+    this.createRoomBadge('BALCONY DECK', '🌅', -0.5, 7.45, 'balcony');
+  }
+
+  // ==========================================
+  // MODERN DUPLEX VILLA ARCHITECTURE
+  // ==========================================
+  buildDuplexFloors(flooringType) {
+    const makeFloorMesh = (W, L, posX, posZ, floorType, zoneKey, posY = 0) => {
+      let floorTexture;
+      let roughness = 0.4;
+      let metalness = 0.05;
+
+      switch (floorType) {
+        case 'blue_tile':
+          floorTexture = TextureGenerator.createBlueTileTexture(0x38bdf8, 0x0284c7);
+          roughness = 0.2;
+          metalness = 0.05;
+          break;
+        case 'grass':
+          floorTexture = TextureGenerator.createGrassTexture();
+          roughness = 0.95;
+          metalness = 0.0;
+          break;
+        case 'dark_walnut':
+          floorTexture = TextureGenerator.createWoodTexture(0x4a2e18);
+          roughness = 0.5;
+          break;
+        case 'herringbone_wood':
+        case 'herringbone':
+          floorTexture = TextureGenerator.createHerringboneWoodTexture(0xb8824f, 0x6e4321);
+          roughness = 0.42;
+          metalness = 0.04;
+          break;
+        case 'porcelain_tile':
+        case 'porcelain':
+          floorTexture = TextureGenerator.createPorcelainTileTexture(0xf8f9fa, 0xd1d5db);
+          roughness = 0.16;
+          metalness = 0.08;
+          break;
+        case 'marble':
+          floorTexture = TextureGenerator.createMarbleTexture(0xf8fafc, 0x94a3b8);
+          roughness = 0.15;
+          metalness = 0.1;
+          break;
+        case 'wood_oak':
+        default:
+          floorTexture = TextureGenerator.createWoodTexture(0xd4a373);
+          roughness = 0.5;
+          break;
+      }
+
+      floorTexture.repeat.set(Math.max(1, Math.round(W / 2)), Math.max(1, Math.round(L / 2)));
+
+      const floorMat = new THREE.MeshStandardMaterial({
+        map: floorTexture,
+        roughness: roughness,
+        metalness: metalness
+      });
+
+      const floorGeom = new THREE.PlaneGeometry(W, L);
+      const mesh = new THREE.Mesh(floorGeom, floorMat);
+      mesh.rotation.x = -Math.PI / 2;
+      mesh.position.set(posX, posY, posZ);
+      mesh.receiveShadow = true;
+      mesh.name = `HouseFloor_${zoneKey}`;
+      mesh.userData = { isFloor: true, roomZone: zoneKey, zone: zoneKey };
+      this.houseFloors.push(mesh);
+      this.roomGroup.add(mesh);
+      return mesh;
+    };
+
+    // GROUND LEVEL (Y = 0)
+    // 1. Grand Foyer (Front-Left)
+    makeFloorMesh(2.8, 3.2, -4.6, 4.8, 'marble', 'foyer');
+
+    // 2. Double-Height Living Lounge (Front-Center)
+    makeFloorMesh(5.4, 5.4, -0.5, 3.7, 'marble', 'living');
+
+    // 3. Formal Dining Area (Front-Right)
+    makeFloorMesh(4.3, 4.6, 4.35, 4.1, 'marble', 'dining');
+
+    // 4. Gourmet Modular Kitchen Island (Rear-Right)
+    makeFloorMesh(4.3, 4.6, 4.35, -0.5, 'porcelain_tile', 'kitchen');
+
+    // 5. Ground Guest Suite (Rear-Left)
+    makeFloorMesh(4.7, 5.0, -4.15, -3.5, 'wood_oak', 'bedroom');
+
+    // 6. Ground Guest Bathroom
+    makeFloorMesh(2.6, 3.0, -0.5, -3.0, 'blue_tile', 'common_bath');
+
+    // 7. Outdoor Pool Deck & Sunken Terrace (Front-Right Outdoor)
+    makeFloorMesh(4.3, 2.0, 4.35, 7.4, 'dark_walnut', 'terrace');
+
+    // UPPER LEVEL MEZZANINE (Y = 2.8)
+    // 8. Mezzanine Gallery & Walkway
+    makeFloorMesh(1.8, 4.8, 1.4, 3.2, 'herringbone_wood', 'mezzanine', 2.8);
+
+    // 9. Master Penthouse Suite (Upper Level Bed 2)
+    makeFloorMesh(4.3, 5.4, 4.35, 0.0, 'herringbone_wood', 'bedroom2', 2.8);
+
+    // 10. Master Luxury Spa Bathroom (Upper Level)
+    makeFloorMesh(4.3, 3.0, 4.35, -4.5, 'blue_tile', 'master_bath', 2.8);
+
+    // 11. Upper Loft Sky Lounge & Executive Study (Upper Level)
+    makeFloorMesh(6.0, 6.0, -3.5, -2.75, 'herringbone_wood', 'sky_lounge', 2.8);
+
+    // Exterior Grounds
+    makeFloorMesh(5.4, 2.0, -0.5, 7.4, 'grass', 'front_lawn');
+    makeFloorMesh(14.0, 2.5, 0, -7.5, 'grass', 'backyard');
+  }
+
+  buildDuplexWalls(H, wallColorHex) {
+    const totalH = H * 2; // 5.6m double-height
+    const createWallMat = (isCutaway = false, customColor = null) => new THREE.MeshStandardMaterial({
+      color: customColor || wallColorHex,
+      roughness: 0.85,
+      side: THREE.DoubleSide,
+      transparent: isCutaway,
+      opacity: isCutaway ? (this.cutawayEnabled ? 0.0 : 0.95) : 1.0
+    });
+
+    const addWall = (w, h, d, x, y, z, name = 'Wall', isCutaway = false, customColor = null) => {
+      const geom = new THREE.BoxGeometry(w, h, d);
+      const mat = createWallMat(isCutaway, customColor);
+      const mesh = new THREE.Mesh(geom, mat);
+      mesh.name = name;
+      mesh.position.set(x, y, z);
+      mesh.castShadow = !isCutaway;
+      mesh.receiveShadow = true;
+      mesh.userData = { type: 'wall', isCutawayWall: isCutaway, name: name };
+      if (isCutaway) {
+        this.frontWalls.push(mesh);
+      } else {
+        this.houseWalls.push(mesh);
+      }
+      this.roomGroup.add(mesh);
+      return mesh;
+    };
+
+    // Full double-height exterior perimeter walls (5.6m high)
+    addWall(14.2, totalH, 0.18, 0, totalH / 2, -6.5, 'North Double-Height Wall');
+    addWall(0.18, totalH, 13.0, -6.5, totalH / 2, 0, 'West Double-Height Wall');
+    addWall(0.18, totalH, 13.0, 6.5, totalH / 2, 0, 'East Double-Height Wall');
+
+    // South Front Cutaway Walls
+    addWall(2.8, totalH, 0.18, -4.6, totalH / 2, 6.45, 'Foyer Front Wall', false);
+    addWall(5.4, totalH, 0.18, -0.5, totalH / 2, 6.45, 'Living Front Double-Height Cutaway', true);
+    addWall(4.3, totalH, 0.18, 4.35, totalH / 2, 6.45, 'Dining Front Cutaway', true);
+
+    // Ground Interior Dividing Walls (H = 2.8)
+    addWall(4.7, H, 0.14, -4.15, H / 2, -1.0, 'Guest Bed Wall');
+    addWall(4.3, H, 0.14, 4.35, H / 2, 1.8, 'Kitchen Dining Open Divider');
+    addWall(0.14, H, 5.0, -1.8, H / 2, -3.5, 'Guest Bed Living Divider');
+
+    // Upper Mezzanine Glass Railing (along X = 0.5, Y = 2.8, overlooking Living Lounge)
+    const glassRailMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.45, roughness: 0.1 });
+    const brassCapMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.2 });
+    
+    // Mezzanine overlook railing
+    const mRail = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.05, 4.8), glassRailMat);
+    mRail.position.set(0.5, 2.8 + 0.55, 3.2);
+    this.roomGroup.add(mRail);
+    const mCap = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.05, 4.84), brassCapMat);
+    mCap.position.set(0.5, 2.8 + 1.1, 3.2);
+    this.roomGroup.add(mCap);
+
+    // Build Architectural Modern Floating Cantilevered Staircase
+    this.buildDuplexFloatingStairs();
+  }
+
+  buildDuplexFloatingStairs() {
+    const stairGroup = new THREE.Group();
+    stairGroup.name = 'Architectural Floating Staircase';
+
+    const numSteps = 14;
+    const totalHeight = 2.8;
+    const stepRise = totalHeight / numSteps;
+    const stepRun = 0.28;
+    const stepWidth = 1.05;
+    const stepThick = 0.06;
+
+    const treadMat = new THREE.MeshStandardMaterial({ color: 0xc89d6c, roughness: 0.4 });
+    const steelMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.3 });
+    const glassMat = new THREE.MeshStandardMaterial({ color: 0x93c5fd, transparent: true, opacity: 0.5, roughness: 0.1 });
+    const brassMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.9, roughness: 0.2 });
+
+    const startZ = 5.4;
+    const stairX = 1.0;
+
+    for (let i = 0; i < numSteps; i++) {
+      const stepY = i * stepRise + stepRise / 2;
+      const stepZ = startZ - i * stepRun;
+
+      // Cantilevered Wood Tread
+      const tread = new THREE.Mesh(new THREE.BoxGeometry(stepWidth, stepThick, stepRun), treadMat);
+      tread.position.set(stairX, stepY, stepZ);
+      tread.castShadow = true;
+      tread.receiveShadow = true;
+      stairGroup.add(tread);
+
+      // Steel Wall Cantilever Bracket
+      const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.14, 0.08), steelMat);
+      bracket.position.set(stairX + stepWidth / 2 - 0.04, stepY - 0.06, stepZ);
+      stairGroup.add(bracket);
+
+      // Soft Warm LED Under-Step Glow Strip
+      const led = new THREE.Mesh(new THREE.BoxGeometry(stepWidth - 0.1, 0.01, 0.02), new THREE.MeshBasicMaterial({ color: 0xfef08a }));
+      led.position.set(stairX, stepY - stepThick / 2 - 0.005, stepZ + stepRun / 3);
+      stairGroup.add(led);
+    }
+
+    // Modern Glass Stair Handrail running diagonally along open edge
+    const length = Math.sqrt(Math.pow(numSteps * stepRun, 2) + Math.pow(totalHeight, 2));
+    const angle = Math.atan2(totalHeight, numSteps * stepRun);
+
+    const railGlass = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.9, length), glassMat);
+    railGlass.position.set(stairX - stepWidth / 2 + 0.02, totalHeight / 2 + 0.45, startZ - (numSteps * stepRun) / 2);
+    railGlass.rotation.x = angle;
+    stairGroup.add(railGlass);
+
+    const handrail = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, length + 0.2, 16), brassMat);
+    handrail.position.set(stairX - stepWidth / 2 + 0.02, totalHeight / 2 + 0.95, startZ - (numSteps * stepRun) / 2);
+    handrail.rotation.x = angle + Math.PI / 2;
+    stairGroup.add(handrail);
+
+    this.roomGroup.add(stairGroup);
+  }
+
+  buildDuplexWindowsAndDoors(H) {
+    const createArchitecturalWindow = (w, h, posX, posY, posZ, rotY = 0) => {
+      const winGroup = new THREE.Group();
+      const fMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.7 });
+      const gMat = new THREE.MeshStandardMaterial({ color: 0x93c5fd, roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.45 });
+      const frameTop = new THREE.Mesh(new THREE.BoxGeometry(w, 0.08, 0.12), fMat);
+      frameTop.position.set(0, h / 2 - 0.04, 0);
+      winGroup.add(frameTop);
+      const frameBot = new THREE.Mesh(new THREE.BoxGeometry(w, 0.08, 0.12), fMat);
+      frameBot.position.set(0, -h / 2 + 0.04, 0);
+      winGroup.add(frameBot);
+      const frameL = new THREE.Mesh(new THREE.BoxGeometry(0.08, h, 0.12), fMat);
+      frameL.position.set(-w / 2 + 0.04, 0, 0);
+      winGroup.add(frameL);
+      const frameR = new THREE.Mesh(new THREE.BoxGeometry(0.08, h, 0.12), fMat);
+      frameR.position.set(w / 2 - 0.04, 0, 0);
+      winGroup.add(frameR);
+      const glass = new THREE.Mesh(new THREE.BoxGeometry(w - 0.16, h - 0.16, 0.02), gMat);
+      winGroup.add(glass);
+      winGroup.position.set(posX, posY, posZ);
+      winGroup.rotation.y = rotY;
+      this.roomGroup.add(winGroup);
+      return winGroup;
+    };
+
+    // Double-Height 4.5m Grand Curtain Wall Window for Living Room
+    createArchitecturalWindow(4.8, 4.5, -0.5, 2.5, 6.42, -Math.PI / 2);
+    // Upper Penthouse Master Window
+    createArchitecturalWindow(3.2, 1.8, 4.35, 4.2, 6.42, -Math.PI / 2);
+    // Upper Sky Lounge North Panoramic Window
+    createArchitecturalWindow(3.6, 2.0, -3.5, 4.2, -6.42, -Math.PI / 2);
+    // Guest Suite Rear Window
+    createArchitecturalWindow(2.4, 1.4, -4.15, 1.6, -6.42, -Math.PI / 2);
+
+    this.buildVillaEntryDoor(H);
+  }
+
+  buildDuplexBadges() {
+    this.createRoomBadge('GRAND FOYER', '🚪', -4.6, 4.8, 'foyer');
+    this.createRoomBadge('DOUBLE-HEIGHT LIVING', '🛋️', -0.5, 3.7, 'living');
+    this.createRoomBadge('FORMAL DINING', '🍽️', 4.35, 4.1, 'dining');
+    this.createRoomBadge('GOURMET KITCHEN', '🍳', 4.35, -0.5, 'kitchen');
+    this.createRoomBadge('GUEST SUITE (GROUND)', '🛏️', -4.15, -3.5, 'bedroom');
+    this.createRoomBadge('GUEST BATHROOM', '🚿', -0.5, -3.0, 'common_bath');
+    this.createRoomBadge('FLOATING STAIRS', '🪜', 1.0, 3.5, 'staircase');
+    this.createRoomBadge('MEZZANINE (LVL 2)', '✨', 1.4, 3.2, 'mezzanine');
+    this.createRoomBadge('MASTER PENTHOUSE (LVL 2)', '👑', 4.35, 0.0, 'bedroom2');
+    this.createRoomBadge('MASTER SPA BATH (LVL 2)', '🛁', 4.35, -4.5, 'master_bath');
+    this.createRoomBadge('UPPER SKY LOUNGE (LVL 2)', '🌆', -3.5, -2.75, 'sky_lounge');
+    this.createRoomBadge('TERRACE DECK', '🌿', 4.35, 7.4, 'terrace');
   }
 }

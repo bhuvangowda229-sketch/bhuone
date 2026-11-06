@@ -1068,9 +1068,12 @@ class App {
       btn.addEventListener('click', () => {
         const roomSelect = document.getElementById('room-type');
         const currentVal = roomSelect ? roomSelect.value : '';
-        const isAlreadyHouse = currentVal === 'complete_house' || currentVal === 'complete_house_2bhk' || currentVal === 'modern_apartment';
+        const isAlreadyHouse = currentVal === 'complete_house' || currentVal === 'complete_house_2bhk' || currentVal === 'complete_house_3bhk' || currentVal === 'duplex';
         if (roomSelect && !isAlreadyHouse) {
-          const targetHouseVal = (this.currentHouseType === '2bhk') ? 'complete_house_2bhk' : (this.currentHouseType === 'apartment' ? 'modern_apartment' : 'complete_house');
+          let targetHouseVal = 'complete_house';
+          if (this.currentHouseType === 'duplex') targetHouseVal = 'duplex';
+          else if (this.currentHouseType === '3bhk') targetHouseVal = 'complete_house_3bhk';
+          else if (this.currentHouseType === '2bhk') targetHouseVal = 'complete_house_2bhk';
           roomSelect.value = targetHouseVal;
           this.syncRoomVariantsUI(targetHouseVal);
           this.triggerAIGeneration().then(() => {
@@ -1087,9 +1090,12 @@ class App {
       btn.addEventListener('click', () => {
         const roomSelect = document.getElementById('room-type');
         const currentVal = roomSelect ? roomSelect.value : '';
-        const isAlreadyHouse = currentVal === 'complete_house' || currentVal === 'complete_house_2bhk' || currentVal === 'modern_apartment';
+        const isAlreadyHouse = currentVal === 'complete_house' || currentVal === 'complete_house_2bhk' || currentVal === 'complete_house_3bhk' || currentVal === 'duplex';
         if (roomSelect && !isAlreadyHouse) {
-          const targetHouseVal = (this.currentHouseType === '2bhk') ? 'complete_house_2bhk' : (this.currentHouseType === 'apartment' ? 'modern_apartment' : 'complete_house');
+          let targetHouseVal = 'complete_house';
+          if (this.currentHouseType === 'duplex') targetHouseVal = 'duplex';
+          else if (this.currentHouseType === '3bhk') targetHouseVal = 'complete_house_3bhk';
+          else if (this.currentHouseType === '2bhk') targetHouseVal = 'complete_house_2bhk';
           roomSelect.value = targetHouseVal;
           this.syncRoomVariantsUI(targetHouseVal);
           this.triggerAIGeneration().then(() => {
@@ -1101,14 +1107,15 @@ class App {
       });
     });
 
-    // Apartment vs Single Bedroom vs Double Bedroom House Toggle Pills
+    // 1 BHK vs 2 BHK vs 3 BHK vs Duplex House Toggle Pills
     document.querySelectorAll('.house-type-toggle-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const hType = btn.getAttribute('data-house-type') || 'apartment';
+        const hType = btn.getAttribute('data-house-type') || '1bhk';
         this.currentHouseType = hType;
-        let targetVal = 'modern_apartment';
-        if (hType === '2bhk') targetVal = 'complete_house_2bhk';
-        else if (hType === '1bhk') targetVal = 'complete_house';
+        let targetVal = 'complete_house';
+        if (hType === 'duplex') targetVal = 'duplex';
+        else if (hType === '3bhk') targetVal = 'complete_house_3bhk';
+        else if (hType === '2bhk') targetVal = 'complete_house_2bhk';
 
         const roomSelect = document.getElementById('room-type');
         if (roomSelect) {
@@ -1116,8 +1123,10 @@ class App {
         }
         this.syncRoomVariantsUI(targetVal);
         this.triggerAIGeneration();
-        if (hType === 'apartment') {
-          this.showToast('🏙️ Switched to Modern Apartment Suite (Open Living-Dining, Straight Kitchen & Rear Master)');
+        if (hType === 'duplex') {
+          this.showToast('🏙️ Switched to Modern Duplex Villa (Double-Height Living & Mezzanine)');
+        } else if (hType === '3bhk') {
+          this.showToast('🏰 Switched to Luxury 3 BHK Residence (10 Connected Spaces & Balcony)');
         } else if (hType === '2bhk') {
           this.showToast('🏛️ Switched to Architectural 2 BHK Residence');
         } else {
@@ -1131,7 +1140,8 @@ class App {
       const selectedType = e.target.value;
       if (selectedType === 'complete_house') this.currentHouseType = '1bhk';
       else if (selectedType === 'complete_house_2bhk') this.currentHouseType = '2bhk';
-      else if (selectedType === 'modern_apartment') this.currentHouseType = 'apartment';
+      else if (selectedType === 'complete_house_3bhk') this.currentHouseType = '3bhk';
+      else if (selectedType === 'duplex') this.currentHouseType = 'duplex';
       this.syncRoomVariantsUI(selectedType);
       this.triggerAIGeneration();
       const rName = e.target.options[e.target.selectedIndex]?.text || 'Space';
@@ -1500,18 +1510,27 @@ class App {
       if (viewCutaway) viewCutaway.style.display = 'none';
     });
 
-    // 1-Click Load Preset from Renders Modal
-    document.getElementById('btn-apply-apartment-preset')?.addEventListener('click', () => {
+    // 1-Click Load Presets from Renders Modal
+    document.getElementById('btn-apply-3bhk-preset')?.addEventListener('click', () => {
       if (rendersModal) rendersModal.classList.remove('open');
       const roomSelect = document.getElementById('room-type');
-      if (roomSelect) roomSelect.value = 'modern_apartment';
-      const floorSelect = document.getElementById('flooring-select');
-      if (floorSelect) floorSelect.value = 'porcelain_tile';
-      this.currentHouseType = 'apartment';
-      this.syncRoomVariantsUI('modern_apartment');
+      if (roomSelect) roomSelect.value = 'complete_house_3bhk';
+      this.currentHouseType = '3bhk';
+      this.syncRoomVariantsUI('complete_house_3bhk');
       this.triggerAIGeneration();
       this.setCameraPreset('3d');
-      this.showToast('✨ Loaded Modern Apartment Suite: Open Living-Dining, Straight Kitchen & Rear Master Suite');
+      this.showToast('🏰 Loaded Luxury 3 BHK Residence Layout');
+    });
+
+    document.getElementById('btn-apply-duplex-preset')?.addEventListener('click', () => {
+      if (rendersModal) rendersModal.classList.remove('open');
+      const roomSelect = document.getElementById('room-type');
+      if (roomSelect) roomSelect.value = 'duplex';
+      this.currentHouseType = 'duplex';
+      this.syncRoomVariantsUI('duplex');
+      this.triggerAIGeneration();
+      this.setCameraPreset('3d');
+      this.showToast('🏙️ Loaded Modern Duplex Villa Layout');
     });
 
     // Studio Sign Out button
@@ -1931,11 +1950,12 @@ class App {
 
   // Complete House Navigation & Active Room Synchronizer
   syncRoomVariantsUI(currentRoomType) {
-    const isApartment = (currentRoomType === 'modern_apartment' || currentRoomType === 'apartment' || this.currentHouseType === 'apartment');
+    const isDuplex = (currentRoomType === 'duplex' || currentRoomType === 'duplex_villa' || this.currentHouseType === 'duplex');
+    const is3BHK = (currentRoomType === 'complete_house_3bhk' || currentRoomType === '3bhk' || this.currentHouseType === '3bhk');
     const is2BHK = (currentRoomType === 'complete_house_2bhk' || this.currentHouseType === '2bhk');
-    const isHouse = (currentRoomType === 'complete_house' || is2BHK || isApartment);
+    const isHouse = (currentRoomType === 'complete_house' || is2BHK || is3BHK || isDuplex);
     if (isHouse) {
-      this.currentHouseType = isApartment ? 'apartment' : (is2BHK ? '2bhk' : '1bhk');
+      this.currentHouseType = isDuplex ? 'duplex' : (is3BHK ? '3bhk' : (is2BHK ? '2bhk' : '1bhk'));
     }
     const houseHub = document.getElementById('house-hub-wrapper');
     const houseNav = document.getElementById('house-navigator-bar');
@@ -2012,27 +2032,80 @@ class App {
 
     if (isHouse) {
       document.querySelectorAll('.house-type-toggle-btn').forEach(b => {
-        b.classList.toggle('active', b.getAttribute('data-house-type') === (is2BHK ? '2bhk' : (this.currentHouseType === 'apartment' ? 'apartment' : '1bhk')));
+        b.classList.toggle('active', b.getAttribute('data-house-type') === this.currentHouseType);
       });
       const housePill = document.getElementById('house-active-room-pill');
       if (housePill) {
-        housePill.textContent = (this.currentHouseType === 'apartment' || currentRoomType === 'modern_apartment')
-          ? 'Modern Apartment Suite Active'
-          : (is2BHK ? 'Architectural 2 BHK Residence Active' : 'Single Bedroom House (1 BHK) Active');
+        if (isDuplex) {
+          housePill.textContent = 'Modern Duplex Villa Active';
+        } else if (is3BHK) {
+          housePill.textContent = 'Luxury 3 BHK Residence Active';
+        } else if (is2BHK) {
+          housePill.textContent = 'Architectural 2 BHK Residence Active';
+        } else {
+          housePill.textContent = 'Single Bedroom House (1 BHK) Active';
+        }
       }
 
-      // Configure room hub and nav buttons based on house type
+      // Hub & Nav elements
       const hubFoyerBtn = document.getElementById('hub-zone-foyer');
       const navFoyerBtn = document.getElementById('nav-btn-foyer');
       const hubRearBtn = document.getElementById('hub-zone-rear');
       const navRearBtn = document.getElementById('nav-btn-rear');
+      const hubBed3Btn = document.getElementById('hub-zone-bed3');
+      const navBed3Btn = document.getElementById('nav-btn-bed3');
+      const hubBalconyBtn = document.getElementById('hub-zone-balcony');
+      const navBalconyBtn = document.getElementById('nav-btn-balcony');
+      const hubStaircaseBtn = document.getElementById('hub-zone-staircase');
+      const navStairsBtn = document.getElementById('nav-btn-stairs');
+      const hubMezzanineBtn = document.getElementById('hub-zone-mezzanine');
+      const navMezzanineBtn = document.getElementById('nav-btn-mezzanine');
+      const hubSkyLoungeBtn = document.getElementById('hub-zone-skylounge');
+      const navSkyLoungeBtn = document.getElementById('nav-btn-sky-lounge');
+      const hubTerraceBtn = document.getElementById('hub-zone-terrace');
       const hubBathBtn = document.getElementById('hub-zone-bath');
       const navBathBtn = document.getElementById('nav-btn-bath');
       const hubMasterBathBtn = document.getElementById('hub-zone-master-bath');
       const navMasterBathBtn = document.getElementById('nav-btn-master-bath');
       const navYardBtn = document.getElementById('nav-btn-yard');
 
-      if (is2BHK) {
+      // Reset specific elements
+      [hubBed3Btn, navBed3Btn, hubBalconyBtn, navBalconyBtn, hubStaircaseBtn, navStairsBtn, hubMezzanineBtn, navMezzanineBtn, hubSkyLoungeBtn, navSkyLoungeBtn, hubTerraceBtn].forEach(el => {
+        if (el) el.style.display = 'none';
+      });
+
+      if (isDuplex) {
+        if (hubFoyerBtn) hubFoyerBtn.style.display = 'inline-flex';
+        if (navFoyerBtn) navFoyerBtn.style.display = 'inline-flex';
+        if (hubRearBtn) {
+          hubRearBtn.style.display = 'inline-flex';
+          hubRearBtn.innerHTML = '👑 Penthouse (L2)';
+          hubRearBtn.setAttribute('data-zone', 'bedroom2');
+        }
+        if (navRearBtn) {
+          navRearBtn.style.display = 'inline-flex';
+          navRearBtn.innerHTML = '<span>👑</span> Penthouse (L2)';
+          navRearBtn.setAttribute('data-target-room', 'bedroom2');
+        }
+        if (hubStaircaseBtn) hubStaircaseBtn.style.display = 'inline-flex';
+        if (navStairsBtn) navStairsBtn.style.display = 'inline-flex';
+        if (hubMezzanineBtn) hubMezzanineBtn.style.display = 'inline-flex';
+        if (navMezzanineBtn) navMezzanineBtn.style.display = 'inline-flex';
+        if (hubSkyLoungeBtn) hubSkyLoungeBtn.style.display = 'inline-flex';
+        if (navSkyLoungeBtn) navSkyLoungeBtn.style.display = 'inline-flex';
+        if (hubTerraceBtn) hubTerraceBtn.style.display = 'inline-flex';
+        if (hubBathBtn) hubBathBtn.style.display = 'inline-flex';
+        if (navBathBtn) navBathBtn.style.display = 'inline-flex';
+        if (hubMasterBathBtn) {
+          hubMasterBathBtn.style.display = 'inline-flex';
+          hubMasterBathBtn.innerHTML = '🛁 Spa Bath (L2)';
+        }
+        if (navMasterBathBtn) {
+          navMasterBathBtn.style.display = 'inline-flex';
+          navMasterBathBtn.innerHTML = '<span>🛁</span> Spa Bath';
+        }
+        if (navYardBtn) navYardBtn.style.display = 'none';
+      } else if (is3BHK) {
         if (hubFoyerBtn) hubFoyerBtn.style.display = 'inline-flex';
         if (navFoyerBtn) navFoyerBtn.style.display = 'inline-flex';
         if (hubRearBtn) {
@@ -2044,33 +2117,62 @@ class App {
           navRearBtn.style.display = 'inline-flex';
           navRearBtn.innerHTML = '<span>🛏️</span> Bed 2';
           navRearBtn.setAttribute('data-target-room', 'bedroom2');
-          navRearBtn.setAttribute('title', 'Focus Second Bedroom');
+        }
+        if (hubBed3Btn) hubBed3Btn.style.display = 'inline-flex';
+        if (navBed3Btn) navBed3Btn.style.display = 'inline-flex';
+        if (hubBalconyBtn) hubBalconyBtn.style.display = 'inline-flex';
+        if (navBalconyBtn) navBalconyBtn.style.display = 'inline-flex';
+        if (hubBathBtn) hubBathBtn.style.display = 'inline-flex';
+        if (navBathBtn) navBathBtn.style.display = 'inline-flex';
+        if (hubMasterBathBtn) {
+          hubMasterBathBtn.style.display = 'inline-flex';
+          hubMasterBathBtn.innerHTML = '🛁 Master Bath';
+        }
+        if (navMasterBathBtn) {
+          navMasterBathBtn.style.display = 'inline-flex';
+          navMasterBathBtn.innerHTML = '<span>🛁</span> Master Bath';
+        }
+        if (navYardBtn) navYardBtn.style.display = 'none';
+      } else if (is2BHK) {
+        if (hubFoyerBtn) hubFoyerBtn.style.display = 'inline-flex';
+        if (navFoyerBtn) navFoyerBtn.style.display = 'inline-flex';
+        if (hubRearBtn) {
+          hubRearBtn.style.display = 'inline-flex';
+          hubRearBtn.innerHTML = '🛏️ Bed 2';
+          hubRearBtn.setAttribute('data-zone', 'bedroom2');
+        }
+        if (navRearBtn) {
+          navRearBtn.style.display = 'inline-flex';
+          navRearBtn.innerHTML = '<span>🛏️</span> Bed 2';
+          navRearBtn.setAttribute('data-target-room', 'bedroom2');
         }
         if (hubBathBtn) hubBathBtn.style.display = 'inline-flex';
         if (navBathBtn) navBathBtn.style.display = 'inline-flex';
-        if (hubMasterBathBtn) hubMasterBathBtn.style.display = 'inline-flex';
-        if (navMasterBathBtn) navMasterBathBtn.style.display = 'inline-flex';
+        if (hubMasterBathBtn) {
+          hubMasterBathBtn.style.display = 'inline-flex';
+          hubMasterBathBtn.innerHTML = '🛁 Master Bath';
+        }
+        if (navMasterBathBtn) {
+          navMasterBathBtn.style.display = 'inline-flex';
+          navMasterBathBtn.innerHTML = '<span>🛁</span> Master Bath';
+        }
         if (navYardBtn) navYardBtn.style.display = 'inline-flex';
-      } else if (isApartment) {
-        if (hubFoyerBtn) hubFoyerBtn.style.display = 'none';
-        if (navFoyerBtn) navFoyerBtn.style.display = 'none';
-        if (hubRearBtn) hubRearBtn.style.display = 'none';
-        if (navRearBtn) navRearBtn.style.display = 'none';
-        if (hubBathBtn) hubBathBtn.style.display = 'none';
-        if (navBathBtn) navBathBtn.style.display = 'none';
-        if (hubMasterBathBtn) hubMasterBathBtn.style.display = 'none';
-        if (navMasterBathBtn) navMasterBathBtn.style.display = 'none';
-        if (navYardBtn) navYardBtn.style.display = 'none';
       } else {
-        // 1 BHK (Single Bedroom House: Foyer, Living, Dining, Modular Kitchen, Master Bedroom Suite & En-Suite Bath)
+        // 1 BHK
         if (hubFoyerBtn) hubFoyerBtn.style.display = 'inline-flex';
         if (navFoyerBtn) navFoyerBtn.style.display = 'inline-flex';
         if (hubRearBtn) hubRearBtn.style.display = 'none';
         if (navRearBtn) navRearBtn.style.display = 'none';
         if (hubBathBtn) hubBathBtn.style.display = 'none';
         if (navBathBtn) navBathBtn.style.display = 'none';
-        if (hubMasterBathBtn) hubMasterBathBtn.style.display = 'inline-flex';
-        if (navMasterBathBtn) navMasterBathBtn.style.display = 'inline-flex';
+        if (hubMasterBathBtn) {
+          hubMasterBathBtn.style.display = 'inline-flex';
+          hubMasterBathBtn.innerHTML = '🛁 Master Bath';
+        }
+        if (navMasterBathBtn) {
+          navMasterBathBtn.style.display = 'inline-flex';
+          navMasterBathBtn.innerHTML = '<span>🛁</span> Master Bath';
+        }
         if (navYardBtn) navYardBtn.style.display = 'none';
       }
     }
@@ -2096,22 +2198,26 @@ class App {
     });
 
     const pill = document.getElementById('house-active-room-pill');
+    const isDuplex = (this.currentHouseType === 'duplex') || (document.getElementById('room-type')?.value === 'duplex');
+    const is3BHK = (this.currentHouseType === '3bhk') || (document.getElementById('room-type')?.value === 'complete_house_3bhk');
     const is2BHK = (this.currentHouseType === '2bhk') || (document.getElementById('room-type')?.value === 'complete_house_2bhk');
-    const isApartment = (this.currentHouseType === 'apartment') || (document.getElementById('room-type')?.value === 'modern_apartment');
     const titles = {
-      all: is2BHK ? 'Architectural 2 BHK Residence' : (isApartment ? 'Modern Apartment Suite' : 'Single Bedroom House (1 BHK)'),
-      living: 'Living Room Lounge',
+      all: isDuplex ? 'Modern Duplex Villa' : (is3BHK ? 'Luxury 3 BHK Residence' : (is2BHK ? 'Architectural 2 BHK Residence' : 'Single Bedroom House (1 BHK)')),
+      living: isDuplex ? 'Double-Height Living Lounge' : 'Living Room Lounge',
       dining: 'Dining Area',
-      kitchen: 'Modular Kitchen',
-      bedroom: is2BHK ? 'Master Bedroom Suite' : 'Master Bedroom',
-      bedroom2: 'Second Bedroom',
-      foyer: 'Entrance Foyer',
-      common_bath: 'Common Bathroom',
-      master_bath: 'Master En-Suite Bathroom',
-      walk_in_closet: 'Walk-In Wardrobe Dressing',
-      backyard: 'Backyard Garden & Patio',
-      dressing: 'Master Dressing Suite',
-      office: 'Master Bedroom Suite'
+      kitchen: isDuplex ? 'Gourmet Island Kitchen' : 'Modular Kitchen',
+      bedroom: isDuplex ? 'Guest Bedroom Suite' : (is3BHK || is2BHK ? 'Master Bedroom Suite' : 'Master Bedroom'),
+      bedroom2: isDuplex ? 'Penthouse Master Suite (L2)' : 'Second Bedroom',
+      bedroom3: 'Third Bedroom / Study',
+      foyer: isDuplex ? 'Grand Entrance Foyer' : 'Entrance Foyer',
+      common_bath: isDuplex ? 'Guest Bathroom' : 'Common Bathroom',
+      master_bath: isDuplex ? 'Master Spa Bathroom (L2)' : 'Master En-Suite Bathroom',
+      staircase: 'Floating Cantilevered Staircase',
+      mezzanine: 'Mezzanine Gallery (L2)',
+      sky_lounge: 'Upper Loft Sky Lounge (L2)',
+      balcony: 'Front Balcony Deck',
+      terrace: 'Sunken Terrace & Pool Deck',
+      backyard: 'Backyard Garden & Patio'
     };
     if (pill) pill.textContent = (titles[zoneKey] || 'Room') + ' Active';
 
@@ -2120,7 +2226,135 @@ class App {
 
     // Camera target positions
     let targetPos, targetLook;
-    if (is2BHK) {
+    if (isDuplex) {
+      switch (zoneKey) {
+        case 'foyer':
+          targetPos = new THREE.Vector3(-4.6, 3.8, 8.8);
+          targetLook = new THREE.Vector3(-4.6, 1.2, 4.8);
+          this.showToast('🚪 Viewing Grand Entrance Foyer');
+          break;
+        case 'living':
+          targetPos = new THREE.Vector3(-0.5, 5.0, 9.2);
+          targetLook = new THREE.Vector3(-0.5, 2.0, 3.7);
+          this.showToast('🛋️ Viewing Double-Height Grand Living Lounge');
+          break;
+        case 'dining':
+          targetPos = new THREE.Vector3(4.35, 4.5, 8.5);
+          targetLook = new THREE.Vector3(4.35, 1.2, 4.1);
+          this.showToast('🍽️ Viewing Formal Dining Area');
+          break;
+        case 'kitchen':
+          targetPos = new THREE.Vector3(4.35, 4.5, 3.5);
+          targetLook = new THREE.Vector3(4.35, 1.2, -0.5);
+          this.showToast('🍳 Viewing Gourmet Modular Kitchen');
+          break;
+        case 'bedroom':
+          targetPos = new THREE.Vector3(-4.15, 4.5, 1.2);
+          targetLook = new THREE.Vector3(-4.15, 1.2, -3.5);
+          this.showToast('🛏️ Viewing Ground Guest Suite');
+          break;
+        case 'common_bath':
+          targetPos = new THREE.Vector3(-0.5, 4.0, 0.5);
+          targetLook = new THREE.Vector3(-0.5, 1.2, -3.0);
+          this.showToast('🚿 Viewing Ground Guest Bathroom');
+          break;
+        case 'staircase':
+          targetPos = new THREE.Vector3(-1.8, 4.2, 7.2);
+          targetLook = new THREE.Vector3(1.0, 2.0, 3.5);
+          this.showToast('🪜 Viewing Architectural Floating Staircase');
+          break;
+        case 'mezzanine':
+          targetPos = new THREE.Vector3(0.0, 6.0, 6.8);
+          targetLook = new THREE.Vector3(1.4, 3.8, 3.2);
+          this.showToast('✨ Viewing Mezzanine Gallery & Walkway (Level 2)');
+          break;
+        case 'bedroom2':
+          targetPos = new THREE.Vector3(4.35, 6.2, 4.8);
+          targetLook = new THREE.Vector3(4.35, 3.8, 0.0);
+          this.showToast('👑 Viewing Penthouse Master Suite (Level 2)');
+          break;
+        case 'master_bath':
+          targetPos = new THREE.Vector3(4.35, 6.0, -1.0);
+          targetLook = new THREE.Vector3(4.35, 3.8, -4.5);
+          this.showToast('🛁 Viewing Master Spa Bathroom (Level 2)');
+          break;
+        case 'sky_lounge':
+          targetPos = new THREE.Vector3(-3.5, 6.2, 1.5);
+          targetLook = new THREE.Vector3(-3.5, 3.8, -2.75);
+          this.showToast('🌆 Viewing Upper Loft Sky Lounge & Study (Level 2)');
+          break;
+        case 'terrace':
+          targetPos = new THREE.Vector3(4.35, 4.5, 10.5);
+          targetLook = new THREE.Vector3(4.35, 1.0, 7.4);
+          this.showToast('🌿 Viewing Outdoor Sunken Terrace & Pool Deck');
+          break;
+        case 'all':
+        default:
+          targetPos = new THREE.Vector3(0, 19.0, 20.0);
+          targetLook = new THREE.Vector3(0, 1.4, 0.5);
+          this.showToast('🏙️ Viewing Modern Duplex Villa (Double-Height Architecture)');
+          break;
+      }
+    } else if (is3BHK) {
+      switch (zoneKey) {
+        case 'foyer':
+          targetPos = new THREE.Vector3(-5.0, 3.8, 8.8);
+          targetLook = new THREE.Vector3(-5.0, 1.2, 4.95);
+          this.showToast('🚪 Viewing Entrance Foyer');
+          break;
+        case 'living':
+          targetPos = new THREE.Vector3(-0.5, 4.2, 8.5);
+          targetLook = new THREE.Vector3(-0.5, 1.2, 4.15);
+          this.showToast('🛋️ Viewing Living Room Lounge');
+          break;
+        case 'dining':
+          targetPos = new THREE.Vector3(5.0, 4.2, 8.5);
+          targetLook = new THREE.Vector3(5.0, 1.2, 4.15);
+          this.showToast('🍽️ Viewing Dining Pavilion');
+          break;
+        case 'kitchen':
+          targetPos = new THREE.Vector3(5.0, 4.2, 3.5);
+          targetLook = new THREE.Vector3(5.0, 1.2, -0.35);
+          this.showToast('🍳 Viewing Modular Kitchen & Island');
+          break;
+        case 'bedroom':
+          targetPos = new THREE.Vector3(5.0, 4.2, -1.0);
+          targetLook = new THREE.Vector3(5.0, 1.2, -5.25);
+          this.showToast('👑 Viewing Master Bedroom Suite (Bed 1)');
+          break;
+        case 'master_bath':
+          targetPos = new THREE.Vector3(6.3, 3.8, 2.5);
+          targetLook = new THREE.Vector3(6.3, 1.2, -1.15);
+          this.showToast('🛁 Viewing Master En-Suite Bathroom');
+          break;
+        case 'bedroom2':
+          targetPos = new THREE.Vector3(-5.0, 4.2, -1.0);
+          targetLook = new THREE.Vector3(-5.0, 1.2, -5.25);
+          this.showToast('🛏️ Viewing Second Bedroom (Bed 2)');
+          break;
+        case 'bedroom3':
+          targetPos = new THREE.Vector3(-5.5, 4.2, 3.5);
+          targetLook = new THREE.Vector3(-5.5, 1.2, -0.35);
+          this.showToast('🧸 Viewing Third Bedroom / Executive Study (Bed 3)');
+          break;
+        case 'common_bath':
+          targetPos = new THREE.Vector3(-2.25, 3.8, 2.5);
+          targetLook = new THREE.Vector3(-2.25, 1.2, -1.15);
+          this.showToast('🚿 Viewing Common Bathroom');
+          break;
+        case 'balcony':
+          targetPos = new THREE.Vector3(-0.5, 3.5, 10.5);
+          targetLook = new THREE.Vector3(-0.5, 1.0, 7.45);
+          this.showToast('🌅 Viewing Private Balcony Deck');
+          break;
+        case 'all':
+        default:
+          targetPos = new THREE.Vector3(0, 18.0, 21.0);
+          targetLook = new THREE.Vector3(0, 0.8, 0.5);
+          this.showToast('🏰 Viewing Luxury 3 BHK Residence (All 10 Connected Spaces)');
+          break;
+      }
+    } else if (is2BHK) {
       switch (zoneKey) {
         case 'living':
           targetPos = new THREE.Vector3(-0.4, 4.2, 8.5);
@@ -2177,35 +2411,6 @@ class App {
           targetPos = new THREE.Vector3(0, 16.5, 19.5);
           targetLook = new THREE.Vector3(0, 0.8, 0.5);
           this.showToast('🏛️ Viewing Architectural 2 BHK Residence (All Rooms)');
-          break;
-      }
-    } else if (isApartment) {
-      switch (zoneKey) {
-        case 'living':
-          targetPos = new THREE.Vector3(-4.0, 4.2, 7.8);
-          targetLook = new THREE.Vector3(-4.0, 1.2, 3.25);
-          this.showToast('🛋️ Viewing Open-Concept Living Room');
-          break;
-        case 'dining':
-          targetPos = new THREE.Vector3(1.0, 4.2, 7.8);
-          targetLook = new THREE.Vector3(1.0, 1.2, 3.25);
-          this.showToast('🍽️ Viewing Central Dining Area');
-          break;
-        case 'kitchen':
-          targetPos = new THREE.Vector3(5.0, 4.2, 7.8);
-          targetLook = new THREE.Vector3(5.0, 1.2, 3.25);
-          this.showToast('🍳 Viewing Straight Modular Kitchen');
-          break;
-        case 'bedroom':
-          targetPos = new THREE.Vector3(-3.75, 4.2, 2.0);
-          targetLook = new THREE.Vector3(-3.75, 1.2, -2.5);
-          this.showToast('👑 Viewing Private Master Suite');
-          break;
-        case 'all':
-        default:
-          targetPos = new THREE.Vector3(0, 15.0, 16.0);
-          targetLook = new THREE.Vector3(0, 0.8, 0.5);
-          this.showToast('🏙️ Viewing Modern Apartment Suite (All Rooms)');
           break;
       }
     } else {
@@ -2356,27 +2561,56 @@ class App {
   startRealTimeRoomFlowTour() {
     this.isTouring = true;
     this.isWalkthrough = true;
+    const isDuplex = (this.currentHouseType === 'duplex') || (document.getElementById('room-type')?.value === 'duplex');
+    const is3BHK = (this.currentHouseType === '3bhk') || (document.getElementById('room-type')?.value === 'complete_house_3bhk');
     const is2BHK = (this.currentHouseType === '2bhk') || (document.getElementById('room-type')?.value === 'complete_house_2bhk');
-    const isApartment = (this.currentHouseType === 'apartment') || (document.getElementById('room-type')?.value === 'modern_apartment');
     const hud = document.getElementById('walkthrough-hud');
     if (hud) {
       hud.style.display = 'block';
       const pill = hud.querySelector('.hud-pill span');
       if (pill) {
-        pill.innerHTML = is2BHK
-          ? '🌊 <strong>Room Flow Tour Active</strong>: Foyer → Living → Dining → Kitchen → Master Suite & Bath → Bed 2 & Common Bath'
-          : (isApartment
-            ? '🌊 <strong>Room Flow Tour Active</strong>: Living → Dining → Straight Kitchen → Rear Master Suite'
-            : '🌊 <strong>Room Flow Tour Active</strong>: Foyer → Living → Dining → Modular Kitchen → Master Suite → En-Suite Bath');
+        if (isDuplex) {
+          pill.innerHTML = '🌊 <strong>Room Flow Tour Active</strong>: Foyer → Double-Height Living → Dining → Kitchen → Guest Suite → Floating Stairs → Mezzanine → Penthouse Master → Spa Bath → Sky Lounge';
+        } else if (is3BHK) {
+          pill.innerHTML = '🌊 <strong>Room Flow Tour Active</strong>: Foyer → Living → Balcony → Dining → Kitchen → Master Suite & Bath → Bed 2 → Bed 3 → Common Bath';
+        } else if (is2BHK) {
+          pill.innerHTML = '🌊 <strong>Room Flow Tour Active</strong>: Foyer → Living → Dining → Kitchen → Master Suite & Bath → Bed 2 & Common Bath';
+        } else {
+          pill.innerHTML = '🌊 <strong>Room Flow Tour Active</strong>: Foyer → Living → Dining → Modular Kitchen → Master Suite → En-Suite Bath';
+        }
       }
     }
-    this.showToast(is2BHK
-      ? '🌊 Real-time architectural tour started: Foyer → Living → Dining → Kitchen → Master Suite → Bed 2'
-      : (isApartment
-        ? '🌊 Real-time room flow tour started: Living → Dining → Straight Kitchen → Rear Master Suite'
-        : '🌊 Real-time tour started: Foyer → Living → Dining → Kitchen → Master Suite → Master Bath'));
+    this.showToast(isDuplex
+      ? '🌊 Real-time tour started: Foyer → Living → Kitchen → Floating Stairs → Penthouse Master'
+      : (is3BHK
+        ? '🌊 Real-time tour started: Foyer → Living → Balcony → Dining → Master Suite → Bed 2 & 3'
+        : (is2BHK
+          ? '🌊 Real-time architectural tour started: Foyer → Living → Dining → Kitchen → Master Suite → Bed 2'
+          : '🌊 Real-time tour started: Foyer → Living → Dining → Kitchen → Master Suite → Master Bath')));
 
-    const waypoints = is2BHK ? [
+    const waypoints = isDuplex ? [
+      { pos: new THREE.Vector3(-4.6, 1.55, 5.8), target: new THREE.Vector3(-4.6, 1.35, 3.5), duration: 4000, desc: '🚪 Grand Entrance Foyer with Fluted Marble Console' },
+      { pos: new THREE.Vector3(-0.5, 1.8, 5.2), target: new THREE.Vector3(-3.0, 2.0, 3.7), duration: 4500, desc: '🛋️ Double-Height 5.6m Grand Living Lounge with 4K Entertainment' },
+      { pos: new THREE.Vector3(4.35, 1.55, 5.2), target: new THREE.Vector3(4.35, 1.35, 3.5), duration: 4000, desc: '🍽️ Formal Dining Area with Solid Walnut Table & Chandelier' },
+      { pos: new THREE.Vector3(4.35, 1.55, 1.5), target: new THREE.Vector3(4.35, 1.35, -1.5), duration: 4500, desc: '🍳 Gourmet Modular Kitchen with Waterfall Prep Island & Stools' },
+      { pos: new THREE.Vector3(-4.15, 1.55, -1.5), target: new THREE.Vector3(-4.15, 1.35, -5.5), duration: 4500, desc: '🛏️ Ground Guest Bedroom Suite with Wardrobe & Garden View' },
+      { pos: new THREE.Vector3(1.0, 1.6, 5.2), target: new THREE.Vector3(1.0, 3.2, 2.0), duration: 4000, desc: '🪜 Floating Cantilevered Staircase with Glass Railing & Under-Step Glow' },
+      { pos: new THREE.Vector3(1.4, 4.3, 3.8), target: new THREE.Vector3(-0.5, 2.0, 3.7), duration: 4500, desc: '✨ Elevated Mezzanine Gallery Walkway Overlooking Living Void' },
+      { pos: new THREE.Vector3(4.35, 4.35, 2.0), target: new THREE.Vector3(4.35, 4.15, -1.8), duration: 5000, desc: '👑 Penthouse Master Suite (Level 2) with King Bed & Glass Wardrobe' },
+      { pos: new THREE.Vector3(4.35, 4.35, -2.5), target: new THREE.Vector3(4.35, 4.15, -4.5), duration: 4000, desc: '🛁 Master Spa Bathroom (Level 2) with Double Shower & Dual Vanity' },
+      { pos: new THREE.Vector3(-3.5, 4.35, -0.5), target: new THREE.Vector3(-3.5, 4.15, -3.5), duration: 4500, desc: '🌆 Upper Loft Sky Lounge & Executive Mezzanine Study (Level 2)' }
+    ] : (is3BHK ? [
+      { pos: new THREE.Vector3(-5.0, 1.55, 5.8), target: new THREE.Vector3(-5.0, 1.35, 3.8), duration: 4000, desc: '🚪 Entrance Foyer with Slatted Teak Screen & Console' },
+      { pos: new THREE.Vector3(-0.5, 1.55, 5.0), target: new THREE.Vector3(-3.25, 1.35, 4.15), duration: 4500, desc: '🛋️ Open Living Lounge with Missouri TV Unit Facing Sectional Sofa' },
+      { pos: new THREE.Vector3(-0.5, 1.45, 7.2), target: new THREE.Vector3(-0.5, 1.25, 8.0), duration: 4000, desc: '🌅 Front Balcony Deck with Outdoor Teak Lounge Armchairs & Planters' },
+      { pos: new THREE.Vector3(5.0, 1.55, 5.0), target: new THREE.Vector3(5.0, 1.35, 3.8), duration: 4000, desc: '🍽️ Dining Pavilion with Solid Hardwood Table & Chandelier' },
+      { pos: new THREE.Vector3(5.0, 1.55, 1.5), target: new THREE.Vector3(5.0, 1.35, -1.5), duration: 4500, desc: '🍳 Modular Kitchen with Prep Island, Breakfast Stools & Double Sink' },
+      { pos: new THREE.Vector3(5.0, 1.55, -3.2), target: new THREE.Vector3(5.0, 1.35, -6.8), duration: 5000, desc: '👑 Master Bedroom Suite (Bed 1) with King Bed, Wardrobe & Vanity' },
+      { pos: new THREE.Vector3(6.3, 1.55, -0.2), target: new THREE.Vector3(6.3, 1.35, -1.5), duration: 4000, desc: '🛁 Master En-Suite Bathroom with Glass Rain Shower & Floating Vanity' },
+      { pos: new THREE.Vector3(-5.0, 1.55, -3.2), target: new THREE.Vector3(-5.0, 1.35, -6.8), duration: 4500, desc: '🛏️ Quiet Second Bedroom Suite (Bed 2) with Queen Bed & Study Desk' },
+      { pos: new THREE.Vector3(-5.5, 1.55, 1.2), target: new THREE.Vector3(-5.5, 1.35, -1.2), duration: 4500, desc: '🧸 Third Bedroom / Executive Study (Bed 3) with Workstation & Bookshelf' },
+      { pos: new THREE.Vector3(-2.25, 1.55, 0.2), target: new THREE.Vector3(-2.25, 1.35, -1.5), duration: 4000, desc: '🚿 Designer Common Family Bathroom with Shower & Vanity' }
+    ] : (is2BHK ? [
       { pos: new THREE.Vector3(-4.7, 1.55, 5.6), target: new THREE.Vector3(-4.7, 1.35, 3.6), duration: 4000, desc: '🚪 Grand Entrance Foyer with Pivot Door & Slat Divider' },
       { pos: new THREE.Vector3(-0.4, 1.55, 4.6), target: new THREE.Vector3(-2.95, 1.35, 4.1), duration: 4500, desc: '🛋️ Open Living Lounge with Missouri TV Unit Facing Sectional Sofa' },
       { pos: new THREE.Vector3(0.3, 1.55, 1.4), target: new THREE.Vector3(0.3, 1.35, 0.1), duration: 4000, desc: '🍽️ Seamless transition to Central Dining Pavilion with Crockery Credenza' },
@@ -2386,12 +2620,6 @@ class App {
       { pos: new THREE.Vector3(4.9, 1.55, -0.2), target: new THREE.Vector3(5.7, 1.35, -1.3), duration: 4000, desc: '🛁 Master En-Suite Designer Bathroom with Glass Rain Shower' },
       { pos: new THREE.Vector3(-3.2, 1.55, -1.2), target: new THREE.Vector3(-5.1, 1.35, -2.7), duration: 4500, desc: '🛏️ Quiet Second Bedroom Suite with Terracotta Accent Wall & Study Desk' },
       { pos: new THREE.Vector3(-3.8, 1.55, 2.1), target: new THREE.Vector3(-5.5, 1.35, 1.4), duration: 4000, desc: '🚿 Designer Common Bathroom with Walk-In Shower & Floating Vanity' }
-    ] : (isApartment ? [
-      { pos: new THREE.Vector3(-4.5, 1.55, 4.8), target: new THREE.Vector3(-4.5, 1.35, 1.8), duration: 4500, desc: '🛋️ Living Room Lounge with Missouri TV Entertainment' },
-      { pos: new THREE.Vector3(0.8, 1.55, 3.8), target: new THREE.Vector3(1.0, 1.35, 2.8), duration: 4500, desc: '🍽️ Seamless transition to Central Dining Pavilion' },
-      { pos: new THREE.Vector3(3.8, 1.55, 3.4), target: new THREE.Vector3(6.6, 1.35, 3.4), duration: 5000, desc: '🍳 Single-Wall Straight Modular Kitchen on Right Wall' },
-      { pos: new THREE.Vector3(0.0, 1.55, 1.4), target: new THREE.Vector3(-1.85, 1.35, -1.0), duration: 4000, desc: '🚪 Transition corridor to Private Rear Wing' },
-      { pos: new THREE.Vector3(-3.0, 1.55, -1.8), target: new THREE.Vector3(-4.0, 1.35, -3.8), duration: 5500, desc: '👑 Rear Private Master Bedroom Suite with Herringbone Wood Flooring' }
     ] : [
       { pos: new THREE.Vector3(-4.7, 1.55, 5.6), target: new THREE.Vector3(-4.7, 1.35, 3.8), duration: 4000, desc: '🚪 Entrance Foyer with Adjustable Door, Slat Screen & Console' },
       { pos: new THREE.Vector3(-0.1, 1.55, 4.6), target: new THREE.Vector3(-0.1, 1.35, 1.8), duration: 4500, desc: '🛋️ Open Living Lounge with Missouri 4K TV & Plush Sofa' },
@@ -2399,7 +2627,7 @@ class App {
       { pos: new THREE.Vector3(4.9, 1.55, 0.5), target: new THREE.Vector3(4.9, 1.35, -3.2), duration: 4500, desc: '🍳 Modular Kitchen with Prep Island, Range Hood & French Refrigerator' },
       { pos: new THREE.Vector3(-3.5, 1.55, 0.5), target: new THREE.Vector3(-3.5, 1.35, -3.5), duration: 5000, desc: '👑 Master Bedroom Suite with King Bed, Dressing Vanity & Split AC' },
       { pos: new THREE.Vector3(1.1, 1.55, -2.0), target: new THREE.Vector3(1.1, 1.35, -4.5), duration: 4000, desc: '🛁 Master En-Suite Bathroom with Frameless Shower & Lighted Mirror' }
-    ]);
+    ]));
 
     let currentWaypointIdx = 0;
     let startTime = performance.now();
@@ -2446,11 +2674,12 @@ class App {
     this.showToast('AI is optimizing spatial layout...');
 
     const currentRoomType = document.getElementById('room-type')?.value || 'complete_house';
-    const isApartment = (currentRoomType === 'modern_apartment' || currentRoomType === 'apartment' || this.currentHouseType === 'apartment');
+    const isDuplex = (currentRoomType === 'duplex' || currentRoomType === 'duplex_villa' || this.currentHouseType === 'duplex');
+    const is3BHK = (currentRoomType === 'complete_house_3bhk' || currentRoomType === '3bhk' || this.currentHouseType === '3bhk');
     const is2BHK = (currentRoomType === 'complete_house_2bhk' || this.currentHouseType === '2bhk');
-    const isHouse = (currentRoomType === 'complete_house' || is2BHK || isApartment);
+    const isHouse = (currentRoomType === 'complete_house' || is2BHK || is3BHK || isDuplex);
     if (isHouse) {
-      this.currentHouseType = isApartment ? 'apartment' : (is2BHK ? '2bhk' : '1bhk');
+      this.currentHouseType = isDuplex ? 'duplex' : (is3BHK ? '3bhk' : (is2BHK ? '2bhk' : '1bhk'));
     }
 
     let bedType = isHouse ? (this.currentHouseRoomTypes.bedroom || 1) : 1;
@@ -2475,8 +2704,10 @@ class App {
 
     this.syncRoomVariantsUI(currentRoomType);
 
+    const duplexDims = { width: 16.0, length: 16.0, height: 5.6 };
+    const threeBhkDims = { width: 19.0, length: 18.5, height: 2.8 };
     const villaDims = { width: 16.0, length: 18.5, height: 2.8 };
-    const houseDims = is2BHK ? villaDims : { width: 14.0, length: 13.0, height: 2.8 };
+    const houseDims = isDuplex ? duplexDims : (is3BHK ? threeBhkDims : (is2BHK ? villaDims : { width: 14.0, length: 13.0, height: 2.8 }));
     const singleDims = {
       width: parseFloat(document.getElementById('room-w').value) || 5.0,
       length: parseFloat(document.getElementById('room-l').value) || 4.5,
@@ -2860,9 +3091,10 @@ class App {
     const conceptTitle = `${this.currentStyle.toUpperCase()} Interior Layout`;
     const roomType = document.getElementById('room-type')?.value || 'bedroom';
     const roomLabels = {
-      modern_apartment: 'Modern Apartment Suite',
+      duplex: 'Modern Duplex Villa (Double-Height & Mezzanine)',
+      complete_house_3bhk: 'Luxury 3 BHK Residence',
+      complete_house_2bhk: 'Architectural 2 BHK Residence',
       complete_house: 'Single Bedroom House (1 BHK)',
-      complete_house_2bhk: 'Contemporary Villa (2 BHK Estate)',
       bedroom: 'Master Bedroom Suite',
       bedroom_single: 'Single Bedroom (Compact Suite)',
       living_room: 'Living Room Lounge',
@@ -3653,13 +3885,54 @@ class App {
   }
 
   getRoomScheduleList() {
+    const isDuplex = this.roomBuilder && (this.roomBuilder.houseType === 'duplex' || this.roomBuilder.houseType === 'duplex_villa');
+    const is3BHK = this.roomBuilder && (this.roomBuilder.houseType === '3bhk' || this.roomBuilder.houseType === 'complete_house_3bhk');
     const isVilla = this.roomBuilder && (this.roomBuilder.houseType === 'villa_2bhk' || this.roomBuilder.houseType === '2bhk' || this.roomBuilder.houseType === 'villa');
     
     // Flooring label lookup
     const floorSelect = document.getElementById('flooring-select');
     const currentFloorText = floorSelect ? floorSelect.options[floorSelect.selectedIndex]?.text : 'Continuous Light Porcelain Tile';
 
-    if (isVilla) {
+    if (isDuplex) {
+      return {
+        houseType: 'Modern Duplex Villa (Double-Height Living & Mezzanine Penthouse)',
+        totalBuiltUp: 240.0,
+        carpetArea: 168.5,
+        rooms: [
+          { name: '🚪 Grand Entrance Foyer', width: 2.8, length: 3.2, height: 2.8, floor: 'Polished Marble' },
+          { name: '🛋️ Double-Height Living Lounge', width: 5.4, length: 5.4, height: 5.6, floor: 'Polished Marble' },
+          { name: '🍽️ Formal Dining Room', width: 4.3, length: 4.6, height: 2.8, floor: 'Polished Marble' },
+          { name: '🍳 Gourmet Island Kitchen', width: 4.3, length: 4.6, height: 2.8, floor: 'Light Porcelain Tile' },
+          { name: '🛏️ Ground Guest Suite', width: 4.7, length: 5.0, height: 2.8, floor: 'Warm Oak Wood' },
+          { name: '🚿 Ground Guest Bathroom', width: 2.6, length: 3.0, height: 2.8, floor: 'Blue Designer Tile' },
+          { name: '🪜 Floating Cantilevered Stairs', width: 1.1, length: 4.2, height: 2.8, floor: 'Solid Oak Treads & Glass Rail' },
+          { name: '✨ Mezzanine Walkway Gallery (Lvl 2)', width: 1.8, length: 4.8, height: 2.8, floor: 'Herringbone Parquet' },
+          { name: '👑 Penthouse Master Suite (Lvl 2)', width: 4.3, length: 5.4, height: 2.8, floor: 'Herringbone Parquet' },
+          { name: '🛁 Master Spa Bathroom (Lvl 2)', width: 4.3, length: 3.0, height: 2.8, floor: 'Polished Marble Tile' },
+          { name: '🌆 Upper Loft Sky Lounge (Lvl 2)', width: 6.0, length: 6.0, height: 2.8, floor: 'Herringbone Parquet' },
+          { name: '🌿 Sunken Terrace & Deck', width: 4.3, length: 2.0, height: 2.8, floor: 'Outdoor Teak Decking' }
+        ]
+      };
+    } else if (is3BHK) {
+      return {
+        houseType: 'Luxury 3 BHK Residence (10 Connected Spaces & Balcony)',
+        totalBuiltUp: 215.0,
+        carpetArea: 148.2,
+        rooms: [
+          { name: '🚪 Entrance Foyer', width: 3.0, length: 3.0, height: 2.8, floor: currentFloorText },
+          { name: '🛋️ Living Room Lounge', width: 6.0, length: 4.6, height: 2.8, floor: currentFloorText },
+          { name: '🍽️ Dining Pavilion', width: 5.0, length: 4.6, height: 2.8, floor: currentFloorText },
+          { name: '🍳 Modular Kitchen & Island', width: 5.0, length: 4.4, height: 2.8, floor: currentFloorText },
+          { name: '👑 Master Suite (Bed 1)', width: 5.0, length: 5.4, height: 2.8, floor: 'Herringbone Parquet' },
+          { name: '🛁 Master En-Suite Bathroom', width: 2.4, length: 2.8, height: 2.8, floor: 'Blue Designer Tile' },
+          { name: '🛏️ Second Bedroom (Bed 2)', width: 5.0, length: 5.4, height: 2.8, floor: 'Warm Oak Wood' },
+          { name: '🧸 Third Bedroom / Study (Bed 3)', width: 4.0, length: 4.4, height: 2.8, floor: 'Warm Oak Wood' },
+          { name: '🚿 Common Family Bathroom', width: 2.5, length: 2.8, height: 2.8, floor: 'Blue Designer Tile' },
+          { name: '🚶 Central Hallway Corridor', width: 3.5, length: 4.4, height: 2.8, floor: currentFloorText },
+          { name: '🌅 Private Balcony Deck', width: 6.0, length: 2.0, height: 2.8, floor: 'Teak Wood Decking' }
+        ]
+      };
+    } else if (isVilla) {
       return {
         houseType: 'Complete House Residence (2 BHK Villa)',
         totalBuiltUp: 182.0,
