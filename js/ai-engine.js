@@ -461,7 +461,7 @@ export class AIEngine {
           id: 'threebhk_foyer_rug',
           type: 'rug',
           name: 'Entrance Foyer Welcome Runner',
-          position: [2.5, 0.005, 4.6],
+          position: [2.8, 0.005, 5.1],
           rotation: [0, 0, 0],
           dimensions: [1.8, 1.2],
           style: style,
@@ -472,7 +472,7 @@ export class AIEngine {
           id: 'threebhk_foyer_console',
           type: 'foyer_console',
           name: 'Minimalist Entry Console & Key Tray',
-          position: [3.3, 0, 4.9],
+          position: [3.6, 0, 5.3],
           rotation: [0, -Math.PI / 2, 0],
           room: 'foyer',
           cost: 480
@@ -481,7 +481,7 @@ export class AIEngine {
           id: 'threebhk_foyer_plant',
           type: 'plant',
           name: 'Foyer Potted Olive Tree',
-          position: [1.8, 0, 5.2],
+          position: [2.0, 0, 5.8],
           rotation: [0, 0, 0],
           room: 'foyer',
           cost: 160
@@ -490,12 +490,42 @@ export class AIEngine {
         // ==========================================
         // 3 BHK: 2. LIVING ROOM GREAT HALL
         // ==========================================
+        // TV Console mounted flush against the solid dividing wall (X = -3.4) facing East (+X)
+        items.push({
+          id: 'threebhk_living_tv_unit',
+          type: 'missouri_tv_unit',
+          name: 'Low Oak Media Console with 65" 4K TV',
+          position: [-3.25, 0, 3.1],
+          rotation: [0, Math.PI / 2, 0],
+          design: 2,
+          room: 'living',
+          cost: 1250
+        });
+        items.push({
+          id: 'threebhk_living_plant_n',
+          type: 'plant',
+          name: 'Living Room Flanking Ficus Tree (North)',
+          position: [-3.1, 0, 1.8],
+          rotation: [0, 0, 0],
+          room: 'living',
+          cost: 180
+        });
+        items.push({
+          id: 'threebhk_living_ficus_tree',
+          type: 'plant',
+          name: 'Living Room Flanking Olive Tree (South)',
+          position: [-3.1, 0, 4.4],
+          rotation: [0, 0, 0],
+          room: 'living',
+          cost: 190
+        });
+        // Cream L-Sectional Lounge Sofa: seated viewers face West directly towards the TV!
         items.push({
           id: 'threebhk_living_sectional',
           type: 'l_sectional_sofa',
           name: 'Cream L-Sectional Lounge Sofa with Chaise',
-          position: [-3.2, 0, 2.4],
-          rotation: [0, Math.PI, 0],
+          position: [0.4, 0, 3.1],
+          rotation: [0, Math.PI / 2, 0],
           color: 0xf5f3ee,
           room: 'living',
           cost: 1850
@@ -504,7 +534,7 @@ export class AIEngine {
           id: 'threebhk_living_coffee_table',
           type: 'coffee_table',
           name: 'Scandinavian Oak Rectangular Coffee Table',
-          position: [-3.6, 0, 2.5],
+          position: [-1.3, 0, 3.1],
           rotation: [0, 0, 0],
           woodColor: 0xd4a373,
           room: 'living',
@@ -514,7 +544,7 @@ export class AIEngine {
           id: 'threebhk_living_rug',
           type: 'rug',
           name: 'Textured Jute & Wool Area Rug',
-          position: [-3.5, 0.005, 2.5],
+          position: [-0.8, 0.005, 3.1],
           rotation: [0, 0, 0],
           dimensions: [3.4, 2.6],
           style: style,
@@ -522,29 +552,10 @@ export class AIEngine {
           cost: 450
         });
         items.push({
-          id: 'threebhk_living_tv_unit',
-          type: 'missouri_tv_unit',
-          name: 'Low Oak Media Console with 65" 4K TV',
-          position: [-6.2, 0, 2.4],
-          rotation: [0, Math.PI / 2, 0],
-          design: 2,
-          room: 'living',
-          cost: 1250
-        });
-        items.push({
-          id: 'threebhk_living_ficus_tree',
-          type: 'plant',
-          name: 'Living Room Potted Ficus Tree',
-          position: [-5.8, 0, 3.8],
-          rotation: [0, 0, 0],
-          room: 'living',
-          cost: 190
-        });
-        items.push({
           id: 'threebhk_balcony_slider',
           type: 'sliding_balcony_door',
           name: '4-Panel Black Metal Sliding Glass Door System',
-          position: [-3.5, 0, 4.5],
+          position: [-0.8, 0, 5.0],
           rotation: [0, 0, 0],
           width: 4.8,
           height: 2.2,
@@ -559,7 +570,7 @@ export class AIEngine {
           id: 'threebhk_balcony_chair1',
           type: 'patio_set',
           name: 'Outdoor Teak & Wicker Bistro Set',
-          position: [-4.2, 0, 5.4],
+          position: [-1.2, 0, 5.9],
           rotation: [0, 0, 0],
           room: 'balcony',
           cost: 420
@@ -568,7 +579,7 @@ export class AIEngine {
           id: 'threebhk_balcony_planters_w',
           type: 'plant',
           name: 'Balcony Architectural Evergreen Planter (West)',
-          position: [-5.6, 0, 5.6],
+          position: [-3.0, 0, 6.4],
           rotation: [0, 0, 0],
           room: 'balcony',
           cost: 140
@@ -577,7 +588,7 @@ export class AIEngine {
           id: 'threebhk_balcony_planters_e',
           type: 'plant',
           name: 'Balcony Architectural Evergreen Planter (East)',
-          position: [-1.6, 0, 5.6],
+          position: [1.4, 0, 6.4],
           rotation: [0, 0, 0],
           room: 'balcony',
           cost: 140
@@ -590,7 +601,7 @@ export class AIEngine {
           id: 'threebhk_dining_table_set',
           type: 'dining_set',
           name: 'Solid Oak Dining Table & 6 Wishbone Scandinavian Chairs',
-          position: [1.1, 0, 1.8],
+          position: [0.6, 0, -0.6],
           rotation: [0, 0, 0],
           woodColor: 0xd4a373,
           chairColor: 0xd4a373,
@@ -601,7 +612,7 @@ export class AIEngine {
           id: 'threebhk_dining_plant',
           type: 'plant',
           name: 'Dining Side Potted Ficus Plant',
-          position: [-0.3, 0, 3.2],
+          position: [2.1, 0, 0.2],
           rotation: [0, 0, 0],
           room: 'dining',
           cost: 160
@@ -614,7 +625,7 @@ export class AIEngine {
           id: 'threebhk_kitchen_waterfall_island',
           type: 'waterfall_island',
           name: 'Calacatta Marble Waterfall Island with Induction Cooktop & 3 Stools',
-          position: [4.8, 0, 1.8],
+          position: [4.4, 0, 2.4],
           rotation: [0, 0, 0],
           room: 'kitchen',
           cost: 2400
@@ -623,7 +634,7 @@ export class AIEngine {
           id: 'threebhk_kitchen_main_run',
           type: 'straight_kitchen',
           name: 'Dark Charcoal Modular Kitchen Run with Undermount Sink & Ovens',
-          position: [6.8, 0, 2.8],
+          position: [7.4, 0, 3.1],
           rotation: [0, -Math.PI / 2, 0],
           color: 0x1e293b,
           room: 'kitchen',
@@ -633,7 +644,7 @@ export class AIEngine {
           id: 'threebhk_kitchen_fridge',
           type: 'refrigerator',
           name: 'Black Stainless Smart French-Door Refrigerator',
-          position: [6.8, 0, 4.6],
+          position: [7.4, 0, 4.4],
           rotation: [0, -Math.PI / 2, 0],
           room: 'kitchen',
           cost: 1400
@@ -646,7 +657,7 @@ export class AIEngine {
           id: 'threebhk_common_shower',
           type: 'shower',
           name: 'Frameless Glass Walk-In Rain Shower Cabin',
-          position: [1.7, 0, -3.8],
+          position: [1.3, 0, -5.5],
           rotation: [0, 0, 0],
           width: 1.2,
           depth: 1.1,
@@ -657,7 +668,7 @@ export class AIEngine {
           id: 'threebhk_common_vanity',
           type: 'bathroom_vanity',
           name: 'Double Floating Basin Vanity with LED Illuminated Mirror',
-          position: [0.1, 0, -3.8],
+          position: [-0.3, 0, -5.5],
           rotation: [0, Math.PI, 0],
           width: 1.2,
           room: 'common_bath',
@@ -667,7 +678,7 @@ export class AIEngine {
           id: 'threebhk_common_toilet',
           type: 'toilet',
           name: 'Wall-Hung Smart Ceramic Toilet',
-          position: [1.9, 0, -2.0],
+          position: [1.4, 0, -3.4],
           rotation: [0, -Math.PI / 2, 0],
           room: 'common_bath',
           cost: 320
@@ -680,9 +691,9 @@ export class AIEngine {
           id: 'threebhk_master_fluted_wall',
           type: 'fluted_slat_wall',
           name: 'Fluted Oak Timber Slat Feature Headboard Wall',
-          position: [5.2, 0, -5.68],
+          position: [4.0, 0, -6.3],
           rotation: [0, 0, 0],
-          width: 3.8,
+          width: 3.6,
           height: 2.4,
           room: 'bedroom',
           cost: 1100
@@ -691,7 +702,7 @@ export class AIEngine {
           id: 'threebhk_master_bed',
           type: 'bed',
           name: 'Master Suite Luxury King Platform Bed with Linen Duvet',
-          position: [5.2, 0, -4.5],
+          position: [4.0, 0, -5.1],
           rotation: [0, 0, 0],
           style: style,
           room: 'bedroom',
@@ -701,7 +712,7 @@ export class AIEngine {
           id: 'threebhk_master_stand_l',
           type: 'nightstand',
           name: 'Master Bedside Floating Oak Nightstand (Left)',
-          position: [3.7, 0, -5.2],
+          position: [2.6, 0, -5.6],
           rotation: [0, 0, 0],
           room: 'bedroom',
           cost: 240
@@ -710,7 +721,7 @@ export class AIEngine {
           id: 'threebhk_master_stand_r',
           type: 'nightstand',
           name: 'Master Bedside Floating Oak Nightstand (Right)',
-          position: [6.7, 0, -5.2],
+          position: [5.4, 0, -5.6],
           rotation: [0, 0, 0],
           room: 'bedroom',
           cost: 240
@@ -719,9 +730,9 @@ export class AIEngine {
           id: 'threebhk_master_rug',
           type: 'rug',
           name: 'Master Suite Soft Neutral Wool Rug',
-          position: [5.2, 0.005, -4.2],
+          position: [4.0, 0.005, -4.8],
           rotation: [0, 0, 0],
-          dimensions: [3.4, 2.6],
+          dimensions: [3.2, 2.4],
           style: style,
           room: 'bedroom',
           cost: 420
@@ -731,7 +742,7 @@ export class AIEngine {
           id: 'threebhk_ensuite_shower',
           type: 'shower',
           name: 'Master En-Suite Glass Shower Enclosure',
-          position: [6.8, 0, -2.4],
+          position: [6.8, 0, -3.2],
           rotation: [0, -Math.PI / 2, 0],
           room: 'master_bath',
           cost: 680
@@ -740,7 +751,7 @@ export class AIEngine {
           id: 'threebhk_ensuite_vanity',
           type: 'bathroom_vanity',
           name: 'Master En-Suite Single Basin Vanity',
-          position: [5.6, 0, -1.5],
+          position: [6.0, 0, -2.1],
           rotation: [0, Math.PI, 0],
           room: 'master_bath',
           cost: 520
@@ -749,31 +760,41 @@ export class AIEngine {
           id: 'threebhk_ensuite_toilet',
           type: 'toilet',
           name: 'Master En-Suite Wall-Hung Toilet',
-          position: [6.8, 0, -1.5],
+          position: [7.1, 0, -2.1],
           rotation: [0, Math.PI, 0],
           room: 'master_bath',
           cost: 320
         });
 
         // ==========================================
-        // 3 BHK: 8. BEDROOM 2 (QUEEN BED & BUILT-IN WARDROBE)
+        // 3 BHK: 8. BEDROOM 2 (FULLY ENCLOSED & SEPARATED QUEEN SUITE)
         // ==========================================
+        // Placed completely inside West Wing (X: [-7.8, -3.4], Z: [-2.6, 1.8])
         items.push({
           id: 'threebhk_bed2_bed',
           type: 'bed',
           name: 'Bedroom 2 Scandinavian Queen Upholstered Bed',
-          position: [-4.6, 0, 0.5],
-          rotation: [0, 0, 0],
+          position: [-6.4, 0, -0.4],
+          rotation: [0, Math.PI / 2, 0],
           style: style,
           room: 'bedroom2',
           cost: 1350
         });
         items.push({
-          id: 'threebhk_bed2_nightstand',
+          id: 'threebhk_bed2_nightstand_l',
           type: 'nightstand',
-          name: 'Bedroom 2 Oak Nightstand & Lamp',
-          position: [-6.0, 0, 0.5],
-          rotation: [0, 0, 0],
+          name: 'Bedroom 2 Oak Nightstand (Left)',
+          position: [-7.2, 0, 0.7],
+          rotation: [0, Math.PI / 2, 0],
+          room: 'bedroom2',
+          cost: 220
+        });
+        items.push({
+          id: 'threebhk_bed2_nightstand_r',
+          type: 'nightstand',
+          name: 'Bedroom 2 Oak Nightstand (Right)',
+          position: [-7.2, 0, -1.5],
+          rotation: [0, Math.PI / 2, 0],
           room: 'bedroom2',
           cost: 220
         });
@@ -781,8 +802,8 @@ export class AIEngine {
           id: 'threebhk_bed2_wardrobe',
           type: 'wardrobe',
           name: 'Light Oak Built-in Wardrobe with Hanging Niche',
-          position: [-3.2, 0, -1.8],
-          rotation: [0, 0, 0],
+          position: [-3.8, 0, -0.4],
+          rotation: [0, -Math.PI / 2, 0],
           room: 'bedroom2',
           cost: 1200
         });
@@ -790,9 +811,9 @@ export class AIEngine {
           id: 'threebhk_bed2_rug',
           type: 'rug',
           name: 'Bedroom 2 Soft Pile Bedside Rug',
-          position: [-4.6, 0.005, 0.5],
+          position: [-5.8, 0.005, -0.4],
           rotation: [0, 0, 0],
-          dimensions: [2.6, 2.0],
+          dimensions: [2.4, 2.0],
           style: style,
           room: 'bedroom2',
           cost: 290
@@ -801,11 +822,12 @@ export class AIEngine {
         // ==========================================
         // 3 BHK: 9. BEDROOM 3 (TWIN BEDS / KIDS SUITE & STUDY)
         // ==========================================
+        // Placed completely inside West-North Wing (X: [-7.8, -3.4], Z: [-6.4, -2.6])
         items.push({
           id: 'threebhk_bed3_twin_beds',
           type: 'twin_beds',
           name: 'Bedroom 3 Matching Twin Single Beds with Center Lamp',
-          position: [-4.5, 0, -4.5],
+          position: [-5.6, 0, -5.1],
           rotation: [0, 0, 0],
           room: 'bedroom3',
           cost: 1450
@@ -814,7 +836,7 @@ export class AIEngine {
           id: 'threebhk_bed3_desk',
           type: 'desk',
           name: 'Study Desk & Minimalist Chair by North Window',
-          position: [-6.1, 0, -2.8],
+          position: [-7.2, 0, -3.5],
           rotation: [0, Math.PI / 2, 0],
           room: 'bedroom3',
           cost: 510
@@ -823,7 +845,7 @@ export class AIEngine {
           id: 'threebhk_bed3_rug',
           type: 'rug',
           name: 'Bedroom 3 Geometric Floor Rug',
-          position: [-4.5, 0.005, -3.8],
+          position: [-5.6, 0.005, -4.5],
           rotation: [0, 0, 0],
           dimensions: [2.8, 2.0],
           style: style,

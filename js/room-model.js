@@ -1676,38 +1676,38 @@ export class RoomBuilder {
       return mesh;
     };
 
-    // 1. Great Room Living Hall (Oak Wood)
-    makeFloorMesh(5.6, 4.0, -3.5, 2.6, 'wood_oak', 'living');
+    // 1. Great Room Living Hall (Oak Wood: X [-3.4, 1.8], Z [1.2, 5.0])
+    makeFloorMesh(5.2, 3.8, -0.8, 3.1, 'wood_oak', 'living');
 
-    // 2. Front Balcony Deck (Exterior Teak Decking)
-    makeFloorMesh(5.0, 1.8, -3.5, 5.4, 'decking', 'balcony');
+    // 2. Front Balcony Deck (Exterior Teak Decking: X [-3.4, 1.8], Z [5.0, 6.8])
+    makeFloorMesh(5.2, 1.8, -0.8, 5.9, 'decking', 'balcony');
 
-    // 3. Entrance Foyer (Oak Wood)
-    makeFloorMesh(2.8, 2.2, 2.5, 4.6, 'wood_oak', 'foyer');
+    // 3. Entrance Foyer (Oak Wood: X [1.8, 3.8], Z [4.0, 6.2])
+    makeFloorMesh(2.0, 2.2, 2.8, 5.1, 'wood_oak', 'foyer');
 
-    // 4. Central Dining Pavilion (Oak Wood)
-    makeFloorMesh(3.8, 3.2, 1.2, 1.8, 'wood_oak', 'dining');
+    // 4. Central Dining Pavilion (Oak Wood: X [-1.2, 2.4], Z [-2.6, 1.2])
+    makeFloorMesh(3.6, 3.8, 0.6, -0.7, 'wood_oak', 'dining');
 
-    // 5. Open Modern Kitchen (Oak Wood with Marble Island Zone)
-    makeFloorMesh(4.0, 4.2, 5.2, 3.0, 'wood_oak', 'kitchen');
+    // 5. Open Modern Kitchen (Oak Wood: X [2.4, 7.6], Z [1.2, 5.0])
+    makeFloorMesh(5.2, 3.8, 5.0, 3.1, 'wood_oak', 'kitchen');
 
-    // 6. Common Bathroom (Light Grey Ceramic Stone Tile)
-    makeFloorMesh(3.2, 2.8, 1.0, -2.6, 'tile', 'common_bath');
+    // 6. Common Bathroom (Light Grey Ceramic Stone Tile: X [-1.2, 2.0], Z [-6.4, -2.6])
+    makeFloorMesh(3.2, 3.8, 0.4, -4.5, 'tile', 'common_bath');
 
-    // 7. Master Bedroom Suite (Oak Wood)
-    makeFloorMesh(4.8, 4.6, 4.8, -3.5, 'wood_oak', 'bedroom');
+    // 7. Master Bedroom Suite (Oak Wood: X [2.0, 7.6], Z [-6.4, -2.2])
+    makeFloorMesh(5.6, 4.2, 4.8, -4.3, 'wood_oak', 'bedroom');
 
-    // 8. Master En-Suite Bathroom (Marble Tile)
-    makeFloorMesh(2.2, 2.4, 6.1, -1.8, 'marble', 'master_bath');
+    // 8. Master En-Suite Bathroom (Marble Tile: X [5.6, 7.6], Z [-3.8, -1.8])
+    makeFloorMesh(2.0, 2.0, 6.6, -2.8, 'marble', 'master_bath');
 
-    // 9. Bedroom 2 (Oak Wood)
-    makeFloorMesh(4.6, 3.4, -4.5, 0.5, 'wood_oak', 'bedroom2');
+    // 9. Bedroom 2 (Oak Wood: X [-7.8, -3.4], Z [-2.6, 1.8] - Solidly separated from Living Room)
+    makeFloorMesh(4.4, 4.4, -5.6, -0.4, 'wood_oak', 'bedroom2');
 
-    // 10. Bedroom 3 / Twin Bed Suite (Oak Wood)
-    makeFloorMesh(4.6, 4.0, -4.5, -3.8, 'wood_oak', 'bedroom3');
+    // 10. Bedroom 3 / Twin Bed Suite (Oak Wood: X [-7.8, -3.4], Z [-6.4, -2.6])
+    makeFloorMesh(4.4, 3.8, -5.6, -4.5, 'wood_oak', 'bedroom3');
 
-    // 11. Central Bedroom Hallway Connector (Oak Wood)
-    makeFloorMesh(2.0, 4.2, -1.5, -1.6, 'wood_oak', 'hallway');
+    // 11. Central Bedroom Hallway Connector (Oak Wood: X [-3.4, -1.2], Z [-2.6, 1.2])
+    makeFloorMesh(2.2, 3.8, -2.3, -0.7, 'wood_oak', 'hallway');
   }
 
   buildThreeBhkWalls(H, wallColorHex) {
@@ -1746,43 +1746,59 @@ export class RoomBuilder {
 
     const wallH = 1.35; // Clean 3D cutaway wall height
 
-    // Exterior Perimeter North Wall (Back)
-    addWall(14.0, wallH, 0.18, 0.2, wallH / 2, -5.8, 'North Exterior Wall');
+    // ==========================================
+    // EXTERIOR PERIMETER WALLS
+    // ==========================================
+    // North Exterior Walls (Back)
+    addWall(4.4, wallH, 0.18, -5.6, wallH / 2, -6.4, 'Bed3 North Exterior Wall');
+    addWall(3.2, wallH, 0.18, 0.4, wallH / 2, -6.4, 'Common Bath North Exterior Wall');
+    addWall(5.6, wallH, 0.18, 4.8, wallH / 2, -6.4, 'Master Bed North Exterior Wall');
 
-    // Exterior Perimeter West Wall (Left)
-    addWall(0.18, wallH, 8.4, -6.8, wallH / 2, -1.6, 'West Exterior Wall');
+    // West Exterior Wall (Left Wing: Bed 3 & Bed 2)
+    addWall(0.18, wallH, 8.2, -7.8, wallH / 2, -2.3, 'West Exterior Wall');
 
-    // Exterior Perimeter East Wall (Right)
-    addWall(0.18, wallH, 10.8, 7.2, wallH / 2, -0.4, 'East Exterior Wall');
+    // East Exterior Wall (Right Wing: Master Bed & Kitchen)
+    addWall(0.18, wallH, 11.4, 7.6, wallH / 2, -0.7, 'East Exterior Wall');
 
-    // Exterior Perimeter South Wall (Kitchen & Foyer Front)
-    addWall(4.2, wallH, 0.18, 5.1, wallH / 2, 5.1, 'Kitchen South Wall');
-    addWall(1.6, wallH, 0.18, 1.2, wallH / 2, 5.7, 'Foyer South Front Step');
+    // South Exterior Walls
+    addWall(4.4, wallH, 0.18, -5.6, wallH / 2, 1.8, 'Bed2 South Exterior Wall');
+    addWall(3.8, wallH, 0.18, 5.7, wallH / 2, 5.0, 'Kitchen South Exterior Wall');
+    addWall(2.0, wallH, 0.18, 2.8, wallH / 2, 6.2, 'Foyer South Front Step');
 
-    // Living Room Cutaway Wall (South-West)
-    addWall(0.6, wallH, 0.18, -0.9, wallH / 2, 4.5, 'Living South Jamb Right');
-    addWall(0.8, wallH, 0.18, -6.4, wallH / 2, 4.5, 'Living South Jamb Left');
+    // ==========================================
+    // BEDROOM 2 & LIVING ROOM SOLID SEPARATION WALL (X = -3.4)
+    // ==========================================
+    // Continuous solid dividing wall that physically prevents living room and bedroom from merging!
+    // Spans from Z = 1.2 to Z = 5.0 (Living Room West Wall / TV Wall)
+    addWall(0.18, wallH, 3.8, -3.4, wallH / 2, 3.1, 'Living-Bed2 Dividing TV Wall');
+
+    // Hallway / Bedroom 2 Dividing Wall Segment (with entry doorway into Bed 2)
+    addWall(0.16, wallH, 3.0, -3.4, wallH / 2, 0.3, 'Bed2 East Wall to Hallway');
+
+    // Bedroom 3 / Hallway Wall (with entry doorway into Bed 3)
+    addWall(0.16, wallH, 2.7, -3.4, wallH / 2, -5.05, 'Bed3 East Wall to Hallway');
+
+    // Bedroom 2 / Bedroom 3 Internal Partition Wall
+    addWall(4.4, wallH, 0.16, -5.6, wallH / 2, -2.6, 'Bed2 & Bed3 Divider Wall');
 
     // ==========================================
     // EXPOSED RED BRICK FEATURE WALL (Common Bath / Dining Barrier)
     // ==========================================
-    addWall(3.2, wallH + 0.15, 0.18, 0.95, (wallH + 0.15) / 2, -1.2, 'Common Bath Exposed Brick Accent Wall', brickMat);
+    // Exactly matches reference image: Rustic red brick wall facing Dining area
+    addWall(3.2, wallH + 0.15, 0.18, 0.4, (wallH + 0.15) / 2, -2.6, 'Common Bath Exposed Brick Accent Wall', brickMat);
 
-    // Common Bath Perimeter Walls
-    addWall(0.16, wallH, 2.8, 2.55, wallH / 2, -2.6, 'Bath East Wall');
-    addWall(0.16, wallH, 1.8, -0.65, wallH / 2, -3.1, 'Bath West Wall (North Section)');
-    // Door opening into hallway on the left at z = -1.8 (width 0.9m)
+    // Common Bath Side Walls
+    addWall(0.16, wallH, 2.8, -1.2, wallH / 2, -5.0, 'Bath West Wall (North Section)');
+    addWall(0.16, wallH, 3.8, 2.0, wallH / 2, -4.5, 'Bath East Wall');
 
     // Master Bedroom Dividing Walls
-    addWall(0.16, wallH, 4.6, 2.4, wallH / 2, -3.5, 'Master Bed West Divider');
-    addWall(2.2, wallH, 0.16, 3.5, wallH / 2, -1.2, 'Master Bed South Wall');
-    // Master Ensuite Bath Divider
-    addWall(0.16, wallH, 2.4, 5.0, wallH / 2, -1.8, 'Master Ensuite West Partition');
+    addWall(0.16, wallH, 4.2, 2.0, wallH / 2, -4.3, 'Master Bed West Divider');
+    addWall(4.6, wallH, 0.16, 4.7, wallH / 2, -1.8, 'Master Bed South Wall');
+    addWall(0.16, wallH, 2.0, 5.6, wallH / 2, -2.8, 'Master Ensuite West Partition');
 
-    // Bedroom 2 & 3 Dividing Walls
-    addWall(4.6, wallH, 0.16, -4.5, wallH / 2, -2.1, 'Bed2 & Bed3 Divider Wall');
-    addWall(2.8, wallH, 0.16, -5.4, wallH / 2, 2.2, 'Bed2 South Wall');
-    addWall(0.16, wallH, 4.3, -2.2, wallH / 2, 0.05, 'Bed2 East Wall to Hallway');
+    // Living Room Balcony Wall Jambs (at Z = 5.0)
+    addWall(0.4, wallH, 0.18, -3.2, wallH / 2, 5.0, 'Living Balcony Left Jamb');
+    addWall(0.4, wallH, 0.18, 1.6, wallH / 2, 5.0, 'Living Balcony Right Jamb');
 
     // ==========================================
     // VERTICAL TIMBER SLAT SCREENS (Foyer & Master Bedroom)
@@ -1790,19 +1806,19 @@ export class RoomBuilder {
     // 1. Foyer Slat Screen (Front Entry Feature)
     for (let s = 0; s < 6; s++) {
       const slat = new THREE.Mesh(new THREE.BoxGeometry(0.04, wallH + 0.25, 0.06), woodSlatMat);
-      slat.position.set(1.4 + s * 0.18, (wallH + 0.25) / 2, 4.2);
+      slat.position.set(1.9 + s * 0.16, (wallH + 0.25) / 2, 4.0);
       this.roomGroup.add(slat);
     }
     for (let s = 0; s < 5; s++) {
       const slat = new THREE.Mesh(new THREE.BoxGeometry(0.06, wallH + 0.25, 0.04), woodSlatMat);
-      slat.position.set(3.4, (wallH + 0.25) / 2, 4.3 + s * 0.18);
+      slat.position.set(3.8, (wallH + 0.25) / 2, 4.4 + s * 0.18);
       this.roomGroup.add(slat);
     }
 
     // 2. Master Bedroom Fluted Timber Headboard Slat Wall
-    for (let s = 0; s < 18; s++) {
+    for (let s = 0; s < 22; s++) {
       const slat = new THREE.Mesh(new THREE.BoxGeometry(0.04, wallH + 0.35, 0.03), woodSlatMat);
-      slat.position.set(3.4 + s * 0.14, (wallH + 0.35) / 2, -5.68);
+      slat.position.set(2.4 + s * 0.14, (wallH + 0.35) / 2, -6.3);
       this.roomGroup.add(slat);
     }
 
@@ -1822,19 +1838,19 @@ export class RoomBuilder {
     });
 
     // South Railing
-    const bRailSouth = new THREE.Mesh(new THREE.BoxGeometry(5.0, 0.95, 0.03), railMat);
-    bRailSouth.position.set(-3.5, 0.52, 6.3);
+    const bRailSouth = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.95, 0.03), railMat);
+    bRailSouth.position.set(-0.8, 0.52, 6.8);
     this.roomGroup.add(bRailSouth);
-    const bCapSouth = new THREE.Mesh(new THREE.BoxGeometry(5.02, 0.04, 0.06), railFrameMat);
-    bCapSouth.position.set(-3.5, 1.0, 6.3);
+    const bCapSouth = new THREE.Mesh(new THREE.BoxGeometry(5.22, 0.04, 0.06), railFrameMat);
+    bCapSouth.position.set(-0.8, 1.0, 6.8);
     this.roomGroup.add(bCapSouth);
 
     // West Railing
     const bRailWest = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.95, 1.8), railMat);
-    bRailWest.position.set(-6.0, 0.52, 5.4);
+    bRailWest.position.set(-3.4, 0.52, 5.9);
     this.roomGroup.add(bRailWest);
     const bCapWest = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.04, 1.82), railFrameMat);
-    bCapWest.position.set(-6.0, 1.0, 5.4);
+    bCapWest.position.set(-3.4, 1.0, 5.9);
     this.roomGroup.add(bCapWest);
   }
 
@@ -1868,27 +1884,27 @@ export class RoomBuilder {
     };
 
     // Master Bedroom North Window (Behind Bed)
-    createArchitecturalWindow(2.2, 1.3, 5.4, 1.25, -5.72, 0);
+    createArchitecturalWindow(2.2, 1.3, 4.0, 1.25, -6.32, 0);
     // Bedroom 3 North Window
-    createArchitecturalWindow(2.0, 1.3, -4.5, 1.25, -5.72, 0);
+    createArchitecturalWindow(2.0, 1.3, -5.6, 1.25, -6.32, 0);
     // Bedroom 2 West Window
-    createArchitecturalWindow(2.2, 1.3, -6.72, 1.25, 0.5, Math.PI / 2);
+    createArchitecturalWindow(2.2, 1.3, -7.72, 1.25, -0.4, Math.PI / 2);
     // Kitchen East Window
-    createArchitecturalWindow(2.0, 1.1, 7.12, 1.25, 2.5, Math.PI / 2);
+    createArchitecturalWindow(2.0, 1.1, 7.52, 1.25, 3.1, Math.PI / 2);
     // Common Bathroom Frosted High Window
-    createArchitecturalWindow(1.0, 0.8, 1.0, 1.4, -5.72, 0);
+    createArchitecturalWindow(1.0, 0.8, 0.4, 1.4, -6.32, 0);
   }
 
   buildThreeBhkBadges() {
-    this.createRoomBadge('FOYER', '🚪', 2.5, 4.6, 'foyer');
-    this.createRoomBadge('LIVING ROOM', '🛋️', -3.5, 2.6, 'living');
-    this.createRoomBadge('BALCONY', '🌿', -3.5, 5.4, 'balcony');
-    this.createRoomBadge('DINING', '🍽️', 1.2, 1.8, 'dining');
-    this.createRoomBadge('KITCHEN', '🍳', 5.2, 3.0, 'kitchen');
-    this.createRoomBadge('MASTER BEDROOM', '👑', 4.8, -3.5, 'bedroom');
-    this.createRoomBadge('BATHROOM', '🛁', 1.0, -2.6, 'common_bath');
-    this.createRoomBadge('BEDROOM 2', '🛏️', -4.5, 0.5, 'bedroom2');
-    this.createRoomBadge('BEDROOM 3', '🧸', -4.5, -3.8, 'bedroom3');
+    this.createRoomBadge('FOYER', '🚪', 2.8, 5.1, 'foyer');
+    this.createRoomBadge('LIVING ROOM', '🛋️', -0.8, 3.1, 'living');
+    this.createRoomBadge('BALCONY', '🌿', -0.8, 5.9, 'balcony');
+    this.createRoomBadge('DINING', '🍽️', 0.6, -0.7, 'dining');
+    this.createRoomBadge('KITCHEN', '🍳', 5.0, 3.1, 'kitchen');
+    this.createRoomBadge('MASTER BEDROOM', '👑', 4.8, -4.3, 'bedroom');
+    this.createRoomBadge('BATHROOM', '🛁', 0.4, -4.5, 'common_bath');
+    this.createRoomBadge('BEDROOM 2', '🛏️', -5.6, -0.4, 'bedroom2');
+    this.createRoomBadge('BEDROOM 3', '🧸', -5.6, -4.5, 'bedroom3');
   }
 
   // ==========================================

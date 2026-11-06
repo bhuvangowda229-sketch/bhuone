@@ -3566,7 +3566,7 @@ class App {
         this.ceilingLight.color.setHex(0xffe8c6);
         this.ceilingLight.intensity = 0.6;
       }
-      this.scene.background = new THREE.Color(0x181728);
+      this.scene.background = new THREE.Color(0xf4f0ea);
     } else if (hour < 11.5) {
       // Morning Daylight (7:30 - 11:30)
       phaseName = 'Morning Natural Daylight';
@@ -3582,7 +3582,7 @@ class App {
         this.ceilingLight.color.setHex(0xfff7ed);
         this.ceilingLight.intensity = 0.45;
       }
-      this.scene.background = new THREE.Color(0x0a0e17);
+      this.scene.background = new THREE.Color(0xf6f5f0);
     } else if (hour < 15.5) {
       // Midday Peak Sun (11:30 - 15:30)
       phaseName = 'Midday Peak Sun';
@@ -3597,7 +3597,7 @@ class App {
       if (this.ceilingLight) {
         this.ceilingLight.intensity = 0.4;
       }
-      this.scene.background = new THREE.Color(0x0a0e17);
+      this.scene.background = new THREE.Color(0xf6f5f0);
     } else if (hour < 18.5) {
       // Golden Hour / Dusk (15:30 - 18:30)
       phaseName = 'Golden Hour Warm Glow';
@@ -3613,7 +3613,7 @@ class App {
         this.ceilingLight.color.setHex(0xffeedd);
         this.ceilingLight.intensity = 0.75;
       }
-      this.scene.background = new THREE.Color(0x1a1524);
+      this.scene.background = new THREE.Color(0xf2ede4);
     } else {
       // Night Moonlight & Interior Ambience (18:30 - 22:00+)
       phaseName = 'Night Moonlight & Interior Ambience';
@@ -3629,7 +3629,7 @@ class App {
         this.ceilingLight.color.setHex(0xffe2b0);
         this.ceilingLight.intensity = 1.15; // Cozy glowing interior pendant and recessed lights
       }
-      this.scene.background = new THREE.Color(0x060911);
+      this.scene.background = new THREE.Color(0x181a24);
     }
 
     if (timeDisplay) {
