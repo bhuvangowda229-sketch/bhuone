@@ -449,4 +449,58 @@ export class TextureGenerator {
     const texture = new THREE.CanvasTexture(canvas);
     return texture;
   }
+
+  // Rustic Exposed Red Brick Wall Texture
+  static createBrickTexture(brickHex = 0xa34129, mortarHex = 0xd6c7b2) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+
+    // Mortar background
+    ctx.fillStyle = '#' + mortarHex.toString(16).padStart(6, '0');
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const rows = 16;
+    const cols = 6;
+    const rowH = canvas.height / rows;
+    const colW = canvas.width / cols;
+    const mortar = 4;
+
+    for (let r = 0; r < rows; r++) {
+      const isOffset = (r % 2 === 1);
+      const startCol = isOffset ? -1 : 0;
+      const endCol = isOffset ? cols : cols - 1;
+
+      for (let c = startCol; c <= endCol; c++) {
+        const x = c * colW + (isOffset ? colW / 2 : 0) + mortar / 2;
+        const y = r * rowH + mortar / 2;
+        const w = colW - mortar;
+        const h = rowH - mortar;
+
+        // Brick base color variation
+        const varR = (Math.random() - 0.5) * 35;
+        const varG = (Math.random() - 0.5) * 20;
+        const baseR = Math.min(255, Math.max(0, 163 + varR));
+        const baseG = Math.min(255, Math.max(0, 65 + varG));
+        const baseB = Math.min(255, Math.max(0, 41 + (Math.random() - 0.5) * 15));
+
+        ctx.fillStyle = `rgb(${Math.round(baseR)}, ${Math.round(baseG)}, ${Math.round(baseB)})`;
+        ctx.fillRect(x, y, w, h);
+
+        // Brick surface grain / texture specks
+        for (let s = 0; s < 18; s++) {
+          const sx = x + Math.random() * w;
+          const sy = y + Math.random() * h;
+          ctx.fillStyle = Math.random() > 0.5 ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.15)';
+          ctx.fillRect(sx, sy, 2 + Math.random() * 3, 2 + Math.random() * 2);
+        }
+      }
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+  }
 }

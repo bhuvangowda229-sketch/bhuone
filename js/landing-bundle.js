@@ -453,6 +453,60 @@ class TextureGenerator {
     const texture = new THREE.CanvasTexture(canvas);
     return texture;
   }
+
+  // Rustic Exposed Red Brick Wall Texture
+  static createBrickTexture(brickHex = 0xa34129, mortarHex = 0xd6c7b2) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+
+    // Mortar background
+    ctx.fillStyle = '#' + mortarHex.toString(16).padStart(6, '0');
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const rows = 16;
+    const cols = 6;
+    const rowH = canvas.height / rows;
+    const colW = canvas.width / cols;
+    const mortar = 4;
+
+    for (let r = 0; r < rows; r++) {
+      const isOffset = (r % 2 === 1);
+      const startCol = isOffset ? -1 : 0;
+      const endCol = isOffset ? cols : cols - 1;
+
+      for (let c = startCol; c <= endCol; c++) {
+        const x = c * colW + (isOffset ? colW / 2 : 0) + mortar / 2;
+        const y = r * rowH + mortar / 2;
+        const w = colW - mortar;
+        const h = rowH - mortar;
+
+        // Brick base color variation
+        const varR = (Math.random() - 0.5) * 35;
+        const varG = (Math.random() - 0.5) * 20;
+        const baseR = Math.min(255, Math.max(0, 163 + varR));
+        const baseG = Math.min(255, Math.max(0, 65 + varG));
+        const baseB = Math.min(255, Math.max(0, 41 + (Math.random() - 0.5) * 15));
+
+        ctx.fillStyle = `rgb(${Math.round(baseR)}, ${Math.round(baseG)}, ${Math.round(baseB)})`;
+        ctx.fillRect(x, y, w, h);
+
+        // Brick surface grain / texture specks
+        for (let s = 0; s < 18; s++) {
+          const sx = x + Math.random() * w;
+          const sy = y + Math.random() * h;
+          ctx.fillStyle = Math.random() > 0.5 ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.15)';
+          ctx.fillRect(sx, sy, 2 + Math.random() * 3, 2 + Math.random() * 2);
+        }
+      }
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+  }
 }
 
   window.TextureGenerator = TextureGenerator;
@@ -2079,45 +2133,18 @@ class RoomBuilder {
   }
 
   // ==========================================
-  // LUXURY 3 BHK RESIDENCE ARCHITECTURE
+  // LUXURY 3 BHK RESIDENCE ARCHITECTURE (EXACT MATCH TO ARCHITECTURAL CUTAWAY)
   // ==========================================
   buildThreeBhkFloors(flooringType) {
     const makeFloorMesh = (W, L, posX, posZ, floorType, zoneKey, posY = 0) => {
       let floorTexture;
-      let roughness = 0.4;
-      let metalness = 0.05;
+      let roughness = 0.45;
+      let metalness = 0.04;
 
       switch (floorType) {
-        case 'blue_tile':
-          floorTexture = TextureGenerator.createBlueTileTexture(0x38bdf8, 0x0284c7);
-          roughness = 0.2;
-          metalness = 0.05;
-          break;
-        case 'grass':
-          floorTexture = TextureGenerator.createGrassTexture();
-          roughness = 0.95;
-          metalness = 0.0;
-          break;
-        case 'paving':
-          floorTexture = TextureGenerator.createPavingTexture(0xd1d5db);
-          roughness = 0.65;
-          metalness = 0.05;
-          break;
-        case 'dark_walnut':
-          floorTexture = TextureGenerator.createWoodTexture(0x4a2e18);
-          roughness = 0.5;
-          break;
-        case 'herringbone_wood':
-        case 'herringbone':
-          floorTexture = TextureGenerator.createHerringboneWoodTexture(0xb8824f, 0x6e4321);
-          roughness = 0.42;
-          metalness = 0.04;
-          break;
-        case 'porcelain_tile':
-        case 'porcelain':
-          floorTexture = TextureGenerator.createPorcelainTileTexture(0xf8f9fa, 0xd1d5db);
-          roughness = 0.16;
-          metalness = 0.08;
+        case 'brick':
+          floorTexture = TextureGenerator.createBrickTexture(0xa34129, 0xd6c7b2);
+          roughness = 0.85;
           break;
         case 'marble':
           floorTexture = TextureGenerator.createMarbleTexture(0xf8fafc, 0x94a3b8);
@@ -2125,13 +2152,18 @@ class RoomBuilder {
           metalness = 0.1;
           break;
         case 'tile':
-          floorTexture = TextureGenerator.createTileTexture(0xf8fafc, 0xcfd4dc);
+          floorTexture = TextureGenerator.createTileTexture(0xe2e8f0, 0x94a3b8);
           roughness = 0.25;
+          break;
+        case 'decking':
+        case 'dark_walnut':
+          floorTexture = TextureGenerator.createWoodTexture(0x8b5a2b, 48, 256);
+          roughness = 0.6;
           break;
         case 'wood_oak':
         default:
-          floorTexture = TextureGenerator.createWoodTexture(0xd4a373);
-          roughness = 0.5;
+          floorTexture = TextureGenerator.createWoodTexture(0xd4a373, 56, 256);
+          roughness = 0.45;
           break;
       }
 
@@ -2155,134 +2187,193 @@ class RoomBuilder {
       return mesh;
     };
 
-    const isTileVariant = ['porcelain_tile', 'marble_white', 'tile', 'terrazzo', 'paving'].includes(flooringType);
-    const commonFlooring = isTileVariant ? flooringType : 'porcelain_tile';
-    const bedFlooring = (!isTileVariant && flooringType) ? flooringType : 'wood_oak';
+    // 1. Great Room Living Hall (Oak Wood)
+    makeFloorMesh(5.6, 4.0, -3.5, 2.6, 'wood_oak', 'living');
 
-    // 1. Entrance Foyer (Front-Left)
-    makeFloorMesh(3.0, 3.0, -5.0, 4.95, commonFlooring, 'foyer');
+    // 2. Front Balcony Deck (Exterior Teak Decking)
+    makeFloorMesh(5.0, 1.8, -3.5, 5.4, 'decking', 'balcony');
 
-    // 2. Living Room Lounge (Front-Center)
-    makeFloorMesh(6.0, 4.6, -0.5, 4.15, commonFlooring, 'living');
+    // 3. Entrance Foyer (Oak Wood)
+    makeFloorMesh(2.8, 2.2, 2.5, 4.6, 'wood_oak', 'foyer');
 
-    // 3. Dining Room Pavilion (Front-Right)
-    makeFloorMesh(5.0, 4.6, 5.0, 4.15, commonFlooring, 'dining');
+    // 4. Central Dining Pavilion (Oak Wood)
+    makeFloorMesh(3.8, 3.2, 1.2, 1.8, 'wood_oak', 'dining');
 
-    // 4. Modular Kitchen & Breakfast Bar (Mid-Right)
-    makeFloorMesh(5.0, 4.4, 5.0, -0.35, commonFlooring, 'kitchen');
+    // 5. Open Modern Kitchen (Oak Wood with Marble Island Zone)
+    makeFloorMesh(4.0, 4.2, 5.2, 3.0, 'wood_oak', 'kitchen');
 
-    // 5. Master Bedroom Suite (Bed 1 - Rear-Right)
-    makeFloorMesh(5.0, 5.4, 5.0, -5.25, 'herringbone_wood', 'bedroom');
+    // 6. Common Bathroom (Light Grey Ceramic Stone Tile)
+    makeFloorMesh(3.2, 2.8, 1.0, -2.6, 'tile', 'common_bath');
 
-    // 6. Master En-Suite Bathroom (Mid-Far-Right)
-    makeFloorMesh(2.4, 2.8, 6.3, -1.15, 'blue_tile', 'master_bath');
+    // 7. Master Bedroom Suite (Oak Wood)
+    makeFloorMesh(4.8, 4.6, 4.8, -3.5, 'wood_oak', 'bedroom');
 
-    // 7. Second Bedroom Suite (Bed 2 - Rear-Left)
-    makeFloorMesh(5.0, 5.4, -5.0, -5.25, bedFlooring, 'bedroom2');
+    // 8. Master En-Suite Bathroom (Marble Tile)
+    makeFloorMesh(2.2, 2.4, 6.1, -1.8, 'marble', 'master_bath');
 
-    // 8. Third Bedroom Suite (Bed 3 - Mid-Left)
-    makeFloorMesh(4.0, 4.4, -5.5, -0.35, bedFlooring, 'bedroom3');
+    // 9. Bedroom 2 (Oak Wood)
+    makeFloorMesh(4.6, 3.4, -4.5, 0.5, 'wood_oak', 'bedroom2');
 
-    // 9. Common Bathroom (Central Corridor)
-    makeFloorMesh(2.5, 2.8, -2.25, -1.15, 'blue_tile', 'common_bath');
+    // 10. Bedroom 3 / Twin Bed Suite (Oak Wood)
+    makeFloorMesh(4.6, 4.0, -4.5, -3.8, 'wood_oak', 'bedroom3');
 
-    // 10. Central Hallway Circulation
-    makeFloorMesh(3.5, 4.4, 0.75, -0.35, commonFlooring, 'hallway');
+    // 11. Central Bedroom Hallway Connector (Oak Wood)
+    makeFloorMesh(2.0, 4.2, -1.5, -1.6, 'wood_oak', 'hallway');
 
-    // 11. Front Balcony Deck
-    makeFloorMesh(6.0, 2.0, -0.5, 7.45, 'dark_walnut', 'balcony');
-
-    // 12. Exterior Lawn & Garden Buffers
-    makeFloorMesh(5.0, 2.0, 5.0, 7.45, 'grass', 'front_lawn');
-    makeFloorMesh(3.0, 2.0, -5.0, 7.45, 'paving', 'driveway');
-    makeFloorMesh(17.0, 3.0, 0, -8.2, 'grass', 'backyard');
+    // Exterior ground plane
+    makeFloorMesh(24.0, 24.0, 0, 0, 'wood_oak', 'ground_border', -0.02);
   }
 
   buildThreeBhkWalls(H, wallColorHex) {
-    const createWallMat = (isCutaway = false, customColor = null) => new THREE.MeshStandardMaterial({
-      color: customColor || wallColorHex,
-      roughness: 0.85,
-      side: THREE.DoubleSide,
-      transparent: isCutaway,
-      opacity: isCutaway ? (this.cutawayEnabled ? 0.0 : 0.95) : 1.0
+    const defaultWallMat = new THREE.MeshStandardMaterial({
+      color: 0xf5f3ee, // Warm Scandinavian Ivory
+      roughness: 0.88,
+      side: THREE.DoubleSide
     });
 
-    const addWall = (w, h, d, x, y, z, name = 'Wall', isCutaway = false, customColor = null) => {
+    const brickTex = TextureGenerator.createBrickTexture(0xa34129, 0xd6c7b2);
+    brickTex.repeat.set(2, 1);
+    const brickMat = new THREE.MeshStandardMaterial({
+      map: brickTex,
+      roughness: 0.8,
+      side: THREE.DoubleSide
+    });
+
+    const woodSlatMat = new THREE.MeshStandardMaterial({
+      color: 0xb45309,
+      roughness: 0.5
+    });
+
+    const addWall = (w, h, d, x, y, z, name = 'Wall', customMat = null) => {
       const geom = new THREE.BoxGeometry(w, h, d);
-      const mat = createWallMat(isCutaway, customColor);
+      const mat = customMat || defaultWallMat;
       const mesh = new THREE.Mesh(geom, mat);
       mesh.name = name;
       mesh.position.set(x, y, z);
-      mesh.castShadow = !isCutaway;
+      mesh.castShadow = true;
       mesh.receiveShadow = true;
-      mesh.userData = { type: 'wall', isCutawayWall: isCutaway, name: name };
-      if (isCutaway) {
-        this.frontWalls.push(mesh);
-      } else {
-        this.houseWalls.push(mesh);
-      }
+      mesh.userData = { type: 'wall', isCutawayWall: false, name: name };
+      this.houseWalls.push(mesh);
       this.roomGroup.add(mesh);
       return mesh;
     };
 
-    // Exterior Perimeter Walls
-    addWall(17.2, H, 0.18, 0, H / 2, -7.95, 'Back Exterior Wall North');
-    addWall(0.18, H, 14.4, -7.5, H / 2, -0.75, 'Left Exterior Wall West');
-    addWall(0.18, H, 14.4, 7.5, H / 2, -0.75, 'Right Exterior Wall East');
+    const wallH = 1.35; // Clean 3D cutaway wall height
 
-    // South Front Cutaway Walls (Z = 6.45)
-    addWall(3.2, H, 0.18, -5.0, H / 2, 6.45, 'Foyer Front Wall (Doorway)', false);
-    addWall(6.0, H, 0.18, -0.5, H / 2, 6.45, 'Living Front Wall Cutaway', true);
-    addWall(5.0, H, 0.18, 5.0, H / 2, 6.45, 'Dining Front Wall Cutaway', true);
+    // Exterior Perimeter North Wall (Back)
+    addWall(14.0, wallH, 0.18, 0.2, wallH / 2, -5.8, 'North Exterior Wall');
 
-    // Interior Dividing Walls
-    addWall(4.0, H, 0.14, -5.5, H / 2, 1.85, 'Bed3 Front Wall');
-    addWall(5.0, H, 0.14, 5.0, H / 2, 1.85, 'Kitchen Dining Open Divider Wall');
-    addWall(5.0, H, 0.14, -5.0, H / 2, -2.55, 'Bed2 Front Wall');
-    addWall(5.0, H, 0.14, 5.0, H / 2, -2.55, 'Master Bed Front Wall');
+    // Exterior Perimeter West Wall (Left)
+    addWall(0.18, wallH, 8.4, -6.8, wallH / 2, -1.6, 'West Exterior Wall');
 
-    // North-South Dividing Walls
-    addWall(0.14, H, 10.5, -3.5, H / 2, -2.7, 'Bed3 & Bed2 East Divider Wall');
-    addWall(0.14, H, 10.5, 2.5, H / 2, -2.7, 'Kitchen & Master West Divider Wall');
-    addWall(0.14, H, 5.4, 0, H / 2, -5.25, 'Bed2 & Master Center Rear Wall');
+    // Exterior Perimeter East Wall (Right)
+    addWall(0.18, wallH, 10.8, 7.2, wallH / 2, -0.4, 'East Exterior Wall');
 
-    // Slatted wood divider between Foyer & Living
-    const slatMat = new THREE.MeshStandardMaterial({ color: 0x854d0e, roughness: 0.5 });
-    for (let s = 0; s < 7; s++) {
-      const slat = new THREE.Mesh(new THREE.BoxGeometry(0.05, H - 0.2, 0.08), slatMat);
-      slat.position.set(-3.5, H / 2, 3.8 + s * 0.35);
+    // Exterior Perimeter South Wall (Kitchen & Foyer Front)
+    addWall(4.2, wallH, 0.18, 5.1, wallH / 2, 5.1, 'Kitchen South Wall');
+    addWall(1.6, wallH, 0.18, 1.2, wallH / 2, 5.7, 'Foyer South Front Step');
+
+    // Living Room Cutaway Wall (South-West)
+    addWall(0.6, wallH, 0.18, -0.9, wallH / 2, 4.5, 'Living South Jamb Right');
+    addWall(0.8, wallH, 0.18, -6.4, wallH / 2, 4.5, 'Living South Jamb Left');
+
+    // ==========================================
+    // EXPOSED RED BRICK FEATURE WALL (Common Bath / Dining Barrier)
+    // ==========================================
+    addWall(3.2, wallH + 0.15, 0.18, 0.95, (wallH + 0.15) / 2, -1.2, 'Common Bath Exposed Brick Accent Wall', brickMat);
+
+    // Common Bath Perimeter Walls
+    addWall(0.16, wallH, 2.8, 2.55, wallH / 2, -2.6, 'Bath East Wall');
+    addWall(0.16, wallH, 1.8, -0.65, wallH / 2, -3.1, 'Bath West Wall (North Section)');
+    // Door opening into hallway on the left at z = -1.8 (width 0.9m)
+
+    // Master Bedroom Dividing Walls
+    addWall(0.16, wallH, 4.6, 2.4, wallH / 2, -3.5, 'Master Bed West Divider');
+    addWall(2.2, wallH, 0.16, 3.5, wallH / 2, -1.2, 'Master Bed South Wall');
+    // Master Ensuite Bath Divider
+    addWall(0.16, wallH, 2.4, 5.0, wallH / 2, -1.8, 'Master Ensuite West Partition');
+
+    // Bedroom 2 & 3 Dividing Walls
+    addWall(4.6, wallH, 0.16, -4.5, wallH / 2, -2.1, 'Bed2 & Bed3 Divider Wall');
+    addWall(2.8, wallH, 0.16, -5.4, wallH / 2, 2.2, 'Bed2 South Wall');
+    addWall(0.16, wallH, 4.3, -2.2, wallH / 2, 0.05, 'Bed2 East Wall to Hallway');
+
+    // ==========================================
+    // VERTICAL TIMBER SLAT SCREENS (Foyer & Master Bedroom)
+    // ==========================================
+    // 1. Foyer Slat Screen (Front Entry Feature)
+    for (let s = 0; s < 6; s++) {
+      const slat = new THREE.Mesh(new THREE.BoxGeometry(0.04, wallH + 0.25, 0.06), woodSlatMat);
+      slat.position.set(1.4 + s * 0.18, (wallH + 0.25) / 2, 4.2);
+      this.roomGroup.add(slat);
+    }
+    for (let s = 0; s < 5; s++) {
+      const slat = new THREE.Mesh(new THREE.BoxGeometry(0.06, wallH + 0.25, 0.04), woodSlatMat);
+      slat.position.set(3.4, (wallH + 0.25) / 2, 4.3 + s * 0.18);
       this.roomGroup.add(slat);
     }
 
-    // Balcony modern glass railing
-    const railMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.4, roughness: 0.1 });
-    const railFrameMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.2 });
-    const bRail = new THREE.Mesh(new THREE.BoxGeometry(6.0, 1.05, 0.04), railMat);
-    bRail.position.set(-0.5, 0.55, 8.45);
-    this.roomGroup.add(bRail);
-    const bCap = new THREE.Mesh(new THREE.BoxGeometry(6.04, 0.05, 0.08), railFrameMat);
-    bCap.position.set(-0.5, 1.1, 8.45);
-    this.roomGroup.add(bCap);
+    // 2. Master Bedroom Fluted Timber Headboard Slat Wall
+    for (let s = 0; s < 18; s++) {
+      const slat = new THREE.Mesh(new THREE.BoxGeometry(0.04, wallH + 0.35, 0.03), woodSlatMat);
+      slat.position.set(3.4 + s * 0.14, (wallH + 0.35) / 2, -5.68);
+      this.roomGroup.add(slat);
+    }
+
+    // ==========================================
+    // BALCONY GLASS RAILING & TIMBER DECK
+    // ==========================================
+    const railMat = new THREE.MeshStandardMaterial({
+      color: 0x93c5fd,
+      transparent: true,
+      opacity: 0.45,
+      roughness: 0.1
+    });
+    const railFrameMat = new THREE.MeshStandardMaterial({
+      color: 0x18181b,
+      metalness: 0.85,
+      roughness: 0.25
+    });
+
+    // South Railing
+    const bRailSouth = new THREE.Mesh(new THREE.BoxGeometry(5.0, 0.95, 0.03), railMat);
+    bRailSouth.position.set(-3.5, 0.52, 6.3);
+    this.roomGroup.add(bRailSouth);
+    const bCapSouth = new THREE.Mesh(new THREE.BoxGeometry(5.02, 0.04, 0.06), railFrameMat);
+    bCapSouth.position.set(-3.5, 1.0, 6.3);
+    this.roomGroup.add(bCapSouth);
+
+    // West Railing
+    const bRailWest = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.95, 1.8), railMat);
+    bRailWest.position.set(-6.0, 0.52, 5.4);
+    this.roomGroup.add(bRailWest);
+    const bCapWest = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.04, 1.82), railFrameMat);
+    bCapWest.position.set(-6.0, 1.0, 5.4);
+    this.roomGroup.add(bCapWest);
   }
 
   buildThreeBhkWindowsAndDoors(H) {
-    const createArchitecturalWindow = (w, h, posX, posY, posZ, rotY = 0, isCutaway = false) => {
+    const createArchitecturalWindow = (w, h, posX, posY, posZ, rotY = 0) => {
       const winGroup = new THREE.Group();
-      const fMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.7 });
+      const fMat = new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.3, metalness: 0.85 });
       const gMat = new THREE.MeshStandardMaterial({ color: 0x93c5fd, roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.45 });
-      const frameTop = new THREE.Mesh(new THREE.BoxGeometry(w, 0.08, 0.12), fMat);
-      frameTop.position.set(0, h / 2 - 0.04, 0);
+
+      const frameTop = new THREE.Mesh(new THREE.BoxGeometry(w, 0.06, 0.1), fMat);
+      frameTop.position.set(0, h / 2 - 0.03, 0);
       winGroup.add(frameTop);
-      const frameBot = new THREE.Mesh(new THREE.BoxGeometry(w, 0.08, 0.12), fMat);
-      frameBot.position.set(0, -h / 2 + 0.04, 0);
+      const frameBot = new THREE.Mesh(new THREE.BoxGeometry(w, 0.06, 0.1), fMat);
+      frameBot.position.set(0, -h / 2 + 0.03, 0);
       winGroup.add(frameBot);
-      const frameL = new THREE.Mesh(new THREE.BoxGeometry(0.08, h, 0.12), fMat);
-      frameL.position.set(-w / 2 + 0.04, 0, 0);
+      const frameL = new THREE.Mesh(new THREE.BoxGeometry(0.06, h, 0.1), fMat);
+      frameL.position.set(-w / 2 + 0.03, 0, 0);
       winGroup.add(frameL);
-      const frameR = new THREE.Mesh(new THREE.BoxGeometry(0.08, h, 0.12), fMat);
-      frameR.position.set(w / 2 - 0.04, 0, 0);
+      const frameR = new THREE.Mesh(new THREE.BoxGeometry(0.06, h, 0.1), fMat);
+      frameR.position.set(w / 2 - 0.03, 0, 0);
       winGroup.add(frameR);
-      const glass = new THREE.Mesh(new THREE.BoxGeometry(w - 0.16, h - 0.16, 0.02), gMat);
+      const frameCenter = new THREE.Mesh(new THREE.BoxGeometry(0.04, h, 0.08), fMat);
+      winGroup.add(frameCenter);
+
+      const glass = new THREE.Mesh(new THREE.BoxGeometry(w - 0.12, h - 0.12, 0.015), gMat);
       winGroup.add(glass);
       winGroup.position.set(posX, posY, posZ);
       winGroup.rotation.y = rotY;
@@ -2290,32 +2381,28 @@ class RoomBuilder {
       return winGroup;
     };
 
-    // Master Bedroom Rear North Window
-    createArchitecturalWindow(2.4, 1.4, 5.0, 1.6, -7.88, -Math.PI / 2, false);
-    // Bed 2 Rear North Window
-    createArchitecturalWindow(2.4, 1.4, -5.0, 1.6, -7.88, -Math.PI / 2, false);
-    // Bed 3 West Window
-    createArchitecturalWindow(2.0, 1.3, -7.42, 1.6, -0.35, 0, false);
+    // Master Bedroom North Window (Behind Bed)
+    createArchitecturalWindow(2.2, 1.3, 5.4, 1.25, -5.72, 0);
+    // Bedroom 3 North Window
+    createArchitecturalWindow(2.0, 1.3, -4.5, 1.25, -5.72, 0);
+    // Bedroom 2 West Window
+    createArchitecturalWindow(2.2, 1.3, -6.72, 1.25, 0.5, Math.PI / 2);
     // Kitchen East Window
-    createArchitecturalWindow(2.0, 1.2, 7.42, 1.6, -0.35, 0, false);
-    // Balcony Sliding Glass Door from Living
-    createArchitecturalWindow(3.4, 2.2, -0.5, 1.15, 6.42, -Math.PI / 2, false);
-
-    // Foyer Front Door
-    this.buildVillaEntryDoor(H);
+    createArchitecturalWindow(2.0, 1.1, 7.12, 1.25, 2.5, Math.PI / 2);
+    // Common Bathroom Frosted High Window
+    createArchitecturalWindow(1.0, 0.8, 1.0, 1.4, -5.72, 0);
   }
 
   buildThreeBhkBadges() {
-    this.createRoomBadge('ENTRANCE FOYER', '🚪', -5.0, 4.95, 'foyer');
-    this.createRoomBadge('LIVING ROOM', '🛋️', -0.5, 4.15, 'living');
-    this.createRoomBadge('DINING PAVILION', '🍽️', 5.0, 4.15, 'dining');
-    this.createRoomBadge('MODULAR KITCHEN', '🍳', 5.0, -0.35, 'kitchen');
-    this.createRoomBadge('MASTER SUITE (BED 1)', '👑', 5.0, -5.25, 'bedroom');
-    this.createRoomBadge('MASTER EN-SUITE', '🛁', 6.3, -1.15, 'master_bath');
-    this.createRoomBadge('SECOND BEDROOM (BED 2)', '🛏️', -5.0, -5.25, 'bedroom2');
-    this.createRoomBadge('THIRD BEDROOM (BED 3)', '🧸', -5.5, -0.35, 'bedroom3');
-    this.createRoomBadge('COMMON BATHROOM', '🚿', -2.25, -1.15, 'common_bath');
-    this.createRoomBadge('BALCONY DECK', '🌅', -0.5, 7.45, 'balcony');
+    this.createRoomBadge('FOYER', '🚪', 2.5, 4.6, 'foyer');
+    this.createRoomBadge('LIVING ROOM', '🛋️', -3.5, 2.6, 'living');
+    this.createRoomBadge('BALCONY', '🌿', -3.5, 5.4, 'balcony');
+    this.createRoomBadge('DINING', '🍽️', 1.2, 1.8, 'dining');
+    this.createRoomBadge('KITCHEN', '🍳', 5.2, 3.0, 'kitchen');
+    this.createRoomBadge('MASTER BEDROOM', '👑', 4.8, -3.5, 'bedroom');
+    this.createRoomBadge('BATHROOM', '🛁', 1.0, -2.6, 'common_bath');
+    this.createRoomBadge('BEDROOM 2', '🛏️', -4.5, 0.5, 'bedroom2');
+    this.createRoomBadge('BEDROOM 3', '🧸', -4.5, -3.8, 'bedroom3');
   }
 
   // ==========================================
@@ -6624,6 +6711,303 @@ class FurnitureFactory {
 
     return group;
   }
+
+  // 50. MODERN CREAM L-SECTIONAL SOFA
+  static createSectionalLSofa(color = 0xf1efe9) {
+    const group = new THREE.Group();
+    group.name = 'Cream L-Sectional Sofa';
+    group.userData = { type: 'l_sectional_sofa', name: 'Cream L-Sectional Lounge Sofa', cost: 1850 };
+
+    const fabricMat = new THREE.MeshStandardMaterial({
+      color: color,
+      roughness: 0.75,
+      metalness: 0.02
+    });
+    const cushionMat = new THREE.MeshStandardMaterial({
+      color: 0xdedcd5,
+      roughness: 0.8
+    });
+    const legMat = new THREE.MeshStandardMaterial({ color: 0x3d2817, roughness: 0.5 });
+    const pillowMat = new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.8 });
+
+    // Main 3-seat sofa base (Width 2.2m, Depth 0.95m)
+    const mainBase = this.createMesh(new THREE.BoxGeometry(2.2, 0.22, 0.95), fabricMat, 'Main Sofa Base');
+    mainBase.position.set(0, 0.21, 0);
+    group.add(mainBase);
+
+    // Chaise section base (Width 0.95m, Length 1.5m) extending along +Z
+    const chaiseBase = this.createMesh(new THREE.BoxGeometry(0.95, 0.22, 1.5), fabricMat, 'Chaise Base');
+    chaiseBase.position.set(1.075, 0.21, 0.75);
+    group.add(chaiseBase);
+
+    // Backrests
+    const mainBack = this.createMesh(new THREE.BoxGeometry(2.2, 0.52, 0.22), fabricMat, 'Main Backrest');
+    mainBack.position.set(0, 0.56, -0.37);
+    group.add(mainBack);
+
+    const chaiseArm = this.createMesh(new THREE.BoxGeometry(0.22, 0.45, 1.5), fabricMat, 'Chaise Armrest');
+    chaiseArm.position.set(1.44, 0.52, 0.75);
+    group.add(chaiseArm);
+
+    const leftArm = this.createMesh(new THREE.BoxGeometry(0.22, 0.45, 0.95), fabricMat, 'Left Armrest');
+    leftArm.position.set(-1.1, 0.52, 0);
+    group.add(leftArm);
+
+    // Cushions
+    [-0.55, 0.15].forEach((cx, idx) => {
+      const seat = this.createMesh(new THREE.BoxGeometry(0.68, 0.14, 0.72), cushionMat, `Seat Cushion ${idx + 1}`);
+      seat.position.set(cx, 0.36, 0.05);
+      group.add(seat);
+    });
+
+    const chaiseSeat = this.createMesh(new THREE.BoxGeometry(0.72, 0.14, 1.35), cushionMat, 'Chaise Cushion');
+    chaiseSeat.position.set(0.98, 0.36, 0.7);
+    group.add(chaiseSeat);
+
+    // Accent throw pillows
+    const p1 = this.createMesh(new THREE.BoxGeometry(0.35, 0.35, 0.1), pillowMat, 'Throw Pillow 1');
+    p1.rotation.y = 0.25;
+    p1.position.set(-0.85, 0.55, -0.15);
+    group.add(p1);
+
+    const p2 = this.createMesh(new THREE.BoxGeometry(0.32, 0.32, 0.1), pillowMat, 'Throw Pillow 2');
+    p2.rotation.y = -0.3;
+    p2.position.set(1.2, 0.55, 0.2);
+    group.add(p2);
+
+    // Wooden legs
+    const legGeom = new THREE.CylinderGeometry(0.022, 0.016, 0.12, 12);
+    [
+      [-1.1, -0.4], [1.5, -0.4],
+      [-1.1, 0.4], [0.55, 0.4],
+      [1.5, 1.45], [0.55, 1.45]
+    ].forEach(([lx, lz], idx) => {
+      const leg = this.createMesh(legGeom, legMat, `Sofa Leg ${idx + 1}`);
+      leg.position.set(lx, 0.06, lz);
+      group.add(leg);
+    });
+
+    return group;
+  }
+
+  // 51. CALACATTA MARBLE WATERFALL KITCHEN ISLAND WITH 3 STOOLS
+  static createWaterfallKitchenIsland() {
+    const group = new THREE.Group();
+    group.name = 'Waterfall Marble Island';
+    group.userData = { type: 'waterfall_island', name: 'Calacatta Marble Waterfall Island & Stools', cost: 2400 };
+
+    const marbleTex = TextureGenerator.createMarbleTexture(0xfafafa, 0x78716c);
+    marbleTex.repeat.set(2, 1);
+    const marbleMat = new THREE.MeshStandardMaterial({
+      map: marbleTex,
+      roughness: 0.15,
+      metalness: 0.08
+    });
+    const cabinetMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3 }); // Charcoal dark wood
+    const cooktopMat = new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.1, metalness: 0.9 });
+    const woodStoolMat = new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.6 });
+    const metalLegMat = new THREE.MeshStandardMaterial({ color: 0x18181b, metalness: 0.8, roughness: 0.3 });
+
+    const W = 2.4;  // Length
+    const D = 1.0;  // Width
+    const H = 0.92; // Countertop height
+    const thick = 0.06;
+
+    // Top marble slab
+    const topSlab = this.createMesh(new THREE.BoxGeometry(W, thick, D), marbleMat, 'Marble Island Top');
+    topSlab.position.set(0, H - thick / 2, 0);
+    group.add(topSlab);
+
+    // Left waterfall slab
+    const leftWaterfall = this.createMesh(new THREE.BoxGeometry(thick, H - thick, D), marbleMat, 'Left Waterfall Leg');
+    leftWaterfall.position.set(-W / 2 + thick / 2, (H - thick) / 2, 0);
+    group.add(leftWaterfall);
+
+    // Right waterfall slab
+    const rightWaterfall = this.createMesh(new THREE.BoxGeometry(thick, H - thick, D), marbleMat, 'Right Waterfall Leg');
+    rightWaterfall.position.set(W / 2 - thick / 2, (H - thick) / 2, 0);
+    group.add(rightWaterfall);
+
+    // Internal under-counter cabinetry (charcoal)
+    const innerCabinet = this.createMesh(new THREE.BoxGeometry(W - thick * 2 - 0.02, H - thick - 0.04, D * 0.65), cabinetMat, 'Inner Island Cabinets');
+    innerCabinet.position.set(0, (H - thick) / 2, -D * 0.15);
+    group.add(innerCabinet);
+
+    // Induction cooktop surface
+    const cooktop = this.createMesh(new THREE.BoxGeometry(0.75, 0.008, 0.48), cooktopMat, 'Induction Cooktop');
+    cooktop.position.set(-0.35, H + 0.004, -0.05);
+    group.add(cooktop);
+
+    // Induction burner rings
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x52525b });
+    [-0.18, 0.18].forEach(rx => {
+      const ring = this.createMesh(new THREE.RingGeometry(0.06, 0.08, 20), ringMat, 'Burner Ring');
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.set(-0.35 + rx, H + 0.009, -0.05);
+      group.add(ring);
+    });
+
+    // 3 Modern Scandinavian Bar Stools on breakfast side
+    [-0.65, 0, 0.65].forEach((sx, idx) => {
+      const stool = new THREE.Group();
+      stool.name = `Bar Stool ${idx + 1}`;
+      // Curved wooden seat
+      const seat = this.createMesh(new THREE.BoxGeometry(0.38, 0.03, 0.32), woodStoolMat, 'Stool Seat');
+      seat.position.set(0, 0.66, 0);
+      stool.add(seat);
+      // Low curved back lip
+      const backLip = this.createMesh(new THREE.BoxGeometry(0.36, 0.1, 0.03), woodStoolMat, 'Stool Back');
+      backLip.position.set(0, 0.72, 0.14);
+      stool.add(backLip);
+      // Slender black metal legs
+      const stoolLegGeom = new THREE.CylinderGeometry(0.012, 0.009, 0.65, 10);
+      [[-0.14, -0.12], [0.14, -0.12], [-0.14, 0.12], [0.14, 0.12]].forEach(([lx, lz]) => {
+        const leg = this.createMesh(stoolLegGeom, metalLegMat, 'Stool Leg');
+        leg.position.set(lx, 0.33, lz);
+        stool.add(leg);
+      });
+      stool.position.set(sx, 0, D / 2 + 0.28);
+      group.add(stool);
+    });
+
+    return group;
+  }
+
+  // 52. TWIN BEDS SET FOR BEDROOM 3
+  static createTwinBedsSet() {
+    const group = new THREE.Group();
+    group.name = 'Twin Beds Bedroom Set';
+    group.userData = { type: 'twin_beds', name: 'Matching Twin Single Beds & Nightstand', cost: 1350 };
+
+    [-1.2, 1.2].forEach((bx, idx) => {
+      const bed = this.createSingleBed('modern', 0xd4a373);
+      bed.name = `Twin Bed ${idx + 1}`;
+      bed.position.set(bx, 0, 0);
+      group.add(bed);
+    });
+
+    // Shared center nightstand
+    const stand = this.createNightstand('modern');
+    stand.name = 'Center Nightstand';
+    stand.position.set(0, 0, -0.6);
+    group.add(stand);
+
+    // Lamp on center nightstand
+    const lamp = this.createTableLamp('modern', 0xd4a373);
+    lamp.position.set(0, 0.52, -0.6);
+    group.add(lamp);
+
+    return group;
+  }
+
+  // 53. 4-PANEL BLACK ALUMINUM SLIDING BALCONY DOOR
+  static createSlidingBalconyDoor(width = 3.8, height = 2.2) {
+    const group = new THREE.Group();
+    group.name = 'Black-Framed Balcony Sliding Doors';
+    group.userData = { type: 'sliding_balcony_door', name: '4-Panel Black Metal Sliding Glass Door System', cost: 1600 };
+
+    const fMat = new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.3, metalness: 0.85 }); // Matt black aluminum
+    const gMat = new THREE.MeshStandardMaterial({
+      color: 0xbae6fd,
+      roughness: 0.05,
+      metalness: 0.1,
+      transparent: true,
+      opacity: 0.4
+    });
+
+    // Outer frame perimeter
+    const topFrame = this.createMesh(new THREE.BoxGeometry(width, 0.08, 0.14), fMat, 'Top Header Frame');
+    topFrame.position.set(0, height - 0.04, 0);
+    group.add(topFrame);
+
+    const botTrack = this.createMesh(new THREE.BoxGeometry(width, 0.04, 0.16), fMat, 'Bottom Floor Track');
+    botTrack.position.set(0, 0.02, 0);
+    group.add(botTrack);
+
+    const leftJamb = this.createMesh(new THREE.BoxGeometry(0.08, height, 0.14), fMat, 'Left Wall Jamb');
+    leftJamb.position.set(-width / 2 + 0.04, height / 2, 0);
+    group.add(leftJamb);
+
+    const rightJamb = this.createMesh(new THREE.BoxGeometry(0.08, height, 0.14), fMat, 'Right Wall Jamb');
+    rightJamb.position.set(width / 2 - 0.04, height / 2, 0);
+    group.add(rightJamb);
+
+    // 4 vertical glass leaves
+    const leafW = (width - 0.16) / 4;
+    for (let i = 0; i < 4; i++) {
+      const panel = new THREE.Group();
+      panel.name = `Door Leaf ${i + 1}`;
+      // Black panel sub-frame
+      const pt = this.createMesh(new THREE.BoxGeometry(leafW, 0.05, 0.05), fMat, 'Leaf Top');
+      pt.position.set(0, height - 0.09, 0);
+      panel.add(pt);
+      const pb = this.createMesh(new THREE.BoxGeometry(leafW, 0.05, 0.05), fMat, 'Leaf Bot');
+      pb.position.set(0, 0.06, 0);
+      panel.add(pb);
+      const pl = this.createMesh(new THREE.BoxGeometry(0.05, height - 0.14, 0.05), fMat, 'Leaf Left');
+      pl.position.set(-leafW / 2 + 0.025, height / 2, 0);
+      panel.add(pl);
+      const pr = this.createMesh(new THREE.BoxGeometry(0.05, height - 0.14, 0.05), fMat, 'Leaf Right');
+      pr.position.set(leafW / 2 - 0.025, height / 2, 0);
+      panel.add(pr);
+
+      // Glass pane
+      const glass = this.createMesh(new THREE.BoxGeometry(leafW - 0.08, height - 0.22, 0.015), gMat, 'Door Glass');
+      glass.position.set(0, height / 2, 0);
+      panel.add(glass);
+
+      // Handle on sliding panels
+      if (i === 1 || i === 2) {
+        const handle = this.createMesh(new THREE.BoxGeometry(0.02, 0.45, 0.04), fMat, 'Door Pull Handle');
+        handle.position.set(i === 1 ? leafW / 2 - 0.06 : -leafW / 2 + 0.06, height * 0.48, 0.04);
+        panel.add(handle);
+      }
+
+      // Stagger panel positions along track (panel 2 slightly slid open for natural walk-through!)
+      const posX = -width / 2 + 0.08 + leafW / 2 + i * leafW;
+      const posZ = (i % 2 === 0) ? -0.03 : 0.03;
+      // Slight open offset on panel 1 to showcase open circulation!
+      panel.position.set(i === 1 ? posX + 0.25 : posX, 0, posZ);
+      group.add(panel);
+    }
+
+    return group;
+  }
+
+  // 54. FLUTED VERTICAL TIMBER SLAT HEADBOARD ACCENT WALL
+  static createFlutedHeadboardWall(width = 3.6, height = 2.4) {
+    const group = new THREE.Group();
+    group.name = 'Fluted Wood Slat Accent Wall';
+    group.userData = { type: 'fluted_slat_wall', name: 'Master Bed Fluted Oak Slat Feature Wall', cost: 1100 };
+
+    const backerMat = new THREE.MeshStandardMaterial({ color: 0xc89d6c, roughness: 0.6 });
+    const slatMat = new THREE.MeshStandardMaterial({ color: 0x9a6534, roughness: 0.5 });
+    const sconceMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.85, roughness: 0.2 });
+
+    // Backing panel
+    const backer = this.createMesh(new THREE.BoxGeometry(width, height, 0.02), backerMat, 'Backing Panel');
+    backer.position.set(0, height / 2, 0);
+    group.add(backer);
+
+    // Vertical timber fluted slats
+    const slatW = 0.04;
+    const gap = 0.03;
+    const numSlats = Math.floor(width / (slatW + gap));
+    for (let s = 0; s < numSlats; s++) {
+      const slat = this.createMesh(new THREE.BoxGeometry(slatW, height, 0.03), slatMat, `Fluted Slat ${s + 1}`);
+      slat.position.set(-width / 2 + slatW / 2 + s * (slatW + gap), height / 2, 0.025);
+      group.add(slat);
+    }
+
+    // Brass bedside reading sconces on left and right
+    [-width * 0.4, width * 0.4].forEach((sx, idx) => {
+      const sconce = this.createMesh(new THREE.CylinderGeometry(0.04, 0.05, 0.16, 12), sconceMat, `Wall Sconce ${idx + 1}`);
+      sconce.position.set(sx, 1.45, 0.08);
+      group.add(sconce);
+    });
+
+    return group;
+  }
 }
 
   window.FurnitureFactory = FurnitureFactory;
@@ -7080,479 +7464,385 @@ class AIEngine {
         });
 
       } else if (is3BHK) {
-        concept = `LUXURY 3 BHK RESIDENCE (10 CONNECTED SPACES & BALCONY) (${style.toUpperCase()})`;
-        spatialRationale = `A prestigious 19m × 18.5m architectural 3 BHK layout master-engineered with flawless circular circulation flow. Features a welcoming Entrance Foyer with slatted teak divider screen, expansive Open Living Room Lounge with Missouri 4K TV backdrop and deep sectional sofa, interconnected Formal Dining Pavilion with 6-seater dining table & credenza, modern Modular Kitchen with quartz prep island and bar stools, private Master Bedroom Suite (Bed 1) with King bed, dressing vanity, walk-in wardrobe and en-suite designer bathroom, a peaceful Second Bedroom Suite (Bed 2) with Queen bed, study desk and wardrobe, an agile Third Bedroom Suite (Bed 3) tailored for kids or executive remote study, central designer Common Bathroom, and a front Private Balcony Deck with teak outdoor leisure seating.`;
-        lightingPlan = `Harmonious 3000K multi-zone lighting scheme: soft living ambient coves, statement pendant dining chandelier, recessed under-cabinet LED task strips in kitchen, backlit bathroom mirrors, study task illumination, and exterior balcony warm downlights.`;
+        concept = `SCANDINAVIAN LUXURY 3 BHK RESIDENCE (${style.toUpperCase()})`;
+        spatialRationale = `A master-crafted 3 BHK architectural cutaway residence matching the exact reference structure. Features a screened Entrance Foyer with vertical fluted oak slat partitions, an expansive Great Room Living Hall with a cream L-shaped sectional sofa facing a minimalist oak media console, 4-panel black-framed sliding glass doors opening directly onto a timber-decked Balcony with glass railings and planters, an open central Dining Pavilion with a 6-seater Scandinavian table set against an exposed rustic red brick feature wall, a state-of-the-art Kitchen with a Calacatta marble waterfall island & trio of barstools, an enclosed Common Family Bathroom with floating double vanity and glass rain shower completely shielded from dining sightlines, a private Master Bedroom Suite with a full fluted oak slat headboard wall, King bed, and connected en-suite bath, a peaceful Bedroom 2 with Queen bed and open-niche wardrobe, and Bedroom 3 configured with twin single beds and study workstation.`;
+        lightingPlan = `Layered 3000K warm architectural lighting: soft living cove glow, dimmable LED strips under kitchen cabinets and island overhang, backlit bathroom mirrors, fluted headboard brass reading sconces, and natural sunlight pouring through the wide black-framed balcony glass sliders.`;
 
         // ==========================================
         // 3 BHK: 1. ENTRANCE FOYER
         // ==========================================
         items.push({
+          id: 'threebhk_foyer_rug',
+          type: 'rug',
+          name: 'Entrance Foyer Welcome Runner',
+          position: [2.5, 0.005, 4.6],
+          rotation: [0, 0, 0],
+          dimensions: [1.8, 1.2],
+          style: style,
+          room: 'foyer',
+          cost: 210
+        });
+        items.push({
           id: 'threebhk_foyer_console',
           type: 'foyer_console',
-          name: 'Entrance Foyer Console Table & Vanity Mirror',
-          position: [-5.0, 0, 3.65],
-          rotation: [0, 0, 0],
+          name: 'Minimalist Entry Console & Key Tray',
+          position: [3.3, 0, 4.9],
+          rotation: [0, -Math.PI / 2, 0],
           room: 'foyer',
-          cost: 510
+          cost: 480
         });
         items.push({
           id: 'threebhk_foyer_plant',
           type: 'plant',
-          name: 'Entrance Foyer Potted Olive Tree',
-          position: [-3.8, 0, 6.0],
+          name: 'Foyer Potted Olive Tree',
+          position: [1.8, 0, 5.2],
           rotation: [0, 0, 0],
           room: 'foyer',
-          cost: 170
-        });
-        items.push({
-          id: 'threebhk_foyer_rug',
-          type: 'rug',
-          name: 'Entrance Foyer Welcome Runner',
-          position: [-5.0, 0.005, 4.9],
-          rotation: [0, 0, 0],
-          dimensions: [2.0, 1.2],
-          style: style,
-          room: 'foyer',
-          cost: 220
+          cost: 160
         });
 
         // ==========================================
-        // 3 BHK: 2. LIVING ROOM LOUNGE
+        // 3 BHK: 2. LIVING ROOM GREAT HALL
         // ==========================================
         items.push({
-          id: 'threebhk_living_tv_unit',
-          type: 'missouri_tv_unit',
-          name: 'Missouri Engineered Wood TV Unit with Fluted Slat Backdrop',
-          position: [-3.25, 0, 4.15],
-          rotation: [0, Math.PI / 2, 0],
-          style: style,
+          id: 'threebhk_living_sectional',
+          type: 'l_sectional_sofa',
+          name: 'Cream L-Sectional Lounge Sofa with Chaise',
+          position: [-3.2, 0, 2.4],
+          rotation: [0, Math.PI, 0],
+          color: 0xf5f3ee,
           room: 'living',
-          cost: 1450
-        });
-        items.push({
-          id: 'threebhk_living_sofa',
-          type: 'sofa',
-          name: 'Plush Ergonomic Living Lounge Sectional Sofa',
-          position: [0.6, 0, 4.15],
-          rotation: [0, -Math.PI / 2, 0],
-          style: style,
-          color: palette.sofaColor,
-          room: 'living',
-          cost: 1600
+          cost: 1850
         });
         items.push({
           id: 'threebhk_living_coffee_table',
           type: 'coffee_table',
-          name: 'Architectural Wood & Glass Coffee Table',
-          position: [-1.2, 0, 4.15],
+          name: 'Scandinavian Oak Rectangular Coffee Table',
+          position: [-3.6, 0, 2.5],
           rotation: [0, 0, 0],
-          style: style,
-          woodColor: palette.woodColor,
+          woodColor: 0xd4a373,
           room: 'living',
-          cost: 450
+          cost: 420
         });
         items.push({
           id: 'threebhk_living_rug',
           type: 'rug',
-          name: 'Living Room Plush Wool Area Rug',
-          position: [-0.6, 0.005, 4.15],
+          name: 'Textured Jute & Wool Area Rug',
+          position: [-3.5, 0.005, 2.5],
           rotation: [0, 0, 0],
-          dimensions: [3.6, 2.8],
+          dimensions: [3.4, 2.6],
           style: style,
           room: 'living',
-          cost: 410
+          cost: 450
         });
         items.push({
-          id: 'threebhk_living_armchair',
-          type: 'armchair',
-          name: 'Scandinavian Accent Armchair',
-          position: [-0.5, 0, 2.4],
-          rotation: [0, Math.PI, 0],
-          style: style,
+          id: 'threebhk_living_tv_unit',
+          type: 'missouri_tv_unit',
+          name: 'Low Oak Media Console with 65" 4K TV',
+          position: [-6.2, 0, 2.4],
+          rotation: [0, Math.PI / 2, 0],
+          design: 2,
           room: 'living',
-          cost: 380
+          cost: 1250
         });
         items.push({
-          id: 'threebhk_living_lamp',
-          type: 'floor_lamp',
-          name: 'Sculptural Brass Arc Floor Lamp',
-          position: [1.8, 0, 5.8],
+          id: 'threebhk_living_ficus_tree',
+          type: 'plant',
+          name: 'Living Room Potted Ficus Tree',
+          position: [-5.8, 0, 3.8],
           rotation: [0, 0, 0],
-          style: style,
           room: 'living',
-          cost: 290
+          cost: 190
+        });
+        items.push({
+          id: 'threebhk_balcony_slider',
+          type: 'sliding_balcony_door',
+          name: '4-Panel Black Metal Sliding Glass Door System',
+          position: [-3.5, 0, 4.5],
+          rotation: [0, 0, 0],
+          width: 4.8,
+          height: 2.2,
+          room: 'living',
+          cost: 1600
         });
 
         // ==========================================
-        // 3 BHK: 3. DINING PAVILION
+        // 3 BHK: 3. SUNSET BALCONY DECK
         // ==========================================
         items.push({
-          id: 'threebhk_dining_table',
-          type: 'dining_set',
-          name: 'Solid Hardwood Dining Table & 6 Designer Chairs',
-          position: [5.0, 0, 4.15],
+          id: 'threebhk_balcony_chair1',
+          type: 'patio_set',
+          name: 'Outdoor Teak & Wicker Bistro Set',
+          position: [-4.2, 0, 5.4],
           rotation: [0, 0, 0],
-          style: style,
-          woodColor: palette.woodColor,
-          room: 'dining',
-          cost: 1550
+          room: 'balcony',
+          cost: 420
         });
         items.push({
-          id: 'threebhk_dining_credenza',
-          type: 'credenza',
-          name: 'Dining Buffet Credenza & Crockery Cabinet',
-          position: [7.2, 0, 4.15],
-          rotation: [0, -Math.PI / 2, 0],
-          style: style,
-          woodColor: palette.woodColor,
+          id: 'threebhk_balcony_planters_w',
+          type: 'plant',
+          name: 'Balcony Architectural Evergreen Planter (West)',
+          position: [-5.6, 0, 5.6],
+          rotation: [0, 0, 0],
+          room: 'balcony',
+          cost: 140
+        });
+        items.push({
+          id: 'threebhk_balcony_planters_e',
+          type: 'plant',
+          name: 'Balcony Architectural Evergreen Planter (East)',
+          position: [-1.6, 0, 5.6],
+          rotation: [0, 0, 0],
+          room: 'balcony',
+          cost: 140
+        });
+
+        // ==========================================
+        // 3 BHK: 4. CENTRAL DINING PAVILION
+        // ==========================================
+        items.push({
+          id: 'threebhk_dining_table_set',
+          type: 'dining_set',
+          name: 'Solid Oak Dining Table & 6 Wishbone Scandinavian Chairs',
+          position: [1.1, 0, 1.8],
+          rotation: [0, 0, 0],
+          woodColor: 0xd4a373,
+          chairColor: 0xd4a373,
           room: 'dining',
-          cost: 650
+          cost: 1650
         });
         items.push({
           id: 'threebhk_dining_plant',
           type: 'plant',
-          name: 'Dining Room Potted Palm Plant',
-          position: [2.8, 0, 5.8],
+          name: 'Dining Side Potted Ficus Plant',
+          position: [-0.3, 0, 3.2],
           rotation: [0, 0, 0],
           room: 'dining',
-          cost: 150
+          cost: 160
         });
 
         // ==========================================
-        // 3 BHK: 4. MODULAR KITCHEN & BREAKFAST ISLAND
+        // 3 BHK: 5. MODERN KITCHEN & WATERFALL ISLAND
         // ==========================================
         items.push({
-          id: 'threebhk_kitchen_main',
-          type: 'kitchen_counter',
-          name: 'Modular Kitchen Cabinets & Counter with Double Sink',
-          position: [5.0, 0, -2.2],
+          id: 'threebhk_kitchen_waterfall_island',
+          type: 'waterfall_island',
+          name: 'Calacatta Marble Waterfall Island with Induction Cooktop & 3 Stools',
+          position: [4.8, 0, 1.8],
           rotation: [0, 0, 0],
           room: 'kitchen',
-          cost: 1950
+          cost: 2400
         });
         items.push({
-          id: 'threebhk_kitchen_island',
-          type: 'kitchen_island',
-          name: 'Quartz Countertop Prep Island & Induction Range',
-          position: [5.0, 0, 0.2],
-          rotation: [0, 0, 0],
+          id: 'threebhk_kitchen_main_run',
+          type: 'straight_kitchen',
+          name: 'Dark Charcoal Modular Kitchen Run with Undermount Sink & Ovens',
+          position: [6.8, 0, 2.8],
+          rotation: [0, -Math.PI / 2, 0],
+          color: 0x1e293b,
           room: 'kitchen',
-          cost: 1450
-        });
-        items.push({
-          id: 'threebhk_kitchen_stools',
-          type: 'bar_stool',
-          name: 'Counter-Height Bar Stools (Trio)',
-          position: [5.0, 0, 1.2],
-          rotation: [0, 0, 0],
-          room: 'kitchen',
-          cost: 360
+          cost: 2100
         });
         items.push({
           id: 'threebhk_kitchen_fridge',
           type: 'refrigerator',
-          name: 'Smart French-Door Refrigerator',
-          position: [7.1, 0, -2.1],
+          name: 'Black Stainless Smart French-Door Refrigerator',
+          position: [6.8, 0, 4.6],
           rotation: [0, -Math.PI / 2, 0],
           room: 'kitchen',
-          cost: 1350
+          cost: 1400
         });
 
         // ==========================================
-        // 3 BHK: 5. MASTER BEDROOM SUITE (BED 1)
+        // 3 BHK: 6. COMMON BATHROOM (ENCLOSED BEHIND BRICK ACCENT WALL)
         // ==========================================
+        items.push({
+          id: 'threebhk_common_shower',
+          type: 'shower',
+          name: 'Frameless Glass Walk-In Rain Shower Cabin',
+          position: [1.7, 0, -3.8],
+          rotation: [0, 0, 0],
+          width: 1.2,
+          depth: 1.1,
+          room: 'common_bath',
+          cost: 720
+        });
+        items.push({
+          id: 'threebhk_common_vanity',
+          type: 'bathroom_vanity',
+          name: 'Double Floating Basin Vanity with LED Illuminated Mirror',
+          position: [0.1, 0, -3.8],
+          rotation: [0, Math.PI, 0],
+          width: 1.2,
+          room: 'common_bath',
+          cost: 650
+        });
+        items.push({
+          id: 'threebhk_common_toilet',
+          type: 'toilet',
+          name: 'Wall-Hung Smart Ceramic Toilet',
+          position: [1.9, 0, -2.0],
+          rotation: [0, -Math.PI / 2, 0],
+          room: 'common_bath',
+          cost: 320
+        });
+
+        // ==========================================
+        // 3 BHK: 7. MASTER BEDROOM SUITE
+        // ==========================================
+        items.push({
+          id: 'threebhk_master_fluted_wall',
+          type: 'fluted_slat_wall',
+          name: 'Fluted Oak Timber Slat Feature Headboard Wall',
+          position: [5.2, 0, -5.68],
+          rotation: [0, 0, 0],
+          width: 3.8,
+          height: 2.4,
+          room: 'bedroom',
+          cost: 1100
+        });
         items.push({
           id: 'threebhk_master_bed',
           type: 'bed',
-          name: 'Master Suite Luxury King Platform Bed',
-          position: [5.0, 0, -7.1],
+          name: 'Master Suite Luxury King Platform Bed with Linen Duvet',
+          position: [5.2, 0, -4.5],
           rotation: [0, 0, 0],
           style: style,
           room: 'bedroom',
-          cost: 1750
+          cost: 1800
         });
         items.push({
-          id: 'threebhk_master_nightstand_l',
+          id: 'threebhk_master_stand_l',
           type: 'nightstand',
-          name: 'Master Nightstand (Left)',
-          position: [3.3, 0, -7.1],
+          name: 'Master Bedside Floating Oak Nightstand (Left)',
+          position: [3.7, 0, -5.2],
           rotation: [0, 0, 0],
-          style: style,
           room: 'bedroom',
           cost: 240
         });
         items.push({
-          id: 'threebhk_master_nightstand_r',
+          id: 'threebhk_master_stand_r',
           type: 'nightstand',
-          name: 'Master Nightstand (Right)',
-          position: [6.7, 0, -7.1],
+          name: 'Master Bedside Floating Oak Nightstand (Right)',
+          position: [6.7, 0, -5.2],
           rotation: [0, 0, 0],
-          style: style,
           room: 'bedroom',
           cost: 240
-        });
-        items.push({
-          id: 'threebhk_master_wardrobe',
-          type: 'walk_in_wardrobe',
-          name: 'Master Built-In Mirrored Wardrobe System',
-          position: [2.8, 0, -5.25],
-          rotation: [0, Math.PI / 2, 0],
-          style: style,
-          room: 'bedroom',
-          cost: 1600
-        });
-        items.push({
-          id: 'threebhk_master_vanity',
-          type: 'bathroom_vanity',
-          name: 'Master Dressing Vanity Console & Mirror',
-          position: [7.2, 0, -5.25],
-          rotation: [0, -Math.PI / 2, 0],
-          style: style,
-          room: 'bedroom',
-          cost: 590
         });
         items.push({
           id: 'threebhk_master_rug',
           type: 'rug',
-          name: 'Master Bedroom Plush Wool Rug',
-          position: [5.0, 0.005, -5.4],
+          name: 'Master Suite Soft Neutral Wool Rug',
+          position: [5.2, 0.005, -4.2],
           rotation: [0, 0, 0],
           dimensions: [3.4, 2.6],
           style: style,
           room: 'bedroom',
           cost: 420
         });
-
-        // ==========================================
-        // 3 BHK: 6. MASTER EN-SUITE BATHROOM
-        // ==========================================
+        // Master En-suite Bath Fixtures
         items.push({
-          id: 'threebhk_master_shower',
+          id: 'threebhk_ensuite_shower',
           type: 'shower',
-          name: 'Master En-Suite Frameless Glass Rain Shower',
-          position: [6.9, 0, -2.0],
+          name: 'Master En-Suite Glass Shower Enclosure',
+          position: [6.8, 0, -2.4],
           rotation: [0, -Math.PI / 2, 0],
           room: 'master_bath',
-          cost: 720
+          cost: 680
         });
         items.push({
-          id: 'threebhk_master_vanity_bath',
+          id: 'threebhk_ensuite_vanity',
           type: 'bathroom_vanity',
-          name: 'Master Floating Basin Vanity with LED Mirror',
-          position: [5.6, 0, -0.4],
+          name: 'Master En-Suite Single Basin Vanity',
+          position: [5.6, 0, -1.5],
           rotation: [0, Math.PI, 0],
           room: 'master_bath',
-          cost: 560
+          cost: 520
         });
         items.push({
-          id: 'threebhk_master_toilet',
+          id: 'threebhk_ensuite_toilet',
           type: 'toilet',
-          name: 'Master Wall-Hung Smart Ceramic Toilet',
-          position: [7.0, 0, -0.4],
+          name: 'Master En-Suite Wall-Hung Toilet',
+          position: [6.8, 0, -1.5],
           rotation: [0, Math.PI, 0],
           room: 'master_bath',
-          cost: 340
-        });
-
-        // ==========================================
-        // 3 BHK: 7. SECOND BEDROOM SUITE (BED 2)
-        // ==========================================
-        items.push({
-          id: 'threebhk_bed2_bed',
-          type: 'bed',
-          name: 'Second Bedroom Queen Upholstered Bed',
-          position: [-5.0, 0, -7.1],
-          rotation: [0, 0, 0],
-          style: style,
-          room: 'bedroom2',
-          cost: 1250
-        });
-        items.push({
-          id: 'threebhk_bed2_nightstand_l',
-          type: 'nightstand',
-          name: 'Nightstand Left',
-          position: [-6.4, 0, -7.1],
-          rotation: [0, 0, 0],
-          style: style,
-          room: 'bedroom2',
-          cost: 210
-        });
-        items.push({
-          id: 'threebhk_bed2_nightstand_r',
-          type: 'nightstand',
-          name: 'Nightstand Right',
-          position: [-3.6, 0, -7.1],
-          rotation: [0, 0, 0],
-          style: style,
-          room: 'bedroom2',
-          cost: 210
-        });
-        items.push({
-          id: 'threebhk_bed2_wardrobe',
-          type: 'walk_in_wardrobe',
-          name: 'Sliding Wardrobe System',
-          position: [-7.2, 0, -5.25],
-          rotation: [0, Math.PI / 2, 0],
-          style: style,
-          room: 'bedroom2',
-          cost: 1100
-        });
-        items.push({
-          id: 'threebhk_bed2_desk',
-          type: 'desk',
-          name: 'Study Workstation & Chair',
-          position: [-3.8, 0, -3.2],
-          rotation: [0, Math.PI, 0],
-          style: style,
-          room: 'bedroom2',
-          cost: 490
-        });
-        items.push({
-          id: 'threebhk_bed2_rug',
-          type: 'rug',
-          name: 'Bed 2 Cozy Wool Rug',
-          position: [-5.0, 0.005, -5.5],
-          rotation: [0, 0, 0],
-          dimensions: [2.8, 2.2],
-          style: style,
-          room: 'bedroom2',
           cost: 320
         });
 
         // ==========================================
-        // 3 BHK: 8. THIRD BEDROOM / KIDS / STUDY (BED 3)
+        // 3 BHK: 8. BEDROOM 2 (QUEEN BED & BUILT-IN WARDROBE)
         // ==========================================
         items.push({
-          id: 'threebhk_bed3_bed',
+          id: 'threebhk_bed2_bed',
           type: 'bed',
-          name: 'Bed 3 Contemporary Daybed Suite',
-          position: [-5.5, 0, -2.0],
+          name: 'Bedroom 2 Scandinavian Queen Upholstered Bed',
+          position: [-4.6, 0, 0.5],
           rotation: [0, 0, 0],
           style: style,
-          room: 'bedroom3',
-          cost: 950
+          room: 'bedroom2',
+          cost: 1350
         });
         items.push({
-          id: 'threebhk_bed3_desk',
-          type: 'desk',
-          name: 'Ergonomic Executive Study Desk & Task Chair',
-          position: [-7.1, 0, -0.35],
-          rotation: [0, Math.PI / 2, 0],
-          style: style,
-          room: 'bedroom3',
-          cost: 540
+          id: 'threebhk_bed2_nightstand',
+          type: 'nightstand',
+          name: 'Bedroom 2 Oak Nightstand & Lamp',
+          position: [-6.0, 0, 0.5],
+          rotation: [0, 0, 0],
+          room: 'bedroom2',
+          cost: 220
         });
         items.push({
-          id: 'threebhk_bed3_bookshelf',
-          type: 'bookshelf',
-          name: 'Study Bookshelf & Display Storage',
-          position: [-7.1, 0, 1.2],
-          rotation: [0, Math.PI / 2, 0],
-          style: style,
-          room: 'bedroom3',
-          cost: 420
+          id: 'threebhk_bed2_wardrobe',
+          type: 'wardrobe',
+          name: 'Light Oak Built-in Wardrobe with Hanging Niche',
+          position: [-3.2, 0, -1.8],
+          rotation: [0, 0, 0],
+          room: 'bedroom2',
+          cost: 1200
         });
         items.push({
-          id: 'threebhk_bed3_wardrobe',
-          type: 'walk_in_wardrobe',
-          name: 'Double Wardrobe Closet',
-          position: [-3.8, 0, -0.35],
-          rotation: [0, -Math.PI / 2, 0],
-          style: style,
-          room: 'bedroom3',
-          cost: 980
-        });
-        items.push({
-          id: 'threebhk_bed3_rug',
+          id: 'threebhk_bed2_rug',
           type: 'rug',
-          name: 'Study Low-Pile Pattern Rug',
-          position: [-5.5, 0.005, -0.35],
+          name: 'Bedroom 2 Soft Pile Bedside Rug',
+          position: [-4.6, 0.005, 0.5],
           rotation: [0, 0, 0],
-          dimensions: [2.4, 1.8],
+          dimensions: [2.6, 2.0],
           style: style,
-          room: 'bedroom3',
-          cost: 260
-        });
-
-        // ==========================================
-        // 3 BHK: 9. COMMON FAMILY BATHROOM
-        // ==========================================
-        items.push({
-          id: 'threebhk_common_shower',
-          type: 'shower',
-          name: 'Common Bath Walk-In Shower',
-          position: [-3.0, 0, -2.1],
-          rotation: [0, 0, 0],
-          room: 'common_bath',
-          cost: 580
-        });
-        items.push({
-          id: 'threebhk_common_vanity',
-          type: 'bathroom_vanity',
-          name: 'Common Bath Vanity & Mirror',
-          position: [-1.5, 0, -0.4],
-          rotation: [0, Math.PI, 0],
-          room: 'common_bath',
-          cost: 480
-        });
-        items.push({
-          id: 'threebhk_common_toilet',
-          type: 'toilet',
-          name: 'Wall-Hung Ceramic Toilet',
-          position: [-2.5, 0, -0.4],
-          rotation: [0, Math.PI, 0],
-          room: 'common_bath',
+          room: 'bedroom2',
           cost: 290
         });
 
         // ==========================================
-        // 3 BHK: 10. FRONT BALCONY DECK
+        // 3 BHK: 9. BEDROOM 3 (TWIN BEDS / KIDS SUITE & STUDY)
         // ==========================================
         items.push({
-          id: 'threebhk_balcony_chair1',
-          type: 'armchair',
-          name: 'Outdoor Teak & Rope Lounge Armchair',
-          position: [-1.4, 0, 7.45],
+          id: 'threebhk_bed3_twin_beds',
+          type: 'twin_beds',
+          name: 'Bedroom 3 Matching Twin Single Beds with Center Lamp',
+          position: [-4.5, 0, -4.5],
+          rotation: [0, 0, 0],
+          room: 'bedroom3',
+          cost: 1450
+        });
+        items.push({
+          id: 'threebhk_bed3_desk',
+          type: 'desk',
+          name: 'Study Desk & Minimalist Chair by North Window',
+          position: [-6.1, 0, -2.8],
           rotation: [0, Math.PI / 2, 0],
-          room: 'balcony',
-          cost: 310
+          room: 'bedroom3',
+          cost: 510
         });
         items.push({
-          id: 'threebhk_balcony_chair2',
-          type: 'armchair',
-          name: 'Outdoor Teak & Rope Lounge Armchair',
-          position: [0.4, 0, 7.45],
-          rotation: [0, -Math.PI / 2, 0],
-          room: 'balcony',
-          cost: 310
-        });
-        items.push({
-          id: 'threebhk_balcony_table',
-          type: 'coffee_table',
-          name: 'Outdoor Terrazzo Bistro Table',
-          position: [-0.5, 0, 7.45],
+          id: 'threebhk_bed3_rug',
+          type: 'rug',
+          name: 'Bedroom 3 Geometric Floor Rug',
+          position: [-4.5, 0.005, -3.8],
           rotation: [0, 0, 0],
-          room: 'balcony',
-          cost: 240
-        });
-        items.push({
-          id: 'threebhk_balcony_planter1',
-          type: 'plant',
-          name: 'Balcony Architectural Planter Box',
-          position: [-3.1, 0, 7.45],
-          rotation: [0, 0, 0],
-          room: 'balcony',
-          cost: 140
-        });
-        items.push({
-          id: 'threebhk_balcony_planter2',
-          type: 'plant',
-          name: 'Balcony Architectural Planter Box',
-          position: [2.1, 0, 7.45],
-          rotation: [0, 0, 0],
-          room: 'balcony',
-          cost: 140
+          dimensions: [2.8, 2.0],
+          style: style,
+          room: 'bedroom3',
+          cost: 260
         });
 
       } else if (isVilla) {

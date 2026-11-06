@@ -3072,6 +3072,22 @@ class App {
       case 'courtyard_lanterns':
         meshGroup = FurnitureFactory.createOutdoorFloorLanterns();
         break;
+      case 'l_sectional_sofa':
+      case 'cream_sectional':
+        meshGroup = FurnitureFactory.createSectionalLSofa(itemData.color || 0xf1efe9);
+        break;
+      case 'waterfall_island':
+        meshGroup = FurnitureFactory.createWaterfallKitchenIsland();
+        break;
+      case 'twin_beds':
+        meshGroup = FurnitureFactory.createTwinBedsSet();
+        break;
+      case 'sliding_balcony_door':
+        meshGroup = FurnitureFactory.createSlidingBalconyDoor(itemData.width || 3.8, itemData.height || 2.2);
+        break;
+      case 'fluted_slat_wall':
+        meshGroup = FurnitureFactory.createFlutedHeadboardWall(itemData.width || 3.6, itemData.height || 2.4);
+        break;
       default:
         meshGroup = FurnitureFactory.createCoffeeTable(style);
         break;

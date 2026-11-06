@@ -4026,4 +4026,301 @@ export class FurnitureFactory {
 
     return group;
   }
+
+  // 50. MODERN CREAM L-SECTIONAL SOFA
+  static createSectionalLSofa(color = 0xf1efe9) {
+    const group = new THREE.Group();
+    group.name = 'Cream L-Sectional Sofa';
+    group.userData = { type: 'l_sectional_sofa', name: 'Cream L-Sectional Lounge Sofa', cost: 1850 };
+
+    const fabricMat = new THREE.MeshStandardMaterial({
+      color: color,
+      roughness: 0.75,
+      metalness: 0.02
+    });
+    const cushionMat = new THREE.MeshStandardMaterial({
+      color: 0xdedcd5,
+      roughness: 0.8
+    });
+    const legMat = new THREE.MeshStandardMaterial({ color: 0x3d2817, roughness: 0.5 });
+    const pillowMat = new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.8 });
+
+    // Main 3-seat sofa base (Width 2.2m, Depth 0.95m)
+    const mainBase = this.createMesh(new THREE.BoxGeometry(2.2, 0.22, 0.95), fabricMat, 'Main Sofa Base');
+    mainBase.position.set(0, 0.21, 0);
+    group.add(mainBase);
+
+    // Chaise section base (Width 0.95m, Length 1.5m) extending along +Z
+    const chaiseBase = this.createMesh(new THREE.BoxGeometry(0.95, 0.22, 1.5), fabricMat, 'Chaise Base');
+    chaiseBase.position.set(1.075, 0.21, 0.75);
+    group.add(chaiseBase);
+
+    // Backrests
+    const mainBack = this.createMesh(new THREE.BoxGeometry(2.2, 0.52, 0.22), fabricMat, 'Main Backrest');
+    mainBack.position.set(0, 0.56, -0.37);
+    group.add(mainBack);
+
+    const chaiseArm = this.createMesh(new THREE.BoxGeometry(0.22, 0.45, 1.5), fabricMat, 'Chaise Armrest');
+    chaiseArm.position.set(1.44, 0.52, 0.75);
+    group.add(chaiseArm);
+
+    const leftArm = this.createMesh(new THREE.BoxGeometry(0.22, 0.45, 0.95), fabricMat, 'Left Armrest');
+    leftArm.position.set(-1.1, 0.52, 0);
+    group.add(leftArm);
+
+    // Cushions
+    [-0.55, 0.15].forEach((cx, idx) => {
+      const seat = this.createMesh(new THREE.BoxGeometry(0.68, 0.14, 0.72), cushionMat, `Seat Cushion ${idx + 1}`);
+      seat.position.set(cx, 0.36, 0.05);
+      group.add(seat);
+    });
+
+    const chaiseSeat = this.createMesh(new THREE.BoxGeometry(0.72, 0.14, 1.35), cushionMat, 'Chaise Cushion');
+    chaiseSeat.position.set(0.98, 0.36, 0.7);
+    group.add(chaiseSeat);
+
+    // Accent throw pillows
+    const p1 = this.createMesh(new THREE.BoxGeometry(0.35, 0.35, 0.1), pillowMat, 'Throw Pillow 1');
+    p1.rotation.y = 0.25;
+    p1.position.set(-0.85, 0.55, -0.15);
+    group.add(p1);
+
+    const p2 = this.createMesh(new THREE.BoxGeometry(0.32, 0.32, 0.1), pillowMat, 'Throw Pillow 2');
+    p2.rotation.y = -0.3;
+    p2.position.set(1.2, 0.55, 0.2);
+    group.add(p2);
+
+    // Wooden legs
+    const legGeom = new THREE.CylinderGeometry(0.022, 0.016, 0.12, 12);
+    [
+      [-1.1, -0.4], [1.5, -0.4],
+      [-1.1, 0.4], [0.55, 0.4],
+      [1.5, 1.45], [0.55, 1.45]
+    ].forEach(([lx, lz], idx) => {
+      const leg = this.createMesh(legGeom, legMat, `Sofa Leg ${idx + 1}`);
+      leg.position.set(lx, 0.06, lz);
+      group.add(leg);
+    });
+
+    return group;
+  }
+
+  // 51. CALACATTA MARBLE WATERFALL KITCHEN ISLAND WITH 3 STOOLS
+  static createWaterfallKitchenIsland() {
+    const group = new THREE.Group();
+    group.name = 'Waterfall Marble Island';
+    group.userData = { type: 'waterfall_island', name: 'Calacatta Marble Waterfall Island & Stools', cost: 2400 };
+
+    const marbleTex = TextureGenerator.createMarbleTexture(0xfafafa, 0x78716c);
+    marbleTex.repeat.set(2, 1);
+    const marbleMat = new THREE.MeshStandardMaterial({
+      map: marbleTex,
+      roughness: 0.15,
+      metalness: 0.08
+    });
+    const cabinetMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3 }); // Charcoal dark wood
+    const cooktopMat = new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.1, metalness: 0.9 });
+    const woodStoolMat = new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.6 });
+    const metalLegMat = new THREE.MeshStandardMaterial({ color: 0x18181b, metalness: 0.8, roughness: 0.3 });
+
+    const W = 2.4;  // Length
+    const D = 1.0;  // Width
+    const H = 0.92; // Countertop height
+    const thick = 0.06;
+
+    // Top marble slab
+    const topSlab = this.createMesh(new THREE.BoxGeometry(W, thick, D), marbleMat, 'Marble Island Top');
+    topSlab.position.set(0, H - thick / 2, 0);
+    group.add(topSlab);
+
+    // Left waterfall slab
+    const leftWaterfall = this.createMesh(new THREE.BoxGeometry(thick, H - thick, D), marbleMat, 'Left Waterfall Leg');
+    leftWaterfall.position.set(-W / 2 + thick / 2, (H - thick) / 2, 0);
+    group.add(leftWaterfall);
+
+    // Right waterfall slab
+    const rightWaterfall = this.createMesh(new THREE.BoxGeometry(thick, H - thick, D), marbleMat, 'Right Waterfall Leg');
+    rightWaterfall.position.set(W / 2 - thick / 2, (H - thick) / 2, 0);
+    group.add(rightWaterfall);
+
+    // Internal under-counter cabinetry (charcoal)
+    const innerCabinet = this.createMesh(new THREE.BoxGeometry(W - thick * 2 - 0.02, H - thick - 0.04, D * 0.65), cabinetMat, 'Inner Island Cabinets');
+    innerCabinet.position.set(0, (H - thick) / 2, -D * 0.15);
+    group.add(innerCabinet);
+
+    // Induction cooktop surface
+    const cooktop = this.createMesh(new THREE.BoxGeometry(0.75, 0.008, 0.48), cooktopMat, 'Induction Cooktop');
+    cooktop.position.set(-0.35, H + 0.004, -0.05);
+    group.add(cooktop);
+
+    // Induction burner rings
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x52525b });
+    [-0.18, 0.18].forEach(rx => {
+      const ring = this.createMesh(new THREE.RingGeometry(0.06, 0.08, 20), ringMat, 'Burner Ring');
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.set(-0.35 + rx, H + 0.009, -0.05);
+      group.add(ring);
+    });
+
+    // 3 Modern Scandinavian Bar Stools on breakfast side
+    [-0.65, 0, 0.65].forEach((sx, idx) => {
+      const stool = new THREE.Group();
+      stool.name = `Bar Stool ${idx + 1}`;
+      // Curved wooden seat
+      const seat = this.createMesh(new THREE.BoxGeometry(0.38, 0.03, 0.32), woodStoolMat, 'Stool Seat');
+      seat.position.set(0, 0.66, 0);
+      stool.add(seat);
+      // Low curved back lip
+      const backLip = this.createMesh(new THREE.BoxGeometry(0.36, 0.1, 0.03), woodStoolMat, 'Stool Back');
+      backLip.position.set(0, 0.72, 0.14);
+      stool.add(backLip);
+      // Slender black metal legs
+      const stoolLegGeom = new THREE.CylinderGeometry(0.012, 0.009, 0.65, 10);
+      [[-0.14, -0.12], [0.14, -0.12], [-0.14, 0.12], [0.14, 0.12]].forEach(([lx, lz]) => {
+        const leg = this.createMesh(stoolLegGeom, metalLegMat, 'Stool Leg');
+        leg.position.set(lx, 0.33, lz);
+        stool.add(leg);
+      });
+      stool.position.set(sx, 0, D / 2 + 0.28);
+      group.add(stool);
+    });
+
+    return group;
+  }
+
+  // 52. TWIN BEDS SET FOR BEDROOM 3
+  static createTwinBedsSet() {
+    const group = new THREE.Group();
+    group.name = 'Twin Beds Bedroom Set';
+    group.userData = { type: 'twin_beds', name: 'Matching Twin Single Beds & Nightstand', cost: 1350 };
+
+    [-1.2, 1.2].forEach((bx, idx) => {
+      const bed = this.createSingleBed('modern', 0xd4a373);
+      bed.name = `Twin Bed ${idx + 1}`;
+      bed.position.set(bx, 0, 0);
+      group.add(bed);
+    });
+
+    // Shared center nightstand
+    const stand = this.createNightstand('modern');
+    stand.name = 'Center Nightstand';
+    stand.position.set(0, 0, -0.6);
+    group.add(stand);
+
+    // Lamp on center nightstand
+    const lamp = this.createTableLamp('modern', 0xd4a373);
+    lamp.position.set(0, 0.52, -0.6);
+    group.add(lamp);
+
+    return group;
+  }
+
+  // 53. 4-PANEL BLACK ALUMINUM SLIDING BALCONY DOOR
+  static createSlidingBalconyDoor(width = 3.8, height = 2.2) {
+    const group = new THREE.Group();
+    group.name = 'Black-Framed Balcony Sliding Doors';
+    group.userData = { type: 'sliding_balcony_door', name: '4-Panel Black Metal Sliding Glass Door System', cost: 1600 };
+
+    const fMat = new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.3, metalness: 0.85 }); // Matt black aluminum
+    const gMat = new THREE.MeshStandardMaterial({
+      color: 0xbae6fd,
+      roughness: 0.05,
+      metalness: 0.1,
+      transparent: true,
+      opacity: 0.4
+    });
+
+    // Outer frame perimeter
+    const topFrame = this.createMesh(new THREE.BoxGeometry(width, 0.08, 0.14), fMat, 'Top Header Frame');
+    topFrame.position.set(0, height - 0.04, 0);
+    group.add(topFrame);
+
+    const botTrack = this.createMesh(new THREE.BoxGeometry(width, 0.04, 0.16), fMat, 'Bottom Floor Track');
+    botTrack.position.set(0, 0.02, 0);
+    group.add(botTrack);
+
+    const leftJamb = this.createMesh(new THREE.BoxGeometry(0.08, height, 0.14), fMat, 'Left Wall Jamb');
+    leftJamb.position.set(-width / 2 + 0.04, height / 2, 0);
+    group.add(leftJamb);
+
+    const rightJamb = this.createMesh(new THREE.BoxGeometry(0.08, height, 0.14), fMat, 'Right Wall Jamb');
+    rightJamb.position.set(width / 2 - 0.04, height / 2, 0);
+    group.add(rightJamb);
+
+    // 4 vertical glass leaves
+    const leafW = (width - 0.16) / 4;
+    for (let i = 0; i < 4; i++) {
+      const panel = new THREE.Group();
+      panel.name = `Door Leaf ${i + 1}`;
+      // Black panel sub-frame
+      const pt = this.createMesh(new THREE.BoxGeometry(leafW, 0.05, 0.05), fMat, 'Leaf Top');
+      pt.position.set(0, height - 0.09, 0);
+      panel.add(pt);
+      const pb = this.createMesh(new THREE.BoxGeometry(leafW, 0.05, 0.05), fMat, 'Leaf Bot');
+      pb.position.set(0, 0.06, 0);
+      panel.add(pb);
+      const pl = this.createMesh(new THREE.BoxGeometry(0.05, height - 0.14, 0.05), fMat, 'Leaf Left');
+      pl.position.set(-leafW / 2 + 0.025, height / 2, 0);
+      panel.add(pl);
+      const pr = this.createMesh(new THREE.BoxGeometry(0.05, height - 0.14, 0.05), fMat, 'Leaf Right');
+      pr.position.set(leafW / 2 - 0.025, height / 2, 0);
+      panel.add(pr);
+
+      // Glass pane
+      const glass = this.createMesh(new THREE.BoxGeometry(leafW - 0.08, height - 0.22, 0.015), gMat, 'Door Glass');
+      glass.position.set(0, height / 2, 0);
+      panel.add(glass);
+
+      // Handle on sliding panels
+      if (i === 1 || i === 2) {
+        const handle = this.createMesh(new THREE.BoxGeometry(0.02, 0.45, 0.04), fMat, 'Door Pull Handle');
+        handle.position.set(i === 1 ? leafW / 2 - 0.06 : -leafW / 2 + 0.06, height * 0.48, 0.04);
+        panel.add(handle);
+      }
+
+      // Stagger panel positions along track (panel 2 slightly slid open for natural walk-through!)
+      const posX = -width / 2 + 0.08 + leafW / 2 + i * leafW;
+      const posZ = (i % 2 === 0) ? -0.03 : 0.03;
+      // Slight open offset on panel 1 to showcase open circulation!
+      panel.position.set(i === 1 ? posX + 0.25 : posX, 0, posZ);
+      group.add(panel);
+    }
+
+    return group;
+  }
+
+  // 54. FLUTED VERTICAL TIMBER SLAT HEADBOARD ACCENT WALL
+  static createFlutedHeadboardWall(width = 3.6, height = 2.4) {
+    const group = new THREE.Group();
+    group.name = 'Fluted Wood Slat Accent Wall';
+    group.userData = { type: 'fluted_slat_wall', name: 'Master Bed Fluted Oak Slat Feature Wall', cost: 1100 };
+
+    const backerMat = new THREE.MeshStandardMaterial({ color: 0xc89d6c, roughness: 0.6 });
+    const slatMat = new THREE.MeshStandardMaterial({ color: 0x9a6534, roughness: 0.5 });
+    const sconceMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.85, roughness: 0.2 });
+
+    // Backing panel
+    const backer = this.createMesh(new THREE.BoxGeometry(width, height, 0.02), backerMat, 'Backing Panel');
+    backer.position.set(0, height / 2, 0);
+    group.add(backer);
+
+    // Vertical timber fluted slats
+    const slatW = 0.04;
+    const gap = 0.03;
+    const numSlats = Math.floor(width / (slatW + gap));
+    for (let s = 0; s < numSlats; s++) {
+      const slat = this.createMesh(new THREE.BoxGeometry(slatW, height, 0.03), slatMat, `Fluted Slat ${s + 1}`);
+      slat.position.set(-width / 2 + slatW / 2 + s * (slatW + gap), height / 2, 0.025);
+      group.add(slat);
+    }
+
+    // Brass bedside reading sconces on left and right
+    [-width * 0.4, width * 0.4].forEach((sx, idx) => {
+      const sconce = this.createMesh(new THREE.CylinderGeometry(0.04, 0.05, 0.16, 12), sconceMat, `Wall Sconce ${idx + 1}`);
+      sconce.position.set(sx, 1.45, 0.08);
+      group.add(sconce);
+    });
+
+    return group;
+  }
 }
