@@ -1,4 +1,6 @@
 function Clean-Module($code) {
+    # Strip UTF-8 BOM if present
+    $code = $code.Trim([char]0xFEFF)
     # Remove lines starting with import
     $code = [System.Text.RegularExpressions.Regex]::Replace($code, '(?m)^\s*import\s+.*?;\r?\n?', '')
     # Replace export class with class
@@ -10,6 +12,7 @@ function Clean-Module($code) {
     return $code
 }
 
+$utf8NoBom = [System.Text.UTF8Encoding]::new($false)
 $textures = Clean-Module ([System.IO.File]::ReadAllText('js/textures.js', [System.Text.Encoding]::UTF8))
 $roomModel = Clean-Module ([System.IO.File]::ReadAllText('js/room-model.js', [System.Text.Encoding]::UTF8))
 $furniture = Clean-Module ([System.IO.File]::ReadAllText('js/furniture-models.js', [System.Text.Encoding]::UTF8))
@@ -44,7 +47,7 @@ $sbBundle = [System.Text.StringBuilder]::new()
 [void]$sbBundle.AppendLine("")
 [void]$sbBundle.AppendLine("})();")
 
-[System.IO.File]::WriteAllText('js/bundle.js', $sbBundle.ToString(), [System.Text.Encoding]::UTF8)
+[System.IO.File]::WriteAllText('js/bundle.js', $sbBundle.ToString(), $utf8NoBom)
 
 $sbLanding = [System.Text.StringBuilder]::new()
 [void]$sbLanding.AppendLine("// AI Interior Studio Landing Demo Bundle (Zero-CORS, Works on file:// and http://)")
@@ -72,6 +75,6 @@ $sbLanding = [System.Text.StringBuilder]::new()
 [void]$sbLanding.AppendLine("")
 [void]$sbLanding.AppendLine("})();")
 
-[System.IO.File]::WriteAllText('js/landing-bundle.js', $sbLanding.ToString(), [System.Text.Encoding]::UTF8)
+[System.IO.File]::WriteAllText('js/landing-bundle.js', $sbLanding.ToString(), $utf8NoBom)
 
 Write-Host "Both bundles successfully rebuilt and stripped of module keywords!" -ForegroundColor Green

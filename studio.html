@@ -50,10 +50,6 @@
       <a href="admin.html" id="btn-studio-admin" class="btn btn-sm" style="display: none; text-decoration: none; color: #a5b4fc; border-color: rgba(99, 102, 241, 0.4);" title="Open Admin User Registry">
         <span>👑</span> Admin
       </a>
-      <input type="file" id="nav-direct-sketch-upload" accept="image/*" style="display: none;">
-      <button class="btn btn-sm" id="btn-open-sketch-modal" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.35)); border-color: rgba(16, 185, 129, 0.6); color: #6ee7b7; font-weight: 600;" title="Upload Sketch or Photo to Generate 3D Model & Interior Suggestions">
-        <span>📸</span> Sketch to 3D
-      </button>
       <button class="btn btn-sm" id="btn-room-schedule" style="border-color: rgba(16, 185, 129, 0.45); color: #6ee7b7;" title="View Live Room Dimensions & Area Schedule">
         <span>📐</span> Areas
       </button>
@@ -99,19 +95,6 @@
 
         <!-- TAB 1: ROOM SETUP & PREFERENCES -->
         <div class="tab-pane active" id="tab-setup">
-          <!-- SKETCH TO 3D TRIGGER BANNER -->
-          <div class="sketch-quick-card" id="sidebar-sketch-trigger" style="margin-bottom: 12px; padding: 12px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.14), rgba(6, 95, 70, 0.22)); border: 1px solid rgba(16, 185, 129, 0.45); border-radius: 10px; cursor: pointer; transition: all 0.2s ease;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-              <span style="font-size: 12px; font-weight: 700; color: #6ee7b7; display: flex; align-items: center; gap: 6px;">
-                <span>✨</span> AI Sketch to 3D
-              </span>
-              <span style="font-size: 9px; background: rgba(16, 185, 129, 0.25); color: #a7f3d0; padding: 2px 7px; border-radius: 6px; font-weight: 600;">1, 2 & 3 BHK</span>
-            </div>
-            <p style="font-size: 11px; color: #94a3b8; margin: 0; line-height: 1.4;">
-              Upload a hand-drawn sketch or photo to generate interactive 3D architecture & AI interior suggestions.
-            </p>
-          </div>
-
           <div class="section-card">
             <div class="section-title">
               <span>Room Type & Dimensions</span>
@@ -125,7 +108,6 @@
                   <option value="complete_house_3bhk" selected>🏰 Luxury 3 BHK Residence (Foyer, Living, Balcony, Dining, Kitchen, Master & En-Suite, Bed 2, Bed 3, Brick Bath)</option>
                   <option value="complete_house">🏠 Single Bedroom House (1 BHK: Foyer, Living, Dining, Modular Kitchen, Master Suite & En-Suite Bath)</option>
                   <option value="complete_house_2bhk">🏛️ Architectural 2 BHK Residence (Foyer, Living, Dining, Kitchen, Master & Bath, Bed 2 & Bath)</option>
-                  <option value="duplex">🏙️ Modern Duplex Villa (Double-Height Living, Floating Staircase & Mezzanine Master)</option>
                 </optgroup>
                 <optgroup label="Individual Rooms">
                   <option value="bedroom">👑 Master Bedroom Suite</option>
@@ -146,7 +128,7 @@
                 <span id="house-active-room-pill" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.3);">3 BHK Active</span>
               </div>
 
-              <!-- 4 OPTIONS: 1 BHK vs 2 BHK vs 3 BHK vs DUPLEX -->
+              <!-- 3 OPTIONS: 1 BHK vs 2 BHK vs 3 BHK -->
               <div class="house-option-toggle" style="display: flex; gap: 4px; margin-bottom: 10px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px;">
                 <button type="button" class="btn btn-sm house-type-toggle-btn active" data-house-type="3bhk" style="flex: 1; padding: 6px 2px; font-size: 10px; justify-content: center;">
                   🏰 3 BHK
@@ -156,9 +138,6 @@
                 </button>
                 <button type="button" class="btn btn-sm house-type-toggle-btn" data-house-type="1bhk" style="flex: 1; padding: 6px 2px; font-size: 10px; justify-content: center;">
                   🏠 1 BHK
-                </button>
-                <button type="button" class="btn btn-sm house-type-toggle-btn" data-house-type="duplex" style="flex: 1; padding: 6px 2px; font-size: 10px; justify-content: center;">
-                  🏙️ Duplex
                 </button>
               </div>
 
@@ -786,23 +765,6 @@
         <button id="btn-exit-measure" class="close-hud-btn" style="margin-left: 4px;" title="Exit Measurement Tool">&times;</button>
       </div>
 
-      <!-- FLOATING SKETCH COMPARISON OVERLAY -->
-      <div id="floating-sketch-compare" class="floating-sketch-compare">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px;">
-          <strong style="font-size: 12px; color: #6ee7b7; display: flex; align-items: center; gap: 6px;">
-            <span>📸</span> Original Uploaded Sketch
-          </strong>
-          <button id="btn-close-floating-sketch" style="background: none; border: none; color: #94a3b8; font-size: 16px; cursor: pointer; line-height: 1;">&times;</button>
-        </div>
-        <div style="position: relative; border-radius: 8px; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,0.1);">
-          <img id="floating-sketch-img" src="" alt="Original Sketch" style="width: 100%; max-height: 180px; object-fit: contain; display: block;">
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
-          <span id="floating-sketch-type-badge" style="font-size: 10px; background: rgba(16, 185, 129, 0.2); color: #a7f3d0; padding: 2px 6px; border-radius: 4px; font-weight: 600;">3 BHK Detected</span>
-          <button id="btn-reopen-sketch-modal" class="btn btn-sm" style="font-size: 10px; padding: 3px 8px; border-color: rgba(16,185,129,0.4); color: #6ee7b7;">Re-scan</button>
-        </div>
-      </div>
-
       <!-- FLOATING OBJECT & SINGLE PART INSPECTOR (APPEARS ON CLICK) -->
       <div class="inspector-popup" id="inspector-popup">
         <div class="inspector-header">
@@ -1089,9 +1051,6 @@
           <button class="btn btn-sm btn-primary" id="btn-apply-3bhk-preset" style="background: linear-gradient(135deg, #f59e0b, #d97706); border: none; font-weight: 600;">
             <span>🏰</span> Load 3 BHK
           </button>
-          <button class="btn btn-sm btn-primary" id="btn-apply-duplex-preset" style="background: linear-gradient(135deg, #6366f1, #4f46e5); border: none; font-weight: 600;">
-            <span>🏙️</span> Load Duplex
-          </button>
           <button class="btn btn-sm" id="btn-close-renders" style="font-size: 18px; line-height: 1; padding: 4px 10px;">&times;</button>
         </div>
       </div>
@@ -1258,189 +1217,6 @@
         <button class="btn btn-sm btn-primary" id="btn-dismiss-schedule">
           <span>✓</span> Done
         </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- AI SKETCH & PHOTO TO 3D MODAL (1 BHK, 2 BHK, 3 BHK ONLY) -->
-  <div class="modal-backdrop" id="sketch-modal" style="z-index: 1060;">
-    <div class="modal-content sketch-modal-content">
-      <div style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 14px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <h2 style="font-size: 20px; font-weight: 700; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
-              <span style="color: #10b981;">📸</span> AI Sketch to 3D Visualization & Interior Suggestions
-            </h2>
-            <span style="font-size: 11px; background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); padding: 2px 8px; border-radius: 10px; font-weight: 600;">1 BHK • 2 BHK • 3 BHK</span>
-          </div>
-          <p style="font-size: 12.5px; color: #94a3b8; margin: 4px 0 0 0;">
-            Upload your hand-drawn sketch or photo. AI scans room boundaries, builds interactive 3D architecture, and generates Scandinavian spatial suggestions.
-          </p>
-        </div>
-        <button class="btn btn-sm" id="btn-close-sketch-modal" style="font-size: 18px; line-height: 1; padding: 4px 10px;">&times;</button>
-      </div>
-
-      <!-- MAIN 2-COLUMN GRID -->
-      <div class="sketch-grid">
-        <!-- LEFT COLUMN: UPLOAD & SCANNER -->
-        <div>
-          <!-- DROP ZONE (NATIVE LABEL ACTIVATION) -->
-          <label for="sketch-file-input" class="sketch-dropzone" id="sketch-dropzone" style="display: block; cursor: pointer;">
-            <input type="file" id="sketch-file-input" accept="image/*" style="display: none;">
-            <div id="dropzone-prompt">
-              <span style="font-size: 32px; display: block; margin-bottom: 8px;">📤</span>
-              <strong style="font-size: 14px; color: #6ee7b7; display: block; margin-bottom: 4px;">Click to Browse or Drag & Drop Sketch / Photo</strong>
-              <span style="font-size: 12px; color: #94a3b8;">Supports JPG, PNG, WebP or paste from clipboard (Ctrl+V)</span>
-            </div>
-            <div id="dropzone-file-info" style="display: none; margin-top: 8px; font-size: 12px; color: #a7f3d0; font-weight: 600;"></div>
-          </label>
-
-          <!-- PREVIEW WITH SCANNER HUD -->
-          <div class="sketch-preview-container" id="sketch-preview-container" style="display: flex; margin-top: 12px;">
-            <img id="sketch-preview-img" class="sketch-preview-img" src="renders/3bhk_user_reference_structure.jpg" alt="Uploaded Sketch">
-            <div class="sketch-scanner-hud active" id="sketch-scanner-hud">
-              <div class="sketch-laser-line"></div>
-              <div class="sketch-detected-tags" id="sketch-detected-tags"></div>
-            </div>
-          </div>
-
-          <!-- QUICK TRY SAMPLE BUTTONS -->
-          <div style="margin-top: 12px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 12px;">
-            <div style="font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">
-              ⚡ Quick Test: Or Try Sample Pre-Loaded Plans
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
-              <button type="button" class="btn btn-sm btn-sample-sketch" data-type="1bhk" style="font-size: 11px; padding: 6px 4px; border-color: rgba(99, 102, 241, 0.4); color: #a5b4fc; justify-content: center;">
-                🏠 1 BHK Plan
-              </button>
-              <button type="button" class="btn btn-sm btn-sample-sketch" data-type="2bhk" style="font-size: 11px; padding: 6px 4px; border-color: rgba(56, 189, 248, 0.4); color: #7dd3fc; justify-content: center;">
-                🏛️ 2 BHK Plan
-              </button>
-              <button type="button" class="btn btn-sm btn-sample-sketch" data-type="3bhk" style="font-size: 11px; padding: 6px 4px; border-color: rgba(16, 185, 129, 0.4); color: #6ee7b7; justify-content: center;">
-                🏰 3 BHK Plan
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- RIGHT COLUMN: CONFIGURATION & AI SUGGESTIONS -->
-        <div style="display: flex; flex-direction: column;">
-          <!-- HOUSE CONFIGURATION (ONLY 1 BHK, 2 BHK, 3 BHK) -->
-          <div style="margin-bottom: 12px;">
-            <label style="font-size: 12px; font-weight: 700; color: #e2e8f0; display: block; margin-bottom: 6px;">
-              House Structure Configuration (1 BHK, 2 BHK, or 3 BHK only)
-            </label>
-            <div class="sketch-config-options">
-              <div class="sketch-config-card" data-sketch-type="1bhk">
-                <div>
-                  <strong style="font-size: 13px; color: #fff; display: flex; align-items: center; gap: 6px;">
-                    <span>🏠</span> 1 BHK Single Bedroom Residence (~750 sq ft)
-                  </strong>
-                  <span style="font-size: 11px; color: #94a3b8; display: block; margin-top: 2px;">
-                    Foyer, Living Lounge, Dining Niche, Modular Kitchen, Master Suite & En-Suite Bath
-                  </span>
-                </div>
-                <input type="radio" name="sketch-h-type" value="1bhk" style="cursor: pointer;">
-              </div>
-
-              <div class="sketch-config-card" data-sketch-type="2bhk">
-                <div>
-                  <strong style="font-size: 13px; color: #fff; display: flex; align-items: center; gap: 6px;">
-                    <span>🏛️</span> 2 BHK Architectural Residence (~1,250 sq ft)
-                  </strong>
-                  <span style="font-size: 11px; color: #94a3b8; display: block; margin-top: 2px;">
-                    Foyer, Living Lounge, Dining Pavilion, Kitchen, Master Suite + Bath, Bedroom 2 + Bath
-                  </span>
-                </div>
-                <input type="radio" name="sketch-h-type" value="2bhk" style="cursor: pointer;">
-              </div>
-
-              <div class="sketch-config-card active" data-sketch-type="3bhk">
-                <div>
-                  <strong style="font-size: 13px; color: #fff; display: flex; align-items: center; gap: 6px;">
-                    <span>🏰</span> 3 BHK Scandinavian Luxury Residence (~1,850 sq ft)
-                  </strong>
-                  <span style="font-size: 11px; color: #94a3b8; display: block; margin-top: 2px;">
-                    Foyer, Great Living Hall, Sunset Balcony, Dining, Waterfall Island Kitchen, Master Suite, Bed 2, Bed 3 Twin Suite, Brick Bath
-                  </span>
-                </div>
-                <input type="radio" name="sketch-h-type" value="3bhk" checked style="cursor: pointer;">
-              </div>
-            </div>
-          </div>
-
-          <!-- STYLE SELECTION & AUTO DETECT -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
-            <div>
-              <label for="sketch-style-select" style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 4px;">Interior Style</label>
-              <select id="sketch-style-select" class="form-select" style="padding: 7px 10px; font-size: 12px;">
-                <option value="modern" selected>Modern Scandinavian</option>
-                <option value="minimalist">Luxury Minimalist</option>
-                <option value="luxury">Warm Japandi & Oak</option>
-                <option value="traditional">Contemporary Classic</option>
-              </select>
-            </div>
-            <div>
-              <label for="sketch-flooring-select" style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 4px;">Flooring Finish</label>
-              <select id="sketch-flooring-select" class="form-select" style="padding: 7px 10px; font-size: 12px;">
-                <option value="wood_oak" selected>Light Scandinavian Oak</option>
-                <option value="porcelain_tile">Continuous Porcelain Tile</option>
-                <option value="herringbone_wood">Herringbone Wood Parquet</option>
-                <option value="marble">Italian Marble</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- SCAN BUTTON -->
-          <button id="btn-run-sketch-ai" class="btn btn-primary" style="width: 100%; padding: 12px; font-weight: 700; font-size: 13.5px; background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: center; gap: 8px;">
-            <span>⚡</span> Scan Sketch & Generate 3D Space
-          </button>
-
-          <!-- PROGRESS STEPS (SHOWN DURING SCANNING) -->
-          <div id="sketch-scan-progress" style="display: none; margin-top: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 12px; border: 1px solid rgba(16, 185, 129, 0.2);">
-            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #6ee7b7; margin-bottom: 6px;">
-              <span id="sketch-scan-status-text">Scanning sketch perimeter walls...</span>
-              <span id="sketch-scan-pct">0%</span>
-            </div>
-            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
-              <div id="sketch-scan-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.3s ease;"></div>
-            </div>
-          </div>
-
-          <!-- AI INTERIOR DESIGN SUGGESTION REPORT BOX -->
-          <div id="sketch-ai-results" style="display: block; margin-top: 14px; overflow-y: auto; max-height: 260px;">
-            <div class="sketch-result-card">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <h4 style="font-size: 13px; color: #6ee7b7; margin: 0; display: flex; align-items: center; gap: 6px;">
-                  <span>💡</span> AI Spatial Interior Suggestions
-                </h4>
-                <span id="result-confidence-pill" style="font-size: 10px; background: rgba(16, 185, 129, 0.25); color: #a7f3d0; padding: 2px 7px; border-radius: 6px; font-weight: 700;">98.8% Match</span>
-              </div>
-              <div id="result-summary-text" style="font-size: 11.5px; color: #e2e8f0; line-height: 1.5; margin-bottom: 8px;">
-                <strong>Identified Structure:</strong> Luxury 3 BHK Cutaway Residence with <strong>9 interconnected zones</strong> (~1,850 sq ft). Full exterior perimeter detected with seamless indoor-to-outdoor circulation onto front sunset balcony.
-              </div>
-              
-              <!-- SUGGESTION BULLETS -->
-              <div id="result-suggestions-list" style="display: flex; flex-direction: column; gap: 6px; font-size: 11px; color: #cbd5e1;">
-                <div>🛋️ <strong>Living Room & Bedroom 2 Separation:</strong> Continuous solid dividing wall at X = -3.4 isolates Bedroom 2 for privacy while serving as the primary living room TV media console wall.</div>
-                <div>🌅 <strong>Balcony Access:</strong> Black 4-panel sliding door (4.8m width) provides direct wide-clearance access onto teak decking.</div>
-                <div>🍳 <strong>Gourmet Kitchen:</strong> Calacatta marble waterfall island with 3 wooden barstools forms a natural social buffer.</div>
-                <div>🧱 <strong>Feature Accent:</strong> Signature exposed rustic red brick wall conceals the common bathroom entrance directly opposite dining.</div>
-                <div>💡 <strong>Lighting & Materials:</strong> Layered 3000K warm indirect cove lighting, fluted oak slat master headboard wall, and light oak wood flooring throughout.</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- MODAL ACTIONS -->
-          <div style="display: flex; gap: 10px; margin-top: auto; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
-            <button class="btn btn-primary" id="btn-apply-sketch-3d" style="flex: 2; padding: 11px; font-weight: 700; font-size: 13px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
-              <span>🌟</span> Apply to Interactive 3D Studio
-            </button>
-            <button class="btn" id="btn-cancel-sketch-modal" style="flex: 1; padding: 11px; font-size: 13px;">
-              Close
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   </div>

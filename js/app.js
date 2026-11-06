@@ -1090,11 +1090,10 @@ class App {
       btn.addEventListener('click', () => {
         const roomSelect = document.getElementById('room-type');
         const currentVal = roomSelect ? roomSelect.value : '';
-        const isAlreadyHouse = currentVal === 'complete_house' || currentVal === 'complete_house_2bhk' || currentVal === 'complete_house_3bhk' || currentVal === 'duplex';
+        const isAlreadyHouse = currentVal === 'complete_house' || currentVal === 'complete_house_2bhk' || currentVal === 'complete_house_3bhk';
         if (roomSelect && !isAlreadyHouse) {
           let targetHouseVal = 'complete_house';
-          if (this.currentHouseType === 'duplex') targetHouseVal = 'duplex';
-          else if (this.currentHouseType === '3bhk') targetHouseVal = 'complete_house_3bhk';
+          if (this.currentHouseType === '3bhk') targetHouseVal = 'complete_house_3bhk';
           else if (this.currentHouseType === '2bhk') targetHouseVal = 'complete_house_2bhk';
           roomSelect.value = targetHouseVal;
           this.syncRoomVariantsUI(targetHouseVal);
@@ -1112,11 +1111,10 @@ class App {
       btn.addEventListener('click', () => {
         const roomSelect = document.getElementById('room-type');
         const currentVal = roomSelect ? roomSelect.value : '';
-        const isAlreadyHouse = currentVal === 'complete_house' || currentVal === 'complete_house_2bhk' || currentVal === 'complete_house_3bhk' || currentVal === 'duplex';
+        const isAlreadyHouse = currentVal === 'complete_house' || currentVal === 'complete_house_2bhk' || currentVal === 'complete_house_3bhk';
         if (roomSelect && !isAlreadyHouse) {
           let targetHouseVal = 'complete_house';
-          if (this.currentHouseType === 'duplex') targetHouseVal = 'duplex';
-          else if (this.currentHouseType === '3bhk') targetHouseVal = 'complete_house_3bhk';
+          if (this.currentHouseType === '3bhk') targetHouseVal = 'complete_house_3bhk';
           else if (this.currentHouseType === '2bhk') targetHouseVal = 'complete_house_2bhk';
           roomSelect.value = targetHouseVal;
           this.syncRoomVariantsUI(targetHouseVal);
@@ -1129,15 +1127,15 @@ class App {
       });
     });
 
-    // 1 BHK vs 2 BHK vs 3 BHK vs Duplex House Toggle Pills
+    // 1 BHK vs 2 BHK vs 3 BHK House Toggle Pills
     document.querySelectorAll('.house-type-toggle-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const hType = btn.getAttribute('data-house-type') || '1bhk';
+        const hType = btn.getAttribute('data-house-type') || '3bhk';
         this.currentHouseType = hType;
-        let targetVal = 'complete_house';
-        if (hType === 'duplex') targetVal = 'duplex';
-        else if (hType === '3bhk') targetVal = 'complete_house_3bhk';
+        let targetVal = 'complete_house_3bhk';
+        if (hType === '3bhk') targetVal = 'complete_house_3bhk';
         else if (hType === '2bhk') targetVal = 'complete_house_2bhk';
+        else if (hType === '1bhk') targetVal = 'complete_house';
 
         const roomSelect = document.getElementById('room-type');
         if (roomSelect) {
@@ -1145,9 +1143,7 @@ class App {
         }
         this.syncRoomVariantsUI(targetVal);
         this.triggerAIGeneration();
-        if (hType === 'duplex') {
-          this.showToast('🏙️ Switched to Modern Duplex Villa (Double-Height Living & Mezzanine)');
-        } else if (hType === '3bhk') {
+        if (hType === '3bhk') {
           this.showToast('🏰 Switched to Luxury 3 BHK Residence (10 Connected Spaces & Balcony)');
         } else if (hType === '2bhk') {
           this.showToast('🏛️ Switched to Architectural 2 BHK Residence');
@@ -1163,7 +1159,6 @@ class App {
       if (selectedType === 'complete_house') this.currentHouseType = '1bhk';
       else if (selectedType === 'complete_house_2bhk') this.currentHouseType = '2bhk';
       else if (selectedType === 'complete_house_3bhk') this.currentHouseType = '3bhk';
-      else if (selectedType === 'duplex') this.currentHouseType = 'duplex';
       this.syncRoomVariantsUI(selectedType);
       this.triggerAIGeneration();
       const rName = e.target.options[e.target.selectedIndex]?.text || 'Space';
@@ -1559,17 +1554,6 @@ class App {
       this.showToast('🏰 Loaded Luxury 3 BHK Residence Layout');
     });
 
-    document.getElementById('btn-apply-duplex-preset')?.addEventListener('click', () => {
-      if (rendersModal) rendersModal.classList.remove('open');
-      const roomSelect = document.getElementById('room-type');
-      if (roomSelect) roomSelect.value = 'duplex';
-      this.currentHouseType = 'duplex';
-      this.syncRoomVariantsUI('duplex');
-      this.triggerAIGeneration();
-      this.setCameraPreset('3d');
-      this.showToast('🏙️ Loaded Modern Duplex Villa Layout');
-    });
-
     // Studio Sign Out button
     document.getElementById('btn-studio-signout')?.addEventListener('click', () => {
       localStorage.removeItem('ai_interior_user');
@@ -1615,7 +1599,6 @@ class App {
     this.initMeasureTool();
     this.initRoomSchedule();
     this.initExportTools();
-    this.initSketchTo3D();
   }
 
   initWallArtControls() {
@@ -1988,12 +1971,11 @@ class App {
 
   // Complete House Navigation & Active Room Synchronizer
   syncRoomVariantsUI(currentRoomType) {
-    const isDuplex = (currentRoomType === 'duplex' || currentRoomType === 'duplex_villa' || this.currentHouseType === 'duplex');
     const is3BHK = (currentRoomType === 'complete_house_3bhk' || currentRoomType === '3bhk' || this.currentHouseType === '3bhk');
     const is2BHK = (currentRoomType === 'complete_house_2bhk' || this.currentHouseType === '2bhk');
-    const isHouse = (currentRoomType === 'complete_house' || is2BHK || is3BHK || isDuplex);
+    const isHouse = (currentRoomType === 'complete_house' || is2BHK || is3BHK);
     if (isHouse) {
-      this.currentHouseType = isDuplex ? 'duplex' : (is3BHK ? '3bhk' : (is2BHK ? '2bhk' : '1bhk'));
+      this.currentHouseType = is3BHK ? '3bhk' : (is2BHK ? '2bhk' : '1bhk');
     }
     const houseHub = document.getElementById('house-hub-wrapper');
     const houseNav = document.getElementById('house-navigator-bar');
@@ -2074,9 +2056,7 @@ class App {
       });
       const housePill = document.getElementById('house-active-room-pill');
       if (housePill) {
-        if (isDuplex) {
-          housePill.textContent = 'Modern Duplex Villa Active';
-        } else if (is3BHK) {
+        if (is3BHK) {
           housePill.textContent = 'Luxury 3 BHK Residence Active';
         } else if (is2BHK) {
           housePill.textContent = 'Architectural 2 BHK Residence Active';
@@ -2112,38 +2092,7 @@ class App {
         if (el) el.style.display = 'none';
       });
 
-      if (isDuplex) {
-        if (hubFoyerBtn) hubFoyerBtn.style.display = 'inline-flex';
-        if (navFoyerBtn) navFoyerBtn.style.display = 'inline-flex';
-        if (hubRearBtn) {
-          hubRearBtn.style.display = 'inline-flex';
-          hubRearBtn.innerHTML = '👑 Penthouse (L2)';
-          hubRearBtn.setAttribute('data-zone', 'bedroom2');
-        }
-        if (navRearBtn) {
-          navRearBtn.style.display = 'inline-flex';
-          navRearBtn.innerHTML = '<span>👑</span> Penthouse (L2)';
-          navRearBtn.setAttribute('data-target-room', 'bedroom2');
-        }
-        if (hubStaircaseBtn) hubStaircaseBtn.style.display = 'inline-flex';
-        if (navStairsBtn) navStairsBtn.style.display = 'inline-flex';
-        if (hubMezzanineBtn) hubMezzanineBtn.style.display = 'inline-flex';
-        if (navMezzanineBtn) navMezzanineBtn.style.display = 'inline-flex';
-        if (hubSkyLoungeBtn) hubSkyLoungeBtn.style.display = 'inline-flex';
-        if (navSkyLoungeBtn) navSkyLoungeBtn.style.display = 'inline-flex';
-        if (hubTerraceBtn) hubTerraceBtn.style.display = 'inline-flex';
-        if (hubBathBtn) hubBathBtn.style.display = 'inline-flex';
-        if (navBathBtn) navBathBtn.style.display = 'inline-flex';
-        if (hubMasterBathBtn) {
-          hubMasterBathBtn.style.display = 'inline-flex';
-          hubMasterBathBtn.innerHTML = '🛁 Spa Bath (L2)';
-        }
-        if (navMasterBathBtn) {
-          navMasterBathBtn.style.display = 'inline-flex';
-          navMasterBathBtn.innerHTML = '<span>🛁</span> Spa Bath';
-        }
-        if (navYardBtn) navYardBtn.style.display = 'none';
-      } else if (is3BHK) {
+      if (is3BHK) {
         if (hubFoyerBtn) hubFoyerBtn.style.display = 'inline-flex';
         if (navFoyerBtn) navFoyerBtn.style.display = 'inline-flex';
         if (hubRearBtn) {
@@ -2236,25 +2185,20 @@ class App {
     });
 
     const pill = document.getElementById('house-active-room-pill');
-    const isDuplex = (this.currentHouseType === 'duplex') || (document.getElementById('room-type')?.value === 'duplex');
     const is3BHK = (this.currentHouseType === '3bhk') || (document.getElementById('room-type')?.value === 'complete_house_3bhk');
     const is2BHK = (this.currentHouseType === '2bhk') || (document.getElementById('room-type')?.value === 'complete_house_2bhk');
     const titles = {
-      all: isDuplex ? 'Modern Duplex Villa' : (is3BHK ? 'Luxury 3 BHK Residence' : (is2BHK ? 'Architectural 2 BHK Residence' : 'Single Bedroom House (1 BHK)')),
-      living: isDuplex ? 'Double-Height Living Lounge' : 'Living Room Lounge',
+      all: is3BHK ? 'Luxury 3 BHK Residence' : (is2BHK ? 'Architectural 2 BHK Residence' : 'Single Bedroom House (1 BHK)'),
+      living: 'Living Room Lounge',
       dining: 'Dining Area',
-      kitchen: isDuplex ? 'Gourmet Island Kitchen' : 'Modular Kitchen',
-      bedroom: isDuplex ? 'Guest Bedroom Suite' : (is3BHK || is2BHK ? 'Master Bedroom Suite' : 'Master Bedroom'),
-      bedroom2: isDuplex ? 'Penthouse Master Suite (L2)' : 'Second Bedroom',
-      bedroom3: 'Third Bedroom / Study',
-      foyer: isDuplex ? 'Grand Entrance Foyer' : 'Entrance Foyer',
-      common_bath: isDuplex ? 'Guest Bathroom' : 'Common Bathroom',
-      master_bath: isDuplex ? 'Master Spa Bathroom (L2)' : 'Master En-Suite Bathroom',
-      staircase: 'Floating Cantilevered Staircase',
-      mezzanine: 'Mezzanine Gallery (L2)',
-      sky_lounge: 'Upper Loft Sky Lounge (L2)',
+      kitchen: 'Modular Kitchen',
+      bedroom: is3BHK || is2BHK ? 'Master Bedroom Suite' : 'Master Bedroom',
+      bedroom2: is3BHK ? 'Bedroom 2 Suite' : 'Second Bedroom',
+      bedroom3: 'Third Bedroom Suite',
+      foyer: 'Entrance Foyer',
+      common_bath: 'Common Bathroom',
+      master_bath: 'Master En-Suite Bathroom',
       balcony: 'Front Balcony Deck',
-      terrace: 'Sunken Terrace & Pool Deck',
       backyard: 'Backyard Garden & Patio'
     };
     if (pill) pill.textContent = (titles[zoneKey] || 'Room') + ' Active';
@@ -2264,76 +2208,7 @@ class App {
 
     // Camera target positions
     let targetPos, targetLook;
-    if (isDuplex) {
-      switch (zoneKey) {
-        case 'foyer':
-          targetPos = new THREE.Vector3(-4.6, 3.8, 8.8);
-          targetLook = new THREE.Vector3(-4.6, 1.2, 4.8);
-          this.showToast('🚪 Viewing Grand Entrance Foyer');
-          break;
-        case 'living':
-          targetPos = new THREE.Vector3(-0.5, 5.0, 9.2);
-          targetLook = new THREE.Vector3(-0.5, 2.0, 3.7);
-          this.showToast('🛋️ Viewing Double-Height Grand Living Lounge');
-          break;
-        case 'dining':
-          targetPos = new THREE.Vector3(4.35, 4.5, 8.5);
-          targetLook = new THREE.Vector3(4.35, 1.2, 4.1);
-          this.showToast('🍽️ Viewing Formal Dining Area');
-          break;
-        case 'kitchen':
-          targetPos = new THREE.Vector3(4.35, 4.5, 3.5);
-          targetLook = new THREE.Vector3(4.35, 1.2, -0.5);
-          this.showToast('🍳 Viewing Gourmet Modular Kitchen');
-          break;
-        case 'bedroom':
-          targetPos = new THREE.Vector3(-4.15, 4.5, 1.2);
-          targetLook = new THREE.Vector3(-4.15, 1.2, -3.5);
-          this.showToast('🛏️ Viewing Ground Guest Suite');
-          break;
-        case 'common_bath':
-          targetPos = new THREE.Vector3(-0.5, 4.0, 0.5);
-          targetLook = new THREE.Vector3(-0.5, 1.2, -3.0);
-          this.showToast('🚿 Viewing Ground Guest Bathroom');
-          break;
-        case 'staircase':
-          targetPos = new THREE.Vector3(-1.8, 4.2, 7.2);
-          targetLook = new THREE.Vector3(1.0, 2.0, 3.5);
-          this.showToast('🪜 Viewing Architectural Floating Staircase');
-          break;
-        case 'mezzanine':
-          targetPos = new THREE.Vector3(0.0, 6.0, 6.8);
-          targetLook = new THREE.Vector3(1.4, 3.8, 3.2);
-          this.showToast('✨ Viewing Mezzanine Gallery & Walkway (Level 2)');
-          break;
-        case 'bedroom2':
-          targetPos = new THREE.Vector3(4.35, 6.2, 4.8);
-          targetLook = new THREE.Vector3(4.35, 3.8, 0.0);
-          this.showToast('👑 Viewing Penthouse Master Suite (Level 2)');
-          break;
-        case 'master_bath':
-          targetPos = new THREE.Vector3(4.35, 6.0, -1.0);
-          targetLook = new THREE.Vector3(4.35, 3.8, -4.5);
-          this.showToast('🛁 Viewing Master Spa Bathroom (Level 2)');
-          break;
-        case 'sky_lounge':
-          targetPos = new THREE.Vector3(-3.5, 6.2, 1.5);
-          targetLook = new THREE.Vector3(-3.5, 3.8, -2.75);
-          this.showToast('🌆 Viewing Upper Loft Sky Lounge & Study (Level 2)');
-          break;
-        case 'terrace':
-          targetPos = new THREE.Vector3(4.35, 4.5, 10.5);
-          targetLook = new THREE.Vector3(4.35, 1.0, 7.4);
-          this.showToast('🌿 Viewing Outdoor Sunken Terrace & Pool Deck');
-          break;
-        case 'all':
-        default:
-          targetPos = new THREE.Vector3(0, 19.0, 20.0);
-          targetLook = new THREE.Vector3(0, 1.4, 0.5);
-          this.showToast('🏙️ Viewing Modern Duplex Villa (Double-Height Architecture)');
-          break;
-      }
-    } else if (is3BHK) {
+    if (is3BHK) {
       switch (zoneKey) {
         case 'foyer':
           targetPos = new THREE.Vector3(2.5, 3.8, 8.2);
@@ -2604,7 +2479,6 @@ class App {
   startRealTimeRoomFlowTour() {
     this.isTouring = true;
     this.isWalkthrough = true;
-    const isDuplex = (this.currentHouseType === 'duplex') || (document.getElementById('room-type')?.value === 'duplex');
     const is3BHK = (this.currentHouseType === '3bhk') || (document.getElementById('room-type')?.value === 'complete_house_3bhk');
     const is2BHK = (this.currentHouseType === '2bhk') || (document.getElementById('room-type')?.value === 'complete_house_2bhk');
     const hud = document.getElementById('walkthrough-hud');
@@ -2612,9 +2486,7 @@ class App {
       hud.style.display = 'block';
       const pill = hud.querySelector('.hud-pill span');
       if (pill) {
-        if (isDuplex) {
-          pill.innerHTML = '🌊 <strong>Room Flow Tour Active</strong>: Foyer → Double-Height Living → Dining → Kitchen → Guest Suite → Floating Stairs → Mezzanine → Penthouse Master → Spa Bath → Sky Lounge';
-        } else if (is3BHK) {
+        if (is3BHK) {
           pill.innerHTML = '🌊 <strong>Room Flow Tour Active</strong>: Foyer → Living → Balcony → Dining → Kitchen → Master Suite & Bath → Bed 2 → Bed 3 → Common Bath';
         } else if (is2BHK) {
           pill.innerHTML = '🌊 <strong>Room Flow Tour Active</strong>: Foyer → Living → Dining → Kitchen → Master Suite & Bath → Bed 2 & Common Bath';
@@ -2623,26 +2495,13 @@ class App {
         }
       }
     }
-    this.showToast(isDuplex
-      ? '🌊 Real-time tour started: Foyer → Living → Kitchen → Floating Stairs → Penthouse Master'
-      : (is3BHK
-        ? '🌊 Real-time tour started: Foyer → Living → Balcony → Dining → Master Suite → Bed 2 & 3'
-        : (is2BHK
-          ? '🌊 Real-time architectural tour started: Foyer → Living → Dining → Kitchen → Master Suite → Bed 2'
-          : '🌊 Real-time tour started: Foyer → Living → Dining → Kitchen → Master Suite → Master Bath')));
+    this.showToast(is3BHK
+      ? '🌊 Real-time tour started: Foyer → Living → Balcony → Dining → Master Suite → Bed 2 & 3'
+      : (is2BHK
+        ? '🌊 Real-time architectural tour started: Foyer → Living → Dining → Kitchen → Master Suite → Bed 2'
+        : '🌊 Real-time tour started: Foyer → Living → Dining → Kitchen → Master Suite → Master Bath'));
 
-    const waypoints = isDuplex ? [
-      { pos: new THREE.Vector3(-4.6, 1.55, 5.8), target: new THREE.Vector3(-4.6, 1.35, 3.5), duration: 4000, desc: '🚪 Grand Entrance Foyer with Fluted Marble Console' },
-      { pos: new THREE.Vector3(-0.5, 1.8, 5.2), target: new THREE.Vector3(-3.0, 2.0, 3.7), duration: 4500, desc: '🛋️ Double-Height 5.6m Grand Living Lounge with 4K Entertainment' },
-      { pos: new THREE.Vector3(4.35, 1.55, 5.2), target: new THREE.Vector3(4.35, 1.35, 3.5), duration: 4000, desc: '🍽️ Formal Dining Area with Solid Walnut Table & Chandelier' },
-      { pos: new THREE.Vector3(4.35, 1.55, 1.5), target: new THREE.Vector3(4.35, 1.35, -1.5), duration: 4500, desc: '🍳 Gourmet Modular Kitchen with Waterfall Prep Island & Stools' },
-      { pos: new THREE.Vector3(-4.15, 1.55, -1.5), target: new THREE.Vector3(-4.15, 1.35, -5.5), duration: 4500, desc: '🛏️ Ground Guest Bedroom Suite with Wardrobe & Garden View' },
-      { pos: new THREE.Vector3(1.0, 1.6, 5.2), target: new THREE.Vector3(1.0, 3.2, 2.0), duration: 4000, desc: '🪜 Floating Cantilevered Staircase with Glass Railing & Under-Step Glow' },
-      { pos: new THREE.Vector3(1.4, 4.3, 3.8), target: new THREE.Vector3(-0.5, 2.0, 3.7), duration: 4500, desc: '✨ Elevated Mezzanine Gallery Walkway Overlooking Living Void' },
-      { pos: new THREE.Vector3(4.35, 4.35, 2.0), target: new THREE.Vector3(4.35, 4.15, -1.8), duration: 5000, desc: '👑 Penthouse Master Suite (Level 2) with King Bed & Glass Wardrobe' },
-      { pos: new THREE.Vector3(4.35, 4.35, -2.5), target: new THREE.Vector3(4.35, 4.15, -4.5), duration: 4000, desc: '🛁 Master Spa Bathroom (Level 2) with Double Shower & Dual Vanity' },
-      { pos: new THREE.Vector3(-3.5, 4.35, -0.5), target: new THREE.Vector3(-3.5, 4.15, -3.5), duration: 4500, desc: '🌆 Upper Loft Sky Lounge & Executive Mezzanine Study (Level 2)' }
-    ] : (is3BHK ? [
+    const waypoints = is3BHK ? [
       { pos: new THREE.Vector3(2.5, 1.55, 6.0), target: new THREE.Vector3(2.5, 1.35, 4.0), duration: 4000, desc: '🚪 Screened Entrance Foyer with Vertical Fluted Oak Slats' },
       { pos: new THREE.Vector3(-3.5, 1.55, 4.0), target: new THREE.Vector3(-3.5, 1.35, 2.0), duration: 4500, desc: '🛋️ Great Room Living Hall with Cream Sectional & 4K Media' },
       { pos: new THREE.Vector3(-3.5, 1.45, 6.0), target: new THREE.Vector3(-3.5, 1.25, 6.8), duration: 4000, desc: '🌿 Teak Timber Deck Balcony with Glass Railing & Planters' },
@@ -2670,7 +2529,7 @@ class App {
       { pos: new THREE.Vector3(4.9, 1.55, 0.5), target: new THREE.Vector3(4.9, 1.35, -3.2), duration: 4500, desc: '🍳 Modular Kitchen with Prep Island, Range Hood & French Refrigerator' },
       { pos: new THREE.Vector3(-3.5, 1.55, 0.5), target: new THREE.Vector3(-3.5, 1.35, -3.5), duration: 5000, desc: '👑 Master Bedroom Suite with King Bed, Dressing Vanity & Split AC' },
       { pos: new THREE.Vector3(1.1, 1.55, -2.0), target: new THREE.Vector3(1.1, 1.35, -4.5), duration: 4000, desc: '🛁 Master En-Suite Bathroom with Frameless Shower & Lighted Mirror' }
-    ]));
+    ]);
 
     let currentWaypointIdx = 0;
     let startTime = performance.now();
@@ -2716,38 +2575,13 @@ class App {
   async triggerAIGeneration() {
     this.showToast('AI is optimizing spatial layout...');
 
-    const currentRoomType = document.getElementById('room-type')?.value || 'complete_house';
-
-    let isDuplex = false;
-    let is3BHK = false;
-    let is2BHK = false;
-
-    if (currentRoomType === 'complete_house_3bhk') {
-      is3BHK = true;
-      this.currentHouseType = '3bhk';
-    } else if (currentRoomType === 'complete_house_2bhk') {
-      is2BHK = true;
-      this.currentHouseType = '2bhk';
-    } else if (currentRoomType === 'duplex') {
-      isDuplex = true;
-      this.currentHouseType = 'duplex';
-    } else if (currentRoomType === 'complete_house') {
-      if (this.currentHouseType === '2bhk') {
-        is2BHK = true;
-      } else if (this.currentHouseType === '3bhk') {
-        is3BHK = true;
-      } else if (this.currentHouseType === 'duplex') {
-        isDuplex = true;
-      } else {
-        this.currentHouseType = '1bhk';
-      }
-    } else {
-      isDuplex = (this.currentHouseType === 'duplex');
-      is3BHK = (this.currentHouseType === '3bhk');
-      is2BHK = (this.currentHouseType === '2bhk');
+    const currentRoomType = document.getElementById('room-type')?.value || 'complete_house_3bhk';
+    const is3BHK = (currentRoomType === 'complete_house_3bhk' || currentRoomType === '3bhk' || this.currentHouseType === '3bhk');
+    const is2BHK = (currentRoomType === 'complete_house_2bhk' || this.currentHouseType === '2bhk');
+    const isHouse = (currentRoomType === 'complete_house' || is2BHK || is3BHK);
+    if (isHouse) {
+      this.currentHouseType = is3BHK ? '3bhk' : (is2BHK ? '2bhk' : '1bhk');
     }
-
-    const isHouse = (currentRoomType === 'complete_house' || currentRoomType === 'complete_house_2bhk' || currentRoomType === 'complete_house_3bhk' || currentRoomType === 'duplex' || is2BHK || is3BHK || isDuplex);
 
     let bedType = isHouse ? (this.currentHouseRoomTypes.bedroom || 1) : 1;
     if (currentRoomType === 'bedroom_zen') bedType = 2;
@@ -2771,10 +2605,9 @@ class App {
 
     this.syncRoomVariantsUI(currentRoomType);
 
-    const duplexDims = { width: 16.0, length: 16.0, height: 5.6 };
     const threeBhkDims = { width: 19.0, length: 18.5, height: 2.8 };
     const villaDims = { width: 16.0, length: 18.5, height: 2.8 };
-    const houseDims = isDuplex ? duplexDims : (is3BHK ? threeBhkDims : (is2BHK ? villaDims : { width: 14.0, length: 13.0, height: 2.8 }));
+    const houseDims = is3BHK ? threeBhkDims : (is2BHK ? villaDims : { width: 14.0, length: 13.0, height: 2.8 });
     const singleDims = {
       width: parseFloat(document.getElementById('room-w').value) || 5.0,
       length: parseFloat(document.getElementById('room-l').value) || 4.5,
@@ -2783,7 +2616,7 @@ class App {
 
     const pref = {
       roomType: currentRoomType,
-      houseType: this.currentHouseType || (is3BHK ? '3bhk' : (is2BHK ? '2bhk' : (isDuplex ? 'duplex' : '1bhk'))),
+      houseType: this.currentHouseType || (is3BHK ? '3bhk' : (is2BHK ? '2bhk' : '1bhk')),
       bedroomType: bedType,
       livingRoomType: livingType,
       diningType: diningType,
@@ -2802,9 +2635,9 @@ class App {
       const rw = document.getElementById('room-w');
       const rl = document.getElementById('room-l');
       const rh = document.getElementById('room-h');
-      if (rw) rw.value = is3BHK ? '19.0' : (is2BHK ? '16.0' : (isDuplex ? '16.0' : '14.0'));
-      if (rl) rl.value = is3BHK ? '18.5' : (is2BHK ? '18.5' : (isDuplex ? '16.0' : '13.0'));
-      if (rh) rh.value = isDuplex ? '5.6' : '2.8';
+      if (rw) rw.value = is3BHK ? '19.0' : (is2BHK ? '16.0' : '14.0');
+      if (rl) rl.value = is3BHK ? '18.5' : (is2BHK ? '18.5' : '13.0');
+      if (rh) rh.value = '2.8';
       this.roomBuilder.buildCompleteHouse(0xfaf5ee, pref.flooring, this.currentHouseType);
     } else {
       this.roomBuilder.buildRoom(pref.dimensions, 0xfaf5ee, pref.flooring);
@@ -3174,7 +3007,6 @@ class App {
     const conceptTitle = `${this.currentStyle.toUpperCase()} Interior Layout`;
     const roomType = document.getElementById('room-type')?.value || 'bedroom';
     const roomLabels = {
-      duplex: 'Modern Duplex Villa (Double-Height & Mezzanine)',
       complete_house_3bhk: 'Luxury 3 BHK Residence',
       complete_house_2bhk: 'Architectural 2 BHK Residence',
       complete_house: 'Single Bedroom House (1 BHK)',
@@ -3968,7 +3800,6 @@ class App {
   }
 
   getRoomScheduleList() {
-    const isDuplex = this.roomBuilder && (this.roomBuilder.houseType === 'duplex' || this.roomBuilder.houseType === 'duplex_villa');
     const is3BHK = this.roomBuilder && (this.roomBuilder.houseType === '3bhk' || this.roomBuilder.houseType === 'complete_house_3bhk');
     const isVilla = this.roomBuilder && (this.roomBuilder.houseType === 'villa_2bhk' || this.roomBuilder.houseType === '2bhk' || this.roomBuilder.houseType === 'villa');
     
@@ -3976,27 +3807,7 @@ class App {
     const floorSelect = document.getElementById('flooring-select');
     const currentFloorText = floorSelect ? floorSelect.options[floorSelect.selectedIndex]?.text : 'Continuous Light Porcelain Tile';
 
-    if (isDuplex) {
-      return {
-        houseType: 'Modern Duplex Villa (Double-Height Living & Mezzanine Penthouse)',
-        totalBuiltUp: 240.0,
-        carpetArea: 168.5,
-        rooms: [
-          { name: '🚪 Grand Entrance Foyer', width: 2.8, length: 3.2, height: 2.8, floor: 'Polished Marble' },
-          { name: '🛋️ Double-Height Living Lounge', width: 5.4, length: 5.4, height: 5.6, floor: 'Polished Marble' },
-          { name: '🍽️ Formal Dining Room', width: 4.3, length: 4.6, height: 2.8, floor: 'Polished Marble' },
-          { name: '🍳 Gourmet Island Kitchen', width: 4.3, length: 4.6, height: 2.8, floor: 'Light Porcelain Tile' },
-          { name: '🛏️ Ground Guest Suite', width: 4.7, length: 5.0, height: 2.8, floor: 'Warm Oak Wood' },
-          { name: '🚿 Ground Guest Bathroom', width: 2.6, length: 3.0, height: 2.8, floor: 'Blue Designer Tile' },
-          { name: '🪜 Floating Cantilevered Stairs', width: 1.1, length: 4.2, height: 2.8, floor: 'Solid Oak Treads & Glass Rail' },
-          { name: '✨ Mezzanine Walkway Gallery (Lvl 2)', width: 1.8, length: 4.8, height: 2.8, floor: 'Herringbone Parquet' },
-          { name: '👑 Penthouse Master Suite (Lvl 2)', width: 4.3, length: 5.4, height: 2.8, floor: 'Herringbone Parquet' },
-          { name: '🛁 Master Spa Bathroom (Lvl 2)', width: 4.3, length: 3.0, height: 2.8, floor: 'Polished Marble Tile' },
-          { name: '🌆 Upper Loft Sky Lounge (Lvl 2)', width: 6.0, length: 6.0, height: 2.8, floor: 'Herringbone Parquet' },
-          { name: '🌿 Sunken Terrace & Deck', width: 4.3, length: 2.0, height: 2.8, floor: 'Outdoor Teak Decking' }
-        ]
-      };
-    } else if (is3BHK) {
+    if (is3BHK) {
       return {
         houseType: 'Reference 3 BHK Residence (Cutaway Architecture & Balcony)',
         totalBuiltUp: 228.0,
@@ -4464,397 +4275,19 @@ class App {
       this.showToast('⚠️ Export failed: ' + err.message);
     }
   }
+}
 
-  // ==========================================
-  // AI SKETCH & PHOTO TO 3D GENERATOR (1 BHK, 2 BHK, 3 BHK)
-  // ==========================================
-  initSketchTo3D() {
-    const modal = document.getElementById('sketch-modal');
-    if (!modal) return;
-
-    const btnOpen = document.getElementById('btn-open-sketch-modal');
-    const sidebarTrigger = document.getElementById('sidebar-sketch-trigger');
-    const btnClose = document.getElementById('btn-close-sketch-modal');
-    const btnCancel = document.getElementById('btn-cancel-sketch-modal');
-    const dropzone = document.getElementById('sketch-dropzone');
-    const fileInput = document.getElementById('sketch-file-input');
-    const navDirectInput = document.getElementById('nav-direct-sketch-upload');
-    const previewContainer = document.getElementById('sketch-preview-container');
-    const previewImg = document.getElementById('sketch-preview-img');
-    const scannerHud = document.getElementById('sketch-scanner-hud');
-    const detectedTagsContainer = document.getElementById('sketch-detected-tags');
-    const btnScan = document.getElementById('btn-run-sketch-ai');
-    const progressBar = document.getElementById('sketch-scan-progress');
-    const statusText = document.getElementById('sketch-scan-status-text');
-    const pctText = document.getElementById('sketch-scan-pct');
-    const barInner = document.getElementById('sketch-scan-bar');
-    const resultsBox = document.getElementById('sketch-ai-results');
-    const fileInfo = document.getElementById('dropzone-file-info');
-    const btnApply = document.getElementById('btn-apply-sketch-3d');
-    const floatingCompare = document.getElementById('floating-sketch-compare');
-    const floatingImg = document.getElementById('floating-sketch-img');
-    const floatingBadge = document.getElementById('floating-sketch-type-badge');
-    const btnCloseFloating = document.getElementById('btn-close-floating-sketch');
-    const btnReopenModal = document.getElementById('btn-reopen-sketch-modal');
-
-    this.sketchImageData = 'renders/3bhk_user_reference_structure.jpg';
-    this.selectedSketchType = this.currentHouseType === '1bhk' ? '1bhk' : (this.currentHouseType === '2bhk' ? '2bhk' : '3bhk');
-
-    const openModal = () => {
-      modal.classList.add('open');
-      this.selectSketchType(this.selectedSketchType);
-      if (previewImg && (!previewImg.src || previewImg.src.endsWith('/'))) {
-        previewImg.src = this.sketchImageData;
-      }
-      this.renderSketchAnalysisResults();
-    };
-
-    const closeModal = () => {
-      modal.classList.remove('open');
-      if (scannerHud) scannerHud.classList.remove('active');
-      if (progressBar) progressBar.style.display = 'none';
-    };
-
-    btnOpen?.addEventListener('click', openModal);
-    sidebarTrigger?.addEventListener('click', openModal);
-    btnClose?.addEventListener('click', closeModal);
-    btnCancel?.addEventListener('click', closeModal);
-
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
-    });
-
-    const processFile = (file) => {
-      if (!file || !file.type.startsWith('image/')) {
-        this.showToast('⚠️ Please select a valid image file (JPG, PNG, WebP).');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.sketchImageData = e.target.result;
-        if (previewImg) previewImg.src = e.target.result;
-        if (previewContainer) previewContainer.style.display = 'flex';
-        if (fileInfo) {
-          const sz = (file.size / 1024).toFixed(1);
-          fileInfo.textContent = `✓ Uploaded: ${file.name} (${sz} KB)`;
-          fileInfo.style.display = 'block';
-        }
-        if (!modal.classList.contains('open')) {
-          openModal();
-        }
-        this.showToast('📸 Sketch uploaded! Running AI spatial recognition...');
-        this.runSketchScan(false);
-      };
-      reader.readAsDataURL(file);
-    };
-
-    // Native file input change
-    fileInput?.addEventListener('change', (e) => {
-      if (e.target.files && e.target.files[0]) {
-        processFile(e.target.files[0]);
-      }
-    });
-
-    navDirectInput?.addEventListener('change', (e) => {
-      if (e.target.files && e.target.files[0]) {
-        processFile(e.target.files[0]);
-      }
-    });
-
-    // Drag and Drop
-    if (dropzone) {
-      dropzone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropzone.classList.add('dragover');
-      });
-
-      dropzone.addEventListener('dragleave', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropzone.classList.remove('dragover');
-      });
-
-      dropzone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropzone.classList.remove('dragover');
-        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
-          processFile(e.dataTransfer.files[0]);
-        }
-      });
-    }
-
-    // Support Paste Event (Ctrl+V) from Clipboard
-    window.addEventListener('paste', (e) => {
-      const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
-      if (!items) return;
-      for (const item of items) {
-        if (item.type.indexOf('image') !== -1) {
-          const blob = item.getAsFile();
-          processFile(blob);
-          break;
-        }
-      }
-    });
-
-    // Quick Test Sample Buttons
-    document.querySelectorAll('.btn-sample-sketch').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const type = btn.getAttribute('data-type') || '3bhk';
-        this.selectSketchType(type);
-        if (type === '1bhk') {
-          this.sketchImageData = 'renders/apartment_3d_cutaway_render.jpg';
-        } else if (type === '2bhk') {
-          this.sketchImageData = 'renders/3bhk_top_down_circulation_plan.jpg';
-        } else {
-          this.sketchImageData = 'renders/3bhk_user_reference_structure.jpg';
-        }
-        if (previewImg) previewImg.src = this.sketchImageData;
-        if (previewContainer) previewContainer.style.display = 'flex';
-        if (fileInfo) {
-          fileInfo.textContent = `✓ Loaded Sample: ${type.toUpperCase()} Residence Plan`;
-          fileInfo.style.display = 'block';
-        }
-        this.runSketchScan(false);
-        this.showToast(`✨ Analyzed ${type.toUpperCase()} plan! Ready to apply.`);
-      });
-    });
-
-    // Configuration Card Selection (1 BHK, 2 BHK, 3 BHK only)
-    document.querySelectorAll('.sketch-config-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const type = card.getAttribute('data-sketch-type');
-        this.selectSketchType(type);
-        this.renderSketchAnalysisResults();
-      });
-    });
-
-    // Manual Scan Trigger
-    btnScan?.addEventListener('click', () => {
-      this.runSketchScan(true);
-    });
-
-    // Apply to Interactive 3D Studio
-    btnApply?.addEventListener('click', async () => {
-      const type = this.selectedSketchType || '3bhk';
-      const styleSelect = document.getElementById('sketch-style-select');
-      const floorSelect = document.getElementById('sketch-flooring-select');
-
-      const style = styleSelect ? styleSelect.value : 'modern';
-      const flooring = floorSelect ? floorSelect.value : 'wood_oak';
-
-      // 1. Set global design style
-      this.currentStyle = style;
-      document.querySelectorAll('.style-card').forEach(c => {
-        c.classList.toggle('selected', c.dataset.style === style);
-      });
-
-      // 2. Set global flooring
-      if (this.roomBuilder) {
-        this.roomBuilder.setFlooring(flooring);
-      }
-      const floorSelectMain = document.getElementById('flooring-select');
-      if (floorSelectMain) floorSelectMain.value = flooring;
-
-      // 3. Map to exact house type
-      let targetVal = 'complete_house_3bhk';
-      if (type === '1bhk') targetVal = 'complete_house';
-      else if (type === '2bhk') targetVal = 'complete_house_2bhk';
-
-      this.currentHouseType = type;
-      const roomSelect = document.getElementById('room-type');
-      if (roomSelect) roomSelect.value = targetVal;
-
-      // 4. Update UI pills and toggle buttons
-      document.querySelectorAll('.house-type-toggle-btn').forEach(b => {
-        b.classList.toggle('active', b.getAttribute('data-house-type') === type);
-      });
-      const housePill = document.getElementById('house-active-room-pill');
-      if (housePill) {
-        housePill.textContent = type === '3bhk' ? 'Luxury 3 BHK Residence Active' : (type === '2bhk' ? 'Architectural 2 BHK Residence Active' : 'Single Bedroom House (1 BHK) Active');
-      }
-
-      this.syncRoomVariantsUI(targetVal);
-
-      // 5. Trigger AI Generation and 3D Viewport Rebuild
-      closeModal();
-      await this.triggerAIGeneration();
-      this.setCameraPreset('3d');
-
-      // 6. Show floating sketch comparison widget in viewport
-      if (floatingCompare && floatingImg) {
-        floatingImg.src = this.sketchImageData || 'renders/3bhk_user_reference_structure.jpg';
-        if (floatingBadge) {
-          floatingBadge.textContent = `${type.toUpperCase()} Residence Generated`;
-        }
-        floatingCompare.classList.add('open');
-      }
-
-      this.showToast(`🎉 Reconstructed interactive 3D ${type.toUpperCase()} Residence from sketch!`);
-    });
-
-    // Floating Compare Controls
-    btnCloseFloating?.addEventListener('click', () => {
-      floatingCompare?.classList.remove('open');
-    });
-
-    btnReopenModal?.addEventListener('click', openModal);
-  }
-
-  runSketchScan(isManual = false) {
-    const scannerHud = document.getElementById('sketch-scanner-hud');
-    const progressBar = document.getElementById('sketch-scan-progress');
-    const statusText = document.getElementById('sketch-scan-status-text');
-    const pctText = document.getElementById('sketch-scan-pct');
-    const barInner = document.getElementById('sketch-scan-bar');
-    const btnScan = document.getElementById('btn-run-sketch-ai');
-    const btnApply = document.getElementById('btn-apply-sketch-3d');
-    const detectedTagsContainer = document.getElementById('sketch-detected-tags');
-
-    if (scannerHud) scannerHud.classList.add('active');
-    if (progressBar) progressBar.style.display = 'block';
-    if (detectedTagsContainer) detectedTagsContainer.innerHTML = '';
-    if (btnScan) btnScan.disabled = true;
-
-    const steps = [
-      { pct: 25, text: 'Scanning sketch perimeter walls & aperture points...' },
-      { pct: 55, text: 'Recognizing functional room boundaries...' },
-      { pct: 85, text: 'Optimizing Scandinavian circulation & clearances...' },
-      { pct: 100, text: 'Spatial Analysis & 3D Synthesis Complete!' }
-    ];
-
-    let stepIdx = 0;
-    const interval = setInterval(() => {
-      if (stepIdx < steps.length) {
-        const s = steps[stepIdx];
-        if (statusText) statusText.textContent = s.text;
-        if (pctText) pctText.textContent = `${s.pct}%`;
-        if (barInner) barInner.style.width = `${s.pct}%`;
-        stepIdx++;
-      } else {
-        clearInterval(interval);
-        if (btnScan) btnScan.disabled = false;
-        if (scannerHud) scannerHud.classList.remove('active');
-        if (progressBar) progressBar.style.display = 'none';
-        if (btnApply) btnApply.disabled = false;
-        this.renderSketchAnalysisResults();
-      }
-    }, isManual ? 350 : 200);
-  }
-
-  selectSketchType(type) {
-    if (type !== '1bhk' && type !== '2bhk' && type !== '3bhk') type = '3bhk';
-    this.selectedSketchType = type;
-
-    document.querySelectorAll('.sketch-config-card').forEach(card => {
-      const cardType = card.getAttribute('data-sketch-type');
-      const isMatch = cardType === type;
-      card.classList.toggle('active', isMatch);
-      const radio = card.querySelector('input[type="radio"]');
-      if (radio) radio.checked = isMatch;
-    });
-  }
-
-  renderSketchAnalysisResults() {
-    const type = this.selectedSketchType || '3bhk';
-    const detectedTagsContainer = document.getElementById('sketch-detected-tags');
-    const resultsBox = document.getElementById('sketch-ai-results');
-    const resultSummary = document.getElementById('result-summary-text');
-    const resultList = document.getElementById('result-suggestions-list');
-    const confidencePill = document.getElementById('result-confidence-pill');
-    const btnApply = document.getElementById('btn-apply-sketch-3d');
-
-    if (resultsBox) resultsBox.style.display = 'block';
-    if (btnApply) btnApply.disabled = false;
-
-    if (confidencePill) {
-      confidencePill.textContent = type === '3bhk' ? '98.8% Match' : (type === '2bhk' ? '97.6% Match' : '99.1% Match');
-    }
-
-    // Inject spatial bounding tags over image
-    if (detectedTagsContainer) {
-      detectedTagsContainer.innerHTML = '';
-      let tags = [];
-      if (type === '3bhk') {
-        tags = [
-          { name: 'LIVING ROOM (98%)', top: '56%', left: '38%' },
-          { name: 'BALCONY (96%)', top: '78%', left: '26%' },
-          { name: 'BEDROOM 2 (99%)', top: '44%', left: '16%' },
-          { name: 'BEDROOM 3 (97%)', top: '20%', left: '26%' },
-          { name: 'COMMON BATH (95%)', top: '24%', left: '46%' },
-          { name: 'DINING (98%)', top: '50%', left: '58%' },
-          { name: 'KITCHEN & ISLAND (99%)', top: '64%', left: '72%' },
-          { name: 'MASTER SUITE (99%)', top: '28%', left: '74%' },
-          { name: 'FOYER (94%)', top: '80%', left: '58%' }
-        ];
-      } else if (type === '2bhk') {
-        tags = [
-          { name: 'FOYER (96%)', top: '76%', left: '26%' },
-          { name: 'LIVING LOUNGE (98%)', top: '60%', left: '32%' },
-          { name: 'DINING PAVILION (97%)', top: '46%', left: '52%' },
-          { name: 'KITCHEN (99%)', top: '58%', left: '74%' },
-          { name: 'MASTER SUITE (99%)', top: '24%', left: '72%' },
-          { name: 'BEDROOM 2 (97%)', top: '22%', left: '28%' },
-          { name: 'COMMON BATH (95%)', top: '30%', left: '48%' }
-        ];
-      } else {
-        tags = [
-          { name: 'ENTRANCE FOYER (95%)', top: '78%', left: '32%' },
-          { name: 'LIVING LOUNGE (99%)', top: '58%', left: '40%' },
-          { name: 'DINING NICHE (97%)', top: '48%', left: '60%' },
-          { name: 'MODULAR KITCHEN (98%)', top: '64%', left: '72%' },
-          { name: 'MASTER SUITE (99%)', top: '26%', left: '62%' },
-          { name: 'EN-SUITE BATH (96%)', top: '28%', left: '34%' }
-        ];
-      }
-
-      tags.forEach((tag, idx) => {
-        const el = document.createElement('div');
-        el.className = 'sketch-tag';
-        el.textContent = `✓ ${tag.name}`;
-        el.style.top = tag.top;
-        el.style.left = tag.left;
-        el.style.animationDelay = `${idx * 0.06}s`;
-        detectedTagsContainer.appendChild(el);
-      });
-    }
-
-    // Populate tailored AI suggestions
-    if (resultSummary && resultList) {
-      if (type === '3bhk') {
-        resultSummary.innerHTML = `<strong>Identified Structure:</strong> Luxury 3 BHK Cutaway Residence with <strong>9 interconnected zones</strong> (~1,850 sq ft). Full exterior perimeter detected with seamless indoor-to-outdoor circulation onto front sunset balcony.`;
-        resultList.innerHTML = `
-          <div>🛋️ <strong>Living Room & Bedroom 2 Separation:</strong> Continuous solid dividing wall at X = -3.4 definitively isolates Bedroom 2 for privacy while serving as the primary living room TV media console wall.</div>
-          <div>🌅 <strong>Balcony Access:</strong> Black 4-panel sliding door (4.8m width) provides direct wide-clearance access onto teak decking.</div>
-          <div>🍳 <strong>Gourmet Kitchen:</strong> Calacatta marble waterfall island with 3 wooden barstools forms a natural social buffer.</div>
-          <div>🧱 <strong>Feature Accent:</strong> Signature exposed rustic red brick wall conceals the common bathroom entrance directly opposite dining.</div>
-          <div>💡 <strong>Lighting & Materials:</strong> Layered 3000K warm indirect cove lighting, fluted oak slat master headboard wall, and light oak wood flooring throughout.</div>
-        `;
-      } else if (type === '2bhk') {
-        resultSummary.innerHTML = `<strong>Identified Structure:</strong> Architectural 2 BHK Residence with <strong>8 functional zones</strong> (~1,250 sq ft). Open-concept central living and dining pavilion with dedicated master and guest wings.`;
-        resultList.innerHTML = `
-          <div>🛋️ <strong>Living-Dining Flow:</strong> Linear open-concept layout connecting entrance foyer directly to dining and kitchen, maintaining 1.1m wide unobstructed circulation paths.</div>
-          <div>👑 <strong>Master Suite Orientation:</strong> King bed positioned on the solid East perimeter wall to capture soft morning light; en-suite bathroom enclosed with frosted glass divider.</div>
-          <div>🛏️ <strong>Second Bedroom Suite:</strong> Queen bed configuration with built-in wardrobe niche and integrated study workstation.</div>
-          <div>💡 <strong>Lighting & Finishes:</strong> Warm porcelain floor tiles with herringbone wood parquet bedroom accents and recessed dimmable living cove glow.</div>
-        `;
-      } else {
-        resultSummary.innerHTML = `<strong>Identified Structure:</strong> Single Bedroom House (1 BHK) with <strong>6 functional zones</strong> (~750 sq ft). High-efficiency space optimization maximizing usable living area.`;
-        resultList.innerHTML = `
-          <div>🛋️ <strong>Multi-Function Living:</strong> Low-profile floating TV console and cream compact sectional sofa preserving generous walking clearance to the dining niche.</div>
-          <div>🍽️ <strong>Open Dining & Kitchen:</strong> 4-seater round Scandinavian oak table adjacent to modular kitchen counter run with under-cabinet LED task illumination.</div>
-          <div>👑 <strong>Private Master Suite:</strong> Full queen upholstered bed with floating nightstands and direct access to luxury ceramic tile en-suite bathroom.</div>
-          <div>💡 <strong>Lighting Scheme:</strong> Clean architectural ceiling downlights paired with brass bedside reading sconces.</div>
-        `;
-      }
-    }
+// Instantiate App once DOM is ready or immediately if already loaded
+function startApp() {
+  try {
+    window.interiorAppInstance = new App();
+  } catch (err) {
+    console.error('App init error:', err);
   }
 }
 
-// Instantiate App once DOM is loaded
-window.addEventListener('DOMContentLoaded', () => {
-  window.interiorAppInstance = new App();
-});
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', startApp);
+} else {
+  startApp();
+}
