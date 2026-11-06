@@ -50,6 +50,7 @@
       <a href="admin.html" id="btn-studio-admin" class="btn btn-sm" style="display: none; text-decoration: none; color: #a5b4fc; border-color: rgba(99, 102, 241, 0.4);" title="Open Admin User Registry">
         <span>👑</span> Admin
       </a>
+      <input type="file" id="nav-direct-sketch-upload" accept="image/*" style="display: none;">
       <button class="btn btn-sm" id="btn-open-sketch-modal" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.35)); border-color: rgba(16, 185, 129, 0.6); color: #6ee7b7; font-weight: 600;" title="Upload Sketch or Photo to Generate 3D Model & Interior Suggestions">
         <span>📸</span> Sketch to 3D
       </button>
@@ -1283,31 +1284,23 @@
       <div class="sketch-grid">
         <!-- LEFT COLUMN: UPLOAD & SCANNER -->
         <div>
-          <!-- DROP ZONE -->
-          <div class="sketch-dropzone" id="sketch-dropzone">
+          <!-- DROP ZONE (NATIVE LABEL ACTIVATION) -->
+          <label for="sketch-file-input" class="sketch-dropzone" id="sketch-dropzone" style="display: block; cursor: pointer;">
             <input type="file" id="sketch-file-input" accept="image/*" style="display: none;">
             <div id="dropzone-prompt">
               <span style="font-size: 32px; display: block; margin-bottom: 8px;">📤</span>
               <strong style="font-size: 14px; color: #6ee7b7; display: block; margin-bottom: 4px;">Click to Browse or Drag & Drop Sketch / Photo</strong>
               <span style="font-size: 12px; color: #94a3b8;">Supports JPG, PNG, WebP or paste from clipboard (Ctrl+V)</span>
             </div>
-          </div>
+            <div id="dropzone-file-info" style="display: none; margin-top: 8px; font-size: 12px; color: #a7f3d0; font-weight: 600;"></div>
+          </label>
 
           <!-- PREVIEW WITH SCANNER HUD -->
           <div class="sketch-preview-container" id="sketch-preview-container" style="display: flex; margin-top: 12px;">
             <img id="sketch-preview-img" class="sketch-preview-img" src="renders/3bhk_user_reference_structure.jpg" alt="Uploaded Sketch">
             <div class="sketch-scanner-hud active" id="sketch-scanner-hud">
               <div class="sketch-laser-line"></div>
-              <div class="sketch-detected-tags" id="sketch-detected-tags">
-                <div class="sketch-tag" style="top: 56%; left: 38%;">✓ LIVING ROOM (98%)</div>
-                <div class="sketch-tag" style="top: 78%; left: 26%;">✓ BALCONY (96%)</div>
-                <div class="sketch-tag" style="top: 44%; left: 16%;">✓ BEDROOM 2 (99%)</div>
-                <div class="sketch-tag" style="top: 20%; left: 26%;">✓ BEDROOM 3 (97%)</div>
-                <div class="sketch-tag" style="top: 24%; left: 46%;">✓ COMMON BATH (95%)</div>
-                <div class="sketch-tag" style="top: 50%; left: 58%;">✓ DINING (98%)</div>
-                <div class="sketch-tag" style="top: 64%; left: 72%;">✓ KITCHEN & ISLAND (99%)</div>
-                <div class="sketch-tag" style="top: 28%; left: 74%;">✓ MASTER SUITE (99%)</div>
-              </div>
+              <div class="sketch-detected-tags" id="sketch-detected-tags"></div>
             </div>
           </div>
 

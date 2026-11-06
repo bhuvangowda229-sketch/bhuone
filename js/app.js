@@ -2717,13 +2717,37 @@ class App {
     this.showToast('AI is optimizing spatial layout...');
 
     const currentRoomType = document.getElementById('room-type')?.value || 'complete_house';
-    const isDuplex = (currentRoomType === 'duplex' || currentRoomType === 'duplex_villa' || this.currentHouseType === 'duplex');
-    const is3BHK = (currentRoomType === 'complete_house_3bhk' || currentRoomType === '3bhk' || this.currentHouseType === '3bhk');
-    const is2BHK = (currentRoomType === 'complete_house_2bhk' || this.currentHouseType === '2bhk');
-    const isHouse = (currentRoomType === 'complete_house' || is2BHK || is3BHK || isDuplex);
-    if (isHouse) {
-      this.currentHouseType = isDuplex ? 'duplex' : (is3BHK ? '3bhk' : (is2BHK ? '2bhk' : '1bhk'));
+
+    let isDuplex = false;
+    let is3BHK = false;
+    let is2BHK = false;
+
+    if (currentRoomType === 'complete_house_3bhk') {
+      is3BHK = true;
+      this.currentHouseType = '3bhk';
+    } else if (currentRoomType === 'complete_house_2bhk') {
+      is2BHK = true;
+      this.currentHouseType = '2bhk';
+    } else if (currentRoomType === 'duplex') {
+      isDuplex = true;
+      this.currentHouseType = 'duplex';
+    } else if (currentRoomType === 'complete_house') {
+      if (this.currentHouseType === '2bhk') {
+        is2BHK = true;
+      } else if (this.currentHouseType === '3bhk') {
+        is3BHK = true;
+      } else if (this.currentHouseType === 'duplex') {
+        isDuplex = true;
+      } else {
+        this.currentHouseType = '1bhk';
+      }
+    } else {
+      isDuplex = (this.currentHouseType === 'duplex');
+      is3BHK = (this.currentHouseType === '3bhk');
+      is2BHK = (this.currentHouseType === '2bhk');
     }
+
+    const isHouse = (currentRoomType === 'complete_house' || currentRoomType === 'complete_house_2bhk' || currentRoomType === 'complete_house_3bhk' || currentRoomType === 'duplex' || is2BHK || is3BHK || isDuplex);
 
     let bedType = isHouse ? (this.currentHouseRoomTypes.bedroom || 1) : 1;
     if (currentRoomType === 'bedroom_zen') bedType = 2;
@@ -4454,6 +4478,7 @@ class App {
     const btnCancel = document.getElementById('btn-cancel-sketch-modal');
     const dropzone = document.getElementById('sketch-dropzone');
     const fileInput = document.getElementById('sketch-file-input');
+    const navDirectInput = document.getElementById('nav-direct-sketch-upload');
     const previewContainer = document.getElementById('sketch-preview-container');
     const previewImg = document.getElementById('sketch-preview-img');
     const scannerHud = document.getElementById('sketch-scanner-hud');
@@ -4464,9 +4489,7 @@ class App {
     const pctText = document.getElementById('sketch-scan-pct');
     const barInner = document.getElementById('sketch-scan-bar');
     const resultsBox = document.getElementById('sketch-ai-results');
-    const resultSummary = document.getElementById('result-summary-text');
-    const resultList = document.getElementById('result-suggestions-list');
-    const confidencePill = document.getElementById('result-confidence-pill');
+    const fileInfo = document.getElementById('dropzone-file-info');
     const btnApply = document.getElementById('btn-apply-sketch-3d');
     const floatingCompare = document.getElementById('floating-sketch-compare');
     const floatingImg = document.getElementById('floating-sketch-img');
@@ -4474,16 +4497,16 @@ class App {
     const btnCloseFloating = document.getElementById('btn-close-floating-sketch');
     const btnReopenModal = document.getElementById('btn-reopen-sketch-modal');
 
-    this.sketchImageData = null;
-    this.selectedSketchType = '3bhk';
+    this.sketchImageData = 'renders/3bhk_user_reference_structure.jpg';
+    this.selectedSketchType = this.currentHouseType === '1bhk' ? '1bhk' : (this.currentHouseType === '2bhk' ? '2bhk' : '3bhk');
 
     const openModal = () => {
       modal.classList.add('open');
-      if (!this.sketchImageData) {
-        previewImg.src = 'renders/3bhk_user_reference_structure.jpg';
-        this.sketchImageData = 'renders/3bhk_user_reference_structure.jpg';
-        if (previewContainer) previewContainer.style.display = 'flex';
+      this.selectSketchType(this.selectedSketchType);
+      if (previewImg && (!previewImg.src || previewImg.src.endsWith('/'))) {
+        previewImg.src = this.sketchImageData;
       }
+      this.renderSketchAnalysisResults();
     };
 
     const closeModal = () => {
@@ -4501,10 +4524,7 @@ class App {
       if (e.target === modal) closeModal();
     });
 
-    // File Input & Drag and Drop Handlers
-    dropzone?.addEventListener('click', () => fileInput?.click());
-
-    const handleFile = (file) => {
+    const processFile = (file) => {
       if (!file || !file.type.startsWith('image/')) {
         this.showToast('⚠️ Please select a valid image file (JPG, PNG, WebP).');
         return;
@@ -4514,37 +4534,56 @@ class App {
         this.sketchImageData = e.target.result;
         if (previewImg) previewImg.src = e.target.result;
         if (previewContainer) previewContainer.style.display = 'flex';
-        if (scannerHud) scannerHud.classList.remove('active');
-        if (detectedTagsContainer) detectedTagsContainer.innerHTML = '';
-        if (resultsBox) resultsBox.style.display = 'none';
-        if (btnApply) btnApply.disabled = true;
-        this.showToast('📸 Sketch image loaded! Ready to scan.');
+        if (fileInfo) {
+          const sz = (file.size / 1024).toFixed(1);
+          fileInfo.textContent = `✓ Uploaded: ${file.name} (${sz} KB)`;
+          fileInfo.style.display = 'block';
+        }
+        if (!modal.classList.contains('open')) {
+          openModal();
+        }
+        this.showToast('📸 Sketch uploaded! Running AI spatial recognition...');
+        this.runSketchScan(false);
       };
       reader.readAsDataURL(file);
     };
 
+    // Native file input change
     fileInput?.addEventListener('change', (e) => {
       if (e.target.files && e.target.files[0]) {
-        handleFile(e.target.files[0]);
+        processFile(e.target.files[0]);
       }
     });
 
-    dropzone?.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropzone.classList.add('dragover');
-    });
-
-    dropzone?.addEventListener('dragleave', () => {
-      dropzone.classList.remove('dragover');
-    });
-
-    dropzone?.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropzone.classList.remove('dragover');
-      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
-        handleFile(e.dataTransfer.files[0]);
+    navDirectInput?.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        processFile(e.target.files[0]);
       }
     });
+
+    // Drag and Drop
+    if (dropzone) {
+      dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.add('dragover');
+      });
+
+      dropzone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove('dragover');
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove('dragover');
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          processFile(e.dataTransfer.files[0]);
+        }
+      });
+    }
 
     // Support Paste Event (Ctrl+V) from Clipboard
     window.addEventListener('paste', (e) => {
@@ -4553,18 +4592,17 @@ class App {
       for (const item of items) {
         if (item.type.indexOf('image') !== -1) {
           const blob = item.getAsFile();
-          handleFile(blob);
-          if (!modal.classList.contains('open')) {
-            openModal();
-          }
+          processFile(blob);
           break;
         }
       }
     });
 
-    // One-Click Quick Try Sample Sketches
+    // Quick Test Sample Buttons
     document.querySelectorAll('.btn-sample-sketch').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         const type = btn.getAttribute('data-type') || '3bhk';
         this.selectSketchType(type);
         if (type === '1bhk') {
@@ -4576,11 +4614,12 @@ class App {
         }
         if (previewImg) previewImg.src = this.sketchImageData;
         if (previewContainer) previewContainer.style.display = 'flex';
-        if (scannerHud) scannerHud.classList.remove('active');
-        if (detectedTagsContainer) detectedTagsContainer.innerHTML = '';
-        if (resultsBox) resultsBox.style.display = 'none';
-        if (btnApply) btnApply.disabled = true;
-        this.showToast(`Loaded sample ${type.toUpperCase()} plan! Click "Scan Sketch" below.`);
+        if (fileInfo) {
+          fileInfo.textContent = `✓ Loaded Sample: ${type.toUpperCase()} Residence Plan`;
+          fileInfo.style.display = 'block';
+        }
+        this.runSketchScan(false);
+        this.showToast(`✨ Analyzed ${type.toUpperCase()} plan! Ready to apply.`);
       });
     });
 
@@ -4589,53 +4628,17 @@ class App {
       card.addEventListener('click', () => {
         const type = card.getAttribute('data-sketch-type');
         this.selectSketchType(type);
+        this.renderSketchAnalysisResults();
       });
     });
 
-    // AI Scanner Execution
+    // Manual Scan Trigger
     btnScan?.addEventListener('click', () => {
-      if (!this.sketchImageData) {
-        this.sketchImageData = 'renders/3bhk_user_reference_structure.jpg';
-        if (previewImg) previewImg.src = this.sketchImageData;
-        if (previewContainer) previewContainer.style.display = 'flex';
-      }
-
-      // Start scanning HUD & progress animation
-      if (scannerHud) scannerHud.classList.add('active');
-      if (progressBar) progressBar.style.display = 'block';
-      if (detectedTagsContainer) detectedTagsContainer.innerHTML = '';
-      if (resultsBox) resultsBox.style.display = 'none';
-      if (btnApply) btnApply.disabled = true;
-      btnScan.disabled = true;
-
-      const steps = [
-        { pct: 18, text: 'Enhancing sketch contrast & vectorizing lines...' },
-        { pct: 42, text: 'Extracting perimeter walls & aperture openings...' },
-        { pct: 68, text: 'Classifying functional zones (Living, Bedrooms, Kitchen, Baths)...' },
-        { pct: 88, text: 'Synthesizing Scandinavian circulation & ergonomics...' },
-        { pct: 100, text: 'Spatial Analysis & 3D Synthesis Complete!' }
-      ];
-
-      let stepIdx = 0;
-      const interval = setInterval(() => {
-        if (stepIdx < steps.length) {
-          const s = steps[stepIdx];
-          if (statusText) statusText.textContent = s.text;
-          if (pctText) pctText.textContent = `${s.pct}%`;
-          if (barInner) barInner.style.width = `${s.pct}%`;
-          stepIdx++;
-        } else {
-          clearInterval(interval);
-          btnScan.disabled = false;
-          if (scannerHud) scannerHud.classList.remove('active');
-          if (progressBar) progressBar.style.display = 'none';
-          this.renderSketchAnalysisResults();
-        }
-      }, 450);
+      this.runSketchScan(true);
     });
 
     // Apply to Interactive 3D Studio
-    btnApply?.addEventListener('click', () => {
+    btnApply?.addEventListener('click', async () => {
       const type = this.selectedSketchType || '3bhk';
       const styleSelect = document.getElementById('sketch-style-select');
       const floorSelect = document.getElementById('sketch-flooring-select');
@@ -4643,19 +4646,20 @@ class App {
       const style = styleSelect ? styleSelect.value : 'modern';
       const flooring = floorSelect ? floorSelect.value : 'wood_oak';
 
-      // Set global style
-      this.selectedStyle = style;
-      const styleSelectMain = document.getElementById('design-style');
-      if (styleSelectMain) styleSelectMain.value = style;
+      // 1. Set global design style
+      this.currentStyle = style;
+      document.querySelectorAll('.style-card').forEach(c => {
+        c.classList.toggle('selected', c.dataset.style === style);
+      });
 
-      // Set global flooring
+      // 2. Set global flooring
       if (this.roomBuilder) {
         this.roomBuilder.setFlooring(flooring);
       }
       const floorSelectMain = document.getElementById('flooring-select');
       if (floorSelectMain) floorSelectMain.value = flooring;
 
-      // Map to room type
+      // 3. Map to exact house type
       let targetVal = 'complete_house_3bhk';
       if (type === '1bhk') targetVal = 'complete_house';
       else if (type === '2bhk') targetVal = 'complete_house_2bhk';
@@ -4664,13 +4668,23 @@ class App {
       const roomSelect = document.getElementById('room-type');
       if (roomSelect) roomSelect.value = targetVal;
 
+      // 4. Update UI pills and toggle buttons
+      document.querySelectorAll('.house-type-toggle-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-house-type') === type);
+      });
+      const housePill = document.getElementById('house-active-room-pill');
+      if (housePill) {
+        housePill.textContent = type === '3bhk' ? 'Luxury 3 BHK Residence Active' : (type === '2bhk' ? 'Architectural 2 BHK Residence Active' : 'Single Bedroom House (1 BHK) Active');
+      }
+
       this.syncRoomVariantsUI(targetVal);
-      this.triggerAIGeneration();
+
+      // 5. Trigger AI Generation and 3D Viewport Rebuild
+      closeModal();
+      await this.triggerAIGeneration();
       this.setCameraPreset('3d');
 
-      closeModal();
-
-      // Show floating sketch comparison widget in viewport
+      // 6. Show floating sketch comparison widget in viewport
       if (floatingCompare && floatingImg) {
         floatingImg.src = this.sketchImageData || 'renders/3bhk_user_reference_structure.jpg';
         if (floatingBadge) {
@@ -4679,15 +4693,56 @@ class App {
         floatingCompare.classList.add('open');
       }
 
-      this.showToast(`✨ Reconstructed interactive 3D ${type.toUpperCase()} Residence from sketch!`);
+      this.showToast(`🎉 Reconstructed interactive 3D ${type.toUpperCase()} Residence from sketch!`);
     });
 
-    // Floating Compare Widget Controls
+    // Floating Compare Controls
     btnCloseFloating?.addEventListener('click', () => {
       floatingCompare?.classList.remove('open');
     });
 
     btnReopenModal?.addEventListener('click', openModal);
+  }
+
+  runSketchScan(isManual = false) {
+    const scannerHud = document.getElementById('sketch-scanner-hud');
+    const progressBar = document.getElementById('sketch-scan-progress');
+    const statusText = document.getElementById('sketch-scan-status-text');
+    const pctText = document.getElementById('sketch-scan-pct');
+    const barInner = document.getElementById('sketch-scan-bar');
+    const btnScan = document.getElementById('btn-run-sketch-ai');
+    const btnApply = document.getElementById('btn-apply-sketch-3d');
+    const detectedTagsContainer = document.getElementById('sketch-detected-tags');
+
+    if (scannerHud) scannerHud.classList.add('active');
+    if (progressBar) progressBar.style.display = 'block';
+    if (detectedTagsContainer) detectedTagsContainer.innerHTML = '';
+    if (btnScan) btnScan.disabled = true;
+
+    const steps = [
+      { pct: 25, text: 'Scanning sketch perimeter walls & aperture points...' },
+      { pct: 55, text: 'Recognizing functional room boundaries...' },
+      { pct: 85, text: 'Optimizing Scandinavian circulation & clearances...' },
+      { pct: 100, text: 'Spatial Analysis & 3D Synthesis Complete!' }
+    ];
+
+    let stepIdx = 0;
+    const interval = setInterval(() => {
+      if (stepIdx < steps.length) {
+        const s = steps[stepIdx];
+        if (statusText) statusText.textContent = s.text;
+        if (pctText) pctText.textContent = `${s.pct}%`;
+        if (barInner) barInner.style.width = `${s.pct}%`;
+        stepIdx++;
+      } else {
+        clearInterval(interval);
+        if (btnScan) btnScan.disabled = false;
+        if (scannerHud) scannerHud.classList.remove('active');
+        if (progressBar) progressBar.style.display = 'none';
+        if (btnApply) btnApply.disabled = false;
+        this.renderSketchAnalysisResults();
+      }
+    }, isManual ? 350 : 200);
   }
 
   selectSketchType(type) {
@@ -4713,10 +4768,7 @@ class App {
     const btnApply = document.getElementById('btn-apply-sketch-3d');
 
     if (resultsBox) resultsBox.style.display = 'block';
-    if (btnApply) {
-      btnApply.disabled = false;
-      btnApply.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
+    if (btnApply) btnApply.disabled = false;
 
     if (confidencePill) {
       confidencePill.textContent = type === '3bhk' ? '98.8% Match' : (type === '2bhk' ? '97.6% Match' : '99.1% Match');
@@ -4728,34 +4780,34 @@ class App {
       let tags = [];
       if (type === '3bhk') {
         tags = [
-          { name: 'LIVING ROOM', top: '56%', left: '38%' },
-          { name: 'BALCONY', top: '78%', left: '26%' },
-          { name: 'BEDROOM 2', top: '44%', left: '16%' },
-          { name: 'BEDROOM 3', top: '20%', left: '26%' },
-          { name: 'COMMON BATH', top: '24%', left: '46%' },
-          { name: 'DINING', top: '50%', left: '58%' },
-          { name: 'KITCHEN & ISLAND', top: '64%', left: '72%' },
-          { name: 'MASTER SUITE', top: '28%', left: '74%' },
-          { name: 'FOYER', top: '80%', left: '58%' }
+          { name: 'LIVING ROOM (98%)', top: '56%', left: '38%' },
+          { name: 'BALCONY (96%)', top: '78%', left: '26%' },
+          { name: 'BEDROOM 2 (99%)', top: '44%', left: '16%' },
+          { name: 'BEDROOM 3 (97%)', top: '20%', left: '26%' },
+          { name: 'COMMON BATH (95%)', top: '24%', left: '46%' },
+          { name: 'DINING (98%)', top: '50%', left: '58%' },
+          { name: 'KITCHEN & ISLAND (99%)', top: '64%', left: '72%' },
+          { name: 'MASTER SUITE (99%)', top: '28%', left: '74%' },
+          { name: 'FOYER (94%)', top: '80%', left: '58%' }
         ];
       } else if (type === '2bhk') {
         tags = [
-          { name: 'FOYER', top: '76%', left: '26%' },
-          { name: 'LIVING LOUNGE', top: '60%', left: '32%' },
-          { name: 'DINING PAVILION', top: '46%', left: '52%' },
-          { name: 'KITCHEN', top: '58%', left: '74%' },
-          { name: 'MASTER SUITE', top: '24%', left: '72%' },
-          { name: 'BEDROOM 2', top: '22%', left: '28%' },
-          { name: 'COMMON BATH', top: '30%', left: '48%' }
+          { name: 'FOYER (96%)', top: '76%', left: '26%' },
+          { name: 'LIVING LOUNGE (98%)', top: '60%', left: '32%' },
+          { name: 'DINING PAVILION (97%)', top: '46%', left: '52%' },
+          { name: 'KITCHEN (99%)', top: '58%', left: '74%' },
+          { name: 'MASTER SUITE (99%)', top: '24%', left: '72%' },
+          { name: 'BEDROOM 2 (97%)', top: '22%', left: '28%' },
+          { name: 'COMMON BATH (95%)', top: '30%', left: '48%' }
         ];
       } else {
         tags = [
-          { name: 'ENTRANCE FOYER', top: '78%', left: '32%' },
-          { name: 'LIVING LOUNGE', top: '58%', left: '40%' },
-          { name: 'DINING NICHE', top: '48%', left: '60%' },
-          { name: 'MODULAR KITCHEN', top: '64%', left: '72%' },
-          { name: 'MASTER SUITE', top: '26%', left: '62%' },
-          { name: 'EN-SUITE BATH', top: '28%', left: '34%' }
+          { name: 'ENTRANCE FOYER (95%)', top: '78%', left: '32%' },
+          { name: 'LIVING LOUNGE (99%)', top: '58%', left: '40%' },
+          { name: 'DINING NICHE (97%)', top: '48%', left: '60%' },
+          { name: 'MODULAR KITCHEN (98%)', top: '64%', left: '72%' },
+          { name: 'MASTER SUITE (99%)', top: '26%', left: '62%' },
+          { name: 'EN-SUITE BATH (96%)', top: '28%', left: '34%' }
         ];
       }
 
@@ -4765,7 +4817,7 @@ class App {
         el.textContent = `✓ ${tag.name}`;
         el.style.top = tag.top;
         el.style.left = tag.left;
-        el.style.animationDelay = `${idx * 0.08}s`;
+        el.style.animationDelay = `${idx * 0.06}s`;
         detectedTagsContainer.appendChild(el);
       });
     }
@@ -4775,10 +4827,10 @@ class App {
       if (type === '3bhk') {
         resultSummary.innerHTML = `<strong>Identified Structure:</strong> Luxury 3 BHK Cutaway Residence with <strong>9 interconnected zones</strong> (~1,850 sq ft). Full exterior perimeter detected with seamless indoor-to-outdoor circulation onto front sunset balcony.`;
         resultList.innerHTML = `
-          <div>🛋️ <strong>Living Room & Bedroom 2 Separation:</strong> Continuous solid dividing wall at X = -3.4 definitively isolates Bedroom 2 for complete privacy while serving as the primary living room TV media console wall.</div>
-          <div>🌅 <strong>Balcony Access:</strong> Black 4-panel sliding door (4.8m width) gives seamless indoor-outdoor transition with zero corridor friction.</div>
-          <div>🍳 <strong>Gourmet Kitchen:</strong> Calacatta marble waterfall island with 3 wooden barstools forms a natural social buffer between food preparation and the 6-seater formal dining area.</div>
-          <div>🧱 <strong>Feature Accent:</strong> Signature exposed rustic red brick wall conceals the common bathroom entrance directly opposite the dining table.</div>
+          <div>🛋️ <strong>Living Room & Bedroom 2 Separation:</strong> Continuous solid dividing wall at X = -3.4 definitively isolates Bedroom 2 for privacy while serving as the primary living room TV media console wall.</div>
+          <div>🌅 <strong>Balcony Access:</strong> Black 4-panel sliding door (4.8m width) provides direct wide-clearance access onto teak decking.</div>
+          <div>🍳 <strong>Gourmet Kitchen:</strong> Calacatta marble waterfall island with 3 wooden barstools forms a natural social buffer.</div>
+          <div>🧱 <strong>Feature Accent:</strong> Signature exposed rustic red brick wall conceals the common bathroom entrance directly opposite dining.</div>
           <div>💡 <strong>Lighting & Materials:</strong> Layered 3000K warm indirect cove lighting, fluted oak slat master headboard wall, and light oak wood flooring throughout.</div>
         `;
       } else if (type === '2bhk') {
