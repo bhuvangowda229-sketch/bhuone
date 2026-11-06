@@ -408,17 +408,24 @@
     </div>
   </footer>
 
-  <!-- Immediate Authentication Guard for Launch Studio Buttons -->
+  <!-- Immediate Authentication & Guest Auto-Init for Launch Studio Buttons -->
   <script>
     document.addEventListener('click', function(e) {
       var target = e.target.closest('a[href*="studio.html"]');
       if (target) {
-        var user = localStorage.getItem('ai_interior_user');
-        if (!user) {
-          e.preventDefault();
-          e.stopPropagation();
-          window.location.href = 'login.html?redirect=studio.html';
-        }
+        try {
+          var user = localStorage.getItem('ai_interior_user');
+          if (!user) {
+            var guestUser = {
+              id: 'guest_' + Date.now(),
+              name: 'Guest Designer',
+              email: 'guest@aiinterior.local',
+              role: 'user',
+              loginTime: new Date().toISOString()
+            };
+            localStorage.setItem('ai_interior_user', JSON.stringify(guestUser));
+          }
+        } catch(err) {}
       }
     }, true);
   </script>

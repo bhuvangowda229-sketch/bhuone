@@ -5,19 +5,25 @@ import { AIEngine } from './ai-engine.js';
 
 class App {
   constructor() {
-    // Authentication Guard
+    // Authentication Guard & Guest Auto-Init
     try {
       const stored = localStorage.getItem('ai_interior_user');
       if (!stored) {
-        window.location.replace('login.html?redirect=studio.html');
-        return;
+        const guestUser = {
+          id: 'guest_' + Date.now(),
+          name: 'Guest Designer',
+          email: 'guest@aiinterior.local',
+          role: 'user',
+          loginTime: new Date().toISOString()
+        };
+        localStorage.setItem('ai_interior_user', JSON.stringify(guestUser));
       }
     } catch (e) {
-      window.location.replace('login.html?redirect=studio.html');
-      return;
+      console.warn('LocalStorage unavailable in current environment:', e);
     }
 
     this.canvas = document.getElementById('canvas3d');
+    if (!this.canvas) return;
     window.appInstance = this;
     this.furnitureGroup = new THREE.Group();
     this.furnitureGroup.name = 'FurnitureGroup';

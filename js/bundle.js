@@ -5,8 +5,7 @@
   // 1. Textures
 // Procedural texture generators using HTML5 Canvas
 // Generates realistic textures with zero external asset dependencies
-
-export class TextureGenerator {
+class TextureGenerator {
   // Wood floor plank texture
   static createWoodTexture(colorHex = 0xc89d6c, plankWidth = 64, plankHeight = 256) {
     const canvas = document.createElement('canvas');
@@ -456,12 +455,11 @@ export class TextureGenerator {
   }
 }
 
+  window.TextureGenerator = TextureGenerator;
 
   // 2. Room Architecture
 // 3D Room Builder with dynamic dimensions, cutaway walls, windows, and floors
-import { TextureGenerator } from './textures.js';
-
-export class RoomBuilder {
+class RoomBuilder {
   constructor(scene) {
     this.scene = scene;
     this.roomGroup = new THREE.Group();
@@ -2598,14 +2596,12 @@ export class RoomBuilder {
   }
 }
 
+  window.RoomBuilder = RoomBuilder;
 
   // 3. Furniture Models
 // Procedural 3D Furniture Models using Three.js
 // Supports multiple design styles: Modern, Minimalist, Luxury, Traditional
-
-import { TextureGenerator } from './textures.js';
-
-export class FurnitureFactory {
+class FurnitureFactory {
   // Helper: Create a standard PBR mesh
   static createMesh(geom, mat, name = 'Part') {
     const mesh = new THREE.Mesh(geom, mat);
@@ -6630,12 +6626,12 @@ export class FurnitureFactory {
   }
 }
 
+  window.FurnitureFactory = FurnitureFactory;
 
   // 4. AI Engine
 // AI Interior Design Suggester & Spatial Arrangement Engine
 // Provides heuristic algorithmic spatial planning + optional Gemini Generative AI integration
-
-export class AIEngine {
+class AIEngine {
   // Main suggestion generator
   static async generateDesign(preferences, geminiApiKey = '') {
     // If user provided a Gemini API Key, try calling the Gemini API first
@@ -11080,28 +11076,32 @@ Respond ONLY with valid JSON with this exact schema:
   }
 }
 
+  window.AIEngine = AIEngine;
 
   // 5. App Coordinator
 // AI Interior Studio - Application Coordinator
-import { RoomBuilder } from './room-model.js';
-import { FurnitureFactory } from './furniture-models.js';
-import { AIEngine } from './ai-engine.js';
 
 class App {
   constructor() {
-    // Authentication Guard
+    // Authentication Guard & Guest Auto-Init
     try {
       const stored = localStorage.getItem('ai_interior_user');
       if (!stored) {
-        window.location.replace('login.html?redirect=studio.html');
-        return;
+        const guestUser = {
+          id: 'guest_' + Date.now(),
+          name: 'Guest Designer',
+          email: 'guest@aiinterior.local',
+          role: 'user',
+          loginTime: new Date().toISOString()
+        };
+        localStorage.setItem('ai_interior_user', JSON.stringify(guestUser));
       }
     } catch (e) {
-      window.location.replace('login.html?redirect=studio.html');
-      return;
+      console.warn('LocalStorage unavailable in current environment:', e);
     }
 
     this.canvas = document.getElementById('canvas3d');
+    if (!this.canvas) return;
     window.appInstance = this;
     this.furnitureGroup = new THREE.Group();
     this.furnitureGroup.name = 'FurnitureGroup';
