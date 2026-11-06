@@ -41,11 +41,16 @@ class App {
     this.geminiApiKey = localStorage.getItem('ai_interior_gemini_key') || '';
     this.isWalkthrough = false;
     this.keysDown = {};
-    this.currentRoomDimensions = { width: 5.0, length: 4.5, height: 2.8 };
+    this.currentRoomDimensions = { width: 19.0, length: 18.5, height: 2.8 };
 
     // Complete House Multi-Room Navigation & State
     this.currentHouseZone = 'all';
-    this.currentHouseType = '1bhk'; // '1bhk' (Single Bedroom House) or '2bhk' (Double Bedroom House)
+    this.currentHouseType = '3bhk'; // Default to 3BHK Reference Cutaway Structure
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hParam = urlParams.get('house') || urlParams.get('type');
+      if (hParam) this.currentHouseType = hParam;
+    } catch(e) {}
     this.currentHouseRoomTypes = { living: 1, dining: 1, kitchen: 1, bedroom: 1, dressing: 1 };
     this.cameraAnimation = null;
 
@@ -84,10 +89,11 @@ class App {
     const height = this.canvas.clientHeight || window.innerHeight - 60;
 
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x0a0e17);
+    this.scene.background = new THREE.Color(0xf6f5f0); // Elegant warm architectural studio background
 
-    this.camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
-    this.camera.position.set(0, 4.5, 6.8);
+    this.camera = new THREE.PerspectiveCamera(46, width / height, 0.1, 100);
+    // Elevated South-East Isometric View Angle (matches reference architectural cutaway)
+    this.camera.position.set(13.5, 14.5, 16.5);
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
@@ -106,8 +112,18 @@ class App {
     this.controls.dampingFactor = 0.08;
     this.controls.maxPolarAngle = Math.PI / 2 - 0.02; // Prevent going beneath floor
     this.controls.minDistance = 2.0;
-    this.controls.maxDistance = 18.0;
-    this.controls.target.set(0, 1.0, 0);
+    this.controls.maxDistance = 35.0;
+    this.controls.target.set(0, 0.4, 0);
+
+    // Soft Studio Ground Plane for realistic contact drop-shadows
+    const studioShadowGround = new THREE.Mesh(
+      new THREE.PlaneGeometry(80, 80),
+      new THREE.ShadowMaterial({ opacity: 0.16 })
+    );
+    studioShadowGround.rotation.x = -Math.PI / 2;
+    studioShadowGround.position.y = -0.005;
+    studioShadowGround.receiveShadow = true;
+    this.scene.add(studioShadowGround);
 
     this.scene.add(this.furnitureGroup);
 
@@ -1194,9 +1210,9 @@ class App {
     // Daylight & Warm 3000K Lighting Mode Cycle
     this.lightingModeIndex = 0;
     const lightingModes = [
-      { id: 'morning_3000k', label: '☀️ 3000K Morning', toast: 'Warm 3000K interior lighting & natural morning daylight enabled', bg: 0x0a0e17, ambColor: 0xfff3e3, ambInt: 0.62, sunColor: 0xffebd2, sunInt: 1.30, sunPos: [-9, 6.2, 5.2], ceilColor: 0xffdfba, ceilInt: 0.70 },
-      { id: 'midday_day', label: '🌤️ Midday Daylight', toast: 'Bright midday daylight simulation enabled', bg: 0x0f172a, ambColor: 0xffffff, ambInt: 0.55, sunColor: 0xfffaed, sunInt: 1.20, sunPos: [-8, 9.0, 4.0], ceilColor: 0xfff7ed, ceilInt: 0.55 },
-      { id: 'evening_moody', label: '🌙 Evening Warm', toast: 'Moody evening lighting & warm LEDs enabled', bg: 0x020408, ambColor: 0xffe2c4, ambInt: 0.18, sunColor: 0xff8c42, sunInt: 0.08, sunPos: [-10, 3.0, 6.0], ceilColor: 0xffb770, ceilInt: 1.35 }
+      { id: 'morning_3000k', label: '☀️ 3000K Morning', toast: 'Warm 3000K interior lighting & natural morning daylight enabled', bg: 0xf6f5f0, ambColor: 0xfff6ea, ambInt: 0.72, sunColor: 0xfffaed, sunInt: 1.30, sunPos: [-10, 18, 12], ceilColor: 0xffe8d0, ceilInt: 0.75 },
+      { id: 'midday_day', label: '🌤️ Midday Daylight', toast: 'Bright midday daylight simulation enabled', bg: 0xf6f5f0, ambColor: 0xffffff, ambInt: 0.65, sunColor: 0xfffaed, sunInt: 1.25, sunPos: [-8, 20, 10], ceilColor: 0xfff7ed, ceilInt: 0.60 },
+      { id: 'evening_moody', label: '🌙 Evening Warm', toast: 'Moody evening lighting & warm LEDs enabled', bg: 0x111827, ambColor: 0xffe2c4, ambInt: 0.22, sunColor: 0xff8c42, sunInt: 0.10, sunPos: [-10, 5.0, 8.0], ceilColor: 0xffb770, ceilInt: 1.40 }
     ];
 
     const daylightBtn = document.getElementById('btn-toggle-daylight');
@@ -2319,60 +2335,60 @@ class App {
     } else if (is3BHK) {
       switch (zoneKey) {
         case 'foyer':
-          targetPos = new THREE.Vector3(-5.0, 3.8, 8.8);
-          targetLook = new THREE.Vector3(-5.0, 1.2, 4.95);
-          this.showToast('🚪 Viewing Entrance Foyer');
+          targetPos = new THREE.Vector3(2.5, 3.8, 8.2);
+          targetLook = new THREE.Vector3(2.5, 1.2, 4.6);
+          this.showToast('🚪 Viewing Screened Entrance Foyer');
           break;
         case 'living':
-          targetPos = new THREE.Vector3(-0.5, 4.2, 8.5);
-          targetLook = new THREE.Vector3(-0.5, 1.2, 4.15);
-          this.showToast('🛋️ Viewing Living Room Lounge');
-          break;
-        case 'dining':
-          targetPos = new THREE.Vector3(5.0, 4.2, 8.5);
-          targetLook = new THREE.Vector3(5.0, 1.2, 4.15);
-          this.showToast('🍽️ Viewing Dining Pavilion');
-          break;
-        case 'kitchen':
-          targetPos = new THREE.Vector3(5.0, 4.2, 3.5);
-          targetLook = new THREE.Vector3(5.0, 1.2, -0.35);
-          this.showToast('🍳 Viewing Modular Kitchen & Island');
-          break;
-        case 'bedroom':
-          targetPos = new THREE.Vector3(5.0, 4.2, -1.0);
-          targetLook = new THREE.Vector3(5.0, 1.2, -5.25);
-          this.showToast('👑 Viewing Master Bedroom Suite (Bed 1)');
-          break;
-        case 'master_bath':
-          targetPos = new THREE.Vector3(6.3, 3.8, 2.5);
-          targetLook = new THREE.Vector3(6.3, 1.2, -1.15);
-          this.showToast('🛁 Viewing Master En-Suite Bathroom');
-          break;
-        case 'bedroom2':
-          targetPos = new THREE.Vector3(-5.0, 4.2, -1.0);
-          targetLook = new THREE.Vector3(-5.0, 1.2, -5.25);
-          this.showToast('🛏️ Viewing Second Bedroom (Bed 2)');
-          break;
-        case 'bedroom3':
-          targetPos = new THREE.Vector3(-5.5, 4.2, 3.5);
-          targetLook = new THREE.Vector3(-5.5, 1.2, -0.35);
-          this.showToast('🧸 Viewing Third Bedroom / Executive Study (Bed 3)');
-          break;
-        case 'common_bath':
-          targetPos = new THREE.Vector3(-2.25, 3.8, 2.5);
-          targetLook = new THREE.Vector3(-2.25, 1.2, -1.15);
-          this.showToast('🚿 Viewing Common Bathroom');
+          targetPos = new THREE.Vector3(-3.5, 4.5, 6.8);
+          targetLook = new THREE.Vector3(-3.5, 1.2, 2.6);
+          this.showToast('🛋️ Viewing Great Room Living Hall');
           break;
         case 'balcony':
-          targetPos = new THREE.Vector3(-0.5, 3.5, 10.5);
-          targetLook = new THREE.Vector3(-0.5, 1.0, 7.45);
-          this.showToast('🌅 Viewing Private Balcony Deck');
+          targetPos = new THREE.Vector3(-3.5, 3.6, 8.8);
+          targetLook = new THREE.Vector3(-3.5, 1.0, 5.4);
+          this.showToast('🌿 Viewing Teak Timber Deck Balcony');
+          break;
+        case 'dining':
+          targetPos = new THREE.Vector3(1.2, 4.2, 5.6);
+          targetLook = new THREE.Vector3(1.2, 1.2, 1.8);
+          this.showToast('🍽️ Viewing Dining Pavilion & Brick Accent Wall');
+          break;
+        case 'kitchen':
+          targetPos = new THREE.Vector3(5.2, 4.5, 6.8);
+          targetLook = new THREE.Vector3(5.2, 1.2, 3.0);
+          this.showToast('🍳 Viewing Waterfall Marble Island & Kitchen');
+          break;
+        case 'bedroom':
+          targetPos = new THREE.Vector3(4.8, 4.2, 0.5);
+          targetLook = new THREE.Vector3(4.8, 1.2, -3.5);
+          this.showToast('👑 Viewing Master Suite & Fluted Slat Headboard');
+          break;
+        case 'master_bath':
+          targetPos = new THREE.Vector3(6.1, 3.6, 1.5);
+          targetLook = new THREE.Vector3(6.1, 1.2, -1.8);
+          this.showToast('🛁 Viewing Master En-Suite Bathroom');
+          break;
+        case 'common_bath':
+          targetPos = new THREE.Vector3(1.0, 3.6, 1.0);
+          targetLook = new THREE.Vector3(1.0, 1.2, -2.6);
+          this.showToast('🚿 Viewing Enclosed Common Bathroom');
+          break;
+        case 'bedroom2':
+          targetPos = new THREE.Vector3(-4.5, 4.2, 4.2);
+          targetLook = new THREE.Vector3(-4.5, 1.2, 0.5);
+          this.showToast('🛏️ Viewing Bedroom 2 & Niche Wardrobe');
+          break;
+        case 'bedroom3':
+          targetPos = new THREE.Vector3(-4.5, 4.2, 0.2);
+          targetLook = new THREE.Vector3(-4.5, 1.2, -3.8);
+          this.showToast('🧸 Viewing Bedroom 3 (Twin Beds & Study)');
           break;
         case 'all':
         default:
-          targetPos = new THREE.Vector3(0, 18.0, 21.0);
-          targetLook = new THREE.Vector3(0, 0.8, 0.5);
-          this.showToast('🏰 Viewing Luxury 3 BHK Residence (All 10 Connected Spaces)');
+          targetPos = new THREE.Vector3(13.5, 14.5, 16.5);
+          targetLook = new THREE.Vector3(0, 0.4, 0);
+          this.showToast('🏰 Viewing Reference 3BHK Cutaway Structure');
           break;
       }
     } else if (is2BHK) {
@@ -2551,8 +2567,13 @@ class App {
             return;
           case '3d':
           default:
-            this.camera.position.set(0, 14.5, 17.5);
-            this.controls.target.set(0, 1.0, 0.5);
+            if (this.currentHouseType === '3bhk') {
+              this.camera.position.set(13.5, 14.5, 16.5);
+              this.controls.target.set(0, 0.4, 0);
+            } else {
+              this.camera.position.set(0, 14.5, 17.5);
+              this.controls.target.set(0, 1.0, 0.5);
+            }
             this.showToast('📐 Viewing Free 3D House Overview');
             break;
         }
@@ -2621,16 +2642,16 @@ class App {
       { pos: new THREE.Vector3(4.35, 4.35, -2.5), target: new THREE.Vector3(4.35, 4.15, -4.5), duration: 4000, desc: '🛁 Master Spa Bathroom (Level 2) with Double Shower & Dual Vanity' },
       { pos: new THREE.Vector3(-3.5, 4.35, -0.5), target: new THREE.Vector3(-3.5, 4.15, -3.5), duration: 4500, desc: '🌆 Upper Loft Sky Lounge & Executive Mezzanine Study (Level 2)' }
     ] : (is3BHK ? [
-      { pos: new THREE.Vector3(-5.0, 1.55, 5.8), target: new THREE.Vector3(-5.0, 1.35, 3.8), duration: 4000, desc: '🚪 Entrance Foyer with Slatted Teak Screen & Console' },
-      { pos: new THREE.Vector3(-0.5, 1.55, 5.0), target: new THREE.Vector3(-3.25, 1.35, 4.15), duration: 4500, desc: '🛋️ Open Living Lounge with Missouri TV Unit Facing Sectional Sofa' },
-      { pos: new THREE.Vector3(-0.5, 1.45, 7.2), target: new THREE.Vector3(-0.5, 1.25, 8.0), duration: 4000, desc: '🌅 Front Balcony Deck with Outdoor Teak Lounge Armchairs & Planters' },
-      { pos: new THREE.Vector3(5.0, 1.55, 5.0), target: new THREE.Vector3(5.0, 1.35, 3.8), duration: 4000, desc: '🍽️ Dining Pavilion with Solid Hardwood Table & Chandelier' },
-      { pos: new THREE.Vector3(5.0, 1.55, 1.5), target: new THREE.Vector3(5.0, 1.35, -1.5), duration: 4500, desc: '🍳 Modular Kitchen with Prep Island, Breakfast Stools & Double Sink' },
-      { pos: new THREE.Vector3(5.0, 1.55, -3.2), target: new THREE.Vector3(5.0, 1.35, -6.8), duration: 5000, desc: '👑 Master Bedroom Suite (Bed 1) with King Bed, Wardrobe & Vanity' },
-      { pos: new THREE.Vector3(6.3, 1.55, -0.2), target: new THREE.Vector3(6.3, 1.35, -1.5), duration: 4000, desc: '🛁 Master En-Suite Bathroom with Glass Rain Shower & Floating Vanity' },
-      { pos: new THREE.Vector3(-5.0, 1.55, -3.2), target: new THREE.Vector3(-5.0, 1.35, -6.8), duration: 4500, desc: '🛏️ Quiet Second Bedroom Suite (Bed 2) with Queen Bed & Study Desk' },
-      { pos: new THREE.Vector3(-5.5, 1.55, 1.2), target: new THREE.Vector3(-5.5, 1.35, -1.2), duration: 4500, desc: '🧸 Third Bedroom / Executive Study (Bed 3) with Workstation & Bookshelf' },
-      { pos: new THREE.Vector3(-2.25, 1.55, 0.2), target: new THREE.Vector3(-2.25, 1.35, -1.5), duration: 4000, desc: '🚿 Designer Common Family Bathroom with Shower & Vanity' }
+      { pos: new THREE.Vector3(2.5, 1.55, 6.0), target: new THREE.Vector3(2.5, 1.35, 4.0), duration: 4000, desc: '🚪 Screened Entrance Foyer with Vertical Fluted Oak Slats' },
+      { pos: new THREE.Vector3(-3.5, 1.55, 4.0), target: new THREE.Vector3(-3.5, 1.35, 2.0), duration: 4500, desc: '🛋️ Great Room Living Hall with Cream Sectional & 4K Media' },
+      { pos: new THREE.Vector3(-3.5, 1.45, 6.0), target: new THREE.Vector3(-3.5, 1.25, 6.8), duration: 4000, desc: '🌿 Teak Timber Deck Balcony with Glass Railing & Planters' },
+      { pos: new THREE.Vector3(1.2, 1.55, 3.2), target: new THREE.Vector3(1.2, 1.35, 1.0), duration: 4000, desc: '🍽️ Central Dining Pavilion & Rustic Red Brick Feature Wall' },
+      { pos: new THREE.Vector3(4.5, 1.55, 3.8), target: new THREE.Vector3(5.2, 1.35, 2.5), duration: 4500, desc: '🍳 Calacatta Marble Waterfall Island & Charcoal Kitchen Run' },
+      { pos: new THREE.Vector3(4.8, 1.55, -2.0), target: new THREE.Vector3(4.8, 1.35, -5.2), duration: 5000, desc: '👑 Master Suite with Fluted Oak Slat Headboard & King Bed' },
+      { pos: new THREE.Vector3(6.1, 1.55, -0.8), target: new THREE.Vector3(6.1, 1.35, -2.2), duration: 4000, desc: '🛁 Master En-Suite Glass Shower & Floating Vanity' },
+      { pos: new THREE.Vector3(1.0, 1.55, -1.5), target: new THREE.Vector3(1.0, 1.35, -3.5), duration: 4000, desc: '🚿 Enclosed Common Bathroom with LED Backlit Mirror' },
+      { pos: new THREE.Vector3(-4.5, 1.55, 2.0), target: new THREE.Vector3(-4.5, 1.35, 0.0), duration: 4500, desc: '🛏️ Bedroom 2 with Scandinavian Queen Bed & Niche Wardrobe' },
+      { pos: new THREE.Vector3(-4.5, 1.55, -2.2), target: new THREE.Vector3(-4.5, 1.35, -4.5), duration: 4500, desc: '🧸 Bedroom 3 with Matching Twin Single Beds & Study Desk' }
     ] : (is2BHK ? [
       { pos: new THREE.Vector3(-4.7, 1.55, 5.6), target: new THREE.Vector3(-4.7, 1.35, 3.6), duration: 4000, desc: '🚪 Grand Entrance Foyer with Pivot Door & Slat Divider' },
       { pos: new THREE.Vector3(-0.4, 1.55, 4.6), target: new THREE.Vector3(-2.95, 1.35, 4.1), duration: 4500, desc: '🛋️ Open Living Lounge with Missouri TV Unit Facing Sectional Sofa' },
@@ -2737,7 +2758,7 @@ class App {
 
     const pref = {
       roomType: currentRoomType,
-      houseType: this.currentHouseType || (is2BHK ? '2bhk' : '1bhk'),
+      houseType: this.currentHouseType || (is3BHK ? '3bhk' : (is2BHK ? '2bhk' : (isDuplex ? 'duplex' : '1bhk'))),
       bedroomType: bedType,
       livingRoomType: livingType,
       diningType: diningType,
@@ -2756,9 +2777,9 @@ class App {
       const rw = document.getElementById('room-w');
       const rl = document.getElementById('room-l');
       const rh = document.getElementById('room-h');
-      if (rw) rw.value = is2BHK ? '16.0' : '14.0';
-      if (rl) rl.value = is2BHK ? '18.5' : '13.0';
-      if (rh) rh.value = '2.8';
+      if (rw) rw.value = is3BHK ? '19.0' : (is2BHK ? '16.0' : (isDuplex ? '16.0' : '14.0'));
+      if (rl) rl.value = is3BHK ? '18.5' : (is2BHK ? '18.5' : (isDuplex ? '16.0' : '13.0'));
+      if (rh) rh.value = isDuplex ? '5.6' : '2.8';
       this.roomBuilder.buildCompleteHouse(0xfaf5ee, pref.flooring, this.currentHouseType);
     } else {
       this.roomBuilder.buildRoom(pref.dimensions, 0xfaf5ee, pref.flooring);
@@ -3952,21 +3973,20 @@ class App {
       };
     } else if (is3BHK) {
       return {
-        houseType: 'Luxury 3 BHK Residence (10 Connected Spaces & Balcony)',
-        totalBuiltUp: 215.0,
-        carpetArea: 148.2,
+        houseType: 'Reference 3 BHK Residence (Cutaway Architecture & Balcony)',
+        totalBuiltUp: 228.0,
+        carpetArea: 162.4,
         rooms: [
-          { name: '🚪 Entrance Foyer', width: 3.0, length: 3.0, height: 2.8, floor: currentFloorText },
-          { name: '🛋️ Living Room Lounge', width: 6.0, length: 4.6, height: 2.8, floor: currentFloorText },
-          { name: '🍽️ Dining Pavilion', width: 5.0, length: 4.6, height: 2.8, floor: currentFloorText },
-          { name: '🍳 Modular Kitchen & Island', width: 5.0, length: 4.4, height: 2.8, floor: currentFloorText },
-          { name: '👑 Master Suite (Bed 1)', width: 5.0, length: 5.4, height: 2.8, floor: 'Herringbone Parquet' },
-          { name: '🛁 Master En-Suite Bathroom', width: 2.4, length: 2.8, height: 2.8, floor: 'Blue Designer Tile' },
-          { name: '🛏️ Second Bedroom (Bed 2)', width: 5.0, length: 5.4, height: 2.8, floor: 'Warm Oak Wood' },
-          { name: '🧸 Third Bedroom / Study (Bed 3)', width: 4.0, length: 4.4, height: 2.8, floor: 'Warm Oak Wood' },
-          { name: '🚿 Common Family Bathroom', width: 2.5, length: 2.8, height: 2.8, floor: 'Blue Designer Tile' },
-          { name: '🚶 Central Hallway Corridor', width: 3.5, length: 4.4, height: 2.8, floor: currentFloorText },
-          { name: '🌅 Private Balcony Deck', width: 6.0, length: 2.0, height: 2.8, floor: 'Teak Wood Decking' }
+          { name: '🚪 Entrance Foyer', width: 2.8, length: 2.2, height: 2.8, floor: 'Natural Oak Hardwood' },
+          { name: '🛋️ Great Room Living Hall', width: 5.6, length: 4.0, height: 2.8, floor: 'Natural Oak Hardwood' },
+          { name: '🌿 Front Balcony Deck', width: 5.0, length: 1.8, height: 2.8, floor: 'Exterior Teak Decking' },
+          { name: '🍽️ Central Dining Pavilion', width: 3.8, length: 3.2, height: 2.8, floor: 'Natural Oak Hardwood' },
+          { name: '🍳 Modular Kitchen & Island', width: 4.0, length: 4.2, height: 2.8, floor: 'Calacatta Marble & Oak' },
+          { name: '👑 Master Suite (Bed 1)', width: 4.8, length: 4.6, height: 2.8, floor: 'Natural Oak Hardwood' },
+          { name: '🛁 Master En-Suite Bathroom', width: 2.2, length: 2.4, height: 2.8, floor: 'Polished Marble Tile' },
+          { name: '🚿 Common Family Bathroom', width: 3.2, length: 2.8, height: 2.8, floor: 'Exposed Brick & Ceramic' },
+          { name: '🛏️ Second Bedroom (Bed 2)', width: 4.6, length: 3.4, height: 2.8, floor: 'Natural Oak Hardwood' },
+          { name: '🧸 Third Bedroom (Twin Beds)', width: 4.6, length: 4.0, height: 2.8, floor: 'Natural Oak Hardwood' }
         ]
       };
     } else if (isVilla) {

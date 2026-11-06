@@ -105,9 +105,9 @@
               <label for="room-type">Room Type & Architecture</label>
               <select id="room-type" class="form-select">
                 <optgroup label="Complete Residence (All Connected Rooms)">
-                  <option value="complete_house" selected>🏠 Single Bedroom House (1 BHK: Foyer, Living, Dining, Modular Kitchen, Master Suite & En-Suite Bath)</option>
+                  <option value="complete_house_3bhk" selected>🏰 Luxury 3 BHK Residence (Foyer, Living, Balcony, Dining, Kitchen, Master & En-Suite, Bed 2, Bed 3, Brick Bath)</option>
+                  <option value="complete_house">🏠 Single Bedroom House (1 BHK: Foyer, Living, Dining, Modular Kitchen, Master Suite & En-Suite Bath)</option>
                   <option value="complete_house_2bhk">🏛️ Architectural 2 BHK Residence (Foyer, Living, Dining, Kitchen, Master & Bath, Bed 2 & Bath)</option>
-                  <option value="complete_house_3bhk">🏰 Luxury 3 BHK Residence (Foyer, Living, Dining, Kitchen, Master & Bath, Bed 2, Bed 3 & Balcony)</option>
                   <option value="duplex">🏙️ Modern Duplex Villa (Double-Height Living, Floating Staircase & Mezzanine Master)</option>
                 </optgroup>
                 <optgroup label="Individual Rooms">
@@ -126,19 +126,19 @@
                 <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-primary); display: flex; align-items: center; gap: 4px; margin-bottom: 0;">
                   <span>🏠</span> Complete House: Active Room
                 </label>
-                <span id="house-active-room-pill" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.3);">1 BHK Active</span>
+                <span id="house-active-room-pill" style="font-size: 10px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.3);">3 BHK Active</span>
               </div>
 
               <!-- 4 OPTIONS: 1 BHK vs 2 BHK vs 3 BHK vs DUPLEX -->
               <div class="house-option-toggle" style="display: flex; gap: 4px; margin-bottom: 10px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px;">
-                <button type="button" class="btn btn-sm house-type-toggle-btn active" data-house-type="1bhk" style="flex: 1; padding: 6px 2px; font-size: 10px; justify-content: center;">
-                  🏠 1 BHK
+                <button type="button" class="btn btn-sm house-type-toggle-btn active" data-house-type="3bhk" style="flex: 1; padding: 6px 2px; font-size: 10px; justify-content: center;">
+                  🏰 3 BHK
                 </button>
                 <button type="button" class="btn btn-sm house-type-toggle-btn" data-house-type="2bhk" style="flex: 1; padding: 6px 2px; font-size: 10px; justify-content: center;">
                   🏛️ 2 BHK
                 </button>
-                <button type="button" class="btn btn-sm house-type-toggle-btn" data-house-type="3bhk" style="flex: 1; padding: 6px 2px; font-size: 10px; justify-content: center;">
-                  🏰 3 BHK
+                <button type="button" class="btn btn-sm house-type-toggle-btn" data-house-type="1bhk" style="flex: 1; padding: 6px 2px; font-size: 10px; justify-content: center;">
+                  🏠 1 BHK
                 </button>
                 <button type="button" class="btn btn-sm house-type-toggle-btn" data-house-type="duplex" style="flex: 1; padding: 6px 2px; font-size: 10px; justify-content: center;">
                   🏙️ Duplex
@@ -148,14 +148,14 @@
               <div class="house-zone-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;">
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="foyer" id="hub-zone-foyer" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🚪 Foyer</button>
                 <button type="button" class="btn btn-sm house-zone-btn active" data-zone="living" id="hub-zone-living" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🛋️ Living</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="balcony" id="hub-zone-balcony" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🌿 Balcony</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="dining" id="hub-zone-dining" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🍽️ Dining</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="kitchen" id="hub-zone-kitchen" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🍳 Kitchen</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="bedroom" id="hub-zone-bed1" style="font-size: 11px; padding: 6px 4px; justify-content: center;">👑 Master Bed</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="master_bath" id="hub-zone-master-bath" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🛁 Master Bath</button>
-                <button type="button" class="btn btn-sm house-zone-btn" data-zone="bedroom2" id="hub-zone-rear" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🛏️ Bed 2</button>
-                <button type="button" class="btn btn-sm house-zone-btn" data-zone="bedroom3" id="hub-zone-bed3" style="font-size: 11px; padding: 6px 4px; justify-content: center; display: none;">🧸 Bed 3</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="common_bath" id="hub-zone-bath" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🚿 Common Bath</button>
-                <button type="button" class="btn btn-sm house-zone-btn" data-zone="balcony" id="hub-zone-balcony" style="font-size: 11px; padding: 6px 4px; justify-content: center; display: none;">🌅 Balcony</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="bedroom2" id="hub-zone-rear" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🛏️ Bed 2</button>
+                <button type="button" class="btn btn-sm house-zone-btn" data-zone="bedroom3" id="hub-zone-bed3" style="font-size: 11px; padding: 6px 4px; justify-content: center;">🧸 Bed 3</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="staircase" id="hub-zone-staircase" style="font-size: 11px; padding: 6px 4px; justify-content: center; display: none;">🪜 Stairs</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="mezzanine" id="hub-zone-mezzanine" style="font-size: 11px; padding: 6px 4px; justify-content: center; display: none;">✨ Mezzanine</button>
                 <button type="button" class="btn btn-sm house-zone-btn" data-zone="sky_lounge" id="hub-zone-skylounge" style="font-size: 11px; padding: 6px 4px; justify-content: center; display: none;">🌆 Sky Lounge</button>
@@ -167,15 +167,15 @@
             <div class="grid-3">
               <div class="form-group">
                 <label for="room-w">Width (m)</label>
-                <input type="number" id="room-w" class="form-control" value="5.0" min="2.5" max="12.0" step="0.5">
+                <input type="number" id="room-w" class="form-control" value="19.0" min="2.5" max="25.0" step="0.5">
               </div>
               <div class="form-group">
                 <label for="room-l">Length (m)</label>
-                <input type="number" id="room-l" class="form-control" value="4.5" min="2.5" max="12.0" step="0.5">
+                <input type="number" id="room-l" class="form-control" value="18.5" min="2.5" max="25.0" step="0.5">
               </div>
               <div class="form-group">
                 <label for="room-h">Height (m)</label>
-                <input type="number" id="room-h" class="form-control" value="2.8" min="2.2" max="4.5" step="0.1">
+                <input type="number" id="room-h" class="form-control" value="2.8" min="2.2" max="5.5" step="0.1">
               </div>
             </div>
           </div>

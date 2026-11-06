@@ -719,6 +719,7 @@ export class RoomBuilder {
   }
 
   buildFloorGrid(W, L) {
+    if (!this.showGrid) return;
     const grid = new THREE.GridHelper(Math.max(W, L), Math.round(Math.max(W, L) * 2), 0x94a3b8, 0xe2e8f0);
     grid.position.y = 0.002;
     grid.name = 'MeasurementGrid';
@@ -1707,9 +1708,6 @@ export class RoomBuilder {
 
     // 11. Central Bedroom Hallway Connector (Oak Wood)
     makeFloorMesh(2.0, 4.2, -1.5, -1.6, 'wood_oak', 'hallway');
-
-    // Exterior ground plane
-    makeFloorMesh(24.0, 24.0, 0, 0, 'wood_oak', 'ground_border', -0.02);
   }
 
   buildThreeBhkWalls(H, wallColorHex) {
